@@ -48,6 +48,8 @@ const SolutionPanel = memo(function SolutionPanel({
 		<div className='flex flex-col gap-2.5 sm:gap-3 h-full lg:max-h-[calc(100dvh-95px)] min-h-0 animate-in fade-in slide-in-from-right-4 duration-300'>
 			{/* Feedback Banner with Celebratory Animation on Correct or Wrong/Timeout Styling */}
 			<div
+				role='alert'
+				aria-live='polite'
 				className={`flex-shrink-0 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 flex items-center gap-3 sm:gap-3.5 shadow-xl border-2 transition-all relative overflow-hidden ${
 					isCorrect ?
 						'bg-[#E8F8F0] border-[#00D166] text-[#0A5D37] ring-4 ring-emerald-400/40 shadow-[0_0_20px_rgba(0,209,102,0.3)] animate-bounce-short'
@@ -110,8 +112,10 @@ const SolutionPanel = memo(function SolutionPanel({
 						<span>Solution</span>
 					</div>
 					<button
+						type='button'
 						onClick={handleListenSolution}
-						className='p-1 rounded-full text-purple-600 hover:bg-purple-50 transition-all cursor-pointer'
+						aria-label='Listen to solution explanation'
+						className='p-1.5 rounded-full text-purple-600 hover:bg-purple-50 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none'
 						title='Listen to solution'>
 						<Volume2 className='w-4 h-4' />
 					</button>
@@ -142,11 +146,13 @@ const SolutionPanel = memo(function SolutionPanel({
 				{/* Bottom Helper */}
 				<div className='mt-2 pt-2 border-t border-slate-100 flex items-center justify-center flex-shrink-0'>
 					<button
+						type='button'
 						onClick={() => {
 							playButtonPop(soundEnabled);
 							onAskDoubt();
 						}}
-						className='flex items-center gap-1.5 text-xs sm:text-sm font-bold text-pink-500 hover:text-pink-600 transition-colors cursor-pointer'>
+						aria-label='Open AI doubt helper dialog'
+						className='flex items-center gap-1.5 text-xs sm:text-sm font-bold text-pink-500 hover:text-pink-600 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:outline-none p-1 rounded-lg'>
 						<HelpCircle className='w-4 h-4' />
 						<span>? Ask Doubt</span>
 					</button>
@@ -157,14 +163,20 @@ const SolutionPanel = memo(function SolutionPanel({
 			{onNext && (
 				<div className='sticky bottom-0 sm:bottom-1 z-30 flex-shrink-0 flex justify-end pt-2 pb-1 px-1 sm:px-2 bg-[#0C1033]/95 backdrop-blur-md rounded-2xl border-t border-white/15 shadow-[0_-8px_25px_rgba(0,0,0,0.5)]'>
 					<button
+						type='button'
 						onClick={onNext}
-						className='w-full px-8 sm:px-10 py-3 sm:py-3.5 rounded-full bg-[#FF5B84] hover:bg-[#FF435A] text-white font-black text-sm sm:text-base md:text-lg tracking-wider uppercase hover:scale-[1.02] active:scale-95 shadow-[0_8px_25px_rgba(255,91,132,0.6)] flex items-center justify-center gap-2 cursor-pointer transition-all border-2 border-white/20'>
+						aria-label={
+							hasCountdown ?
+								`Go to next question immediately (auto-advancing in ${autoAdvanceCountdown} seconds)`
+							:	'Go to next question'
+						}
+						className='w-full px-8 sm:px-10 py-3 sm:py-3.5 rounded-full bg-[#FF5B84] hover:bg-[#FF435A] text-white font-black text-sm sm:text-base md:text-lg tracking-wider uppercase hover:scale-[1.02] active:scale-95 shadow-[0_8px_25px_rgba(255,91,132,0.6)] flex items-center justify-center gap-2 cursor-pointer transition-all border-2 border-white/20 focus-visible:ring-4 focus-visible:ring-pink-300 focus-visible:outline-none'>
 						<span>
 							{hasCountdown ?
 								`Next (${autoAdvanceCountdown}s)`
 							:	'Next Question'}
 						</span>
-						<ArrowRight className='w-5 h-5 stroke-[3]' />
+						<ArrowRight className='w-5 h-5 sm:w-6 sm:h-6' />
 					</button>
 				</div>
 			)}

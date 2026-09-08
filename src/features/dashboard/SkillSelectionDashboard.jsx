@@ -285,13 +285,24 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 				<div className='w-full grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8'>
 					{/* Skill Card 1: VISUAL */}
 					<div
+						role='button'
+						tabIndex={0}
+						aria-label='Start Visual Thinksheet: Observation & Patterns'
 						onClick={() => handleCardClick('Visual')}
-						className='group bg-white text-slate-800 rounded-3xl p-5 sm:p-7 shadow-2xl border-4 border-cyan-400 hover:border-cyan-300 cursor-pointer transform hover:-translate-y-1.5 active:translate-y-0 transition-all duration-200 flex flex-col justify-between min-h-[220px]'>
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								handleCardClick('Visual');
+							}
+						}}
+						className='group bg-white text-slate-800 rounded-3xl p-5 sm:p-7 shadow-2xl border-4 border-cyan-400 hover:border-cyan-300 cursor-pointer transform hover:-translate-y-1.5 active:translate-y-0 transition-all duration-200 flex flex-col justify-between min-h-[220px] focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none'>
 						<div>
 							{/* Card Header */}
 							<div className='flex items-center justify-between mb-3'>
 								<div className='flex items-center gap-2'>
-									<div className='w-10 h-10 rounded-2xl bg-cyan-100 flex items-center justify-center text-cyan-600 font-black shadow-inner'>
+									<div
+										aria-hidden='true'
+										className='w-10 h-10 rounded-2xl bg-cyan-100 flex items-center justify-center text-cyan-600 font-black shadow-inner'>
 										👁️
 									</div>
 									<div>
@@ -306,8 +317,11 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 
 								{/* Info Button */}
 								<button
+									type='button'
 									onClick={(e) => handleInfoClick(e, 'Visual')}
-									className='p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-cyan-600 transition-colors cursor-pointer'
+									onKeyDown={(e) => e.stopPropagation()}
+									aria-label='About Visual Skills'
+									className='p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-cyan-600 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none'
 									title='About Visual Skills'>
 									<Info className='w-5 h-5' />
 								</button>
@@ -322,22 +336,35 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 
 						{/* Card Footer: Action Button */}
 						<div className='flex items-center justify-end pt-3 border-t border-slate-100'>
-							<button className='w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-extrabold text-xs sm:text-sm shadow-md group-hover:shadow-cyan-400/50 group-hover:scale-105 transition-all flex items-center justify-center gap-1.5'>
+							<div
+								aria-hidden='true'
+								className='w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-extrabold text-xs sm:text-sm shadow-md group-hover:shadow-cyan-400/50 group-hover:scale-105 transition-all flex items-center justify-center gap-1.5'>
 								<span>Start Visual Sheet</span>
 								<span>➔</span>
-							</button>
+							</div>
 						</div>
 					</div>
 
 					{/* Skill Card 2: ANALYTICAL THINKING */}
 					<div
+						role='button'
+						tabIndex={0}
+						aria-label='Start Analytical Thinking Thinksheet: Logic & Relationships'
 						onClick={() => handleCardClick('Analytical Thinking')}
-						className='group bg-white text-slate-800 rounded-3xl p-5 sm:p-7 shadow-2xl border-4 border-purple-400 hover:border-purple-300 cursor-pointer transform hover:-translate-y-1.5 active:translate-y-0 transition-all duration-200 flex flex-col justify-between min-h-[220px]'>
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								handleCardClick('Analytical Thinking');
+							}
+						}}
+						className='group bg-white text-slate-800 rounded-3xl p-5 sm:p-7 shadow-2xl border-4 border-purple-400 hover:border-purple-300 cursor-pointer transform hover:-translate-y-1.5 active:translate-y-0 transition-all duration-200 flex flex-col justify-between min-h-[220px] focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:outline-none'>
 						<div>
 							{/* Card Header */}
 							<div className='flex items-center justify-between mb-3'>
 								<div className='flex items-center gap-2'>
-									<div className='w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 font-black shadow-inner'>
+									<div
+										aria-hidden='true'
+										className='w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 font-black shadow-inner'>
 										🧠
 									</div>
 									<div>
@@ -352,8 +379,11 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 
 								{/* Info Button */}
 								<button
+									type='button'
 									onClick={(e) => handleInfoClick(e, 'Analytical Thinking')}
-									className='p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-purple-600 transition-colors cursor-pointer'
+									onKeyDown={(e) => e.stopPropagation()}
+									aria-label='About Analytical Thinking Skills'
+									className='p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-purple-600 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none'
 									title='About Analytical Thinking'>
 									<Info className='w-5 h-5' />
 								</button>
@@ -368,10 +398,12 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 
 						{/* Card Footer: Action Button */}
 						<div className='flex items-center justify-end pt-3 border-t border-slate-100'>
-							<button className='w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-extrabold text-xs sm:text-sm shadow-md group-hover:shadow-purple-400/50 group-hover:scale-105 transition-all flex items-center justify-center gap-1.5'>
+							<div
+								aria-hidden='true'
+								className='w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-extrabold text-xs sm:text-sm shadow-md group-hover:shadow-purple-400/50 group-hover:scale-105 transition-all flex items-center justify-center gap-1.5'>
 								<span>Start Analytical Sheet</span>
 								<span>➔</span>
-							</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -380,12 +412,17 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 			{/* Skill Info Description Modal */}
 			{infoModalTopic && (
 				<div
+					role='dialog'
+					aria-modal='true'
+					aria-labelledby='skill-info-title'
 					className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in'
 					onClick={() => setInfoModalTopic(null)}>
 					<div
 						className='bg-[#16194E] border-2 border-purple-400 rounded-3xl p-6 max-w-md w-full text-white shadow-2xl'
 						onClick={(e) => e.stopPropagation()}>
-						<h3 className='text-xl font-black mb-2 text-cyan-300'>
+						<h3
+							id='skill-info-title'
+							className='text-xl font-black mb-2 text-cyan-300'>
 							{infoModalTopic}
 						</h3>
 						<p className='text-sm text-slate-300 font-semibold leading-relaxed mb-4'>
@@ -395,8 +432,10 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 							}
 						</p>
 						<button
+							type='button'
 							onClick={() => setInfoModalTopic(null)}
-							className='w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-sm transition-all cursor-pointer'>
+							aria-label='Close skill information modal'
+							className='w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-sm transition-all cursor-pointer focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:outline-none'>
 							Got It!
 						</button>
 					</div>

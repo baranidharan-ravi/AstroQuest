@@ -60,7 +60,8 @@ const QuestionCard = memo(function QuestionCard({
 	const isVisual = question.category === 'Visual';
 
 	return (
-		<div
+		<section
+			aria-labelledby='question-prompt-heading'
 			className={`bg-white text-[#1E293B] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-2xl flex flex-col justify-between border-4 border-white/90 relative overflow-hidden transition-all duration-300 flex-1 h-full w-full min-h-0 ${
 				isSubmitted ?
 					'min-h-[180px] sm:min-h-[220px]'
@@ -117,7 +118,8 @@ const QuestionCard = memo(function QuestionCard({
 								playButtonPop(soundEnabled);
 								onZoomClick();
 							}}
-							className='flex items-center gap-1 text-[11px] sm:text-xs font-bold text-slate-500 hover:text-indigo-600 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-all cursor-pointer'
+							aria-label='Open close-up diagram view'
+							className='flex items-center gap-1 text-[11px] sm:text-xs font-bold text-slate-500 hover:text-indigo-600 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:outline-none'
 							title='Zoom image'>
 							<ZoomIn className='w-3.5 h-3.5' />
 							<span className='hidden xs:inline'>ZOOM</span>
@@ -137,7 +139,9 @@ const QuestionCard = memo(function QuestionCard({
 			<div className='flex-1 min-h-0 overflow-y-auto pr-1.5 flex flex-col justify-start py-1 sm:py-2'>
 				{/* Question Prompt */}
 				<div className='flex items-start gap-3 my-1.5 flex-shrink-0'>
-					<h2 className='text-base sm:text-lg md:text-xl font-extrabold text-slate-800 leading-snug'>
+					<h2
+						id='question-prompt-heading'
+						className='text-base sm:text-lg md:text-xl font-extrabold text-slate-800 leading-snug'>
 						{question.question || question.questionText}
 					</h2>
 
@@ -145,7 +149,11 @@ const QuestionCard = memo(function QuestionCard({
 					<button
 						type='button'
 						onClick={handleListenQuestion}
-						className={`p-1.5 rounded-full transition-all shadow-sm flex-shrink-0 mt-0.5 cursor-pointer ${
+						aria-label={
+							isSpeaking ? 'Stop reading question aloud' : 'Read question aloud'
+						}
+						aria-pressed={isSpeaking}
+						className={`p-1.5 rounded-full transition-all shadow-sm flex-shrink-0 mt-0.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none ${
 							isSpeaking ?
 								'bg-purple-300 text-purple-900 ring-2 ring-purple-500 scale-110 animate-pulse'
 							:	'bg-purple-100 text-purple-700 hover:bg-purple-200 hover:scale-110 active:scale-95'
@@ -172,10 +180,12 @@ const QuestionCard = memo(function QuestionCard({
 			</div>
 
 			{/* Footer cue */}
-			<div className='mt-auto pt-2 text-center text-xs font-semibold text-slate-400 border-t border-slate-50 flex-shrink-0'>
+			<div
+				aria-hidden='true'
+				className='mt-auto pt-2 text-center text-xs font-semibold text-slate-400 border-t border-slate-50 flex-shrink-0'>
 				✨ Tap an answer choice on the right
 			</div>
-		</div>
+		</section>
 	);
 });
 

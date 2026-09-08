@@ -96,7 +96,14 @@ const Header = React.memo(function Header({
 			</div>
 
 			{/* 10-Segment Segmented Progress Bar */}
-			<div className='flex-1 max-w-xl mx-1.5 sm:mx-4 bg-[#141846] p-1.5 rounded-full border border-[#252C7A] flex gap-1 sm:gap-1.5 shadow-inner'>
+			<div
+				role='progressbar'
+				aria-label='Quest progress'
+				aria-valuenow={questionIndex + 1}
+				aria-valuemin={1}
+				aria-valuemax={totalQuestions}
+				aria-valuetext={`Question ${questionIndex + 1} of ${totalQuestions}`}
+				className='flex-1 max-w-xl mx-1.5 sm:mx-4 bg-[#141846] p-1.5 rounded-full border border-[#252C7A] flex gap-1 sm:gap-1.5 shadow-inner'>
 				{Array.from({ length: totalQuestions }).map((_, idx) => {
 					const item = history[idx];
 					let bgClass = 'bg-[#31387A]/50'; // Default unvisited
@@ -132,6 +139,8 @@ const Header = React.memo(function Header({
 			<div className='flex items-center gap-1 sm:gap-2.5'>
 				{/* Timer Display (Countdown when enabled, Stopwatch when disabled) */}
 				<div
+					role='timer'
+					aria-live='off'
 					className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all border ${
 						isCritical ?
 							'bg-rose-950/90 border-rose-500 text-rose-300 animate-bounce'
@@ -144,6 +153,11 @@ const Header = React.memo(function Header({
 						isTimerMode ?
 							`Question countdown timer: ${questionTimeRemaining}s remaining`
 						:	'Elapsed session time'
+					}
+					aria-label={
+						isTimerMode ?
+							`Question countdown timer: ${questionTimeRemaining} seconds remaining`
+						:	`Elapsed session time: ${timerSeconds} seconds`
 					}>
 					<Clock
 						className={`w-3.5 h-3.5 ${
@@ -159,11 +173,18 @@ const Header = React.memo(function Header({
 
 				{/* Read-Aloud Voice Narrator */}
 				<button
+					type='button'
 					onClick={() => {
 						playButtonPop(soundEnabled);
 						onToggleSpeech();
 					}}
-					className={`p-2 rounded-xl border transition-all cursor-pointer ${
+					aria-label={
+						speechEnabled ?
+							'Voice Narrator On - Click to mute voice'
+						:	'Voice Narrator Off - Click to enable voice'
+					}
+					aria-pressed={speechEnabled}
+					className={`p-2 rounded-xl border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:outline-none ${
 						speechEnabled ?
 							'bg-purple-600/40 border-purple-400 text-purple-200'
 						:	'bg-[#121644] border-[#29307A] text-gray-400 hover:text-white'
@@ -176,11 +197,18 @@ const Header = React.memo(function Header({
 
 				{/* Sound Effects Toggle */}
 				<button
+					type='button'
 					onClick={() => {
 						playButtonPop(soundEnabled);
 						onToggleSound();
 					}}
-					className={`p-2 rounded-xl border transition-all cursor-pointer ${
+					aria-label={
+						soundEnabled ?
+							'Sound Effects On - Click to mute'
+						:	'Sound Effects Muted - Click to unmute'
+					}
+					aria-pressed={soundEnabled}
+					className={`p-2 rounded-xl border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
 						soundEnabled ?
 							'bg-[#121644] border-[#29307A] text-gray-200 hover:text-white'
 						:	'bg-rose-950/40 border-rose-800 text-rose-300'
@@ -193,8 +221,13 @@ const Header = React.memo(function Header({
 
 				{/* Fullscreen Toggle */}
 				<button
+					type='button'
 					onClick={toggleFullscreen}
-					className='hidden md:block p-2 rounded-xl bg-[#121644] border border-[#29307A] text-gray-300 hover:text-white hover:bg-[#1E2568] transition-all cursor-pointer'
+					aria-label={
+						isFullscreen ? 'Exit fullscreen mode' : 'Enter fullscreen mode'
+					}
+					aria-pressed={isFullscreen}
+					className='hidden md:block p-2 rounded-xl bg-[#121644] border border-[#29307A] text-gray-300 hover:text-white hover:bg-[#1E2568] transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none'
 					title='Toggle Fullscreen'>
 					{isFullscreen ?
 						<Minimize className='w-4 h-4' />
@@ -204,11 +237,13 @@ const Header = React.memo(function Header({
 				{/* Exit Button */}
 				{onExitClick && (
 					<button
+						type='button'
 						onClick={() => {
 							playButtonPop(soundEnabled);
 							onExitClick();
 						}}
-						className='px-3 sm:px-3.5 py-2 rounded-xl bg-[#121644] hover:bg-rose-950/60 border border-[#29307A] hover:border-rose-500 text-rose-300 hover:text-white shadow-md transition-all flex items-center gap-1.5 cursor-pointer transform hover:scale-105 active:scale-95'
+						aria-label='Exit AstroQuest quest'
+						className='px-3 sm:px-3.5 py-2 rounded-xl bg-[#121644] hover:bg-rose-950/60 border border-[#29307A] hover:border-rose-500 text-rose-300 hover:text-white shadow-md transition-all flex items-center gap-1.5 cursor-pointer transform hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none'
 						title='Exit AstroQuest'>
 						<LogOut className='w-4 h-4 text-rose-400' />
 						<span className='text-xs font-bold'>Exit</span>

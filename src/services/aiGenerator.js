@@ -108,6 +108,82 @@ export function setStoredApiKey(key) {
 }
 
 export const DYNAMIC_MODELS_STORAGE_KEY = 'thinksheet_dynamic_gemini_models_v1';
+export const DYNAMIC_MODELS_TIMESTAMP_KEY =
+	'thinksheet_dynamic_gemini_models_timestamp_v1';
+
+/**
+ * Computes a numeric ranking score for a Gemini model ID.
+ * Higher score = newer version and better suited for real-time quiz generation.
+ */
+export function getModelScore(modelId) {
+	const id = (modelId || '').toLowerCase();
+	// Extract version number: e.g. "gemini-3.5-flash-lite" -> 3.5, "gemini-3-flash-preview" -> 3.0, "gemini-2.5-flash" -> 2.5
+	const versionMatch = id.match(/gemini-(\d+(?:\.\d+)?)/);
+	const version = versionMatch ? parseFloat(versionMatch[1]) : 1.0;
+
+	// Variant scoring: flash-lite is ultra-fast & recommended for real-time educational quizes
+	let typeScore = 0;
+	if (id.includes('flash-lite') || id.includes('lite')) {
+		typeScore = 35;
+	} else if (id.includes('flash')) {
+		typeScore = 25;
+	} else if (id.includes('pro')) {
+		typeScore = 15;
+	}
+
+	// Minor penalty for experimental/preview variants compared to stable of same version
+	let modifier = 0;
+	if (id.includes('exp') || id.includes('preview')) {
+		modifier = -2;
+	}
+
+	return version * 1000 + typeScore + modifier;
+}
+
+/**
+ * Returns true if dynamic models have already been fetched and cached in localStorage
+ */
+export function hasCachedGeminiModels() {
+	try {
+		const saved = localStorage.getItem(DYNAMIC_MODELS_STORAGE_KEY);
+		if (saved) {
+			const parsed = JSON.parse(saved);
+			if (Array.isArray(parsed) && parsed.length > 0) {
+				return true;
+			}
+		}
+	} catch {}
+	return false;
+}
+
+/**
+ * Returns the cached timestamp or null
+ */
+export function getCachedGeminiModelsTimestamp() {
+	try {
+		const ts = localStorage.getItem(DYNAMIC_MODELS_TIMESTAMP_KEY);
+		return ts ? parseInt(ts, 10) : null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Finds and returns the latest / highest-scoring Gemini model from a list
+ */
+export function getLatestGeminiModel(modelsList) {
+	const list =
+		modelsList && Array.isArray(modelsList) && modelsList.length > 0 ?
+			modelsList
+		:	getAvailableGeminiModels();
+	if (!Array.isArray(list) || list.length === 0) {
+		return AVAILABLE_GEMINI_MODELS[0];
+	}
+	const sorted = [...list].sort(
+		(a, b) => getModelScore(b.id) - getModelScore(a.id),
+	);
+	return sorted[0];
+}
 
 export function getAvailableGeminiModels() {
 	try {
@@ -115,11 +191,15 @@ export function getAvailableGeminiModels() {
 		if (saved) {
 			const parsed = JSON.parse(saved);
 			if (Array.isArray(parsed) && parsed.length > 0) {
-				return parsed;
+				return [...parsed].sort(
+					(a, b) => getModelScore(b.id) - getModelScore(a.id),
+				);
 			}
 		}
 	} catch {}
-	return AVAILABLE_GEMINI_MODELS;
+	return [...AVAILABLE_GEMINI_MODELS].sort(
+		(a, b) => getModelScore(b.id) - getModelScore(a.id),
+	);
 }
 
 /**
@@ -209,8 +289,20 @@ export async function fetchOnlineGeminiModels(apiKey) {
 		throw new Error('No compatible Gemini content generation models found.');
 	}
 
+	// Sort models so the latest and best models appear first
+	filtered.sort((a, b) => getModelScore(b.id) - getModelScore(a.id));
+
+	// Mark the very latest model as the recommended/latest default
+	if (filtered.length > 0) {
+		filtered[0].badge = 'Latest Default';
+		filtered[0].badgeColor =
+			'bg-emerald-500/20 text-emerald-300 border-emerald-400/40';
+		filtered[0].tag = '🌟 Latest Google AI Model';
+	}
+
 	try {
 		localStorage.setItem(DYNAMIC_MODELS_STORAGE_KEY, JSON.stringify(filtered));
+		localStorage.setItem(DYNAMIC_MODELS_TIMESTAMP_KEY, Date.now().toString());
 	} catch (e) {
 		console.warn('Could not cache models in localStorage', e);
 	}
@@ -224,6 +316,11 @@ export function getStoredSelectedModel() {
 		const available = getAvailableGeminiModels();
 		if (saved && available.some((m) => m.id === saved)) {
 			return saved;
+		}
+		// If no model is explicitly saved or valid, default to the latest available model
+		const latest = getLatestGeminiModel(available);
+		if (latest && latest.id) {
+			return latest.id;
 		}
 	} catch {}
 	return DEFAULT_GEMINI_MODEL;

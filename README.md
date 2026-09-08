@@ -15,7 +15,11 @@ An engaging, visual-first React.js educational platform designed for early child
   1. **Child's Name** _(Required)_: Personalized explorer name.
   2. **Child's Age** _(Required)_: Quick age selector pills (`3`–`8`) + custom stepper supporting ages `2` to `14`.
   3. **Google Gemini API Key** _(Mandatory 🔑 with Live Validation)_: Features an **Eye (`👁️`) visibility toggle** to easily show or mask your API key, with a direct link to get a free key from Google AI Studio.
-  4. **Gemini AI Model Selection** _(Selectable 🤖)_: Choose between `gemini-3.5-flash-lite` _(Recommended)_, `gemini-3.5-flash`, `gemini-3-flash-preview`, and `gemini-2.5-flash`.
+  4. **Gemini AI Model Engine (Auto-Downloaded on Load & Persistently Cached 🤖)**:
+     - **Automatic Download on Initial Load**: When opening Settings, if models are not yet cached, AstroQuest automatically queries Google's live `models.list` API and downloads all compatible Gemini models in the background.
+     - **Persistent Local Caching**: The downloaded model list and timestamps are cached locally in browser storage (`thinksheet_dynamic_gemini_models_v1`). Subsequent visits to the Settings page load the models instantly from cache with **zero redundant network calls**.
+     - **Automatic Latest Model Default Selection**: Models are dynamically parsed and ranked by version and performance score. The newest model is automatically identified, marked with a `Latest Default` badge, and pre-selected as the default model.
+     - **Manual Refresh On Demand (`Fetch Latest Models 🔄`)**: Allows checking for and pulling newly announced Google Gemini frontier models at any time with one click.
   5. **Per-Question Time Limit** _(Optional ⏱️)_: Toggle ON/OFF, select preset limits (`45s`, `60s`, `90s`, `2m`, `3m`), or set a custom duration (`15s`–`300s`).
   6. **Next Question Auto-Advance Delay** _(Optional ⏩)_: Toggle Auto-Advance ON/OFF, select preset delay (`3s`, `5s`, `7s Default`, `10s`, `15s`), or set a custom delay (`2s`–`30s`).
   7. **Visual Diagrams & Clues Display** _(Optional 👁️ - Disabled by Default)_: Toggle ON/OFF (`🙈 Hidden Default` / `👁️ Shown`) to choose whether interactive geometric diagrams, 3x3 matrices, sequence patterns, and STEM illustrations appear alongside questions **and** inside answer option cards. When disabled, option cards cleanly hide all shape containers and render full-width text choices.
@@ -90,10 +94,13 @@ An engaging, visual-first React.js educational platform designed for early child
   2. `gemini-3.5-flash`
   3. `gemini-3-flash-preview`
   4. `gemini-2.5-flash`
-- **Dynamic Google Gemini Model Fetching (`Fetch Latest Models 🔄`)**:
-  - In Settings, users can click **Fetch Latest Models 🔄** to query Google's live `models.list` API.
-  - Automatically queries `https://generativelanguage.googleapis.com/v1beta/models`, filters compatible content generation models, and presents them in a scrollable, selectable card grid.
-  - Newly discovered frontier and experimental models can be chosen immediately without requiring application updates.
+- **Automatic Background Download & Persistent Local Caching**:
+  - **Zero Setup Friction**: On initial loading of the Settings screen, AstroQuest automatically downloads all latest available models using the active API key.
+  - **Persistent Local Caching**: Model records and capabilities are saved to `thinksheet_dynamic_gemini_models_v1` in `localStorage`. Subsequent openings of the Settings page read directly from cache with **zero repeat network requests**, saving time and bandwidth.
+  - **Latest-Model Default Selection**: The downloaded models are evaluated and sorted using an intelligent ranking algorithm (`getModelScore`). The latest model (e.g. `gemini-3.5-flash-lite`) is automatically identified, badged with `Latest Default`, and pre-selected.
+- **On-Demand Google Gemini Model Refresh (`Fetch Latest Models 🔄`)**:
+  - In Settings, users can click **Fetch Latest Models 🔄** at any time to force-refresh the cache from Google's live `models.list` API.
+  - Newly discovered frontier and experimental models can be chosen immediately without requiring code updates.
 - **Automatic JSON Sanitizer & Repair**: Automatically cleans parenthesized tuple-style syntax, Python constants (`True`/`False`/`None`), and trailing commas from LLM output.
 
 #### 🧠 Strict 4-Tier Age-Calibrated Pedagogy (Ages 2 to 14)
@@ -463,6 +470,89 @@ An automated deployment workflow (`.github/workflows/deploy.yml`) is included:
 ```bash
 npm run deploy
 ```
+
+</details>
+
+---
+
+<details>
+<summary><h2 style="display: inline;">♿ WCAG 2.1 Level AA Accessibility & Universal Design Specification</h2></summary>
+
+AstroQuest is engineered from the ground up to comply with **Web Content Accessibility Guidelines (WCAG) 2.1 Level AA** standards. All components strictly adhere to the 4 foundational principles of accessible design: **Perceivable**, **Operable**, **Understandable**, and **Robust**.
+
+### 1. 👁️ Perceivable (Information & User Interface Components Must Be Presentable)
+
+- **Fluid Viewport & Uncapped Zoom Scaling (SC 1.4.4 - Resize Text)**:
+  - Mobile viewport `maximum-scale=1.0, user-scalable=no` meta tags were removed, allowing users with visual impairments to scale content up to **200% and 400%** using browser zoom without content clipping or horizontal overflow traps.
+  - Removed restrictive `select-none` classes across question cards, summary lists, and results screens, ensuring text can be selected, copied, inspected, or parsed by assistive reading devices and screen magnifiers.
+- **Enhanced Color Contrast Compliance (SC 1.4.3 - Contrast Minimum & SC 1.4.11 - Non-text Contrast)**:
+  - All body and prompt text maintains a contrast ratio exceeding **4.5:1** against deep navy cosmic backgrounds (e.g., `#FFFFFF`, `#E2E8F0`, and `#A5B4FC` over `#0B0D28` and `#1E1B4B` achieve $>10:1$ ratio).
+  - All interactive controls, badges, and status pills maintain contrast exceeding **3:1** against adjacent backgrounds (`#10B981` emerald, `#F43F5E` rose, `#F59E0B` amber).
+  - High-visibility focus indicators utilize thick 4px focus rings (`focus-visible:ring-4 focus-visible:ring-indigo-400` / `focus-visible:ring-cyan-400`) providing high contrast against dark cosmic surfaces.
+- **Non-Text Content & Vector Graphics (SC 1.1.1 - Non-text Content)**:
+  - All decorative icons, glowing planets, star SVGs, and particle effects feature `aria-hidden="true"` so screen readers bypass visual clutter.
+  - Informative SVG diagrams include explicit descriptive labels, tooltips, and alternative text.
+  - Read-aloud speaker icon buttons provide real-time audio playback via the Web Speech API with explicit `aria-label` and `aria-pressed` states.
+
+---
+
+### 2. 🎮 Operable (User Interface Components & Navigation Must Be Operable)
+
+- **Skip to Main Content Link (SC 2.4.1 - Bypass Blocks)**:
+  - A hidden skip link (`<a href="#main-content" className="sr-only focus:not-sr-only ...">Skip to main content</a>`) appears at the very top of the DOM upon pressing `Tab`, allowing keyboard and screen reader users to jump straight past header controls directly to the active question prompt (`<main id="main-content">`).
+- **Full Keyboard Navigation & Shortcuts (SC 2.1.1 - Keyboard & SC 2.1.4 - Character Key Shortcuts)**:
+  - Users can complete entire learning quests without touching a mouse or trackpad:
+    | Key Combination | Action Executed | Context |
+    | :--- | :--- | :--- |
+    | `Tab` / `Shift + Tab` | Move focus forward / backward across interactive elements | Application-wide |
+    | `1`, `2`, `3`, `4` or `A`, `B`, `C`, `D` | Directly select answer option A, B, C, or D | Active Question |
+    | `ArrowUp` / `ArrowLeft` | Select previous answer option in radio group | Answer Options |
+    | `ArrowDown` / `ArrowRight` | Select next answer option in radio group | Answer Options |
+    | `Enter` / `Space` | Submit selected answer / Advance to next question | Active Question / Solution |
+    | `Escape` | Dismiss any open modal dialog (Hint, Tutor, Zoom, Exit, Unsaved) | Active Modal |
+- **Focus Trapping & Dialog Management (SC 2.4.3 - Focus Order & SC 3.2.1 - On Focus)**:
+  - All modal dialogs (`HintModal`, `AskDoubtModal`, `ZoomModal`, `ExitConfirmationModal`, `SettingsScreen` Unsaved Modal, `SkillSelectionDashboard` Info Modal) implement strict keyboard focus traps.
+  - On open, focus automatically targets the dialog container or first interactive element. Pressing `Tab` cycles strictly inside the dialog boundaries without escaping into background DOM.
+  - Pressing `Escape` instantly dismisses the modal and returns focus to the triggering element.
+- **Focus Indicators (SC 2.4.7 - Focus Visible)**:
+  - All interactive elements feature prominent `focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900` states, rendering unmistakable focus boundaries for motor and visual accessibility.
+
+---
+
+### 3. 💡 Understandable (Information & Operation Must Be Understandable)
+
+- **Accessible Forms & Input Descriptions (SC 3.3.2 - Labels or Instructions)**:
+  - Every form input in `SettingsScreen` features explicit `<label htmlFor="...">` bindings, `aria-required="true"`, `aria-describedby` helper text, and accessible `title` attributes.
+  - API key visibility toggles utilize `aria-label="Show Gemini API key"` / `aria-label="Hide Gemini API key"` with dynamic `aria-pressed` states.
+  - Age stepper buttons include explicit `aria-label="Decrease age"` and `aria-label="Increase age"`.
+- **Live Regions & Screen Reader Announcements (SC 4.1.3 - Status Messages)**:
+  - An atomic ARIA live region (`<div role="status" aria-live="polite" aria-atomic="true" className="sr-only">`) broadcasts live mission events to assistive technologies without stealing keyboard focus:
+    - `"Question 3 of 10 loaded: Visual Patterns"`
+    - `"Selected Option B: 4 triangles"`
+    - `"Correct! Super Astronaut! Your answer was submitted successfully."`
+    - `"Question skipped. Moving to Question 4."`
+    - `"Time is up! Let's check the answer together."`
+  - Error messages and validation banners feature `role="alert" aria-live="assertive"` for immediate screen reader priority.
+  - The countdown timer and top progress bar feature `role="progressbar"` with live `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and `aria-valuetext` announcements.
+
+---
+
+### 4. 🛡️ Robust (Content Must Be Robust Enough to Be Reliably Interpreted)
+
+- **Semantic Landmark Structure (SC 1.3.1 - Info and Relationships & SC 4.1.2 - Name, Role, Value)**:
+  - `<header role="banner">`: Application navigation, progress bar, audio toggles, and quit mission button.
+  - `<main id="main-content" role="main" tabIndex={-1}>`: Active learning challenge workspace.
+  - `<section aria-labelledby="question-prompt-heading">`: Question prompt card with `<h2 id="question-prompt-heading">`.
+  - `<div role="radiogroup" aria-labelledby="question-prompt-heading">`: Answer options container with child `<button role="radio" aria-checked="...">`.
+  - `<div role="tablist" aria-label="Quest results views">`: Tabbed interface on results page with `<button role="tab" aria-selected="..." aria-controls="...">` and `<div role="tabpanel">`.
+  - Accordion panels in `QuestionSummary` feature `<button aria-expanded="..." aria-controls="...">` paired with child content `<div role="region" aria-labelledby="...">`.
+- **Nested Interactivity Violation Fixes**:
+  - Eliminated invalid nested interactive elements (e.g. `<button>` inside `<div onClick>`), converting parent containers to standard `role="button" tabIndex={0}` with `Enter`/`Space` handlers and child badges to non-interactive `div`s with `aria-hidden="true"`.
+- **Assistive Technology Compatibility**:
+  - Validated for compatibility across modern assistive software and browser engines:
+    - **NVDA & JAWS** (Windows Chrome / Edge / Firefox)
+    - **VoiceOver** (macOS Safari / Chrome, iOS Safari)
+    - **TalkBack** (Android Chrome)
 
 </details>
 

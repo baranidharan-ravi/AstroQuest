@@ -21,12 +21,14 @@ import {
 	Volume2,
 	X,
 } from 'lucide-react';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	fetchOnlineGeminiModels,
 	getAvailableGeminiModels,
+	getLatestGeminiModel,
 	getStoredApiKey,
 	getStoredSelectedModel,
+	hasCachedGeminiModels,
 	setStoredApiKey,
 	setStoredSelectedModel,
 	validateGeminiApiKey,
@@ -116,9 +118,17 @@ const SettingsScreen = memo(function SettingsScreen({
 		try {
 			const liveModels = await fetchOnlineGeminiModels(targetKey);
 			setModelsList(liveModels);
+			const latest = getLatestGeminiModel(liveModels);
+			if (latest && latest.id) {
+				setSelectedModel(latest.id);
+				setStoredSelectedModel(latest.id);
+				setInitialValues((prev) =>
+					prev ? { ...prev, selectedModel: latest.id } : prev,
+				);
+			}
 			setFetchModelStatus({
 				type: 'success',
-				text: `✓ Successfully fetched ${liveModels.length} live Gemini models from Google AI!`,
+				text: `✓ Successfully refreshed ${liveModels.length} live Gemini models! Default set to "${latest?.name || latest?.id}".`,
 			});
 		} catch (err) {
 			setFetchModelStatus({
@@ -131,6 +141,54 @@ const SettingsScreen = memo(function SettingsScreen({
 			setIsFetchingModels(false);
 		}
 	};
+
+	// Auto-download latest models while loading if not yet cached
+	useEffect(() => {
+		// If models are already cached in localStorage, do not re-fetch on every opening
+		if (hasCachedGeminiModels()) {
+			return;
+		}
+
+		const targetKey = (apiKeyInput || '').trim() || getStoredApiKey();
+		if (!targetKey) {
+			return;
+		}
+
+		let isCancelled = false;
+		const autoDownloadModelsOnMount = async () => {
+			setIsFetchingModels(true);
+			try {
+				const liveModels = await fetchOnlineGeminiModels(targetKey);
+				if (isCancelled) return;
+				setModelsList(liveModels);
+				const latest = getLatestGeminiModel(liveModels);
+				if (latest && latest.id) {
+					// Select the latest model as the default one in the downloaded list
+					setSelectedModel(latest.id);
+					setStoredSelectedModel(latest.id);
+					setInitialValues((prev) =>
+						prev ? { ...prev, selectedModel: latest.id } : prev,
+					);
+					setFetchModelStatus({
+						type: 'success',
+						text: `✓ Downloaded and cached ${liveModels.length} latest Gemini models! "${latest.name}" set as default.`,
+					});
+				}
+			} catch (err) {
+				if (isCancelled) return;
+				console.warn('Auto-download models on mount failed:', err);
+			} finally {
+				if (!isCancelled) {
+					setIsFetchingModels(false);
+				}
+			}
+		};
+
+		autoDownloadModelsOnMount();
+		return () => {
+			isCancelled = true;
+		};
+	}, []);
 
 	useEffect(() => {
 		const existingTimer = getStoredTimerConfig();
@@ -230,6 +288,33 @@ const SettingsScreen = memo(function SettingsScreen({
 	}, [isDirty]);
 
 	// Intercept navigation if unsaved changes exist
+	const unsavedModalRef = useRef(null);
+
+	useEffect(() => {
+		if (!showUnsavedModal) return;
+		const handleKeyDown = (e) => {
+			if (e.key === 'Escape') {
+				setShowUnsavedModal(false);
+			} else if (e.key === 'Tab' && unsavedModalRef.current) {
+				const focusableElements = unsavedModalRef.current.querySelectorAll(
+					'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+				);
+				if (focusableElements.length === 0) return;
+				const firstEl = focusableElements[0];
+				const lastEl = focusableElements[focusableElements.length - 1];
+				if (e.shiftKey && document.activeElement === firstEl) {
+					e.preventDefault();
+					lastEl.focus();
+				} else if (!e.shiftKey && document.activeElement === lastEl) {
+					e.preventDefault();
+					firstEl.focus();
+				}
+			}
+		};
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [showUnsavedModal]);
+
 	const handleAttemptLeave = () => {
 		playButtonPop(soundEnabled);
 		if (isDirty) {
@@ -445,13 +530,18 @@ const SettingsScreen = memo(function SettingsScreen({
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 					{/* Name Card */}
 					<div className='bg-[#090B24]/80 p-4 sm:p-5 rounded-2xl border border-[#2C3380]'>
-						<label className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5 mb-2'>
+						<label
+							htmlFor='child-name-input'
+							className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5 mb-2'>
 							<Smile className='w-4 h-4 text-pink-400' />
 							<span>Child's Name</span>
 						</label>
 						<input
+							id='child-name-input'
 							type='text'
 							maxLength={30}
+							aria-required='true'
+							aria-describedby='child-name-desc'
 							disabled={isValidating}
 							value={nameInput}
 							onChange={(e) => {
@@ -459,9 +549,11 @@ const SettingsScreen = memo(function SettingsScreen({
 								if (error) setError('');
 							}}
 							placeholder='e.g. Leo, Maya, Alex...'
-							className='w-full bg-[#0D1030] border border-pink-500/40 focus:border-pink-400 text-white font-bold text-sm sm:text-base rounded-xl px-4 py-3 placeholder:text-slate-500 focus:outline-none transition-all'
+							className='w-full bg-[#0D1030] border border-pink-500/40 focus:border-pink-400 text-white font-bold text-sm sm:text-base rounded-xl px-4 py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 transition-all'
 						/>
-						<span className='text-[11px] text-slate-400 mt-1.5 block'>
+						<span
+							id='child-name-desc'
+							className='text-[11px] text-slate-400 mt-1.5 block'>
 							Used to personalize questions, voice feedback & reports.
 						</span>
 					</div>
@@ -479,14 +571,19 @@ const SettingsScreen = memo(function SettingsScreen({
 						</div>
 
 						{/* Quick Selection Pills */}
-						<div className='grid grid-cols-3 sm:grid-cols-6 gap-1.5'>
+						<div
+							role='group'
+							aria-label='Select explorer age'
+							className='grid grid-cols-3 sm:grid-cols-6 gap-1.5'>
 							{quickAges.map((age) => (
 								<button
 									key={age}
 									type='button'
 									disabled={isValidating}
+									aria-label={`${age} years old`}
+									aria-pressed={Number(ageInput) === age && !isCustomAge}
 									onClick={() => handleQuickAgeSelect(age)}
-									className={`py-2 rounded-xl text-xs font-black transition-all border cursor-pointer ${
+									className={`py-2 rounded-xl text-xs font-black transition-all border cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
 										Number(ageInput) === age && !isCustomAge ?
 											'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-md scale-105'
 										:	'bg-[#0D1030] text-slate-300 border-slate-700/80 hover:bg-slate-800'
@@ -504,11 +601,12 @@ const SettingsScreen = memo(function SettingsScreen({
 							<button
 								type='button'
 								disabled={isValidating}
+								aria-expanded={isCustomAge}
 								onClick={() => {
 									playButtonPop(soundEnabled);
 									setIsCustomAge((prev) => !prev);
 								}}
-								className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
+								className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
 									isCustomAge ?
 										'bg-cyan-500/30 text-cyan-300 border-cyan-400'
 									:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
@@ -523,12 +621,15 @@ const SettingsScreen = memo(function SettingsScreen({
 								<button
 									type='button'
 									disabled={isValidating}
+									aria-label='Decrease age by 1 year'
 									onClick={() => handleIncrementAge(-1)}
-									className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
+									className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none'>
 									<Minus className='w-3.5 h-3.5' />
 								</button>
 								<div className='flex-1 text-center'>
 									<input
+										id='custom-age-input'
+										aria-label='Custom age in years'
 										type='number'
 										min={2}
 										max={14}
@@ -548,8 +649,9 @@ const SettingsScreen = memo(function SettingsScreen({
 								<button
 									type='button'
 									disabled={isValidating}
+									aria-label='Increase age by 1 year'
 									onClick={() => handleIncrementAge(1)}
-									className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
+									className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none'>
 									<Plus className='w-3.5 h-3.5' />
 								</button>
 							</div>
@@ -565,7 +667,9 @@ const SettingsScreen = memo(function SettingsScreen({
 						:	'border-amber-400/60'
 					}`}>
 					<div className='flex items-center justify-between mb-2'>
-						<label className='text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1.5'>
+						<label
+							htmlFor='gemini-api-key-input'
+							className='text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1.5'>
 							<Key className='w-4 h-4 text-amber-400' />
 							<span>
 								Google Gemini API Key{' '}
@@ -576,7 +680,7 @@ const SettingsScreen = memo(function SettingsScreen({
 							href='https://aistudio.google.com/app/apikey'
 							target='_blank'
 							rel='noopener noreferrer'
-							className='text-xs font-bold text-cyan-300 hover:text-cyan-200 underline flex items-center gap-1'>
+							className='text-xs font-bold text-cyan-300 hover:text-cyan-200 underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded'>
 							<span>Get Free Key from Google</span>
 							<ExternalLink className='w-3.5 h-3.5' />
 						</a>
@@ -584,6 +688,9 @@ const SettingsScreen = memo(function SettingsScreen({
 
 					<div className='relative flex items-center'>
 						<input
+							id='gemini-api-key-input'
+							aria-required='true'
+							aria-describedby='api-key-desc'
 							type={showApiKey ? 'text' : 'password'}
 							disabled={isValidating}
 							value={apiKeyInput}
@@ -592,7 +699,7 @@ const SettingsScreen = memo(function SettingsScreen({
 								if (error) setError('');
 							}}
 							placeholder='Paste your Gemini API key here (AIzaSy...)'
-							className={`w-full bg-[#0D1030] border text-white font-mono text-xs sm:text-sm rounded-xl pl-4 pr-12 py-3 placeholder:text-slate-500 focus:outline-none transition-all ${
+							className={`w-full bg-[#0D1030] border text-white font-mono text-xs sm:text-sm rounded-xl pl-4 pr-12 py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 transition-all ${
 								isKeyError ?
 									'border-rose-400 focus:border-rose-500'
 								:	'border-amber-400/50 focus:border-amber-400'
@@ -605,14 +712,18 @@ const SettingsScreen = memo(function SettingsScreen({
 								playButtonPop(soundEnabled);
 								setShowApiKey((prev) => !prev);
 							}}
-							className='absolute right-3 p-1.5 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-white/10 transition-all cursor-pointer'
+							aria-label={showApiKey ? 'Hide API Key' : 'Show API Key'}
+							aria-pressed={showApiKey}
+							className='absolute right-3 p-1.5 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-white/10 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none'
 							title={showApiKey ? 'Hide API Key' : 'Show API Key'}>
 							{showApiKey ?
 								<EyeOff className='w-4 h-4 text-amber-400' />
 							:	<Eye className='w-4 h-4' />}
 						</button>
 					</div>
-					<span className='text-[11px] text-slate-400 mt-1.5 block'>
+					<span
+						id='api-key-desc'
+						className='text-[11px] text-slate-400 mt-1.5 block'>
 						Required for 100% real-time AI generation. Validated live with
 						Google Gemini API upon saving.
 					</span>
@@ -628,6 +739,13 @@ const SettingsScreen = memo(function SettingsScreen({
 							</span>
 						</div>
 						<div className='flex items-center gap-2 flex-wrap'>
+							{hasCachedGeminiModels() && !isFetchingModels && (
+								<span
+									className='text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-1'
+									title='Models are cached locally and loaded instantly without re-fetching'>
+									⚡ Cached
+								</span>
+							)}
 							<button
 								type='button'
 								disabled={isFetchingModels || isValidating}
@@ -640,7 +758,7 @@ const SettingsScreen = memo(function SettingsScreen({
 								/>
 								<span>
 									{isFetchingModels ?
-										'Fetching Models...'
+										'Downloading Models...'
 									:	'Fetch Latest Models 🔄'}
 								</span>
 							</button>
@@ -1107,7 +1225,10 @@ const SettingsScreen = memo(function SettingsScreen({
 				{/* Error Alert */}
 
 				{error && (
-					<div className='bg-rose-500/20 border border-rose-500/50 rounded-2xl p-4 text-xs sm:text-sm font-bold text-rose-200 text-center animate-shake shadow-lg'>
+					<div
+						role='alert'
+						aria-live='assertive'
+						className='bg-rose-500/20 border border-rose-500/50 rounded-2xl p-4 text-xs sm:text-sm font-bold text-rose-200 text-center animate-shake shadow-lg'>
 						⚠️ {error}
 					</div>
 				)}
@@ -1119,7 +1240,7 @@ const SettingsScreen = memo(function SettingsScreen({
 							type='button'
 							disabled={isValidating}
 							onClick={handleAttemptLeave}
-							className='w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer'>
+							className='w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400'>
 							Cancel
 						</button>
 					)}
@@ -1128,7 +1249,7 @@ const SettingsScreen = memo(function SettingsScreen({
 						type='button'
 						disabled={isValidating}
 						onClick={handleSave}
-						className={`w-full sm:w-auto px-8 py-4 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 ${
+						className={`w-full sm:w-auto px-8 py-4 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 focus-visible:ring-4 focus-visible:ring-amber-400 ${
 							isValidating ?
 								'bg-gradient-to-r from-amber-600 via-pink-600 to-purple-700 opacity-90 cursor-wait animate-pulse text-white'
 							:	'bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white hover:scale-105 active:scale-95 cursor-pointer'
@@ -1154,29 +1275,44 @@ const SettingsScreen = memo(function SettingsScreen({
 
 			{/* Unsaved Changes Confirmation Modal */}
 			{showUnsavedModal && (
-				<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200'>
-					<div className='bg-[#131642] border-2 border-amber-400/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-[0_0_50px_rgba(251,191,36,0.35)] text-center animate-in zoom-in-95 duration-200 relative'>
+				<div
+					role='dialog'
+					aria-modal='true'
+					aria-labelledby='unsaved-modal-title'
+					aria-describedby='unsaved-modal-desc'
+					className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200'>
+					<div
+						ref={unsavedModalRef}
+						tabIndex={-1}
+						className='bg-[#131642] border-2 border-amber-400/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-[0_0_50px_rgba(251,191,36,0.35)] text-center animate-in zoom-in-95 duration-200 relative focus:outline-none'>
 						{/* Close icon button */}
 						<button
 							type='button'
+							aria-label='Close unsaved changes dialog'
 							onClick={() => {
 								playButtonPop(soundEnabled);
 								setShowUnsavedModal(false);
 							}}
-							className='absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer'
+							className='absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-400'
 							title='Close'>
 							<X className='w-5 h-5' />
 						</button>
 
-						<div className='w-16 h-16 rounded-3xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center mx-auto mb-4 text-amber-300'>
+						<div
+							aria-hidden='true'
+							className='w-16 h-16 rounded-3xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center mx-auto mb-4 text-amber-300'>
 							<AlertTriangle className='w-8 h-8' />
 						</div>
 
-						<h2 className='text-xl sm:text-2xl font-black text-white mb-2'>
+						<h2
+							id='unsaved-modal-title'
+							className='text-xl sm:text-2xl font-black text-white mb-2'>
 							Unsaved Changes Detected! ⚠️
 						</h2>
 
-						<p className='text-xs sm:text-sm text-slate-300 font-semibold mb-6 leading-relaxed'>
+						<p
+							id='unsaved-modal-desc'
+							className='text-xs sm:text-sm text-slate-300 font-semibold mb-6 leading-relaxed'>
 							You modified your settings without saving. Please save your
 							settings before navigating, or your changes will be discarded and
 							reverted back to the previous values.
@@ -1187,7 +1323,7 @@ const SettingsScreen = memo(function SettingsScreen({
 							<button
 								type='button'
 								onClick={handleSaveAndLeave}
-								className='w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white font-black text-sm sm:text-base tracking-wider shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer'>
+								className='w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white font-black text-sm sm:text-base tracking-wider shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer focus-visible:ring-4 focus-visible:ring-amber-400'>
 								<Save className='w-4 h-4' />
 								<span>Save Settings & Continue 💾</span>
 							</button>
@@ -1196,7 +1332,7 @@ const SettingsScreen = memo(function SettingsScreen({
 							<button
 								type='button'
 								onClick={handleRevertAndLeave}
-								className='w-full py-3.5 px-5 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/50 text-rose-200 hover:text-white font-black text-sm tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer'>
+								className='w-full py-3.5 px-5 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/50 text-rose-200 hover:text-white font-black text-sm tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer focus-visible:ring-4 focus-visible:ring-rose-400'>
 								<RotateCcw className='w-4 h-4 text-rose-300' />
 								<span>Discard Changes & Revert ↩️</span>
 							</button>
@@ -1208,7 +1344,7 @@ const SettingsScreen = memo(function SettingsScreen({
 									playButtonPop(soundEnabled);
 									setShowUnsavedModal(false);
 								}}
-								className='w-full py-2.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs sm:text-sm transition-all cursor-pointer'>
+								className='w-full py-2.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs sm:text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400'>
 								Keep Editing
 							</button>
 						</div>

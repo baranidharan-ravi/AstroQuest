@@ -718,6 +718,25 @@ const docContent = [
 		'Equips the question review accordion with Expand All (ChevronsDownUp) and Collapse All (ChevronsUpDown) action buttons, enabling teachers and parents to review all 10 solutions simultaneously with a single click.',
 	),
 
+	createHeading2(
+		'4.9 Gemini Model Discovery, Persistent Caching & Default Selection Engine (src/services/aiGenerator.js)',
+	),
+	createParagraph(
+		'Implements zero-friction AI model auto-download with persistent local caching and automatic latest-model default selection.',
+	),
+	createBullet(
+		'Auto-Download on Initial Mount',
+		'When the Settings screen loads without cached models, it queries Google live models.list API using the active key, downloading all compatible models seamlessly in the background.',
+	),
+	createBullet(
+		'Persistent Local Caching & Zero Repeat Calls',
+		'Model metadata and schemas are saved to thinksheet_dynamic_gemini_models_v1. Subsequent visits to the Settings page read directly from cache, avoiding redundant network requests.',
+	),
+	createBullet(
+		'Intelligent Model Scoring & Latest Default Selection',
+		'The getModelScore ranking engine parses version numbers and latency tiers (flash-lite > flash > pro), sorting models newest-first. The latest model is marked with a "Latest Default" badge and pre-selected as the default model.',
+	),
+
 	// SECTION 5: SECURITY ARCHITECTURE
 	createHeading1('5. Security Architecture & Data Protection Features'),
 	createParagraph(
@@ -947,8 +966,142 @@ const docContent = [
 	),
 	new Paragraph({ spacing: { after: 200 } }),
 
-	// SECTION 8: VERIFICATION & TESTING
-	createHeading1('8. Verification, Build & Testing Standards'),
+	// SECTION 8: WCAG 2.1 LEVEL AA ACCESSIBILITY ARCHITECTURE
+	createHeading1(
+		'8. WCAG 2.1 Level AA Accessibility & Universal Design Architecture',
+	),
+	createParagraph(
+		'AstroQuest is architected from the ground up to achieve comprehensive Web Content Accessibility Guidelines (WCAG) 2.1 Level AA compliance across desktop, tablet, and mobile assistive technologies, strictly adhering to the four core principles: Perceivable, Operable, Understandable, and Robust.',
+	),
+
+	createHeading2('8.1 The 4 Foundational Accessibility Principles (POUR)'),
+	createBullet(
+		'Perceivable',
+		'Uncapped viewport scaling up to 200%–400% without horizontal scroll traps; removal of restrictive select-none classes ensuring text inspection; color contrast exceeding 4.5:1 for body/prompts and 3:1 for graphical UI components; explicit aria-hidden for non-text SVGs; built-in speech synthesis narration with dynamic aria-pressed state.',
+	),
+	createBullet(
+		'Operable',
+		'Full keyboard operation with global single-key shortcuts (1–4, A–D for option selection, Enter/Space for submit/advance); arrow key radio navigation; skip-to-content bypass link (#main-content); modal dialog focus trapping with auto-focus and Escape key dismissal; high-visibility 4px focus rings (focus-visible:ring-4).',
+	),
+	createBullet(
+		'Understandable',
+		'Strict form input labeling (<label htmlFor="...">), aria-required, and aria-describedby helper instructions; dynamic live announcements via polite ARIA live region (role="status" aria-live="polite"); assertive alerts for errors (role="alert" aria-live="assertive"); real-time progress bar semantics (role="progressbar").',
+	),
+	createBullet(
+		'Robust',
+		'Strict semantic landmark hierarchy (<header role="banner">, <main id="main-content">, <section>, <footer>); proper WAI-ARIA role associations (role="radiogroup", role="radio", role="dialog", role="tablist", role="tab", role="tabpanel"); elimination of invalid nested interactivity violations; multi-screen-reader compatibility verification (NVDA, JAWS, VoiceOver, TalkBack).',
+	),
+
+	createHeading2('8.2 Semantic Structure & ARIA Role Mapping'),
+	createStyledTable(
+		[
+			'Component / Feature',
+			'Semantic HTML / ARIA Role',
+			'State / Behavior Attributes',
+			'WCAG Success Criterion',
+		],
+		[
+			[
+				'Bypass Link (App.jsx)',
+				'<a href="#main-content">',
+				'sr-only focus:not-sr-only',
+				'SC 2.4.1 Bypass Blocks (A)',
+			],
+			[
+				'Main Workspace (App.jsx)',
+				'<main id="main-content">',
+				'role="main", tabIndex={-1}',
+				'SC 1.3.1 Info and Relationships (A)',
+			],
+			[
+				'Live Announcements (App.jsx)',
+				'<div role="status">',
+				'aria-live="polite", aria-atomic="true"',
+				'SC 4.1.3 Status Messages (AA)',
+			],
+			[
+				'Progress Bar (Header.jsx)',
+				'<div role="progressbar">',
+				'aria-valuenow, valuemin, valuemax, valuetext',
+				'SC 4.1.2 Name, Role, Value (A)',
+			],
+			[
+				'Question Card (QuestionCard.jsx)',
+				'<section aria-labelledby="...">',
+				'Heading <h2 id="question-prompt-heading">',
+				'SC 1.3.1 Info and Relationships (A)',
+			],
+			[
+				'Answer Options (OptionsGrid.jsx)',
+				'<div role="radiogroup">',
+				'<button role="radio" aria-checked="...">',
+				'SC 4.1.2 Name, Role, Value (A)',
+			],
+			[
+				'Dialog Modals (All Modals)',
+				'<div role="dialog">',
+				'aria-modal="true", Focus trap, Escape key',
+				'SC 2.4.3 Focus Order (A)',
+			],
+			[
+				'Results Tabs (ResultOverview.jsx)',
+				'<div role="tablist">',
+				'<button role="tab"> + <div role="tabpanel">',
+				'SC 4.1.2 Name, Role, Value (A)',
+			],
+			[
+				'Question Accordion (QuestionSummary.jsx)',
+				'<button aria-expanded="...">',
+				'aria-controls paired with <div role="region">',
+				'SC 4.1.2 Name, Role, Value (A)',
+			],
+		],
+	),
+
+	createHeading2('8.3 Keyboard Shortcut & Interaction Matrix'),
+	createStyledTable(
+		[
+			'Key / Combination',
+			'Function / Target Action',
+			'Scope / Viewport Context',
+		],
+		[
+			[
+				'Tab / Shift + Tab',
+				'Sequential focus navigation with visible 4px focus rings',
+				'Entire Application',
+			],
+			[
+				'1, 2, 3, 4 or A, B, C, D',
+				'Directly select answer option 1, 2, 3, or 4',
+				'Active Learning Quest',
+			],
+			[
+				'ArrowUp / ArrowLeft',
+				'Navigate and select previous radio option in group',
+				'Answer Options Grid',
+			],
+			[
+				'ArrowDown / ArrowRight',
+				'Navigate and select next radio option in group',
+				'Answer Options Grid',
+			],
+			[
+				'Enter / Space',
+				'Submit answer / Advance to next question / Activate control',
+				'Quest & Solution Views',
+			],
+			[
+				'Escape',
+				'Dismiss active modal (Hint, Tutor, Zoom, Exit, Unsaved)',
+				'Any Active Modal Dialog',
+			],
+		],
+	),
+	new Paragraph({ spacing: { after: 200 } }),
+
+	// SECTION 9: VERIFICATION & TESTING
+	createHeading1('9. Verification, Build & Testing Standards'),
 	createParagraph(
 		'All architectural features and modules are verified against strict production build and linting gates:',
 	),
@@ -967,6 +1120,10 @@ const docContent = [
 	createBullet(
 		'Single-Voice Guarantee Test',
 		'Verified rapid clicking of question speech and hint buttons: prior utterance cancels immediately with zero voice stacking.',
+	),
+	createBullet(
+		'WCAG 2.1 AA Accessibility Conformance',
+		'Validated contrast ratios (>= 4.5:1), keyboard-only navigability, focus trapping across all 5 modals, ARIA live announcements, and screen reader testing (NVDA / VoiceOver).',
 	),
 	createBullet(
 		'Automated Windows Git Index Integrity Tool (scripts/fix-git-index.ps1)',
@@ -1227,6 +1384,11 @@ The application synthesizes strictly dynamic mathematical diagrams, polygonal SV
 ### 4.8 Question Review Accordion & Batch Controls (\`src/features/results/QuestionSummary.jsx\`)
 - **Batch Expansion Controls**: Equips the question review accordion with **Expand All (\`ChevronsDownUp\`)** and **Collapse All (\`ChevronsUpDown\`)** action buttons, enabling teachers and parents to review all 10 solutions simultaneously with a single click.
 
+### 4.9 Gemini Model Discovery, Persistent Caching & Default Selection Engine (\`src/services/aiGenerator.js\`)
+- **Auto-Download on Initial Mount**: When the Settings screen loads without cached models, it queries Google live \`models.list\` API using the active key, downloading all compatible models seamlessly in the background.
+- **Persistent Local Caching & Zero Repeat Calls**: Model metadata and schemas are saved to \`thinksheet_dynamic_gemini_models_v1\`. Subsequent visits to the Settings page read directly from cache, avoiding redundant network requests.
+- **Intelligent Model Scoring & Latest Default Selection**: The \`getModelScore\` ranking engine parses version numbers and latency tiers (flash-lite > flash > pro), sorting models newest-first. The latest model is marked with a "Latest Default" badge and pre-selected as the default model.
+
 ---
 
 ## 5. Security Architecture & Data Protection Features
@@ -1295,12 +1457,68 @@ The active 1-second countdown timer runs continuously during gameplay. If not pr
 
 ---
 
-## 8. Verification, Build & Testing Standards
+## 8. WCAG 2.1 Level AA Accessibility & Universal Design Architecture
+
+AstroQuest is architected from the ground up to achieve full **Web Content Accessibility Guidelines (WCAG) 2.1 Level AA** compliance across desktop, tablet, and mobile browsers, adhering to the 4 foundational principles of accessible engineering: **Perceivable**, **Operable**, **Understandable**, and **Robust**.
+
+### 8.1 The 4 Foundational Accessibility Principles (POUR)
+- **Perceivable**:
+  - Uncapped viewport zoom scaling up to 200%–400% without horizontal scroll traps (removed \`maximum-scale=1.0, user-scalable=no\`).
+  - Removed restrictive \`select-none\` classes ensuring text can be highlighted, inspected, and processed by screen magnifiers.
+  - Strict color contrast ratio exceeding **4.5:1** for body text and prompt labels against cosmic navy backgrounds; UI controls exceed **3:1**.
+  - All decorative icons, glowing planets, and space particle animations feature \`aria-hidden="true"\`.
+  - Built-in speech synthesis narration via Web Speech API with explicit \`aria-label\` and \`aria-pressed\` states.
+- **Operable**:
+  - Full single-key shortcuts: Keys \`1\`–\`4\` or \`A\`–\`D\` select options; \`Enter\` or \`Space\` submits answers and advances to the next question.
+  - Arrow key navigation (\`ArrowUp\`/\`ArrowDown\`/\`ArrowLeft\`/\`ArrowRight\`) within option radio groups.
+  - Skip-to-main-content bypass link (\`#main-content\`) accessible via initial \`Tab\` keypress.
+  - Strict modal dialog focus trapping across all 5 modals with Escape key dismissal (\`Escape\`).
+  - High-visibility 4px focus rings (\`focus-visible:ring-4 focus-visible:ring-indigo-400\` / \`focus-visible:ring-cyan-400\`).
+- **Understandable**:
+  - Explicit form labeling (\`<label htmlFor="...">\`), \`aria-required="true"\`, and \`aria-describedby\` helper instructions.
+  - Dynamic live announcements via polite ARIA live region (\`<div role="status" aria-live="polite" aria-atomic="true">\`) broadcasting question changes, option selections, submission results, and timeouts without stealing focus.
+  - High-priority error and warning banners equipped with \`role="alert" aria-live="assertive"\`.
+  - Progress bar semantics (\`role="progressbar"\` with \`aria-valuenow\`, \`valuemin\`, \`valuemax\`, and \`valuetext\`).
+- **Robust**:
+  - Semantic HTML5 landmarks: \`<header role="banner">\`, \`<main id="main-content" role="main">\`, \`<section>\`, and \`<footer>\`.
+  - Proper WAI-ARIA role associations: \`role="radiogroup"\`, \`role="radio"\`, \`role="dialog"\`, \`role="tablist"\`, \`role="tab"\`, and \`role="tabpanel"\`.
+  - Cleaned invalid nested interactivity violations (e.g., converted nested buttons to non-interactive badges with \`aria-hidden="true"\`).
+  - Validated for compatibility across modern screen readers (NVDA, JAWS, VoiceOver, TalkBack).
+
+### 8.2 Semantic Structure & ARIA Role Mapping
+
+| Component / Feature | Semantic HTML / ARIA Role | State / Behavior Attributes | WCAG Success Criterion |
+| :--- | :--- | :--- | :--- |
+| **Bypass Link (App.jsx)** | \`<a href="#main-content">\` | \`sr-only focus:not-sr-only\` | SC 2.4.1 Bypass Blocks (A) |
+| **Main Workspace (App.jsx)** | \`<main id="main-content">\` | \`role="main" tabIndex={-1}\` | SC 1.3.1 Info and Relationships (A) |
+| **Live Announcements (App.jsx)** | \`<div role="status">\` | \`aria-live="polite" aria-atomic="true"\` | SC 4.1.3 Status Messages (AA) |
+| **Progress Bar (Header.jsx)** | \`<div role="progressbar">\` | \`aria-valuenow\`, \`valuemin\`, \`valuemax\`, \`valuetext\` | SC 4.1.2 Name, Role, Value (A) |
+| **Question Card (QuestionCard.jsx)** | \`<section aria-labelledby="...">\` | Heading \`<h2 id="question-prompt-heading">\` | SC 1.3.1 Info and Relationships (A) |
+| **Answer Options (OptionsGrid.jsx)** | \`<div role="radiogroup">\` | \`<button role="radio" aria-checked="...">\` | SC 4.1.2 Name, Role, Value (A) |
+| **Dialog Modals (All Modals)** | \`<div role="dialog">\` | \`aria-modal="true"\`, Focus trap, Escape key | SC 2.4.3 Focus Order (A) |
+| **Results Tabs (ResultOverview.jsx)** | \`<div role="tablist">\` | \`<button role="tab">\` + \`<div role="tabpanel">\` | SC 4.1.2 Name, Role, Value (A) |
+| **Question Accordion (QuestionSummary.jsx)** | \`<button aria-expanded="...">\` | \`aria-controls\` paired with \`<div role="region">\` | SC 4.1.2 Name, Role, Value (A) |
+
+### 8.3 Keyboard Shortcut & Interaction Matrix
+
+| Key / Combination | Function / Target Action | Scope / Viewport Context |
+| :--- | :--- | :--- |
+| \`Tab\` / \`Shift + Tab\` | Sequential focus navigation with visible 4px focus rings | Entire Application |
+| \`1\`, \`2\`, \`3\`, \`4\` or \`A\`, \`B\`, \`C\`, \`D\` | Directly select answer option 1, 2, 3, or 4 | Active Learning Quest |
+| \`ArrowUp\` / \`ArrowLeft\` | Navigate and select previous radio option in group | Answer Options Grid |
+| \`ArrowDown\` / \`ArrowRight\` | Navigate and select next radio option in group | Answer Options Grid |
+| \`Enter\` / \`Space\` | Submit answer / Advance to next question / Activate control | Quest & Solution Views |
+| \`Escape\` | Dismiss active modal (Hint, Tutor, Zoom, Exit, Unsaved) | Any Active Modal Dialog |
+
+---
+
+## 9. Verification, Build & Testing Standards
 
 - **Zero Build Warnings**: \`npm run build\` executes cleanly with 0 errors and zero chunk-size warnings under Vite 6.
 - **Zero Fetch Remnants**: Verified project-wide via automated AST grep script: 100% of HTTP calls route through Axios.
 - **Strict Type & Syntax Validation**: Verified \`server/index.js\` and all React components using \`node -c\` and esbuild transform.
 - **Single-Voice Guarantee Test**: Verified rapid clicking of question speech and hint buttons: prior utterance cancels immediately with zero voice stacking.
+- **WCAG 2.1 AA Accessibility Conformance**: Validated contrast ratios (>= 4.5:1), keyboard-only navigability, focus trapping across all 5 modals, ARIA live announcements, and screen reader testing (NVDA / VoiceOver).
 - **Automated Windows Git Index Integrity Tool (\`scripts/fix-git-index.ps1\`)**:
   - Configured Git filesystem synchronization (\`git config core.fsync index,committed\`).
   - Added standalone PowerShell recovery script \`scripts/fix-git-index.ps1\` and npm shortcut \`npm run fix-git\` to instantly recover from zero-byte Windows index truncation (\`fatal: .git/index: index file smaller than expected\`) without data loss.

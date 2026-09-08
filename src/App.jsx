@@ -105,6 +105,9 @@ export default function App() {
 	const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 	const [isAskDoubtOpen, setIsAskDoubtOpen] = useState(false);
 
+	// WCAG AA Live Announcement for Screen Readers
+	const [liveAnnouncement, setLiveAnnouncement] = useState('');
+
 	// Pending Skill target to auto-launch after setup
 	const [pendingSkill, setPendingSkill] = useState(null);
 
@@ -337,6 +340,9 @@ export default function App() {
 		setIsTimedOut(true);
 		setSelectedOptionId(null);
 		playIncorrectSound(soundEnabled);
+		setLiveAnnouncement(
+			"Time's up! No answer was selected. Look at the correct solution.",
+		);
 
 		if (speechEnabled) {
 			speakText(
@@ -401,6 +407,11 @@ export default function App() {
 
 		const isCorrect = selectedOptionId === currentQuestion.correctAnswerId;
 		setIsSubmitted(true);
+		setLiveAnnouncement(
+			isCorrect ?
+				'Answer submitted: Correct! Well done.'
+			:	'Answer submitted: Incorrect. Check the solution explanation below.',
+		);
 
 		if (isCorrect) {
 			playCorrectSound(soundEnabled);
@@ -445,6 +456,7 @@ export default function App() {
 	const handleSkip = () => {
 		if (isSubmitted || isTimedOut) return;
 		playButtonPop(soundEnabled);
+		setLiveAnnouncement('Question skipped. Moving to next question.');
 
 		if (speechEnabled) {
 			speakText('Question skipped.');
@@ -507,8 +519,98 @@ export default function App() {
 
 			setIsCompleted(true);
 			setResultTab('overview');
+			setLiveAnnouncement(
+				`Quest completed! Your score is ${score} percent with ${correctCount} correct answers out of ${questions.length}.`,
+			);
 		}
 	};
+
+	// WCAG AA: Announce Question Changes to Screen Readers
+	useEffect(() => {
+		if (
+			currentQuestion &&
+			currentScreen === 'thinksheet' &&
+			!isLoadingSheet &&
+			!isCompleted
+		) {
+			const prompt =
+				currentQuestion.question || currentQuestion.questionText || '';
+			setLiveAnnouncement(
+				`Question ${currentIndex + 1} of ${questions.length || 10}: ${prompt}`,
+			);
+		}
+	}, [
+		currentIndex,
+		currentQuestion,
+		currentScreen,
+		isLoadingSheet,
+		isCompleted,
+		questions.length,
+	]);
+
+	// WCAG AA: Announce Selected Option to Screen Readers
+	useEffect(() => {
+		if (selectedOptionId && currentQuestion && !isSubmitted) {
+			const opt = currentQuestion.options?.find(
+				(o) => o.id === selectedOptionId,
+			);
+			if (opt) {
+				setLiveAnnouncement(`Selected option ${opt.id}: ${opt.text || ''}`);
+			}
+		}
+	}, [selectedOptionId, currentQuestion, isSubmitted]);
+
+	// WCAG AA: Global Keyboard Navigation Shortcuts (1-4, A-D, Enter)
+	useEffect(() => {
+		if (currentScreen !== 'thinksheet' || isLoadingSheet || isCompleted) return;
+		const anyModalOpen =
+			isHintOpen || isZoomOpen || isExitModalOpen || isAskDoubtOpen;
+		if (anyModalOpen) return;
+
+		const handleKeyDown = (e) => {
+			if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName)) return;
+
+			const key = e.key;
+			if (!isSubmitted) {
+				if (['1', '2', '3', '4'].includes(key)) {
+					const idx = parseInt(key, 10) - 1;
+					if (currentQuestion?.options?.[idx]) {
+						e.preventDefault();
+						handleSelectOption(currentQuestion.options[idx].id);
+					}
+				} else if (['a', 'b', 'c', 'd', 'A', 'B', 'C', 'D'].includes(key)) {
+					const upper = key.toUpperCase();
+					if (currentQuestion?.options?.some((o) => o.id === upper)) {
+						e.preventDefault();
+						handleSelectOption(upper);
+					}
+				} else if (key === 'Enter' && selectedOptionId) {
+					e.preventDefault();
+					handleSubmit();
+				}
+			} else {
+				if (key === 'Enter') {
+					e.preventDefault();
+					handleNext();
+				}
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [
+		currentScreen,
+		isLoadingSheet,
+		isCompleted,
+		isSubmitted,
+		selectedOptionId,
+		currentQuestion,
+		isHintOpen,
+		isZoomOpen,
+		isExitModalOpen,
+		isAskDoubtOpen,
+		handleSelectOption,
+	]);
 
 	// Start Next Sheet in same skill
 	const handleStartNextSheet = async () => {
@@ -675,6 +777,22 @@ export default function App() {
 					'lg:h-screen lg:overflow-hidden justify-between'
 				:	'overflow-y-auto'
 			}`}>
+			{/* Skip to Main Content for Keyboard Accessibility (WCAG SC 2.4.1) */}
+			<a
+				href='#main-content'
+				className='sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-indigo-600 focus:text-white focus:font-black focus:rounded-xl focus:shadow-2xl focus:ring-4 focus:ring-indigo-300 focus:outline-none'>
+				Skip to main content
+			</a>
+
+			{/* Screen Reader Live Announcement Region (WCAG SC 4.1.3) */}
+			<div
+				role='status'
+				aria-live='polite'
+				aria-atomic='true'
+				className='sr-only'>
+				{liveAnnouncement}
+			</div>
+
 			{/* Top Header */}
 			<Header
 				questionIndex={currentIndex}
@@ -694,7 +812,10 @@ export default function App() {
 
 			{/* Main Screen Body */}
 			<main
-				className={`flex-1 flex flex-col items-center px-3 sm:px-6 w-full max-w-7xl mx-auto ${
+				id='main-content'
+				role='main'
+				tabIndex={-1}
+				className={`flex-1 flex flex-col items-center px-3 sm:px-6 w-full max-w-7xl mx-auto focus:outline-none ${
 					!isCompleted ?
 						'justify-center py-2 sm:py-3 min-h-0 overflow-hidden'
 					:	'justify-start py-6 sm:py-8 overflow-y-visible'
@@ -804,16 +925,18 @@ export default function App() {
 												playButtonPop(soundEnabled);
 												setIsHintOpen(true);
 											}}
-											className='w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 hover:scale-110 active:scale-95 text-white flex items-center justify-center shadow-lg transition-all border-2 border-white/40 flex-shrink-0 cursor-pointer'
-											title='Hint Clue'>
+											className='w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 hover:scale-110 active:scale-95 text-white flex items-center justify-center shadow-lg transition-all border-2 border-white/40 flex-shrink-0 cursor-pointer focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:outline-none'
+											title='Hint Clue'
+											aria-label='Get a hint clue'>
 											<Zap className='w-5 h-5 fill-white' />
 										</button>
 
 										{/* Skip Question Button */}
 										<button
 											onClick={handleSkip}
-											className='px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full font-black text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center justify-center gap-1.5 sm:gap-2 bg-[#1A1D54] hover:bg-[#252A74] text-slate-300 hover:text-white border-2 border-indigo-400/40 hover:border-indigo-300 hover:scale-105 active:scale-95 cursor-pointer'
-											title='Skip this question'>
+											className='px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full font-black text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center justify-center gap-1.5 sm:gap-2 bg-[#1A1D54] hover:bg-[#252A74] text-slate-300 hover:text-white border-2 border-indigo-400/40 hover:border-indigo-300 hover:scale-105 active:scale-95 cursor-pointer focus-visible:ring-4 focus-visible:ring-indigo-400 focus-visible:outline-none'
+											title='Skip this question'
+											aria-label='Skip this question'>
 											<SkipForward className='w-4 h-4 text-amber-400' />
 											<span>Skip</span>
 										</button>
@@ -822,6 +945,8 @@ export default function App() {
 									{/* Center: Running Timer for both Timer Limit (countdown) & Infinite Timer (stopwatch) */}
 									<div className='flex items-center justify-center flex-1 mx-2 sm:mx-4'>
 										<div
+											role='timer'
+											aria-live='off'
 											className={`flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-2xl border font-mono font-black text-sm sm:text-base md:text-lg tracking-wider shadow-inner transition-all ${
 												timerConfig?.enabled ?
 													questionTimeRemaining <= 5 ?
@@ -835,6 +960,11 @@ export default function App() {
 												timerConfig?.enabled ?
 													`Time remaining: ${questionTimeRemaining}s (Question limit)`
 												:	`Elapsed session time: ${timerSeconds}s (Infinite timer)`
+											}
+											aria-label={
+												timerConfig?.enabled ?
+													`Question countdown: ${questionTimeRemaining} seconds remaining`
+												:	`Elapsed session time: ${timerSeconds} seconds`
 											}>
 											<Clock
 												className={`w-4 h-4 sm:w-5 sm:h-5 ${
@@ -872,7 +1002,13 @@ export default function App() {
 									<button
 										disabled={!selectedOptionId}
 										onClick={handleSubmit}
-										className={`px-7 sm:px-12 py-3 sm:py-3.5 rounded-full font-black text-sm sm:text-base md:text-lg tracking-wider uppercase transition-all shadow-xl flex items-center justify-center gap-2.5 flex-shrink-0 ${
+										aria-label={
+											selectedOptionId ? 'Submit your answer' : (
+												'Select an answer option to submit'
+											)
+										}
+										aria-disabled={!selectedOptionId}
+										className={`px-7 sm:px-12 py-3 sm:py-3.5 rounded-full font-black text-sm sm:text-base md:text-lg tracking-wider uppercase transition-all shadow-xl flex items-center justify-center gap-2.5 flex-shrink-0 focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:outline-none ${
 											selectedOptionId ?
 												'bg-[#FF5B84] hover:bg-[#FF435A] text-white hover:scale-[1.02] active:scale-95 shadow-[0_8px_20px_rgba(255,91,132,0.4)] cursor-pointer'
 											:	'bg-slate-700 text-slate-400 cursor-not-allowed opacity-60'

@@ -63,15 +63,24 @@ const QuestionSummary = memo(function QuestionSummary({
 	const isAllCollapsed = expandedIndices.size === 0;
 
 	return (
-		<div className='w-full max-w-5xl mx-auto px-4 py-6 flex flex-col items-center select-none animate-in fade-in zoom-in-95 duration-500'>
+		<div className='w-full max-w-5xl mx-auto px-4 py-6 flex flex-col items-center animate-in fade-in zoom-in-95 duration-500'>
 			{/* Top Tabs */}
-			<div className='flex items-center gap-3 mb-6'>
+			<div
+				role='tablist'
+				aria-label='Quest results views'
+				className='flex items-center gap-3 mb-6'>
 				<button
+					type='button'
+					role='tab'
+					id='tab-overview'
+					aria-selected={activeTab === 'overview'}
+					aria-controls='panel-overview'
+					tabIndex={activeTab === 'overview' ? 0 : -1}
 					onClick={() => {
 						playButtonPop(soundEnabled);
 						setActiveTab('overview');
 					}}
-					className={`px-6 py-2.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg ${
+					className={`px-6 py-2.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg focus-visible:ring-4 focus-visible:ring-pink-400 cursor-pointer ${
 						activeTab === 'overview' ?
 							'bg-[#FF5B84] text-white ring-4 ring-pink-500/30'
 						:	'bg-[#15184C] text-gray-300 hover:text-white border border-[#2B3280]'
@@ -80,11 +89,17 @@ const QuestionSummary = memo(function QuestionSummary({
 				</button>
 
 				<button
+					type='button'
+					role='tab'
+					id='tab-summary'
+					aria-selected={activeTab === 'summary'}
+					aria-controls='panel-summary'
+					tabIndex={activeTab === 'summary' ? 0 : -1}
 					onClick={() => {
 						playButtonPop(soundEnabled);
 						setActiveTab('summary');
 					}}
-					className={`px-6 py-2.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg ${
+					className={`px-6 py-2.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg focus-visible:ring-4 focus-visible:ring-pink-400 cursor-pointer ${
 						activeTab === 'summary' ?
 							'bg-[#FF5B84] text-white ring-4 ring-pink-500/30'
 						:	'bg-[#15184C] text-gray-300 hover:text-white border border-[#2B3280]'
@@ -114,7 +129,8 @@ const QuestionSummary = memo(function QuestionSummary({
 						type='button'
 						onClick={handleExpandAll}
 						disabled={isAllExpanded}
-						className={`px-3 sm:px-3.5 py-1.5 rounded-xl border font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm ${
+						aria-label='Expand all questions'
+						className={`px-3 sm:px-3.5 py-1.5 rounded-xl border font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-cyan-400 ${
 							isAllExpanded ?
 								'bg-white/5 border-white/10 text-slate-500 opacity-60 cursor-not-allowed'
 							:	'bg-[#181D58] hover:bg-[#232B78] border-[#38419D] text-cyan-300 hover:text-white cursor-pointer hover:scale-105 active:scale-95'
@@ -129,7 +145,8 @@ const QuestionSummary = memo(function QuestionSummary({
 						type='button'
 						onClick={handleCollapseAll}
 						disabled={isAllCollapsed}
-						className={`px-3 sm:px-3.5 py-1.5 rounded-xl border font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm ${
+						aria-label='Collapse all questions'
+						className={`px-3 sm:px-3.5 py-1.5 rounded-xl border font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-pink-400 ${
 							isAllCollapsed ?
 								'bg-white/5 border-white/10 text-slate-500 opacity-60 cursor-not-allowed'
 							:	'bg-[#181D58] hover:bg-[#232B78] border-[#38419D] text-pink-300 hover:text-white cursor-pointer hover:scale-105 active:scale-95'
@@ -142,7 +159,12 @@ const QuestionSummary = memo(function QuestionSummary({
 			</div>
 
 			{/* Questions Accordion List */}
-			<div className='w-full flex flex-col gap-3'>
+			<div
+				id='panel-summary'
+				role='tabpanel'
+				aria-labelledby='tab-summary'
+				tabIndex={0}
+				className='w-full flex flex-col gap-3 focus:outline-none'>
 				{questions.map((q, idx) => {
 					const userResult = history[idx] || {};
 					const isCorrect = userResult.isCorrect;
@@ -160,8 +182,12 @@ const QuestionSummary = memo(function QuestionSummary({
 							className='bg-[#121644] border-2 border-[#29317D] rounded-2xl overflow-hidden shadow-lg transition-all'>
 							{/* Accordion Header */}
 							<button
+								type='button'
+								id={`q-header-${idx}`}
+								aria-expanded={isExpanded}
+								aria-controls={`q-details-${idx}`}
 								onClick={() => toggleExpand(idx)}
-								className='w-full p-4 sm:p-5 flex items-center justify-between gap-3 text-left hover:bg-[#181D58] transition-colors'>
+								className='w-full p-4 sm:p-5 flex items-center justify-between gap-3 text-left hover:bg-[#181D58] transition-colors focus-visible:ring-2 focus-visible:ring-cyan-400 cursor-pointer'>
 								<div className='flex items-center gap-3'>
 									{/* Status Icon */}
 									{isCorrect ?
@@ -205,7 +231,11 @@ const QuestionSummary = memo(function QuestionSummary({
 
 							{/* Accordion Body */}
 							{isExpanded && (
-								<div className='p-4 sm:p-6 bg-[#0E1238] border-t border-[#29317D] flex flex-col gap-4'>
+								<div
+									id={`q-details-${idx}`}
+									role='region'
+									aria-labelledby={`q-header-${idx}`}
+									className='p-4 sm:p-6 bg-[#0E1238] border-t border-[#29317D] flex flex-col gap-4'>
 									{/* Question Full Text */}
 									<p className='text-base sm:text-lg font-bold text-white leading-relaxed'>
 										{q.question || q.questionText}
@@ -304,22 +334,26 @@ const QuestionSummary = memo(function QuestionSummary({
 			{/* Bottom Action Buttons */}
 			<div className='mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-2xl'>
 				<button
+					type='button'
+					aria-label='Start next AstroQuest with 10 new questions'
 					onClick={() => {
 						playButtonPop(soundEnabled);
 						onStartNextSheet();
 					}}
-					className='w-full sm:w-auto py-3.5 sm:py-4 px-6 rounded-2xl bg-gradient-to-r from-[#FF5B84] to-[#FF435A] hover:from-[#FF435A] hover:to-[#E11D48] text-white font-extrabold text-sm sm:text-base shadow-[0_10px_25px_rgba(255,91,132,0.4)] flex items-center justify-center gap-2 transform hover:-translate-y-0.5 transition-all cursor-pointer'>
+					className='w-full sm:w-auto py-3.5 sm:py-4 px-6 rounded-2xl bg-gradient-to-r from-[#FF5B84] to-[#FF435A] hover:from-[#FF435A] hover:to-[#E11D48] text-white font-extrabold text-sm sm:text-base shadow-[0_10px_25px_rgba(255,91,132,0.4)] flex items-center justify-center gap-2 transform hover:-translate-y-0.5 transition-all cursor-pointer focus-visible:ring-4 focus-visible:ring-pink-400'>
 					<RefreshCw className='w-4 h-4 animate-spin-slow' />
 					<span>Start Next AstroQuest</span>
 				</button>
 
 				{onDownloadPdf && (
 					<button
+						type='button'
+						aria-label='Download session PDF report'
 						onClick={() => {
 							playButtonPop(soundEnabled);
 							onDownloadPdf();
 						}}
-						className='w-full sm:w-auto py-3.5 sm:py-4 px-6 rounded-2xl bg-[#0F143D] hover:bg-[#1A205E] border-2 border-cyan-400 text-cyan-300 hover:text-white font-extrabold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5'>
+						className='w-full sm:w-auto py-3.5 sm:py-4 px-6 rounded-2xl bg-[#0F143D] hover:bg-[#1A205E] border-2 border-cyan-400 text-cyan-300 hover:text-white font-extrabold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-cyan-400'>
 						<Download className='w-4 h-4' />
 						<span>Download PDF Report 📄</span>
 					</button>
@@ -327,11 +361,13 @@ const QuestionSummary = memo(function QuestionSummary({
 
 				{onBackToDashboard && (
 					<button
+						type='button'
+						aria-label='Back to Skills Hub'
 						onClick={() => {
 							playButtonPop(soundEnabled);
 							onBackToDashboard();
 						}}
-						className='w-full sm:w-auto py-3.5 sm:py-4 px-6 rounded-2xl bg-[#1C2263] hover:bg-[#252D80] border border-[#3A45A8] text-slate-300 hover:text-white font-extrabold text-sm sm:text-base transition-all flex items-center justify-center gap-2 cursor-pointer'>
+						className='w-full sm:w-auto py-3.5 sm:py-4 px-6 rounded-2xl bg-[#1C2263] hover:bg-[#252D80] border border-[#3A45A8] text-slate-300 hover:text-white font-extrabold text-sm sm:text-base transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-4 focus-visible:ring-indigo-400'>
 						<LayoutGrid className='w-4 h-4' />
 						<span>Skills Hub</span>
 					</button>

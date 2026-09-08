@@ -1,12 +1,11 @@
 import { Check, X as XIcon } from 'lucide-react';
 import { memo } from 'react';
 import { playButtonPop } from '../../utils/audioSynthesis';
-import
-	{
-		DynamicSvgShape,
-		hasShapeOrVisualConcept,
-		parseDynamicShape,
-	} from '../../utils/shapeGenerator';
+import {
+	DynamicSvgShape,
+	hasShapeOrVisualConcept,
+	parseDynamicShape,
+} from '../../utils/shapeGenerator';
 import { getConceptVisual, LazyVisualImage } from '../../utils/VisualDiagrams';
 
 const OptionsGrid = memo(function OptionsGrid({
@@ -18,8 +17,29 @@ const OptionsGrid = memo(function OptionsGrid({
 	soundEnabled,
 	showVisualDiagrams = false,
 }) {
+	const handleKeyDown = (e, currentIdx) => {
+		if (isSubmitted) return;
+		let nextIdx = null;
+		if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+			e.preventDefault();
+			nextIdx = (currentIdx + 1) % options.length;
+		} else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+			e.preventDefault();
+			nextIdx = (currentIdx - 1 + options.length) % options.length;
+		}
+		if (nextIdx !== null && options[nextIdx]) {
+			onSelectOption(options[nextIdx].id);
+			const btn = document.getElementById(`option-btn-${options[nextIdx].id}`);
+			if (btn) btn.focus();
+		}
+	};
+
 	return (
-		<div className='grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4.5 p-1 flex-1 h-full w-full'>
+		<div
+			role='radiogroup'
+			aria-labelledby='question-prompt-heading'
+			aria-label='Answer options'
+			className='grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4.5 p-1 flex-1 h-full w-full'>
 			{options.map((opt, idx) => {
 				const isSelected = selectedOptionId === opt.id;
 				const isCorrect = opt.id === correctAnswerId;
@@ -82,18 +102,34 @@ const OptionsGrid = memo(function OptionsGrid({
 					}
 				}
 
+				const accessibleLabel = `Option ${opt.id}: ${text}${
+					isSubmitted ?
+						isCorrect ? ' - Correct answer'
+						: isSelected ? ' - Your incorrect answer'
+						: ''
+					: isSelected ? ' - Selected'
+					: ''
+				}`;
+
 				return (
 					<button
 						key={opt.id}
+						id={`option-btn-${opt.id}`}
 						type='button'
+						role='radio'
+						aria-checked={isSelected}
+						aria-disabled={isSubmitted}
+						aria-label={accessibleLabel}
 						disabled={isSubmitted}
+						onKeyDown={(e) => handleKeyDown(e, idx)}
 						onClick={() => {
 							playButtonPop(soundEnabled);
 							onSelectOption(opt.id);
 						}}
-						className={`rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 flex items-center justify-start gap-2.5 sm:gap-3.5 transition-all duration-200 text-left flex-1 h-full min-h-[72px] sm:min-h-[86px] cursor-pointer relative overflow-hidden ${cardStyle}`}>
+						className={`rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 flex items-center justify-start gap-2.5 sm:gap-3.5 transition-all duration-200 text-left flex-1 h-full min-h-[72px] sm:min-h-[86px] cursor-pointer relative overflow-hidden focus-visible:ring-4 focus-visible:ring-indigo-400 focus-visible:outline-none ${cardStyle}`}>
 						{/* Letter Badge (A, B, C, D) */}
 						<div
+							aria-hidden='true'
 							className={`w-9 h-9 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center font-black text-sm sm:text-base flex-shrink-0 shadow-md ${badgeStyle}`}>
 							{isSubmitted && isCorrect ?
 								<Check className='w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[3]' />
@@ -105,6 +141,7 @@ const OptionsGrid = memo(function OptionsGrid({
 						{/* Option Image, Dynamic Visual Shape, or Concept Icon */}
 						{optionImage ?
 							<div
+								aria-hidden='true'
 								className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all overflow-hidden ${contrastBoxStyle}`}>
 								<LazyVisualImage
 									src={optionImage}
@@ -114,6 +151,7 @@ const OptionsGrid = memo(function OptionsGrid({
 							</div>
 						: parsedShape ?
 							<div
+								aria-hidden='true'
 								className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${contrastBoxStyle}`}>
 								<DynamicSvgShape
 									parsed={parsedShape}
@@ -123,6 +161,7 @@ const OptionsGrid = memo(function OptionsGrid({
 							</div>
 						: conceptVisual?.icon && conceptVisual.icon !== '💡' ?
 							<div
+								aria-hidden='true'
 								className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl flex-shrink-0 transition-all ${contrastBoxStyle}`}>
 								{conceptVisual.icon}
 							</div>

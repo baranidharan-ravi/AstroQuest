@@ -54,15 +54,24 @@ const ResultOverview = memo(function ResultOverview({
 	}, []);
 
 	return (
-		<div className='w-full max-w-6xl mx-auto px-4 py-6 flex flex-col items-center select-none animate-in fade-in zoom-in-95 duration-500'>
+		<div className='w-full max-w-6xl mx-auto px-4 py-6 flex flex-col items-center animate-in fade-in zoom-in-95 duration-500'>
 			{/* Top Tabs: RESULT OVERVIEW vs QUESTION SUMMARY */}
-			<div className='flex items-center gap-3 mb-8'>
+			<div
+				role='tablist'
+				aria-label='Quest results views'
+				className='flex items-center gap-3 mb-8'>
 				<button
+					type='button'
+					role='tab'
+					id='tab-overview'
+					aria-selected={activeTab === 'overview'}
+					aria-controls='panel-overview'
+					tabIndex={activeTab === 'overview' ? 0 : -1}
 					onClick={() => {
 						playButtonPop(soundEnabled);
 						setActiveTab('overview');
 					}}
-					className={`px-6 py-2.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg ${
+					className={`px-6 py-2.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg focus-visible:ring-4 focus-visible:ring-pink-400 cursor-pointer ${
 						activeTab === 'overview' ?
 							'bg-[#FF5B84] text-white ring-4 ring-pink-500/30'
 						:	'bg-[#15184C] text-gray-300 hover:text-white border border-[#2B3280]'
@@ -71,11 +80,17 @@ const ResultOverview = memo(function ResultOverview({
 				</button>
 
 				<button
+					type='button'
+					role='tab'
+					id='tab-summary'
+					aria-selected={activeTab === 'summary'}
+					aria-controls='panel-summary'
+					tabIndex={activeTab === 'summary' ? 0 : -1}
 					onClick={() => {
 						playButtonPop(soundEnabled);
 						setActiveTab('summary');
 					}}
-					className={`px-6 py-2.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg ${
+					className={`px-6 py-2.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg focus-visible:ring-4 focus-visible:ring-pink-400 cursor-pointer ${
 						activeTab === 'summary' ?
 							'bg-[#FF5B84] text-white ring-4 ring-pink-500/30'
 						:	'bg-[#15184C] text-gray-300 hover:text-white border border-[#2B3280]'
@@ -85,7 +100,12 @@ const ResultOverview = memo(function ResultOverview({
 			</div>
 
 			{/* Main Content Grid: Left Score/Stars, Right Leaderboard */}
-			<div className='w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center'>
+			<div
+				id='panel-overview'
+				role='tabpanel'
+				aria-labelledby='tab-overview'
+				tabIndex={0}
+				className='w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center focus:outline-none'>
 				{/* Left Side: Glowing Stars & Ribbon */}
 				<div className='lg:col-span-6 flex flex-col items-center justify-center text-center p-6 sm:p-10 relative'>
 					{/* Animated 3D Stars */}
@@ -193,11 +213,13 @@ const ResultOverview = memo(function ResultOverview({
 
 						{/* Next Sheet / Action Button */}
 						<button
+							type='button'
+							aria-label='Start next AstroQuest with 10 new questions'
 							onClick={() => {
 								playButtonPop(soundEnabled);
 								onStartNextSheet();
 							}}
-							className='mt-3 w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF5B84] to-[#FF435A] hover:from-[#FF435A] hover:to-[#E11D48] text-white font-extrabold text-base sm:text-lg shadow-[0_10px_25px_rgba(255,91,132,0.4)] hover:shadow-[0_12px_30px_rgba(255,91,132,0.6)] transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 cursor-pointer'>
+							className='mt-3 w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF5B84] to-[#FF435A] hover:from-[#FF435A] hover:to-[#E11D48] text-white font-extrabold text-base sm:text-lg shadow-[0_10px_25px_rgba(255,91,132,0.4)] hover:shadow-[0_12px_30px_rgba(255,91,132,0.6)] transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-4 focus-visible:ring-pink-400'>
 							<RefreshCw className='w-5 h-5 animate-spin-slow' />
 							<span>Start Next AstroQuest (10 New Questions)</span>
 						</button>
@@ -205,11 +227,13 @@ const ResultOverview = memo(function ResultOverview({
 						{/* Download PDF Report Button */}
 						{onDownloadPdf && (
 							<button
+								type='button'
+								aria-label='Download session PDF report'
 								onClick={() => {
 									playButtonPop(soundEnabled);
 									onDownloadPdf();
 								}}
-								className='w-full py-3.5 rounded-2xl bg-[#0F143D] hover:bg-[#1A205E] border-2 border-cyan-400 text-cyan-300 hover:text-white font-extrabold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5'>
+								className='w-full py-3.5 rounded-2xl bg-[#0F143D] hover:bg-[#1A205E] border-2 border-cyan-400 text-cyan-300 hover:text-white font-extrabold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-cyan-400'>
 								<Download className='w-5 h-5' />
 								<span>Download PDF Report 📄</span>
 							</button>
@@ -218,11 +242,13 @@ const ResultOverview = memo(function ResultOverview({
 						{/* Back to Skills Hub Button */}
 						{onBackToDashboard && (
 							<button
+								type='button'
+								aria-label='Back to Skills Hub'
 								onClick={() => {
 									playButtonPop(soundEnabled);
 									onBackToDashboard();
 								}}
-								className='w-full py-3 rounded-2xl bg-[#1C2263] hover:bg-[#252D80] border border-[#3A45A8] text-slate-300 hover:text-white font-extrabold text-sm sm:text-base transition-all flex items-center justify-center gap-2 cursor-pointer'>
+								className='w-full py-3 rounded-2xl bg-[#1C2263] hover:bg-[#252D80] border border-[#3A45A8] text-slate-300 hover:text-white font-extrabold text-sm sm:text-base transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-4 focus-visible:ring-indigo-400'>
 								<LayoutGrid className='w-4 h-4' />
 								<span>Back to Skills Hub</span>
 							</button>
