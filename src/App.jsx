@@ -1,20 +1,58 @@
+import {
+	ArrowLeft,
+	Clock,
+	Key,
+	RefreshCw,
+	SkipForward,
+	Sparkles,
+	Zap,
+} from 'lucide-react';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import PetAssistant from './features/companion/PetAssistant';
 import SkillSelectionDashboard from './features/dashboard/SkillSelectionDashboard';
-import AskDoubtModal from './features/quest/AskDoubtModal';
-import ExitConfirmationModal from './features/quest/ExitConfirmationModal';
-import HintModal from './features/quest/HintModal';
 import OptionsGrid from './features/quest/OptionsGrid';
 import QuestionCard from './features/quest/QuestionCard';
 import SolutionPanel from './features/quest/SolutionPanel';
-import CosmicQuestLoader from './utils/CosmicQuestLoader';
+import { getStoredApiKey } from './services/aiGenerator';
+import { getFreshThinksheetSession } from './services/questionService';
+import {
+	playButtonPop,
+	playCorrectSound,
+	playIncorrectSound,
+	speakText,
+} from './utils/audioSynthesis';
 import Header from './utils/Header';
-import ZoomModal from './utils/ZoomModal';
+import {
+	getStoredKidAge,
+	getStoredKidAvatar,
+	getStoredKidGender,
+	getStoredKidName,
+	getStoredPetAssistanceEnabled,
+	getStoredSelectedSkill,
+	getStoredShowVisualDiagrams,
+	getStoredTimerConfig,
+	loadProfileStats,
+	recordCompletedSheet,
+	saveStoredKidProfile,
+	saveStoredSelectedSkill,
+} from './utils/progressTracker';
+import { clearSessionState, saveSessionState } from './utils/storage';
 
-// Code-split screens loaded on demand
+// Code-split screens, loaders, and modals loaded on demand
 const SettingsScreen = lazy(() => import('./features/settings/SettingsScreen'));
 const ResultOverview = lazy(() => import('./features/results/ResultOverview'));
 const QuestionSummary = lazy(
 	() => import('./features/results/QuestionSummary'),
+);
+const CosmicQuestLoader = lazy(() => import('./utils/CosmicQuestLoader'));
+const AskDoubtModal = lazy(() => import('./features/quest/AskDoubtModal'));
+const ExitConfirmationModal = lazy(
+	() => import('./features/quest/ExitConfirmationModal'),
+);
+const HintModal = lazy(() => import('./features/quest/HintModal'));
+const ZoomModal = lazy(() => import('./utils/ZoomModal'));
+const SkippedReviewModal = lazy(
+	() => import('./features/quest/SkippedReviewModal'),
 );
 
 function ScreenLoadingFallback() {
@@ -28,43 +66,35 @@ function ScreenLoadingFallback() {
 	);
 }
 
-import confetti from 'canvas-confetti';
-import {
-	ArrowLeft,
-	Clock,
-	Key,
-	RefreshCw,
-	SkipForward,
-	Sparkles,
-	Zap,
-} from 'lucide-react';
-import { getStoredApiKey } from './services/aiGenerator';
-import { getFreshThinksheetSession } from './services/questionService';
-import {
-	playButtonPop,
-	playCorrectSound,
-	playIncorrectSound,
-	speakText,
-} from './utils/audioSynthesis';
-import {
-	getStoredKidAge,
-	getStoredKidName,
-	getStoredSelectedSkill,
-	getStoredShowVisualDiagrams,
-	getStoredTimerConfig,
-	loadProfileStats,
-	recordCompletedSheet,
-	saveStoredKidProfile,
-	saveStoredSelectedSkill,
-} from './utils/progressTracker';
-import { clearSessionState, saveSessionState } from './utils/storage';
+// On-demand celebration confetti loader (zero initial bundle cost)
+const triggerConfetti = async () => {
+	try {
+		const confettiModule = await import('canvas-confetti');
+		const confetti = confettiModule.default || confettiModule;
+		confetti({
+			particleCount: 90,
+			spread: 70,
+			origin: { y: 0.6 },
+			colors: ['#00D166', '#FFD166', '#00E5FF', '#FF5B84', '#B845ED'],
+			shapes: ['star', 'circle'],
+			scalar: 1.2,
+		});
+	} catch (err) {
+		console.warn('Confetti error', err);
+	}
+};
 
 export default function App() {
 	// Kid Profile & Name State
 	const [kidName, setKidName] = useState(getStoredKidName);
 	const [kidAge, setKidAge] = useState(getStoredKidAge);
+	const [kidGender, setKidGender] = useState(getStoredKidGender);
+	const [kidAvatar, setKidAvatar] = useState(getStoredKidAvatar);
 	const [showVisualDiagrams, setShowVisualDiagrams] = useState(
 		getStoredShowVisualDiagrams,
+	);
+	const [petAssistanceEnabled, setPetAssistanceEnabled] = useState(
+		getStoredPetAssistanceEnabled,
 	);
 
 	// Navigation State
@@ -94,6 +124,13 @@ export default function App() {
 	const [resultTab, setResultTab] = useState('overview'); // 'overview' | 'summary'
 	const [isLoadingSheet, setIsLoadingSheet] = useState(false);
 	const [aiError, setAiError] = useState(null); // null | 'MISSING_KEY' | 'API_ERROR' | 'GENERIC_ERROR'
+
+	// Skipped Question Revisit & Review Engine State
+	const [isReviewMode, setIsReviewMode] = useState(false);
+	const [skippedReviewQueue, setSkippedReviewQueue] = useState([]);
+	const [isSkippedReviewPromptOpen, setIsSkippedReviewPromptOpen] =
+		useState(false);
+	const [wasSkippedOnRevisit, setWasSkippedOnRevisit] = useState(false);
 
 	// Settings & Audio Controls
 	const [soundEnabled, setSoundEnabled] = useState(true);
@@ -305,6 +342,10 @@ export default function App() {
 		setHistory([]);
 		setTimerSeconds(0);
 		setIsCompleted(false);
+		setIsReviewMode(false);
+		setSkippedReviewQueue([]);
+		setIsSkippedReviewPromptOpen(false);
+		setWasSkippedOnRevisit(false);
 
 		try {
 			const freshQuestions = await getFreshThinksheetSession(skill, 1, age);
@@ -325,19 +366,27 @@ export default function App() {
 	const handleSaveKidProfile = ({
 		name,
 		age,
+		gender: newGender,
+		avatar: newAvatar,
 		timerConfig: newTimerConfig,
 		showVisualDiagrams: newShowVisualDiagrams,
+		petAssistanceEnabled: newPetAssistanceEnabled,
 		toastNotice,
 	}) => {
-		saveStoredKidProfile(name, age);
+		saveStoredKidProfile(name, age, newGender, newAvatar);
 		setKidName(name);
 		setKidAge(age);
+		if (newGender) setKidGender(newGender);
+		if (newAvatar) setKidAvatar(newAvatar);
 		if (newTimerConfig) {
 			setTimerConfig(newTimerConfig);
 			setQuestionTimeRemaining(newTimerConfig.secondsPerQuestion || 90);
 		}
 		if (newShowVisualDiagrams !== undefined) {
 			setShowVisualDiagrams(newShowVisualDiagrams);
+		}
+		if (newPetAssistanceEnabled !== undefined) {
+			setPetAssistanceEnabled(newPetAssistanceEnabled);
 		}
 		if (toastNotice) {
 			setDashboardToast(toastNotice);
@@ -360,8 +409,11 @@ export default function App() {
 	const handleRefreshSettingsFromStorage = () => {
 		setKidName(getStoredKidName());
 		setKidAge(getStoredKidAge());
+		setKidGender(getStoredKidGender());
+		setKidAvatar(getStoredKidAvatar());
 		setTimerConfig(getStoredTimerConfig());
 		setShowVisualDiagrams(getStoredShowVisualDiagrams());
+		setPetAssistanceEnabled(getStoredPetAssistanceEnabled());
 		window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
 		document.documentElement.scrollTop = 0;
 		document.body.scrollTop = 0;
@@ -371,6 +423,7 @@ export default function App() {
 	const handleQuestionTimeout = () => {
 		setIsSubmitted(true);
 		setIsTimedOut(true);
+		setWasSkippedOnRevisit(false);
 		setSelectedOptionId(null);
 		playIncorrectSound(soundEnabled);
 		setLiveAnnouncement(
@@ -440,6 +493,7 @@ export default function App() {
 
 		const isCorrect = selectedOptionId === currentQuestion.correctAnswerId;
 		setIsSubmitted(true);
+		setWasSkippedOnRevisit(false);
 		setLiveAnnouncement(
 			isCorrect ?
 				'Answer submitted: Correct! Well done.'
@@ -448,20 +502,7 @@ export default function App() {
 
 		if (isCorrect) {
 			playCorrectSound(soundEnabled);
-
-			// Trigger Confetti Celebration
-			try {
-				confetti({
-					particleCount: 90,
-					spread: 70,
-					origin: { y: 0.6 },
-					colors: ['#00D166', '#FFD166', '#00E5FF', '#FF5B84', '#B845ED'],
-					shapes: ['star', 'circle'],
-					scalar: 1.2,
-				});
-			} catch (err) {
-				console.warn('Confetti error', err);
-			}
+			triggerConfetti();
 		} else {
 			playIncorrectSound(soundEnabled);
 		}
@@ -473,21 +514,75 @@ export default function App() {
 			setAutoAdvanceCountdown(null);
 		}
 
-		// Save to history
+		// Save to history (mark skipped as false since question was answered)
 		const newHistory = [...history];
 		newHistory[currentIndex] = {
 			questionId: currentQuestion.id,
 			selectedOptionId,
 			isCorrect,
+			skipped: false,
 			timedOut: false,
 			timestamp: Date.now(),
 		};
 		setHistory(newHistory);
 	};
 
+	// Finalize Quest & Show Results
+	const finalizeQuest = (finalHistory = history) => {
+		const correctCount = finalHistory.filter((h) => h && h.isCorrect).length;
+		const score = Math.round((correctCount / questions.length) * 100);
+
+		// Update and record profile stats
+		const updatedProfile = recordCompletedSheet(selectedSkill, score);
+		setProfileStats(updatedProfile);
+
+		setIsCompleted(true);
+		setResultTab('overview');
+		setLiveAnnouncement(
+			`Quest completed! Your score is ${score} percent with ${correctCount} correct answers out of ${questions.length}.`,
+		);
+	};
+
 	// Handle Skip Question
 	const handleSkip = () => {
 		if (isSubmitted || isTimedOut) return;
+
+		if (isReviewMode) {
+			// User is revisiting a previously skipped question and clicked "Skip" AGAIN (2nd skip)
+			// Requirement: show the correct answer and pedagogical solution before loading the next skipped question or results
+			playButtonPop(soundEnabled);
+			setWasSkippedOnRevisit(true);
+			setIsSubmitted(true);
+			setSelectedOptionId(null);
+			setIsTimedOut(false);
+			setLiveAnnouncement('Question skipped. Correct solution revealed.');
+
+			if (speechEnabled) {
+				speakText('Question skipped. Here is the correct solution.');
+			}
+
+			if (timerConfig.autoAdvanceEnabled) {
+				setAutoAdvanceCountdown(timerConfig.autoAdvanceSeconds || 7);
+			} else {
+				setAutoAdvanceCountdown(null);
+			}
+
+			// Retain in history as skipped
+			const newHistory = [...history];
+			newHistory[currentIndex] = {
+				questionId: currentQuestion.id,
+				selectedOptionId: null,
+				isCorrect: false,
+				skipped: true,
+				timedOut: false,
+				timestamp: Date.now(),
+			};
+			setHistory(newHistory);
+			return;
+		}
+
+		// Normal Mode: First skip
+		// Requirement: next question loaded immediately without revealing correct answer
 		playButtonPop(soundEnabled);
 		setLiveAnnouncement('Question skipped. Moving to next question.');
 
@@ -511,22 +606,24 @@ export default function App() {
 		};
 		setHistory(newHistory);
 
-		// Move directly to next question
+		// Move directly to next question if available in sequence
 		if (currentIndex + 1 < questions.length) {
 			setCurrentIndex((prev) => prev + 1);
 			setSelectedOptionId(null);
 			setIsSubmitted(false);
 		} else {
-			// Completed all 10 questions!
-			const correctCount = newHistory.filter((h) => h && h.isCorrect).length;
-			const score = Math.round((correctCount / questions.length) * 100);
+			// Reached the end of the initial 10-question sequence
+			// Check if any questions were skipped during this run
+			const skippedIndices = newHistory
+				.map((h, idx) => (h && h.skipped ? idx : null))
+				.filter((idx) => idx !== null);
 
-			// Update and record profile stats
-			const updatedProfile = recordCompletedSheet(selectedSkill, score);
-			setProfileStats(updatedProfile);
-
-			setIsCompleted(true);
-			setResultTab('overview');
+			if (skippedIndices.length > 0) {
+				// Show dialog to revisit skipped questions before showing results
+				setIsSkippedReviewPromptOpen(true);
+			} else {
+				finalizeQuest(newHistory);
+			}
 		}
 	};
 
@@ -537,25 +634,79 @@ export default function App() {
 		setAutoAdvanceCountdown(null);
 		setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
 
+		if (isReviewMode) {
+			// In Review Mode: dequeue the current question from the review queue
+			const remainingQueue = skippedReviewQueue.filter(
+				(idx) => idx !== currentIndex,
+			);
+			setSkippedReviewQueue(remainingQueue);
+
+			if (remainingQueue.length > 0) {
+				// Load the next skipped question immediately
+				const nextIdx = remainingQueue[0];
+				setCurrentIndex(nextIdx);
+				setSelectedOptionId(null);
+				setIsSubmitted(false);
+				setWasSkippedOnRevisit(false);
+			} else {
+				// No more skipped questions available — load the Result Summary page!
+				setIsReviewMode(false);
+				setWasSkippedOnRevisit(false);
+				finalizeQuest(history);
+			}
+			return;
+		}
+
+		// Normal Mode
 		if (currentIndex + 1 < questions.length) {
 			setCurrentIndex((prev) => prev + 1);
 			setSelectedOptionId(null);
 			setIsSubmitted(false);
 		} else {
-			// Completed all 10 questions!
-			const correctCount = history.filter((h) => h && h.isCorrect).length;
-			const score = Math.round((correctCount / questions.length) * 100);
+			// Reached end of initial questions!
+			const skippedIndices = history
+				.map((h, idx) => (h && h.skipped ? idx : null))
+				.filter((idx) => idx !== null);
 
-			// Update and record profile stats
-			const updatedProfile = recordCompletedSheet(selectedSkill, score);
-			setProfileStats(updatedProfile);
-
-			setIsCompleted(true);
-			setResultTab('overview');
-			setLiveAnnouncement(
-				`Quest completed! Your score is ${score} percent with ${correctCount} correct answers out of ${questions.length}.`,
-			);
+			if (skippedIndices.length > 0) {
+				setIsSkippedReviewPromptOpen(true);
+			} else {
+				finalizeQuest(history);
+			}
 		}
+	};
+
+	// Start Revisiting Skipped Questions
+	const handleStartSkippedReview = () => {
+		const skippedIndices = history
+			.map((h, idx) => (h && h.skipped ? idx : null))
+			.filter((idx) => idx !== null);
+
+		if (skippedIndices.length === 0) {
+			setIsSkippedReviewPromptOpen(false);
+			finalizeQuest(history);
+			return;
+		}
+
+		setIsSkippedReviewPromptOpen(false);
+		setIsReviewMode(true);
+		setSkippedReviewQueue(skippedIndices);
+		setWasSkippedOnRevisit(false);
+		setCurrentIndex(skippedIndices[0]);
+		setSelectedOptionId(null);
+		setIsSubmitted(false);
+		setIsTimedOut(false);
+		setAutoAdvanceCountdown(null);
+		setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
+		setLiveAnnouncement(
+			`Revisiting question ${skippedIndices[0] + 1} of skipped questions.`,
+		);
+	};
+
+	// Skip Review and Proceed to Results Summary
+	const handleSkipReviewAndFinish = () => {
+		setIsSkippedReviewPromptOpen(false);
+		finalizeQuest(history);
 	};
 
 	// WCAG AA: Announce Question Changes to Screen Readers
@@ -597,7 +748,11 @@ export default function App() {
 	useEffect(() => {
 		if (currentScreen !== 'thinksheet' || isLoadingSheet || isCompleted) return;
 		const anyModalOpen =
-			isHintOpen || isZoomOpen || isExitModalOpen || isAskDoubtOpen;
+			isHintOpen ||
+			isZoomOpen ||
+			isExitModalOpen ||
+			isAskDoubtOpen ||
+			isSkippedReviewPromptOpen;
 		if (anyModalOpen) return;
 
 		const handleKeyDown = (e) => {
@@ -642,6 +797,7 @@ export default function App() {
 		isZoomOpen,
 		isExitModalOpen,
 		isAskDoubtOpen,
+		isSkippedReviewPromptOpen,
 		handleSelectOption,
 	]);
 
@@ -668,6 +824,10 @@ export default function App() {
 			setIsSubmitted(false);
 			setHistory([]);
 			setIsCompleted(false);
+			setIsReviewMode(false);
+			setSkippedReviewQueue([]);
+			setIsSkippedReviewPromptOpen(false);
+			setWasSkippedOnRevisit(false);
 			setResultTab('overview');
 		} catch (err) {
 			console.error('AI Next Sheet Failed:', err);
@@ -761,6 +921,10 @@ export default function App() {
 	const handleConfirmExit = () => {
 		clearSessionState();
 		setIsExitModalOpen(false);
+		setIsReviewMode(false);
+		setSkippedReviewQueue([]);
+		setIsSkippedReviewPromptOpen(false);
+		setWasSkippedOnRevisit(false);
 		setCurrentScreen('dashboard');
 	};
 
@@ -790,6 +954,8 @@ export default function App() {
 				soundEnabled={soundEnabled}
 				kidName={kidName}
 				kidAge={kidAge}
+				kidGender={kidGender}
+				kidAvatar={kidAvatar}
 				onOpenSettings={() => setCurrentScreen('settings')}
 				onAnimationComplete={() => {
 					if (!getStoredKidName() || !getStoredApiKey()) {
@@ -844,6 +1010,8 @@ export default function App() {
 				onExitClick={handleOpenExitModal}
 				kidName={kidName}
 				kidAge={kidAge}
+				kidGender={kidGender}
+				kidAvatar={kidAvatar}
 			/>
 
 			{/* Main Screen Body */}
@@ -858,11 +1026,14 @@ export default function App() {
 				}`}>
 				{isLoadingSheet ?
 					/* AstroQuest Cosmic Loader */
-					<CosmicQuestLoader
-						selectedSkill={selectedSkill}
-						kidName={kidName}
-						kidAge={kidAge}
-					/>
+					<Suspense fallback={<ScreenLoadingFallback />}>
+						<CosmicQuestLoader
+							selectedSkill={selectedSkill}
+							kidName={kidName}
+							kidAge={kidAge}
+							kidAvatar={kidAvatar}
+						/>
+					</Suspense>
 				: aiError ?
 					/* AI Error / API Key Setup Prompt Screen */
 					<div className='w-full max-w-xl mx-auto p-6 sm:p-8 bg-gradient-to-b from-[#1C1F5E] via-[#141846] to-[#0D1030] border-4 border-amber-400/80 rounded-3xl shadow-2xl text-center animate-in fade-in'>
@@ -933,6 +1104,7 @@ export default function App() {
 											showVisualDiagrams={showVisualDiagrams}
 											kidName={kidName}
 											kidAge={kidAge}
+											isReviewMode={isReviewMode}
 										/>
 									</div>
 
@@ -1067,6 +1239,7 @@ export default function App() {
 										showVisualDiagrams={showVisualDiagrams}
 										kidName={kidName}
 										kidAge={kidAge}
+										isReviewMode={isReviewMode}
 									/>
 									<OptionsGrid
 										options={currentQuestion.options || []}
@@ -1093,6 +1266,13 @@ export default function App() {
 										soundEnabled={soundEnabled}
 										onNext={handleNext}
 										showVisualDiagrams={showVisualDiagrams}
+										isReviewMode={isReviewMode}
+										wasSkippedOnRevisit={wasSkippedOnRevisit}
+										hasNextSkipped={
+											isReviewMode &&
+											skippedReviewQueue.filter((idx) => idx !== currentIndex)
+												.length > 0
+										}
 									/>
 								</div>
 							</div>
@@ -1133,45 +1313,83 @@ export default function App() {
 				}
 			</main>
 
-			{/* Interactive Modals */}
-			<HintModal
-				hintText={currentQuestion.hint}
-				isOpen={isHintOpen}
-				onClose={() => setIsHintOpen(false)}
-				soundEnabled={soundEnabled}
-			/>
+			{/* Interactive Modals (Lazy Loaded on Demand) */}
+			<Suspense fallback={null}>
+				{isHintOpen && (
+					<HintModal
+						hintText={currentQuestion.hint}
+						isOpen={isHintOpen}
+						onClose={() => setIsHintOpen(false)}
+						soundEnabled={soundEnabled}
+					/>
+				)}
 
-			<ZoomModal
-				diagramType={currentQuestion.diagramType}
-				diagramData={{
-					...currentQuestion.diagramData,
-					questionText:
-						currentQuestion.question || currentQuestion.questionText,
-					correctAnswerText:
-						currentQuestion.correctAnswerText || currentQuestion.correctAnswer,
-				}}
-				isOpen={isZoomOpen}
-				onClose={() => setIsZoomOpen(false)}
-				soundEnabled={soundEnabled}
-			/>
+				{isZoomOpen && (
+					<ZoomModal
+						diagramType={currentQuestion.diagramType}
+						diagramData={{
+							...currentQuestion.diagramData,
+							questionText:
+								currentQuestion.question || currentQuestion.questionText,
+							correctAnswerText:
+								currentQuestion.correctAnswerText ||
+								currentQuestion.correctAnswer,
+						}}
+						isOpen={isZoomOpen}
+						onClose={() => setIsZoomOpen(false)}
+						soundEnabled={soundEnabled}
+					/>
+				)}
 
-			<AskDoubtModal
-				question={currentQuestion}
-				isOpen={isAskDoubtOpen}
-				onClose={() => setIsAskDoubtOpen(false)}
-				soundEnabled={soundEnabled}
-			/>
+				{isAskDoubtOpen && (
+					<AskDoubtModal
+						question={currentQuestion}
+						isOpen={isAskDoubtOpen}
+						onClose={() => setIsAskDoubtOpen(false)}
+						soundEnabled={soundEnabled}
+					/>
+				)}
 
-			{/* Exit Confirmation Modal */}
-			<ExitConfirmationModal
-				isOpen={isExitModalOpen}
-				onClose={() => setIsExitModalOpen(false)}
-				onConfirmExit={handleConfirmExit}
-				currentIndex={currentIndex}
-				totalQuestions={questions.length}
-				selectedSkill={selectedSkill}
-				soundEnabled={soundEnabled}
-			/>
+				{isExitModalOpen && (
+					<ExitConfirmationModal
+						isOpen={isExitModalOpen}
+						onClose={() => setIsExitModalOpen(false)}
+						onConfirmExit={handleConfirmExit}
+						currentIndex={currentIndex}
+						totalQuestions={questions.length}
+						selectedSkill={selectedSkill}
+						soundEnabled={soundEnabled}
+					/>
+				)}
+
+				{isSkippedReviewPromptOpen && (
+					<SkippedReviewModal
+						isOpen={isSkippedReviewPromptOpen}
+						onRevisit={handleStartSkippedReview}
+						onViewResults={handleSkipReviewAndFinish}
+						skippedIndices={history
+							.map((h, idx) => (h && h.skipped ? idx : null))
+							.filter((idx) => idx !== null)}
+						soundEnabled={soundEnabled}
+					/>
+				)}
+			</Suspense>
+
+			{/* Interactive Cosmic Pet Assistant (Configurable via Settings) */}
+			{petAssistanceEnabled && (
+				<PetAssistant
+					currentScreen={currentScreen}
+					currentQuestion={currentQuestion}
+					isSubmitted={isSubmitted}
+					isCorrect={selectedOptionId === currentQuestion?.correctAnswerId}
+					isReviewMode={isReviewMode}
+					wasSkippedOnRevisit={wasSkippedOnRevisit}
+					kidName={kidName}
+					soundEnabled={soundEnabled}
+					speechEnabled={speechEnabled}
+					onTriggerHint={() => setIsHintOpen(true)}
+				/>
+			)}
 		</div>
 	);
 }

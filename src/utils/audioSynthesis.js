@@ -447,3 +447,179 @@ export function stopSpeaking() {
 		console.warn('Speech synthesis stop error', err);
 	}
 }
+
+/**
+ * Play an authentic, cheerful puppy bark
+ */
+export function playDogBark(enabled = true) {
+	if (!enabled) return;
+	const ctx = getAudioContext();
+	if (!ctx) return;
+
+	const now = ctx.currentTime;
+
+	// Friendly two-stage puppy bark
+	[0, 0.16].forEach((delay, idx) => {
+		const osc = ctx.createOscillator();
+		const filter = ctx.createBiquadFilter();
+		const gain = ctx.createGain();
+
+		osc.type = 'sawtooth';
+		filter.type = 'bandpass';
+		filter.Q.setValueAtTime(3.5, now + delay);
+		filter.frequency.setValueAtTime(idx === 0 ? 780 : 920, now + delay);
+		filter.frequency.exponentialRampToValueAtTime(350, now + delay + 0.11);
+
+		osc.frequency.setValueAtTime(idx === 0 ? 320 : 380, now + delay);
+		osc.frequency.exponentialRampToValueAtTime(220, now + delay + 0.11);
+
+		gain.gain.setValueAtTime(0, now + delay);
+		gain.gain.linearRampToValueAtTime(0.28, now + delay + 0.015);
+		gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.12);
+
+		osc.connect(filter);
+		filter.connect(gain);
+		gain.connect(ctx.destination);
+
+		osc.start(now + delay);
+		osc.stop(now + delay + 0.13);
+	});
+}
+
+/**
+ * Play a cute, vocalized cat meow
+ */
+export function playCatMeow(enabled = true) {
+	if (!enabled) return;
+	const ctx = getAudioContext();
+	if (!ctx) return;
+
+	const now = ctx.currentTime;
+	const osc = ctx.createOscillator();
+	const filter = ctx.createBiquadFilter();
+	const gain = ctx.createGain();
+
+	osc.type = 'triangle';
+	filter.type = 'bandpass';
+	filter.Q.setValueAtTime(4.0, now);
+
+	// "Me-o-w" contour: starts around 400Hz, rises to 820Hz, then trails down to 480Hz
+	osc.frequency.setValueAtTime(380, now);
+	osc.frequency.linearRampToValueAtTime(740, now + 0.12);
+	osc.frequency.exponentialRampToValueAtTime(460, now + 0.38);
+
+	filter.frequency.setValueAtTime(500, now);
+	filter.frequency.linearRampToValueAtTime(1100, now + 0.14);
+	filter.frequency.exponentialRampToValueAtTime(600, now + 0.38);
+
+	gain.gain.setValueAtTime(0, now);
+	gain.gain.linearRampToValueAtTime(0.24, now + 0.06);
+	gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+	osc.connect(filter);
+	filter.connect(gain);
+	gain.connect(ctx.destination);
+
+	osc.start(now);
+	osc.stop(now + 0.39);
+}
+
+/**
+ * Play a gentle munching / drinking water lap sound
+ */
+export function playPetSlurp(enabled = true) {
+	if (!enabled) return;
+	const ctx = getAudioContext();
+	if (!ctx) return;
+
+	const now = ctx.currentTime;
+	[0, 0.09, 0.18].forEach((delay) => {
+		const osc = ctx.createOscillator();
+		const gain = ctx.createGain();
+
+		osc.type = 'sine';
+		osc.frequency.setValueAtTime(650 + Math.random() * 200, now + delay);
+		osc.frequency.exponentialRampToValueAtTime(280, now + delay + 0.06);
+
+		gain.gain.setValueAtTime(0, now + delay);
+		gain.gain.linearRampToValueAtTime(0.14, now + delay + 0.01);
+		gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.06);
+
+		osc.connect(gain);
+		gain.connect(ctx.destination);
+
+		osc.start(now + delay);
+		osc.stop(now + delay + 0.07);
+	});
+}
+
+/**
+ * Play a bouncy cartoon boing for playing with toys
+ */
+export function playToyBoing(enabled = true) {
+	if (!enabled) return;
+	const ctx = getAudioContext();
+	if (!ctx) return;
+
+	const now = ctx.currentTime;
+	const osc = ctx.createOscillator();
+	const gain = ctx.createGain();
+
+	osc.type = 'sine';
+	osc.frequency.setValueAtTime(240, now);
+	osc.frequency.exponentialRampToValueAtTime(680, now + 0.22);
+
+	gain.gain.setValueAtTime(0.2, now);
+	gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+	osc.connect(gain);
+	gain.connect(ctx.destination);
+
+	osc.start(now);
+	osc.stop(now + 0.26);
+}
+
+/**
+ * Play sound effect corresponding to active pet type
+ */
+export function playPetSound(petType = 'dog', enabled = true) {
+	if (!enabled) return;
+
+	if (petType === 'cat') {
+		playCatMeow(enabled);
+	} else if (petType === 'robot') {
+		const ctx = getAudioContext();
+		if (!ctx) return;
+		const now = ctx.currentTime;
+		[0, 0.08, 0.16].forEach((delay, idx) => {
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+			osc.type = 'triangle';
+			osc.frequency.setValueAtTime([880, 1174, 1480][idx], now + delay);
+			gain.gain.setValueAtTime(0.15, now + delay);
+			gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.07);
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now + delay);
+			osc.stop(now + delay + 0.08);
+		});
+	} else if (petType === 'alien') {
+		const ctx = getAudioContext();
+		if (!ctx) return;
+		const now = ctx.currentTime;
+		const osc = ctx.createOscillator();
+		const gain = ctx.createGain();
+		osc.type = 'sine';
+		osc.frequency.setValueAtTime(540, now);
+		osc.frequency.linearRampToValueAtTime(1180, now + 0.16);
+		osc.frequency.linearRampToValueAtTime(680, now + 0.3);
+		gain.gain.setValueAtTime(0.18, now);
+		gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+		osc.connect(gain);
+		gain.connect(ctx.destination);
+		osc.start(now);
+		osc.stop(now + 0.31);
+	} else {
+		playDogBark(enabled);
+	}
+}

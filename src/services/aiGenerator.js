@@ -689,6 +689,109 @@ export async function validateGeminiApiKey(apiKey, preferredModel = null) {
 }
 
 /**
+ * Asks Gemini AI to suggest and formulate a complete, kid-friendly skillset
+ * (Name, Subtitle Tagline, Pedagogical Description, Icon Emoji, and Color Theme)
+ * based on user-provided rough keywords or partial input.
+ */
+export async function suggestSkillsetDetails({
+	name = '',
+	tagline = '',
+	description = '',
+	kidAge = 5,
+	apiKey = null,
+	preferredModel = null,
+} = {}) {
+	const realApiKey = decryptApiKey(apiKey || getStoredApiKey());
+	if (!realApiKey) {
+		throw new Error('MISSING_API_KEY');
+	}
+
+	const cleanName = (name || '').trim();
+	const cleanTagline = (tagline || '').trim();
+	const cleanDesc = (description || '').trim();
+
+	const userContextParts = [];
+	if (cleanName) userContextParts.push(`- Topic / Title hint: "${cleanName}"`);
+	if (cleanTagline) userContextParts.push(`- Subtitle hint: "${cleanTagline}"`);
+	if (cleanDesc) userContextParts.push(`- Concept / Description hint: "${cleanDesc}"`);
+
+	const userContextStr =
+		userContextParts.length > 0 ?
+			userContextParts.join('\n')
+		:	'- No specific topic provided: create an exciting, creative STEM or logic exploration topic suitable for children.';
+
+	const promptText = `You are an expert STEM, logic, and early-childhood curriculum designer for an interactive learning app called "AstroQuest" for children aged 3 to 14.
+
+The user is creating a new custom learning skillset. Based on the user's input below, generate a polished, highly engaging skillset definition calibrated for a ${kidAge}-year-old explorer.
+
+User's Input:
+${userContextStr}
+Target Child Age: ${kidAge} years old
+
+Guidelines:
+1. "name": 2 to 4 words. Inspiring, clear, and age-appropriate (e.g. "Space & Astronomy", "Underwater Ocean Life", "Math Puzzle Quests", "Dinosaurs & Fossils", "Creative Word Riddles").
+2. "tagline": 3 to 6 words. Catchy subtitle summarizing the adventure (e.g. "Planets, Stars & Cosmic Secrets" or "Fractions, Shapes & Fun Logic").
+3. "description": 2 to 4 detailed sentences explaining the pedagogical concepts, questions, and problem types that Gemini AI should generate for this skill. Mention specific themes, puzzle formats, or observational tasks.
+4. "icon": A single fitting emoji character (e.g. 🚀, 🪐, 🦖, 🌊, 🔢, 🌿, 🧩, 🎨, 🐾, ⚡, 💡).
+5. "color": Exactly one of these allowed color keys: "emerald", "blue", "purple", "amber", "rose", "cyan".
+
+Return ONLY a single valid raw JSON object without markdown formatting, code blocks, or explanations:
+{
+  "name": "...",
+  "tagline": "...",
+  "description": "...",
+  "icon": "...",
+  "color": "..."
+}`;
+
+	const payload = {
+		contents: [{ parts: [{ text: promptText }] }],
+		generationConfig: {
+			temperature: 0.7,
+			topP: 0.95,
+			maxOutputTokens: 500,
+		},
+	};
+
+	const rawResponse = await callGeminiApi(payload, realApiKey, preferredModel);
+
+	// Extract candidate text
+	const candidateText =
+		rawResponse?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+	if (!candidateText) {
+		throw new Error('No response received from Gemini AI.');
+	}
+
+	// Clean code blocks or wrapping text
+	const cleanedJson = candidateText
+		.replace(/```json\s*/gi, '')
+		.replace(/```\s*/g, '')
+		.trim();
+
+	const jsonStart = cleanedJson.indexOf('{');
+	const jsonEnd = cleanedJson.lastIndexOf('}');
+	if (jsonStart === -1 || jsonEnd === -1) {
+		throw new Error('AI response did not contain a valid JSON object.');
+	}
+
+	const parsed = JSON.parse(cleanedJson.substring(jsonStart, jsonEnd + 1));
+
+	const allowedColors = ['emerald', 'blue', 'purple', 'amber', 'rose', 'cyan'];
+	const chosenColor =
+		allowedColors.includes(parsed.color?.toLowerCase()) ?
+			parsed.color.toLowerCase()
+		:	'cyan';
+
+	return {
+		name: (parsed.name || cleanName || 'New Skillset').trim(),
+		tagline: (parsed.tagline || cleanTagline || '').trim(),
+		description: (parsed.description || cleanDesc || '').trim(),
+		icon: (parsed.icon || '🚀').trim().slice(0, 4),
+		color: chosenColor,
+	};
+}
+
+/**
  * Ensures diagram data mathematically and visually matches the correct answer
  * Provides rich diagram auto-detection for all questions
  */

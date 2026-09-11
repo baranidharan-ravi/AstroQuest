@@ -1,23 +1,109 @@
-import { Brain, Eye, Orbit } from 'lucide-react';
+import { Brain, Eye, Navigation } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
+import { KidAvatar } from './avatarManager';
 import {
 	getStoredKidAge,
+	getStoredKidAvatar,
 	getStoredKidName,
 	getStoredSelectedSkill,
 } from './progressTracker';
 import { getSkillDefinition } from './skillManager';
 
+const PLANET_COLOR_CONFIGS = {
+	cyan: {
+		planetGradient: 'from-[#38BDF8] via-[#0284C7] to-[#082F49]',
+		surfaceLight: 'bg-cyan-300/30',
+		ringBorder: 'border-cyan-300/70',
+		ringGradient:
+			'linear-gradient(90deg, rgba(56,189,248,0.15) 0%, rgba(125,211,252,0.6) 50%, rgba(2,132,199,0.15) 100%)',
+		glowColor: 'rgba(34, 211, 238, 0.65)',
+		atmosphereGlow: 'shadow-[0_0_35px_rgba(34,211,238,0.5)]',
+		badgeBg: 'bg-cyan-950/70 border-cyan-400/40 text-cyan-300',
+		beaconColor: 'bg-cyan-400',
+		accentText: 'text-cyan-300',
+		pathColor: '#22D3EE',
+	},
+	purple: {
+		planetGradient: 'from-[#C084FC] via-[#7C3AED] to-[#2E1065]',
+		surfaceLight: 'bg-purple-300/30',
+		ringBorder: 'border-purple-300/70',
+		ringGradient:
+			'linear-gradient(90deg, rgba(192,132,252,0.15) 0%, rgba(216,180,254,0.6) 50%, rgba(124,58,237,0.15) 100%)',
+		glowColor: 'rgba(192, 132, 252, 0.65)',
+		atmosphereGlow: 'shadow-[0_0_35px_rgba(192,132,252,0.5)]',
+		badgeBg: 'bg-purple-950/70 border-purple-400/40 text-purple-300',
+		beaconColor: 'bg-purple-400',
+		accentText: 'text-purple-300',
+		pathColor: '#C084FC',
+	},
+	emerald: {
+		planetGradient: 'from-[#34D399] via-[#059669] to-[#022C22]',
+		surfaceLight: 'bg-emerald-300/30',
+		ringBorder: 'border-emerald-300/70',
+		ringGradient:
+			'linear-gradient(90deg, rgba(52,211,153,0.15) 0%, rgba(110,231,183,0.6) 50%, rgba(5,150,105,0.15) 100%)',
+		glowColor: 'rgba(52, 211, 153, 0.65)',
+		atmosphereGlow: 'shadow-[0_0_35px_rgba(52,211,153,0.5)]',
+		badgeBg: 'bg-emerald-950/70 border-emerald-400/40 text-emerald-300',
+		beaconColor: 'bg-emerald-400',
+		accentText: 'text-emerald-300',
+		pathColor: '#34D399',
+	},
+	amber: {
+		planetGradient: 'from-[#FBBF24] via-[#D97706] to-[#451A03]',
+		surfaceLight: 'bg-amber-300/30',
+		ringBorder: 'border-amber-300/70',
+		ringGradient:
+			'linear-gradient(90deg, rgba(251,191,36,0.15) 0%, rgba(252,211,77,0.6) 50%, rgba(217,119,6,0.15) 100%)',
+		glowColor: 'rgba(251, 191, 36, 0.65)',
+		atmosphereGlow: 'shadow-[0_0_35px_rgba(251,191,36,0.5)]',
+		badgeBg: 'bg-amber-950/70 border-amber-400/40 text-amber-300',
+		beaconColor: 'bg-amber-400',
+		accentText: 'text-amber-300',
+		pathColor: '#FBBF24',
+	},
+	blue: {
+		planetGradient: 'from-[#60A5FA] via-[#2563EB] to-[#172554]',
+		surfaceLight: 'bg-blue-300/30',
+		ringBorder: 'border-blue-300/70',
+		ringGradient:
+			'linear-gradient(90deg, rgba(96,165,250,0.15) 0%, rgba(147,197,253,0.6) 50%, rgba(37,99,235,0.15) 100%)',
+		glowColor: 'rgba(96, 165, 250, 0.65)',
+		atmosphereGlow: 'shadow-[0_0_35px_rgba(96,165,250,0.5)]',
+		badgeBg: 'bg-blue-950/70 border-blue-400/40 text-blue-300',
+		beaconColor: 'bg-blue-400',
+		accentText: 'text-blue-300',
+		pathColor: '#60A5FA',
+	},
+	rose: {
+		planetGradient: 'from-[#FB7185] via-[#E11D48] to-[#4C0519]',
+		surfaceLight: 'bg-rose-300/30',
+		ringBorder: 'border-rose-300/70',
+		ringGradient:
+			'linear-gradient(90deg, rgba(251,113,133,0.15) 0%, rgba(252,164,175,0.6) 50%, rgba(225,29,72,0.15) 100%)',
+		glowColor: 'rgba(251, 113, 133, 0.65)',
+		atmosphereGlow: 'shadow-[0_0_35px_rgba(251,113,133,0.5)]',
+		badgeBg: 'bg-rose-950/70 border-rose-400/40 text-rose-300',
+		beaconColor: 'bg-rose-400',
+		accentText: 'text-rose-300',
+		pathColor: '#FB7185',
+	},
+};
+
 const CosmicQuestLoader = memo(function CosmicQuestLoader({
 	selectedSkill,
 	kidName,
 	kidAge,
+	kidAvatar,
 }) {
-	// Dynamically resolve child's name and age directly from settings storage if not passed or empty
+	// Dynamically resolve child's profile from storage if not passed
 	const effectiveName =
 		(kidName && String(kidName).trim()) || getStoredKidName() || 'Explorer';
 	const effectiveAge = Number(kidAge) || Number(getStoredKidAge()) || 5;
+	const effectiveAvatar =
+		kidAvatar || getStoredKidAvatar() || 'boy-astronaut-1';
 
-	// Dynamically extract and resolve selected skillset name and metadata
+	// Dynamically resolve skillset definition and color theme
 	const rawSkill =
 		(selectedSkill && String(selectedSkill).trim()) ||
 		getStoredSelectedSkill() ||
@@ -28,33 +114,38 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 	const skillIcon = skillDef.icon || '🚀';
 	const isAnalytical = skillDef.id === 'analytical_thinking';
 
+	const planetTheme =
+		PLANET_COLOR_CONFIGS[skillDef.color] ||
+		(isAnalytical ? PLANET_COLOR_CONFIGS.purple : PLANET_COLOR_CONFIGS.cyan);
+
 	const missionSteps = useMemo(
 		() => [
 			{
 				icon: '🚀',
-				title: `Plotting Flight Coordinates for ${effectiveName}...`,
+				title: `Engaging Sub-Light Thrusters towards Planet ${skillName}...`,
 			},
 			{
-				icon: skillIcon,
-				title: `Scanning Deep Space for ${skillName} Challenges...`,
+				icon: '📡',
+				title: `Locking Navigational Beacon on ${skillName} Orbital Coordinates...`,
 			},
 			{
 				icon: '✨',
-				title: `AI Neural Core Synthesizing Age ${effectiveAge} Puzzles...`,
+				title: `AI Core Synthesizing Age ${effectiveAge} Challenges for ${effectiveName}...`,
 			},
 			{
 				icon: skillIcon,
-				title: `Calibrating ${skillName} Challenges & Creative Logic...`,
+				title: `Calibrating ${skillName} Puzzles & Creative Spatial Logic...`,
 			},
 			{
-				icon: '🛰️',
-				title: `Mission Locked for Astronaut ${effectiveName}! Launching...`,
+				icon: '🪐',
+				title: `Approaching Orbital Insertion at Planet ${skillName}! Preparing Descent...`,
 			},
 		],
 		[effectiveName, effectiveAge, skillName, skillIcon],
 	);
 
 	const [stepIndex, setStepIndex] = useState(0);
+	const [simulatedDistance, setSimulatedDistance] = useState(14800);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -63,80 +154,196 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 		return () => clearInterval(interval);
 	}, [missionSteps.length]);
 
+	// Simulate distance countdown as the spaceship approaches the planet
+	useEffect(() => {
+		const distTimer = setInterval(() => {
+			setSimulatedDistance((prev) => {
+				if (prev <= 1200) return 14800;
+				return Math.max(1200, prev - 450);
+			});
+		}, 300);
+		return () => clearInterval(distTimer);
+	}, []);
+
 	const currentStep = missionSteps[stepIndex] || missionSteps[0];
 
 	return (
-		<div className='flex flex-col items-center justify-center p-6 sm:p-10 text-center animate-in fade-in duration-500 max-w-lg mx-auto w-full'>
+		<div className='flex flex-col items-center justify-center p-4 sm:p-8 text-center animate-in fade-in duration-500 max-w-xl mx-auto w-full select-none'>
 			<style>{`
-				@keyframes astroOrbit {
+				/* ─── 3D VORTEX & SPACE TRAVEL ANIMATIONS ─── */
+
+				/* Spaceship 3D flight: traveling from foreground directly into the center of the planet */
+				@keyframes shipTravelToCenter {
 					0% {
-						transform: rotate(0deg) translateX(78px) rotate(-90deg);
+						transform: translate3d(0px, 0px, 60px) rotate(52deg) scale(1.22);
+						filter: drop-shadow(0 0 16px rgba(0, 229, 255, 0.85));
+						opacity: 1;
 					}
-					100% {
-						transform: rotate(360deg) translateX(78px) rotate(270deg);
+					28% {
+						transform: translate3d(45px, -34px, 35px) rotate(52deg) scale(0.98);
+						filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.8));
+						opacity: 1;
 					}
-				}
-				@keyframes astroOrbitDust1 {
-					0% {
-						transform: rotate(-15deg) translateX(78px) scale(0.9);
-						opacity: 0.8;
+					58% {
+						transform: translate3d(95px, -72px, 0px) rotate(52deg) scale(0.68);
+						filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.75));
+						opacity: 1;
 					}
-					100% {
-						transform: rotate(345deg) translateX(78px) scale(0.9);
-						opacity: 0.8;
+					82% {
+						transform: translate3d(140px, -107px, -45px) rotate(52deg) scale(0.38);
+						filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.95));
+						opacity: 1;
 					}
-				}
-				@keyframes astroOrbitDust2 {
-					0% {
-						transform: rotate(-30deg) translateX(78px) scale(0.7);
-						opacity: 0.5;
+					90% {
+						transform: translate3d(156px, -119px, -70px) rotate(52deg) scale(0.2);
+						filter: drop-shadow(0 0 24px rgba(255, 255, 255, 1));
+						opacity: 0.85;
 					}
-					100% {
-						transform: rotate(330deg) translateX(78px) scale(0.7);
-						opacity: 0.5;
-					}
-				}
-				@keyframes astroOrbitDust3 {
-					0% {
-						transform: rotate(-45deg) translateX(78px) scale(0.5);
-						opacity: 0.3;
-					}
-					100% {
-						transform: rotate(315deg) translateX(78px) scale(0.5);
-						opacity: 0.3;
-					}
-				}
-				@keyframes radarPulse {
-					0% {
-						transform: scale(0.65);
-						opacity: 0.7;
-					}
-					50% {
-						opacity: 0.35;
-					}
-					100% {
-						transform: scale(1.35);
+					95% {
+						transform: translate3d(162px, -124px, -85px) rotate(52deg) scale(0.12);
 						opacity: 0;
 					}
-				}
-				@keyframes thrusterFlame {
-					0%, 100% {
-						transform: scaleY(1) translateY(0);
-						opacity: 0.9;
+					97% {
+						transform: translate3d(-10px, 8px, 65px) rotate(52deg) scale(1.25);
+						opacity: 0;
 					}
-					50% {
-						transform: scaleY(1.4) translateY(2px);
+					100% {
+						transform: translate3d(0px, 0px, 60px) rotate(52deg) scale(1.22);
 						opacity: 1;
 					}
 				}
-				@keyframes planetGlow {
-					0%, 100% {
-						filter: drop-shadow(0 0 18px rgba(6, 182, 212, 0.55)) drop-shadow(0 0 35px rgba(139, 92, 246, 0.45));
+
+				/* Swirling 3D Vortex Core Spiral */
+				@keyframes vortexCenterSpin {
+					0% {
+						transform: translate(-50%, -50%) rotate(0deg);
 					}
-					50% {
-						filter: drop-shadow(0 0 28px rgba(6, 182, 212, 0.85)) drop-shadow(0 0 50px rgba(139, 92, 246, 0.65));
+					100% {
+						transform: translate(-50%, -50%) rotate(360deg);
 					}
 				}
+
+				/* Concentric Chromatic Wormhole Rings expanding outward from the planet */
+				@keyframes chromaticVortexExpand {
+					0% {
+						width: 24px;
+						height: 24px;
+						transform: translate(-50%, -50%) rotate(0deg) scale(0.2);
+						opacity: 0;
+					}
+					20% {
+						opacity: 0.9;
+					}
+					70% {
+						opacity: 0.45;
+					}
+					100% {
+						width: 440px;
+						height: 440px;
+						transform: translate(-50%, -50%) rotate(180deg) scale(1.5);
+						opacity: 0;
+					}
+				}
+
+				/* 360-degree radial warp streaks rushing outwards */
+				@keyframes warpStreakRadial {
+					0% {
+						transform: translate(-50%, -50%) rotate(var(--rot)) translateY(20px) scaleY(0.2);
+						opacity: 0;
+					}
+					30% {
+						opacity: 0.9;
+					}
+					75% {
+						opacity: 0.8;
+					}
+					100% {
+						transform: translate(-50%, -50%) rotate(var(--rot)) translateY(170px) scaleY(1.7);
+						opacity: 0;
+					}
+				}
+
+				/* Thruster flame pulse within the SVG */
+				@keyframes thrusterPlasmaPulse {
+					0%, 100% {
+						transform: scaleY(1);
+						opacity: 0.92;
+					}
+					50% {
+						transform: scaleY(1.35);
+						opacity: 1;
+					}
+				}
+
+				/* Exhaust stardust particles flying backwards */
+				@keyframes exhaustDrift1 {
+					0% {
+						transform: translate(0, 0) scale(1);
+						opacity: 0.95;
+					}
+					100% {
+						transform: translate(-35px, 45px) scale(0.2);
+						opacity: 0;
+					}
+				}
+				@keyframes exhaustDrift2 {
+					0% {
+						transform: translate(0, 0) scale(0.85);
+						opacity: 0.8;
+					}
+					100% {
+						transform: translate(-45px, 58px) scale(0.1);
+						opacity: 0;
+					}
+				}
+				@keyframes exhaustDrift3 {
+					0% {
+						transform: translate(0, 0) scale(0.7);
+						opacity: 0.7;
+					}
+					100% {
+						transform: translate(-55px, 70px) scale(0.05);
+						opacity: 0;
+					}
+				}
+
+				/* Planet atmospheric breathing glow */
+				@keyframes planetAtmosphereGlow {
+					0%, 100% {
+						transform: scale(1);
+						filter: drop-shadow(0 0 20px ${planetTheme.glowColor}) drop-shadow(0 0 45px rgba(99, 102, 241, 0.5));
+					}
+					50% {
+						transform: scale(1.05);
+						filter: drop-shadow(0 0 32px ${planetTheme.glowColor}) drop-shadow(0 0 60px rgba(99, 102, 241, 0.75));
+					}
+				}
+
+				/* Gravitational attraction waves radiating from planet */
+				@keyframes gravityPullWave {
+					0% {
+						transform: translate(-50%, -50%) scale(0.6);
+						opacity: 0.85;
+					}
+					50% {
+						opacity: 0.4;
+					}
+					100% {
+						transform: translate(-50%, -50%) scale(2.2);
+						opacity: 0;
+					}
+				}
+
+				/* Flight trajectory beam dash animation */
+				@keyframes flightPathBeamDash {
+					0% {
+						stroke-dashoffset: 40;
+					}
+					100% {
+						stroke-dashoffset: 0;
+					}
+				}
+
 				@keyframes warpBeam {
 					0% {
 						transform: translateX(-100%);
@@ -145,222 +352,440 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 						transform: translateX(300%);
 					}
 				}
-				@keyframes cosmicFloat {
-					0%, 100% {
-						transform: translateY(0px) rotate(0deg);
-					}
-					50% {
-						transform: translateY(-6px) rotate(4deg);
-					}
-				}
 			`}</style>
 
-			{/* Center Orbital Cosmic Theater */}
-			<div className='relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center mb-5 select-none'>
-				{/* Radar Wave Pulses */}
-				<div
-					className='absolute w-44 h-44 sm:w-52 sm:h-52 rounded-full border border-cyan-400/30 pointer-events-none'
-					style={{ animation: 'radarPulse 3s ease-out infinite' }}
-				/>
-				<div
-					className='absolute w-44 h-44 sm:w-52 sm:h-52 rounded-full border border-indigo-400/25 pointer-events-none'
-					style={{
-						animation: 'radarPulse 3s ease-out infinite',
-						animationDelay: '1.5s',
-					}}
-				/>
+			{/* Center Cosmic Voyage Theater: Spaceship Traveling To Center of Planet in 3D Vortex */}
+			<div
+				className='relative w-full max-w-md sm:max-w-xl h-64 sm:h-76 rounded-3xl overflow-hidden mb-5 bg-gradient-to-br from-[#020412] via-[#060824] to-[#100B2B] border-2 border-cyan-400/40 shadow-[0_0_50px_rgba(6,182,212,0.25)] p-4 flex items-center justify-center select-none'
+				style={{ perspective: '800px', transformStyle: 'preserve-3d' }}>
+				{/* Deep Space Starfield Background */}
+				<div className='absolute inset-0 pointer-events-none'>
+					{/* Distant Twinkling Stars */}
+					<div className='absolute top-6 left-12 w-1 h-1 bg-white/70 rounded-full animate-pulse' />
+					<div className='absolute top-20 left-28 w-1.5 h-1.5 bg-cyan-200/80 rounded-full animate-ping' />
+					<div className='absolute top-36 left-8 w-1 h-1 bg-purple-200/60 rounded-full' />
+					<div className='absolute top-12 right-20 w-1 h-1 bg-amber-200/70 rounded-full animate-pulse' />
+					<div className='absolute bottom-16 left-32 w-1.5 h-1.5 bg-pink-200/60 rounded-full' />
+					<div className='absolute bottom-8 right-24 w-1 h-1 bg-cyan-100/70 rounded-full animate-ping' />
+					<div className='absolute top-4 left-1/3 w-1 h-1 bg-white/60 rounded-full' />
+				</div>
 
-				{/* Elliptical Orbital Ring Track */}
-				<div className='absolute w-40 h-40 sm:w-48 sm:h-48 rounded-full border-2 border-dashed border-cyan-400/35 pointer-events-none' />
-
-				{/* Central Celestial AI Hub / Planet */}
+				{/* ─── 3D VORTEX PORTAL (Centered in the Canvas) ─── */}
 				<div
-					className='relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center shadow-2xl transition-all'
-					style={{ animation: 'planetGlow 3s ease-in-out infinite' }}>
-					{/* Planet Sphere with rich cosmic radial gradient */}
+					className='absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 w-64 h-64 sm:w-80 sm:h-80 pointer-events-none z-10'
+					style={{ transformStyle: 'preserve-3d' }}>
+					{/* Swirling Spiral Nebula Disk Behind the Planet */}
 					<div
-						className={`absolute inset-0 rounded-full ${
-							isAnalytical ?
-								'bg-gradient-to-br from-[#A855F7] via-[#6366F1] to-[#1E1B4B]'
-							:	'bg-gradient-to-br from-[#00E5FF] via-[#0284C7] to-[#0F172A]'
-						} shadow-inner overflow-hidden`}>
-						{/* Planetary surface features / atmosphere clouds */}
-						<div
-							className={`absolute -top-3 -left-3 w-16 h-16 rounded-full ${
-								isAnalytical ? 'bg-purple-300/30' : 'bg-cyan-300/30'
-							} blur-md pointer-events-none`}
-						/>
-						<div className='absolute -bottom-4 right-1 w-20 h-10 rounded-full bg-purple-950/60 blur-xs pointer-events-none' />
-						<div className='absolute top-7 -left-1 w-14 h-4 rounded-full bg-white/20 blur-[2px] transform -rotate-12 pointer-events-none' />
-					</div>
-
-					{/* Planetary Saturn-like Ring */}
-					<div
-						className={`absolute w-36 sm:w-44 h-10 sm:h-12 border-2 ${
-							isAnalytical ? 'border-purple-300/60' : 'border-cyan-300/60'
-						} rounded-[100%] pointer-events-none shadow-sm`}
+						className='absolute top-1/2 left-1/2 w-full h-full rounded-full opacity-35 blur-xl pointer-events-none'
 						style={{
-							transform: 'rotate(-25deg)',
-							background:
-								isAnalytical ?
-									'linear-gradient(90deg, rgba(168,85,247,0.15) 0%, rgba(244,114,182,0.2) 50%, rgba(99,102,241,0.15) 100%)'
-								:	'linear-gradient(90deg, rgba(6,182,212,0.15) 0%, rgba(244,114,182,0.2) 50%, rgba(6,182,212,0.15) 100%)',
+							background: `conic-gradient(from 0deg, transparent 0deg, ${planetTheme.pathColor} 70deg, transparent 150deg, rgba(168,85,247,0.5) 250deg, transparent 360deg)`,
+							animation: 'vortexCenterSpin 7s linear infinite',
 						}}
 					/>
 
-					{/* Skill Core at the center of the Planet */}
-					<div className='relative z-20 flex flex-col items-center justify-center text-white'>
-						{skillDef.id === 'analytical_thinking' ?
-							<Brain className='w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] animate-pulse' />
-						: skillDef.id === 'visual' ?
-							<Eye className='w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] animate-pulse' />
-						:	<span className='text-3xl sm:text-4xl drop-shadow animate-pulse select-none'>
-								{skillIcon}
-							</span>
-						}
-					</div>
+					{/* 4 Concentric Chromatic Wormhole Rings (Rainbow Spectrum like Interstellar reference image) */}
+					{[
+						{ color: '#A855F7', delay: '0s' },
+						{ color: '#06B6D4', delay: '0.7s' },
+						{ color: '#F59E0B', delay: '1.4s' },
+						{ color: '#EC4899', delay: '2.1s' },
+					].map((ring, idx) => (
+						<div
+							key={idx}
+							className='absolute top-1/2 left-1/2 rounded-full pointer-events-none border-2 border-dashed'
+							style={{
+								borderColor: ring.color,
+								animation:
+									'chromaticVortexExpand 2.8s cubic-bezier(0.2, 0.8, 0.4, 1) infinite',
+								animationDelay: ring.delay,
+								boxShadow: `0 0 18px ${ring.color}`,
+							}}
+						/>
+					))}
+
+					{/* 360-Degree Radial Hyperspace Warp Rays (24 colored streaks radiating from the center) */}
+					{[
+						'#22D3EE',
+						'#FBBF24',
+						'#FB7185',
+						'#C084FC',
+						'#34D399',
+						'#60A5FA',
+						'#FFFFFF',
+						'#F43F5E',
+						'#A78BFA',
+						'#38BDF8',
+						'#FACC15',
+						'#4ADE80',
+						'#22D3EE',
+						'#FBBF24',
+						'#FB7185',
+						'#C084FC',
+						'#34D399',
+						'#60A5FA',
+						'#FFFFFF',
+						'#F43F5E',
+						'#A78BFA',
+						'#38BDF8',
+						'#FACC15',
+						'#4ADE80',
+					].map((color, i) => (
+						<div
+							key={i}
+							className='absolute top-1/2 left-1/2 w-0.5 sm:w-[2px] h-28 sm:h-36 origin-top pointer-events-none'
+							style={{
+								'--rot': `${i * 15}deg`,
+								animation: 'warpStreakRadial 1.6s ease-out infinite',
+								animationDelay: `${(i * 0.07).toFixed(2)}s`,
+								background: `linear-gradient(to bottom, transparent, ${color}, white, transparent)`,
+							}}
+						/>
+					))}
 				</div>
 
-				{/* Stardust Trail Behind Rocket */}
-				<div
-					className='absolute w-3 h-3 rounded-full bg-cyan-300 pointer-events-none blur-[1px]'
-					style={{ animation: 'astroOrbitDust1 4s linear infinite' }}
-				/>
-				<div
-					className='absolute w-2 h-2 rounded-full bg-pink-400 pointer-events-none blur-[1px]'
-					style={{ animation: 'astroOrbitDust2 4s linear infinite' }}
-				/>
-				<div
-					className='absolute w-1.5 h-1.5 rounded-full bg-amber-300 pointer-events-none blur-[0.5px]'
-					style={{ animation: 'astroOrbitDust3 4s linear infinite' }}
-				/>
+				{/* Holographic Flight Vector Line (Leading from Lower-Left to Planet Center) */}
+				<svg
+					className='absolute inset-0 w-full h-full pointer-events-none z-10'
+					viewBox='0 0 400 240'
+					fill='none'
+					xmlns='http://www.w3.org/2000/svg'>
+					{/* Glowing Flight Path Guide Line */}
+					<path
+						d='M95 195 L200 105'
+						stroke={planetTheme.pathColor}
+						strokeWidth='2'
+						strokeDasharray='6 6'
+						strokeOpacity='0.5'
+						style={{ animation: 'flightPathBeamDash 1.2s linear infinite' }}
+					/>
+					{/* Forward Navigation Chevrons Pointed at Planet Center */}
+					<path
+						d='M130 168 L138 162 L132 154'
+						stroke={planetTheme.pathColor}
+						strokeWidth='2'
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						opacity='0.85'
+					/>
+					<path
+						d='M165 138 L173 132 L167 124'
+						stroke={planetTheme.pathColor}
+						strokeWidth='2'
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						opacity='0.85'
+					/>
+				</svg>
 
-				{/* Orbiting Astro Rocket */}
+				{/* ─── DESTINATION: THE SKILLSET PLANET (Centered at the Vortex Core) ─── */}
 				<div
-					className='absolute flex items-center justify-center pointer-events-none z-20'
-					style={{
-						animation: 'astroOrbit 4s linear infinite',
-						transformOrigin: 'center center',
-					}}>
-					{/* Futuristic Vector Rocket */}
-					<div className='relative flex flex-col items-center filter drop-shadow-[0_4px_12px_rgba(0,229,255,0.7)]'>
-						{/* Rocket Body SVG */}
-						<svg
-							width='36'
-							height='36'
-							viewBox='0 0 36 36'
-							fill='none'
-							xmlns='http://www.w3.org/2000/svg'
-							className='transform rotate-45'>
-							{/* Left Wing */}
-							<path
-								d='M8 20L4 27C4 27 9 26 12 23L8 20Z'
-								fill='#FF435A'
-								stroke='#0F172A'
-								strokeWidth='1.2'
-							/>
-							{/* Right Wing */}
-							<path
-								d='M20 8L27 4C27 4 26 9 23 12L20 8Z'
-								fill='#FF435A'
-								stroke='#0F172A'
-								strokeWidth='1.2'
-							/>
-							{/* Main Fuselage */}
-							<path
-								d='M14 22L12 17C12 17 18 11 27 5C27 5 31 9 25 18L20 20L14 22Z'
-								fill='#FFFFFF'
-								stroke='#0F172A'
-								strokeWidth='1.5'
-								strokeLinejoin='round'
-							/>
-							{/* Rocket Nose Cone */}
-							<path
-								d='M27 5C29.5 3 32 4 32 4C32 4 33 6.5 31 9C29.5 7.5 28.5 6.5 27 5Z'
-								fill='#FF435A'
-								stroke='#0F172A'
-								strokeWidth='1.2'
-							/>
-							{/* Cockpit Window */}
-							<circle
-								cx='21'
-								cy='11'
-								r='2.8'
-								fill='#00E5FF'
-								stroke='#0F172A'
-								strokeWidth='1.2'
-							/>
-							<circle
-								cx='20.2'
-								cy='10.2'
-								r='0.9'
-								fill='#FFFFFF'
-							/>
-							{/* Rear Engine Nozzle */}
-							<path
-								d='M12 21L11 23C11 23 13 25 15 25L15 23L12 21Z'
-								fill='#475569'
-								stroke='#0F172A'
-								strokeWidth='1'
-							/>
-						</svg>
+					className='absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20'
+					style={{ transformStyle: 'preserve-3d' }}>
+					{/* Gravitational Attraction Ripples */}
+					<div
+						className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 sm:w-32 sm:h-32 rounded-full border border-cyan-400/30 pointer-events-none'
+						style={{ animation: 'gravityPullWave 3s ease-out infinite' }}
+					/>
+					<div
+						className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 sm:w-32 sm:h-32 rounded-full border border-purple-400/25 pointer-events-none'
+						style={{
+							animation: 'gravityPullWave 3s ease-out infinite',
+							animationDelay: '1.5s',
+						}}
+					/>
 
-						{/* Animated Plasma Thruster Flame */}
+					{/* Target Lock HUD Reticle */}
+					<div className='absolute -top-3 -left-3 -right-3 -bottom-3 border border-dashed border-cyan-400/40 rounded-full pointer-events-none animate-spin-slow' />
+
+					{/* Planet Sphere */}
+					<div
+						className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center transition-all cursor-default ${planetTheme.atmosphereGlow}`}
+						style={{
+							animation: 'planetAtmosphereGlow 3s ease-in-out infinite',
+						}}>
+						{/* Planet Sphere Background with Radial Shading */}
 						<div
-							className='absolute -bottom-2 -left-2 flex items-center justify-center transform rotate-[225deg]'
+							className={`absolute inset-0 rounded-full bg-gradient-to-br ${planetTheme.planetGradient} shadow-inner overflow-hidden border border-white/20`}>
+							{/* Surface Atmosphere / Cloud Swirls */}
+							<div
+								className={`absolute -top-2 -left-2 w-14 h-14 rounded-full ${planetTheme.surfaceLight} blur-sm pointer-events-none`}
+							/>
+							<div className='absolute -bottom-3 right-0 w-16 h-8 rounded-full bg-black/50 blur-[2px] pointer-events-none' />
+							<div className='absolute top-5 -left-1 w-12 h-3 rounded-full bg-white/25 blur-[1px] transform -rotate-12 pointer-events-none' />
+						</div>
+
+						{/* Planetary Saturn-like Ring */}
+						<div
+							className={`absolute w-32 sm:w-36 h-8 sm:h-9 border-2 ${planetTheme.ringBorder} rounded-[100%] pointer-events-none`}
 							style={{
-								animation: 'thrusterFlame 0.3s ease-in-out infinite alternate',
-							}}>
-							<div className='w-4 h-6 bg-gradient-to-b from-amber-300 via-orange-500 to-red-600 rounded-full blur-[0.5px] shadow-[0_0_10px_#FF9500]' />
-							<div className='absolute w-2 h-3.5 bg-yellow-200 rounded-full' />
+								transform: 'rotate(-25deg)',
+								background: planetTheme.ringGradient,
+							}}
+						/>
+
+						{/* Skill Core / Emblem at Planet Center */}
+						<div className='relative z-20 flex flex-col items-center justify-center text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]'>
+							{skillDef.id === 'analytical_thinking' ?
+								<Brain className='w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow animate-pulse' />
+							: skillDef.id === 'visual' ?
+								<Eye className='w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow animate-pulse' />
+							:	<span className='text-2xl sm:text-3xl drop-shadow animate-pulse select-none'>
+									{skillIcon}
+								</span>
+							}
 						</div>
 					</div>
 				</div>
 
-				{/* Floating Sparkles & Skill Emojis in Orbit */}
+				{/* ─── TRAVELER: THE ASTROQUEST SPACESHIP (Traveling Directly into Planet Center) ─── */}
 				<div
-					className='absolute top-3 right-5 text-amber-300 text-lg sm:text-xl pointer-events-none'
-					style={{ animation: 'cosmicFloat 3s ease-in-out infinite' }}>
-					✨
-				</div>
-				<div
-					className={`absolute bottom-4 left-6 ${
-						isAnalytical ? 'text-purple-300' : 'text-cyan-300'
-					} text-base sm:text-lg pointer-events-none`}
+					className='absolute left-[16%] sm:left-[20%] bottom-[12%] sm:bottom-[15%] z-20 pointer-events-none'
 					style={{
-						animation: 'cosmicFloat 2.5s ease-in-out infinite reverse',
+						transformStyle: 'preserve-3d',
+						animation: 'shipTravelToCenter 3.8s ease-in-out infinite',
 					}}>
-					{skillIcon}
+					<div className='relative flex items-center justify-center'>
+						{/* Traveling Starship SVG with Integrated Dual Plasma Thruster Flames */}
+						<svg
+							width='56'
+							height='76'
+							viewBox='0 0 56 76'
+							fill='none'
+							xmlns='http://www.w3.org/2000/svg'
+							className='filter drop-shadow-[0_0_14px_rgba(0,229,255,0.85)]'>
+							<defs>
+								{/* Outer Thruster Flame Gradient */}
+								<linearGradient
+									id='flameGradOuter'
+									x1='0'
+									y1='0'
+									x2='0'
+									y2='1'>
+									<stop
+										offset='0%'
+										stopColor='#FDE047'
+									/>
+									<stop
+										offset='35%'
+										stopColor='#F97316'
+									/>
+									<stop
+										offset='80%'
+										stopColor='#EF4444'
+									/>
+									<stop
+										offset='100%'
+										stopColor='#7F1D1D'
+										stopOpacity='0'
+									/>
+								</linearGradient>
+								{/* Inner Core Plasma Jet Gradient */}
+								<linearGradient
+									id='flameGradInner'
+									x1='0'
+									y1='0'
+									x2='0'
+									y2='1'>
+									<stop
+										offset='0%'
+										stopColor='#FFFFFF'
+									/>
+									<stop
+										offset='40%'
+										stopColor='#38BDF8'
+									/>
+									<stop
+										offset='85%'
+										stopColor='#0284C7'
+									/>
+									<stop
+										offset='100%'
+										stopColor='#0369A1'
+										stopOpacity='0'
+									/>
+								</linearGradient>
+							</defs>
+
+							{/* Integrated Dual Thruster Plasma Flames (Emitting directly from nozzle base y=48) */}
+							<g
+								style={{
+									animation:
+										'thrusterPlasmaPulse 0.25s ease-in-out infinite alternate',
+									transformOrigin: '28px 48px',
+								}}>
+								{/* Left Thruster Flame */}
+								<path
+									d='M17 48 Q17 68 20.5 74 Q24 68 24 48 Z'
+									fill='url(#flameGradOuter)'
+								/>
+								<path
+									d='M18.5 48 Q18.5 63 20.5 67 Q22.5 63 22.5 48 Z'
+									fill='url(#flameGradInner)'
+								/>
+
+								{/* Right Thruster Flame */}
+								<path
+									d='M32 48 Q32 68 35.5 74 Q39 68 39 48 Z'
+									fill='url(#flameGradOuter)'
+								/>
+								<path
+									d='M33.5 48 Q33.5 63 35.5 67 Q37.5 63 37.5 48 Z'
+									fill='url(#flameGradInner)'
+								/>
+							</g>
+
+							{/* Left Wing with Navigation Light */}
+							<path
+								d='M20 34 L4 47 L8 50 L20 44 Z'
+								fill='#EF4444'
+								stroke='#0F172A'
+								strokeWidth='1.5'
+								strokeLinejoin='round'
+							/>
+							<circle
+								cx='5'
+								cy='47'
+								r='1.3'
+								fill='#34D399'
+							/>
+
+							{/* Right Wing with Navigation Light */}
+							<path
+								d='M36 34 L52 47 L48 50 L36 44 Z'
+								fill='#EF4444'
+								stroke='#0F172A'
+								strokeWidth='1.5'
+								strokeLinejoin='round'
+							/>
+							<circle
+								cx='51'
+								cy='47'
+								r='1.3'
+								fill='#F43F5E'
+							/>
+
+							{/* Main Fuselage Body */}
+							<path
+								d='M28 6 C34 16 38 32 36 48 L20 48 C18 32 22 16 28 6 Z'
+								fill='#F8FAFC'
+								stroke='#0F172A'
+								strokeWidth='1.8'
+								strokeLinejoin='round'
+							/>
+
+							{/* Nose Cone */}
+							<path
+								d='M28 6 C31 12 33 18 33 21 L23 21 C23 18 25 12 28 6 Z'
+								fill='#FF435A'
+								stroke='#0F172A'
+								strokeWidth='1.4'
+							/>
+
+							{/* Cockpit Canopy (Top Facing Viewer) */}
+							<ellipse
+								cx='28'
+								cy='26'
+								rx='4.2'
+								ry='6.5'
+								fill='#00E5FF'
+								stroke='#0F172A'
+								strokeWidth='1.4'
+							/>
+							{/* Canopy Glass Glare */}
+							<ellipse
+								cx='26.5'
+								cy='24'
+								rx='1.4'
+								ry='3'
+								fill='#FFFFFF'
+								opacity='0.85'
+							/>
+
+							{/* Center Hull Tech Accent */}
+							<rect
+								x='26'
+								y='36'
+								width='4'
+								height='7'
+								rx='1'
+								fill='#0284C7'
+							/>
+
+							{/* Dual Engine Nozzle Housings */}
+							<rect
+								x='16'
+								y='46'
+								width='9'
+								height='4'
+								rx='1'
+								fill='#334155'
+								stroke='#0F172A'
+								strokeWidth='1.2'
+							/>
+							<rect
+								x='31'
+								y='46'
+								width='9'
+								height='4'
+								rx='1'
+								fill='#334155'
+								stroke='#0F172A'
+								strokeWidth='1.2'
+							/>
+						</svg>
+
+						{/* Trailing Exhaust Stardust Particles (Backwards Along Angle) */}
+						<div
+							className='absolute bottom-0 left-4 w-2.5 h-2.5 rounded-full bg-cyan-300 pointer-events-none blur-[0.5px]'
+							style={{
+								animation: 'exhaustDrift1 1.2s ease-out infinite',
+							}}
+						/>
+						<div
+							className='absolute bottom-1 left-2 w-2 h-2 rounded-full bg-amber-400 pointer-events-none blur-[0.5px]'
+							style={{
+								animation: 'exhaustDrift2 1.4s ease-out infinite',
+								animationDelay: '0.3s',
+							}}
+						/>
+						<div
+							className='absolute bottom-2 left-0 w-1.5 h-1.5 rounded-full bg-pink-400 pointer-events-none blur-[0.5px]'
+							style={{
+								animation: 'exhaustDrift3 1.6s ease-out infinite',
+								animationDelay: '0.6s',
+							}}
+						/>
+					</div>
+				</div>
+
+				{/* Real-Time Approach Distance HUD Readout (Bottom-Right) */}
+				<div className='absolute bottom-3 right-4 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-sm border border-cyan-400/30 text-[10px] sm:text-[11px] font-mono font-bold text-cyan-300 shadow-md'>
+					<Navigation className='w-3 h-3 text-cyan-400 animate-spin-slow' />
+					<span>RANGE: {simulatedDistance.toLocaleString()} KM</span>
+					<span className='text-amber-400 ml-1'>WARP 3.8</span>
 				</div>
 			</div>
 
 			{/* Mission Title Header */}
 			<div
-				className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full ${
-					isAnalytical ?
-						'bg-purple-950/60 border-purple-400/40 text-purple-300'
-					:	'bg-cyan-950/60 border-cyan-400/40 text-cyan-300'
-				} border text-xs font-black uppercase tracking-wider mb-2.5 shadow-sm`}>
-				<Orbit
-					className={`w-3.5 h-3.5 ${
-						isAnalytical ? 'text-purple-400' : 'text-cyan-400'
-					} animate-spin-slow`}
+				className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full ${planetTheme.badgeBg} border text-xs font-black uppercase tracking-wider mb-2.5 shadow-sm`}>
+				<KidAvatar
+					avatarId={effectiveAvatar}
+					size='xs'
 				/>
 				<span>
-					AstroQuest AI Mission • {effectiveName} (Age {effectiveAge})
+					AstroQuest Cosmic Mission • {effectiveName} (Age {effectiveAge})
 				</span>
 			</div>
 
 			<h2 className='text-xl sm:text-2xl md:text-3xl font-black text-white mb-2 leading-tight tracking-tight'>
-				Generating {skillName} Challenges... {skillIcon}
+				Traveling to Planet {skillName}... {skillIcon}
 			</h2>
 
-			{/* Rotating Mission Telemetry Step */}
-			<div className='min-h-[36px] flex items-center justify-center px-4 py-1.5 rounded-xl bg-slate-900/60 border border-slate-700/60 mb-4 transition-all duration-300'>
+			{/* Dynamic Mission Telemetry Step */}
+			<div className='min-h-[40px] flex items-center justify-center px-4 py-1.5 rounded-xl bg-slate-900/70 border border-slate-700/60 mb-4 transition-all duration-300 w-full max-w-md'>
 				<p
-					className={`text-xs sm:text-sm font-extrabold flex items-center gap-2 ${
-						isAnalytical ? 'text-purple-300' : 'text-cyan-300'
-					}`}>
+					className={`text-xs sm:text-sm font-extrabold flex items-center gap-2 ${planetTheme.accentText}`}>
 					<span className='text-base'>{currentStep.icon}</span>
 					<span>{currentStep.title}</span>
 				</p>
@@ -369,22 +794,17 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 			{/* Subtitle / User Context */}
 			<p className='text-xs sm:text-sm font-bold text-slate-300 mb-5'>
 				Synthesizing 10 brand-new{' '}
-				<span
-					className={
-						isAnalytical ?
-							'text-purple-300 font-extrabold'
-						:	'text-cyan-300 font-extrabold'
-					}>
+				<span className={`${planetTheme.accentText} font-extrabold`}>
 					{skillName}
 				</span>{' '}
-				puzzles for{' '}
+				challenges for{' '}
 				<span className='text-amber-300 font-extrabold'>{effectiveName}</span>{' '}
 				<span className='text-cyan-300 font-extrabold'>
 					(Age {effectiveAge})...
 				</span>
 			</p>
 
-			{/* Sci-Fi Warp Gauge Energy Bar */}
+			{/* Sci-Fi Warp Energy Gauge */}
 			<div className='w-full max-w-xs bg-slate-950/80 rounded-full h-2.5 p-0.5 border border-cyan-500/40 shadow-inner relative overflow-hidden'>
 				<div className='w-full h-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-pink-500 rounded-full relative overflow-hidden'>
 					<div
@@ -397,17 +817,12 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 			{/* Telemetry Status Cue */}
 			<div className='flex items-center justify-between w-full max-w-xs mt-2 text-[10px] sm:text-xs font-bold text-slate-400 px-1'>
 				<span className='text-cyan-400'>LEVEL: AGE {effectiveAge}</span>
-				<span
-					className={
-						isAnalytical ?
-							'text-purple-300 font-black tracking-wider'
-						:	'text-cyan-300 font-black tracking-wider'
-					}>
-					SKILL: {skillName.toUpperCase()}
+				<span className={`${planetTheme.accentText} font-black tracking-wider`}>
+					DESTINATION: {skillName.toUpperCase()}
 				</span>
 				<span className='flex items-center gap-1 text-emerald-400'>
 					<span className='w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping' />
-					{effectiveName.toUpperCase()}'S LINK ONLINE
+					PROPULSION ONLINE
 				</span>
 			</div>
 		</div>

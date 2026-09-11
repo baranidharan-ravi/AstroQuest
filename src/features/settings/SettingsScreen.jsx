@@ -9,6 +9,7 @@ import {
 	ExternalLink,
 	Eye,
 	FastForward,
+	Footprints,
 	Key,
 	Lock,
 	Minus,
@@ -48,18 +49,35 @@ import {
 	speakText,
 } from '../../utils/audioSynthesis';
 import {
+	getAvatarById,
+	getDefaultAvatarForGender,
+	KidAvatar,
+	PRESET_AVATARS,
+} from '../../utils/avatarManager';
+import {
 	exportFullBackupToJsonFile,
 	importFullBackupFromJson,
 } from '../../utils/backupManager';
 import {
 	getStoredKidAge,
+	getStoredKidAvatar,
+	getStoredKidGender,
 	getStoredKidName,
+	getStoredPetAssistanceEnabled,
+	getStoredPetSize,
 	getStoredShowVisualDiagrams,
 	getStoredTimerConfig,
 	saveStoredKidProfile,
+	saveStoredPetAssistanceEnabled,
+	saveStoredPetSize,
 	saveStoredShowVisualDiagrams,
 	saveStoredTimerConfig,
 } from '../../utils/progressTracker';
+import {
+	PET_PROFILES,
+	PET_SIZES,
+	STORAGE_PET_KEY,
+} from '../companion/PetAssistant';
 
 const SettingsScreen = memo(function SettingsScreen({
 	onSaveAndReturn,
@@ -69,6 +87,13 @@ const SettingsScreen = memo(function SettingsScreen({
 }) {
 	const [nameInput, setNameInput] = useState(() => getStoredKidName() || '');
 	const [ageInput, setAgeInput] = useState(() => getStoredKidAge() || 5);
+	const [genderInput, setGenderInput] = useState(
+		() => getStoredKidGender() || 'boy',
+	);
+	const [avatarInput, setAvatarInput] = useState(
+		() => getStoredKidAvatar() || 'boy-astronaut-1',
+	);
+	const [avatarCategoryFilter, setAvatarCategoryFilter] = useState('All');
 	const [apiKeyInput, setApiKeyInput] = useState(
 		() => getStoredEncryptedApiKey() || '',
 	);
@@ -167,6 +192,23 @@ const SettingsScreen = memo(function SettingsScreen({
 	const [showVisualDiagrams, setShowVisualDiagrams] = useState(
 		getStoredShowVisualDiagrams,
 	);
+	const [petAssistanceEnabled, setPetAssistanceEnabled] = useState(
+		getStoredPetAssistanceEnabled,
+	);
+	const [selectedPetType, setSelectedPetType] = useState(() => {
+		try {
+			return localStorage.getItem(STORAGE_PET_KEY) || 'dog';
+		} catch {
+			return 'dog';
+		}
+	});
+	const [selectedPetSize, setSelectedPetSize] = useState(() => {
+		try {
+			return getStoredPetSize() || 'medium';
+		} catch {
+			return 'medium';
+		}
+	});
 
 	// Gemini Model selection state
 	const [selectedModel, setSelectedModel] = useState(() =>
@@ -209,6 +251,25 @@ const SettingsScreen = memo(function SettingsScreen({
 
 	const quickAges = [3, 4, 5, 6, 7, 8];
 
+	const filteredAvatars = useMemo(() => {
+		if (avatarCategoryFilter === 'All') return PRESET_AVATARS;
+		return PRESET_AVATARS.filter((a) => a.category === avatarCategoryFilter);
+	}, [avatarCategoryFilter]);
+
+	const handleGenderSelect = (newGender) => {
+		playButtonPop(soundEnabled);
+		setGenderInput(newGender);
+		const defaultAv = getDefaultAvatarForGender(newGender);
+		setAvatarInput(defaultAv);
+		if (error) setError('');
+	};
+
+	const handleAvatarSelect = (avatarId) => {
+		playButtonPop(soundEnabled);
+		setAvatarInput(avatarId);
+		if (error) setError('');
+	};
+
 	const handleExportBackup = () => {
 		playButtonPop(soundEnabled);
 		try {
@@ -245,6 +306,9 @@ const SettingsScreen = memo(function SettingsScreen({
 				const result = importFullBackupFromJson(event.target?.result);
 				const newKidName = getStoredKidName() || '';
 				const newKidAge = Number(getStoredKidAge() || 5);
+				const newKidGender = getStoredKidGender() || 'boy';
+				const newKidAvatar =
+					getStoredKidAvatar() || getDefaultAvatarForGender(newKidGender);
 				const newEncryptedKey = getStoredEncryptedApiKey() || '';
 				const newModel = getStoredSelectedModel();
 				const newTimerConfig = getStoredTimerConfig();
@@ -252,10 +316,18 @@ const SettingsScreen = memo(function SettingsScreen({
 				const newAutoAdvanceSec =
 					Number(newTimerConfig.autoAdvanceSeconds) || 7;
 				const newShowDiagrams = Boolean(getStoredShowVisualDiagrams());
+				const newPetAssistance = Boolean(getStoredPetAssistanceEnabled());
+				let newPetType = 'dog';
+				try {
+					newPetType = localStorage.getItem(STORAGE_PET_KEY) || 'dog';
+				} catch {}
+				const newPetSize = getStoredPetSize() || 'medium';
 				const newVoiceURI = getStoredVoiceURI() || '';
 
 				setNameInput(newKidName);
 				setAgeInput(newKidAge);
+				setGenderInput(newKidGender);
+				setAvatarInput(newKidAvatar);
 				setApiKeyInput(newEncryptedKey);
 				setSelectedModel(newModel);
 				setTimerEnabled(Boolean(newTimerConfig.enabled));
@@ -266,11 +338,16 @@ const SettingsScreen = memo(function SettingsScreen({
 				setIsCustomAutoAdvance(![3, 5, 7, 10, 15].includes(newAutoAdvanceSec));
 				setIsCustomAge(!quickAges.includes(newKidAge));
 				setShowVisualDiagrams(newShowDiagrams);
+				setPetAssistanceEnabled(newPetAssistance);
+				setSelectedPetType(newPetType);
+				setSelectedPetSize(newPetSize);
 				setSelectedVoiceURI(newVoiceURI);
 
 				setInitialValues({
 					name: newKidName,
 					age: newKidAge,
+					gender: newKidGender,
+					avatar: newKidAvatar,
 					apiKey: newEncryptedKey,
 					selectedModel: newModel,
 					timerEnabled: Boolean(newTimerConfig.enabled),
@@ -278,6 +355,9 @@ const SettingsScreen = memo(function SettingsScreen({
 					autoAdvanceEnabled: newTimerConfig.autoAdvanceEnabled !== false,
 					autoAdvanceSeconds: newAutoAdvanceSec,
 					showVisualDiagrams: newShowDiagrams,
+					petAssistanceEnabled: newPetAssistance,
+					selectedPetType: newPetType,
+					selectedPetSize: newPetSize,
 					selectedVoiceURI: newVoiceURI,
 				});
 
@@ -292,6 +372,8 @@ const SettingsScreen = memo(function SettingsScreen({
 					onSaveAndReturn({
 						name: newKidName,
 						age: newKidAge,
+						gender: newKidGender,
+						avatar: newKidAvatar,
 						apiKey: decryptApiKey(newEncryptedKey),
 						selectedModel: newModel,
 						timerConfig: newTimerConfig,
@@ -417,14 +499,25 @@ const SettingsScreen = memo(function SettingsScreen({
 		const initAutoAdvanceSec = Number(existingTimer.autoAdvanceSeconds) || 7;
 		const initName = getStoredKidName() || '';
 		const initAge = Number(getStoredKidAge() || 5);
+		const initGender = getStoredKidGender() || 'boy';
+		const initAvatar =
+			getStoredKidAvatar() || getDefaultAvatarForGender(initGender);
 		const initApiKey = getStoredEncryptedApiKey() || '';
 		const initModel = getStoredSelectedModel();
 		const initShowDiagrams = Boolean(getStoredShowVisualDiagrams());
+		const initPetAssistance = Boolean(getStoredPetAssistanceEnabled());
+		let initPetType = 'dog';
+		try {
+			initPetType = localStorage.getItem(STORAGE_PET_KEY) || 'dog';
+		} catch {}
+		const initPetSize = getStoredPetSize() || 'medium';
 		const initVoiceURI = getStoredVoiceURI() || '';
 
 		setInitialValues({
 			name: initName,
 			age: initAge,
+			gender: initGender,
+			avatar: initAvatar,
 			apiKey: initApiKey,
 			selectedModel: initModel,
 			timerEnabled: initTimerEnabled,
@@ -432,11 +525,16 @@ const SettingsScreen = memo(function SettingsScreen({
 			autoAdvanceEnabled: initAutoAdvanceEnabled,
 			autoAdvanceSeconds: initAutoAdvanceSec,
 			showVisualDiagrams: initShowDiagrams,
+			petAssistanceEnabled: initPetAssistance,
+			selectedPetType: initPetType,
+			selectedPetSize: initPetSize,
 			selectedVoiceURI: initVoiceURI,
 		});
 
 		setNameInput(initName);
 		setAgeInput(initAge);
+		setGenderInput(initGender);
+		setAvatarInput(initAvatar);
 		setApiKeyInput(initApiKey);
 		setSelectedModel(initModel);
 		setTimerEnabled(initTimerEnabled);
@@ -449,6 +547,9 @@ const SettingsScreen = memo(function SettingsScreen({
 
 		setIsCustomAge(!quickAges.includes(initAge));
 		setShowVisualDiagrams(initShowDiagrams);
+		setPetAssistanceEnabled(initPetAssistance);
+		setSelectedPetType(initPetType);
+		setSelectedPetSize(initPetSize);
 		setSelectedVoiceURI(initVoiceURI);
 
 		// Load available voices — Chrome loads them async, so retry after a delay
@@ -469,6 +570,8 @@ const SettingsScreen = memo(function SettingsScreen({
 		return (
 			nameInput.trim() !== initialValues.name.trim() ||
 			Number(ageInput) !== Number(initialValues.age) ||
+			genderInput !== initialValues.gender ||
+			avatarInput !== initialValues.avatar ||
 			apiKeyInput.trim() !== initialValues.apiKey.trim() ||
 			selectedModel !== initialValues.selectedModel ||
 			timerEnabled !== initialValues.timerEnabled ||
@@ -476,12 +579,17 @@ const SettingsScreen = memo(function SettingsScreen({
 			autoAdvanceEnabled !== initialValues.autoAdvanceEnabled ||
 			Number(autoAdvanceSeconds) !== Number(initialValues.autoAdvanceSeconds) ||
 			showVisualDiagrams !== initialValues.showVisualDiagrams ||
+			petAssistanceEnabled !== initialValues.petAssistanceEnabled ||
+			selectedPetType !== initialValues.selectedPetType ||
+			selectedPetSize !== initialValues.selectedPetSize ||
 			selectedVoiceURI !== initialValues.selectedVoiceURI
 		);
 	}, [
 		initialValues,
 		nameInput,
 		ageInput,
+		genderInput,
+		avatarInput,
 		apiKeyInput,
 		selectedModel,
 		timerEnabled,
@@ -489,6 +597,9 @@ const SettingsScreen = memo(function SettingsScreen({
 		autoAdvanceEnabled,
 		autoAdvanceSeconds,
 		showVisualDiagrams,
+		petAssistanceEnabled,
+		selectedPetType,
+		selectedPetSize,
 		selectedVoiceURI,
 	]);
 
@@ -546,6 +657,8 @@ const SettingsScreen = memo(function SettingsScreen({
 		if (initialValues) {
 			setNameInput(initialValues.name);
 			setAgeInput(initialValues.age);
+			setGenderInput(initialValues.gender);
+			setAvatarInput(initialValues.avatar);
 			setApiKeyInput(initialValues.apiKey);
 			setSelectedModel(initialValues.selectedModel);
 			setTimerEnabled(initialValues.timerEnabled);
@@ -560,6 +673,9 @@ const SettingsScreen = memo(function SettingsScreen({
 			);
 			setIsCustomAge(!quickAges.includes(Number(initialValues.age)));
 			setShowVisualDiagrams(initialValues.showVisualDiagrams);
+			setPetAssistanceEnabled(initialValues.petAssistanceEnabled);
+			setSelectedPetType(initialValues.selectedPetType);
+			setSelectedPetSize(initialValues.selectedPetSize);
 			setSelectedVoiceURI(initialValues.selectedVoiceURI);
 		}
 		setShowUnsavedModal(false);
@@ -661,9 +777,9 @@ const SettingsScreen = memo(function SettingsScreen({
 		setStoredSelectedModel(selectedModel);
 
 		// 4. Save Kid Profile
-		saveStoredKidProfile(trimmedName, numAge);
+		saveStoredKidProfile(trimmedName, numAge, genderInput, avatarInput);
 
-		// 5. Save Settings, Timer Config & Visual Diagrams Preference
+		// 5. Save Settings, Timer Config, Visual Diagrams & Pet Assistance
 		const updatedConfig = {
 			enabled: timerEnabled,
 			secondsPerQuestion: timerSeconds,
@@ -672,12 +788,19 @@ const SettingsScreen = memo(function SettingsScreen({
 		};
 		saveStoredTimerConfig(updatedConfig);
 		saveStoredShowVisualDiagrams(showVisualDiagrams);
+		saveStoredPetAssistanceEnabled(petAssistanceEnabled);
+		try {
+			localStorage.setItem(STORAGE_PET_KEY, selectedPetType);
+		} catch {}
+		saveStoredPetSize(selectedPetSize);
 		setStoredVoiceURI(selectedVoiceURI || null);
 
 		// Update initialValues to reflect newly saved state
 		setInitialValues({
 			name: trimmedName,
 			age: numAge,
+			gender: genderInput,
+			avatar: avatarInput,
 			apiKey: encryptedKey,
 			selectedModel,
 			timerEnabled,
@@ -685,6 +808,9 @@ const SettingsScreen = memo(function SettingsScreen({
 			autoAdvanceEnabled,
 			autoAdvanceSeconds,
 			showVisualDiagrams,
+			petAssistanceEnabled,
+			selectedPetType,
+			selectedPetSize,
 			selectedVoiceURI: selectedVoiceURI || '',
 		});
 
@@ -697,10 +823,13 @@ const SettingsScreen = memo(function SettingsScreen({
 			onSaveAndReturn({
 				name: trimmedName,
 				age: numAge,
+				gender: genderInput,
+				avatar: avatarInput,
 				apiKey: validationResult.cleanedKey,
 				selectedModel,
 				timerConfig: updatedConfig,
 				showVisualDiagrams,
+				petAssistanceEnabled,
 			});
 		}
 	};
@@ -944,6 +1073,168 @@ const SettingsScreen = memo(function SettingsScreen({
 								</button>
 							</div>
 						)}
+					</div>
+				</div>
+
+				{/* Section 1B: Explorer Gender & Avatar Customization */}
+				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380] flex flex-col gap-3.5 sm:gap-4'>
+					{/* Top Header & Active Avatar Preview */}
+					<div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pb-3 border-b border-white/10'>
+						<div className='flex items-center gap-3 sm:gap-3.5'>
+							{/* Large Glowing Avatar Display */}
+							<div className='relative flex-shrink-0'>
+								<KidAvatar
+									avatarId={avatarInput}
+									size='lg'
+									showRing
+									className='shadow-[0_0_20px_rgba(34,211,238,0.4)]'
+								/>
+								<span className='absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 shadow-md border-2 border-[#090B24]'>
+									<Check className='w-3 h-3' />
+								</span>
+							</div>
+							<div>
+								<div className='flex items-center gap-2 flex-wrap'>
+									<h3 className='text-sm sm:text-base font-black text-white'>
+										{getAvatarById(avatarInput)?.name || 'Custom Explorer'}
+									</h3>
+									<span className='text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 capitalize'>
+										{genderInput === 'boy' ?
+											'👦 Boy'
+										: genderInput === 'girl' ?
+											'👧 Girl'
+										:	'🚀 Space Cadet'}
+									</span>
+								</div>
+								<p className='text-[11px] sm:text-xs text-slate-300 mt-0.5'>
+									{getAvatarById(avatarInput)?.label || 'Hero Explorer Avatar'}{' '}
+									• Shown on dashboard & question headers
+								</p>
+							</div>
+						</div>
+
+						{/* Gender Selection 3-Button Toggle */}
+						<div className='w-full sm:w-auto flex flex-col items-start sm:items-end gap-1'>
+							<span className='text-[11px] font-bold text-slate-400 uppercase tracking-wider'>
+								Child's Gender
+							</span>
+							<div
+								className='grid grid-cols-3 gap-1.5 w-full sm:w-auto'
+								role='group'
+								aria-label='Select explorer gender'>
+								{[
+									{ id: 'boy', label: 'Boy', icon: '👦' },
+									{ id: 'girl', label: 'Girl', icon: '👧' },
+									{ id: 'neutral', label: 'Cadet', icon: '🚀' },
+								].map((opt) => {
+									const isSelected = genderInput === opt.id;
+									return (
+										<button
+											key={opt.id}
+											type='button'
+											disabled={isValidating}
+											aria-pressed={isSelected}
+											onClick={() => handleGenderSelect(opt.id)}
+											className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+												isSelected ?
+													'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-md scale-105'
+												:	'bg-[#0D1030] text-slate-300 border-slate-700/80 hover:bg-slate-800'
+											}`}>
+											<span>{opt.icon}</span>
+											<span>{opt.label}</span>
+										</button>
+									);
+								})}
+							</div>
+						</div>
+					</div>
+
+					{/* Preset Avatar Gallery */}
+					<div className='flex flex-col gap-2.5'>
+						<div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2'>
+							<label className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5'>
+								<Sparkles className='w-4 h-4 text-amber-400' />
+								<span>Preset Avatar Gallery</span>
+								<span className='text-[10px] text-slate-400 font-normal'>
+									({PRESET_AVATARS.length} Options)
+								</span>
+							</label>
+
+							{/* Category Filter Pills */}
+							<div
+								className='flex items-center gap-1 overflow-x-auto max-w-full pb-0.5'
+								role='tablist'
+								aria-label='Avatar categories'>
+								{['All', 'Boys', 'Girls', 'Cosmic Pals'].map((category) => {
+									const isActive = avatarCategoryFilter === category;
+									return (
+										<button
+											key={category}
+											type='button'
+											role='tab'
+											aria-selected={isActive}
+											disabled={isValidating}
+											onClick={() => {
+												playButtonPop(soundEnabled);
+												setAvatarCategoryFilter(category);
+											}}
+											className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all border cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+												isActive ?
+													'bg-purple-600 text-white border-purple-400 shadow-sm'
+												:	'bg-[#0D1030] text-slate-400 border-slate-700/60 hover:text-white hover:bg-slate-800'
+											}`}>
+											{category === 'Boys' ?
+												'👦 Boys'
+											: category === 'Girls' ?
+												'👧 Girls'
+											: category === 'Cosmic Pals' ?
+												'🤖 Cosmic Pals'
+											:	'All'}
+										</button>
+									);
+								})}
+							</div>
+						</div>
+
+						{/* Grid of Preset Avatars */}
+						<div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-2.5'>
+							{filteredAvatars.map((avatar) => {
+								const isSelected = avatarInput === avatar.id;
+								return (
+									<button
+										key={avatar.id}
+										type='button'
+										disabled={isValidating}
+										aria-label={`Select avatar ${avatar.name}`}
+										aria-pressed={isSelected}
+										onClick={() => handleAvatarSelect(avatar.id)}
+										className={`relative p-2 rounded-xl flex flex-col items-center gap-1.5 transition-all text-center border cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+											isSelected ?
+												'bg-cyan-950/60 border-cyan-400 ring-2 ring-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.3)] scale-[1.03]'
+											:	'bg-[#0D1030]/90 border-slate-700/60 hover:border-slate-500 hover:bg-slate-800/80 hover:scale-[1.02]'
+										}`}>
+										{/* Active Checkmark Pin */}
+										{isSelected && (
+											<span className='absolute top-1 right-1 bg-cyan-400 text-slate-950 rounded-full p-0.5 shadow-sm'>
+												<Check className='w-2.5 h-2.5 stroke-[3]' />
+											</span>
+										)}
+										<KidAvatar
+											avatarId={avatar.id}
+											size='sm'
+										/>
+										<div className='min-w-0 w-full'>
+											<p className='text-[11px] font-bold text-white truncate leading-tight'>
+												{avatar.name.split(' ')[0]}
+											</p>
+											<p className='text-[9px] text-slate-400 truncate leading-none mt-0.5'>
+												{avatar.label}
+											</p>
+										</div>
+									</button>
+								);
+							})}
+						</div>
 					</div>
 				</div>
 
@@ -1436,7 +1727,134 @@ const SettingsScreen = memo(function SettingsScreen({
 					</div>
 				</div>
 
-				{/* Section 7: Narrator Voice */}
+				{/* Section 7: Interactive Cosmic Pet Assistant */}
+				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-pink-500/40 shadow-inner'>
+					<div className='flex items-center justify-between gap-2 mb-2'>
+						<div className='min-w-0'>
+							<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+								<Footprints className='w-4 h-4 text-pink-400 flex-shrink-0' />
+								<span className='text-xs sm:text-sm font-bold text-white'>
+									Interactive Cosmic Pet Assistant
+								</span>
+								<span
+									className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
+										petAssistanceEnabled ?
+											'bg-pink-500 text-white shadow'
+										:	'bg-slate-800 text-slate-400'
+									}`}>
+									{petAssistanceEnabled ? 'Enabled' : 'Disabled'}
+								</span>
+							</div>
+						</div>
+
+						<button
+							type='button'
+							disabled={isValidating}
+							onClick={() => {
+								playButtonPop(soundEnabled);
+								setPetAssistanceEnabled((prev) => !prev);
+							}}
+							className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
+								petAssistanceEnabled ?
+									'bg-pink-500 text-white border-pink-400 shadow-[0_0_15px_rgba(244,114,182,0.4)]'
+								:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+							}`}>
+							{petAssistanceEnabled ? '🐾 Enabled' : '🚫 Disabled'}
+						</button>
+					</div>
+
+					<p className='text-[11px] sm:text-xs text-slate-300 leading-relaxed mb-3'>
+						Choose whether the living 3D pet companion (Rocket the Pup, Luna the
+						Cat, Beep the Bot, or Zog) appears on screen to walk, drink water,
+						eat treats, and provide clues and audio narration.
+					</p>
+
+					{petAssistanceEnabled && (
+						<div className='pt-2.5 border-t border-white/10 space-y-2 animate-in fade-in duration-200'>
+							<span className='text-[10px] sm:text-[11px] font-bold text-pink-300 uppercase tracking-wider block'>
+								Active Companion
+							</span>
+							<div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
+								{Object.values(PET_PROFILES).map((pet) => {
+									const isSelected = selectedPetType === pet.id;
+									return (
+										<button
+											key={pet.id}
+											type='button'
+											onClick={() => {
+												playButtonPop(soundEnabled);
+												setSelectedPetType(pet.id);
+											}}
+											className={`p-2.5 rounded-xl border flex items-center gap-2.5 transition-all cursor-pointer text-left ${
+												isSelected ?
+													`bg-gradient-to-r ${pet.themeColor} ${pet.borderColor} ring-2 ring-white/60 shadow-md text-slate-950 font-black`
+												:	'bg-white/5 hover:bg-white/10 border-white/15 text-white'
+											}`}>
+											<img
+												src={pet.imageSrc}
+												alt={pet.name}
+												className='w-9 h-9 object-contain flex-shrink-0'
+											/>
+											<div className='min-w-0'>
+												<div className='text-xs font-bold truncate leading-tight'>
+													{pet.name}
+												</div>
+												<div
+													className={`text-[10px] ${
+														isSelected ?
+															'text-slate-900/80 font-semibold'
+														:	'text-slate-400'
+													} truncate`}>
+													{pet.badge}
+												</div>
+											</div>
+										</button>
+									);
+								})}
+							</div>
+
+							{/* Pet Companion Size Selection */}
+							<div className='pt-3 border-t border-white/10'>
+								<span className='text-[10px] sm:text-[11px] font-bold text-pink-300 uppercase tracking-wider block mb-2'>
+									Pet Companion Size
+								</span>
+								<div className='grid grid-cols-3 gap-2'>
+									{Object.values(PET_SIZES).map((size) => {
+										const isSelected = selectedPetSize === size.id;
+										return (
+											<button
+												key={size.id}
+												type='button'
+												onClick={() => {
+													playButtonPop(soundEnabled);
+													setSelectedPetSize(size.id);
+												}}
+												className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer text-center ${
+													isSelected ?
+														'bg-pink-500/25 border-pink-400 text-pink-200 ring-2 ring-pink-400/50 shadow-md font-bold'
+													:	'bg-white/5 hover:bg-white/10 border-white/15 text-slate-300'
+												}`}>
+												<div className='flex items-center gap-1'>
+													<span className='text-xs font-black text-white'>
+														{size.label}
+													</span>
+													<span className='text-[10px] text-pink-300/80 font-mono'>
+														({size.px}px)
+													</span>
+												</div>
+												<span className='text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider bg-white/10 text-white/90 font-black'>
+													{size.badge}
+												</span>
+											</button>
+										);
+									})}
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+
+				{/* Section 8: Narrator Voice */}
 				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-purple-500/40 shadow-inner'>
 					<div className='flex items-center justify-between gap-2 mb-2'>
 						<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>

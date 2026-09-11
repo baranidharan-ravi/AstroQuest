@@ -20,6 +20,7 @@ const QuestionCard = memo(function QuestionCard({
 	showVisualDiagrams = false,
 	kidName,
 	kidAge,
+	isReviewMode = false,
 }) {
 	const [isSpeaking, setIsSpeaking] = useState(false);
 
@@ -127,6 +128,21 @@ const QuestionCard = memo(function QuestionCard({
 					:	null}
 				</div>
 			</div>
+
+			{/* Revisit Review Mode Banner */}
+			{isReviewMode && (
+				<div
+					role='status'
+					className='bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white text-xs sm:text-sm font-black px-3 py-1.5 rounded-xl mb-2 flex items-center justify-between shadow-md animate-pulse border border-amber-300/60 flex-shrink-0'>
+					<div className='flex items-center gap-1.5'>
+						<span>🔄</span>
+						<span>REVISITING SKIPPED QUESTION</span>
+					</div>
+					<span className='bg-black/25 text-amber-100 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full shadow-inner'>
+						Question {currentIndex + 1}
+					</span>
+				</div>
+			)}
 
 			{/* Skill Objective Subtitle */}
 			<div className='text-[11px] sm:text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-100 rounded-xl px-3 py-1.5 mb-2 text-center flex-shrink-0'>

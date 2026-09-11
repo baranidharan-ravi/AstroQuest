@@ -1018,6 +1018,24 @@ const docContent = [
 				'Automatic via Axios interceptors + floating DOM toast.',
 				'services/apiClient.js',
 			],
+			[
+				'Living 3D Pet Companion',
+				'Multi-layered articulated living animal (puppy, cat, robot, alien) that walks, drinks, eats & plays.',
+				'Interactive action buttons: Walk, Drink, Eat, Play, Cuddle, Nap.',
+				'features/companion/LivingPetCharacter.jsx',
+			],
+			[
+				'Independent Vertical Toolbar',
+				'Completely decoupled, ultra-narrow vertical strip docked on screen edge with zero question occlusion.',
+				'Touch/mouse drag handle, collapse mini mode, adjacent picker flyout.',
+				'features/companion/PetAssistant.jsx',
+			],
+			[
+				'Settings Pet Assistance Toggle',
+				'Option in Settings to enable/disable pet assistance anytime with active companion card selector.',
+				'Toggle ON/OFF (🐾 Enabled / 🚫 Disabled) + 4-companion card selector.',
+				'features/settings/SettingsScreen.jsx',
+			],
 		],
 	),
 	new Paragraph({ spacing: { after: 200 } }),
@@ -1214,8 +1232,8 @@ const docContent = [
 		'Core foundational skills (Visual Observation and Analytical Thinking) are immutably protected against accidental deletion, while custom skillsets feature safe deletion workflows with confirmation modals.',
 	),
 	createBullet(
-		'Dynamic Cosmic Quest Loader Integration',
-		'CosmicQuestLoader dynamically extracts the chosen skill name and icon to customize the celestial planet graphics, orbital stardust, and real-time telemetry readout.',
+		'3D Vortex Space Travel to Skillset Planet (CosmicQuestLoader.jsx)',
+		'Cinematic 3D hyperspace voyage where the spaceship travels through an expansive 3D cosmic vortex directly reaching the destination skillset planet. Features 3D perspective depth, a swirling spiral nebula vortex disk, 5 concentric expanding 3D dashed vortex tunnel rings, and radial hyperspace warp beams. The spaceship executes forward trajectory flight with depth scaling (scale 1.15 to 0.54) as it dives into the vortex core to reach the planet. Clean visual aesthetic removes name badges from the spaceship and planet, while retaining live range telemetry (RANGE: 14,800 KM to 1,200 KM • WARP 3.8) and explorer profile headers.',
 	),
 
 	createHeading2(
@@ -1255,6 +1273,196 @@ const docContent = [
 	createBullet(
 		'Clipboard Copy Interception',
 		'Keyboard shortcuts (Ctrl+C, Cmd+C, Ctrl+X, Cmd+X) and context menu copy actions are blocked with an accessible tooltip notification: "Copy functionality is not allowed for this field".',
+	),
+
+	createHeading2(
+		'10.4 AI-Powered Skillset Auto-Fill & Synthesis Engine (services/aiGenerator.js)',
+	),
+	createBullet(
+		'One-Click Intelligent Formulation',
+		'Educators and parents can type rough topic keywords or partial notes in the Create Skillset dialog and click "Auto-Fill with AI". Gemini AI automatically analyzes the input and formulates a complete, age-calibrated skillset package: inspiring title, catchy subtitle, pedagogical prompt description, matching emoji icon, and color theme.',
+	),
+	createBullet(
+		'Graceful Cold-Start & Age Calibration',
+		"If triggered with empty inputs, Gemini crafts an age-appropriate STEM or logic exploration domain tailored to the child's configured age (e.g. 5 years old).",
+	),
+	createBullet(
+		'Non-Destructive In-Place Customization',
+		'Auto-filled attributes populate form fields in real-time with visual status confirmation, allowing parents to review, tweak, or expand the AI-generated curriculum before saving.',
+	),
+
+	createHeading1(
+		'11. Explorer Avatar System, Gender Selection & Preset Avatar Gallery',
+	),
+	createParagraph(
+		'AstroQuest replaces static emojis (⭐ and 👋) with a personalized vector SVG Avatar System. Kids can select their gender, receive an automatic tailored avatar, and customize their appearance from a collection of 12 preset vector avatars across Boys, Girls, and Cosmic Pals.',
+	),
+	createHeading2(
+		'11.1 Vector SVG Avatar Architecture (utils/avatarManager.jsx)',
+	),
+	createBullet(
+		'100% Vector & Offline',
+		'All 12 preset avatars are rendered via embedded inline SVG components, guaranteeing crisp scaling at any resolution (from 24px header icons to 80px preview badges) with zero external asset dependencies or HTTP requests.',
+	),
+	createBullet(
+		'Preset Catalog & Categorization',
+		'Avatars are organized into three thematic collections: Boys (Leo the Cadet, Max the Ranger, Sam the Cosmic Cadet), Girls (Stella the Cadet, Nova the Explorer, Maya the Cosmic Explorer), and Cosmic Pals (Alex the Rover, Sky the Cadet, Beep the Bot, Luna the Cosmic Cat, Rocket the Space Pup, Zog the Friendly Alien).',
+	),
+	createHeading2('11.2 Gender-Based Smart Defaulting & Customization Flow'),
+	createBullet(
+		'Intelligent Gender Defaulting',
+		'Selecting Boy defaults to "Leo the Cadet" (boy-astronaut-1), Girl defaults to "Stella the Cadet" (girl-astronaut-1), and Space Cadet / Neutral defaults to "Alex the Star Rover" (explorer-rover).',
+	),
+	createBullet(
+		'Freedom of Customization',
+		'Regardless of gender selection, children can choose ANY avatar from the 12-avatar preset gallery using category filter tabs (All, Boys, Girls, Cosmic Pals) with active selection rings and checkmark pins.',
+	),
+	createHeading2(
+		'11.3 Persistent Storage, Header Badging & Cross-Device Portability',
+	),
+	createBullet(
+		'Persistent Storage (utils/progressTracker.js)',
+		'The selected gender and avatar ID are stored under localStorage keys "astroquest_kid_gender_v1" and "astroquest_kid_avatar_v1", preserved alongside the child name and age.',
+	),
+	createBullet(
+		'Unified Header Badging (SkillSelectionDashboard.jsx & Header.jsx)',
+		"The dashboard header profile badge and active quest header render the chosen avatar image circle with the child's name and age, completely replacing the former ⭐ and 👋 symbols.",
+	),
+	createBullet(
+		'Cross-Device Portability (utils/backupManager.js)',
+		"Exported JSON backup bundles include kidGender and kidAvatar, ensuring that importing onto another computer seamlessly restores the child's personalized avatar and gender preferences.",
+	),
+
+	// ─── 12. Skipped Question Revisit & Review Engine ───────────────────
+	createHeading1('12. Skipped Question Revisit & Review Engine'),
+	createParagraph(
+		'AstroQuest features a pedagogical Skipped Question Revisit & Review Engine. When students encounter challenging questions, they can skip forward immediately without spoiling the answer. Before reaching the final results, AstroQuest presents an interactive prompt to revisit all skipped questions, earn stars by answering them correctly, or inspect step-by-step solutions if skipped a second time.',
+	),
+	createHeading2(
+		'12.1 Immediate Skip Advancement Without Solution Spoilers (src/App.jsx)',
+	),
+	createBullet(
+		'Instant Question Transition',
+		'Clicking the "Skip" button during the initial question run advances directly to the next question in sequence without revealing the correct answer or displaying the solution panel.',
+	),
+	createBullet(
+		'Session History Bookkeeping',
+		'The skipped question is recorded in session history with "skipped: true, isCorrect: false, selectedOptionId: null", resetting active timer countdowns and clearing input states cleanly.',
+	),
+	createHeading2(
+		'12.2 Pre-Results Review Prompt Dialog (features/quest/SkippedReviewModal.jsx)',
+	),
+	createBullet(
+		'Conditional Trigger at Run Completion',
+		'Upon completing the final question of the sheet, AstroQuest checks if any questions were skipped. If skippedCount > 0, an interactive dialog appears before displaying the Result Summary page.',
+	),
+	createBullet(
+		'Question Chips & Dual Actions',
+		'Displays visual chips for all skipped questions (e.g. Question 3, Question 7) and provides two clear choices: "Revisit Skipped Questions ({count})" (starts review mode) and "Finish & View Results" (bypasses review to view final scores).',
+	),
+	createBullet(
+		'WCAG AA Conformance',
+		'Supports Escape key dismissal (gracefully viewing results), Tab key focus trapping, and screen reader modal semantics.',
+	),
+	createHeading2('12.3 Review Mode Experience & Second Skip Handling'),
+	createBullet(
+		'Revisit Banner (QuestionCard.jsx)',
+		'An animated amber badge notifies the student: "🔄 REVISITING SKIPPED QUESTION (Question X)".',
+	),
+	createBullet(
+		'Answering Revisited Questions',
+		'Students select an option and click Submit. Answering correctly triggers celebratory confetti, chimes, and converts the record from "skipped: true" to "isCorrect: true, skipped: false", boosting the final score.',
+	),
+	createBullet(
+		'Second Skip Handling (Skip Again)',
+		'If the user clicks "Skip" again on a revisited question, AstroQuest displays the full pedagogical explanation and step-by-step solution ("⏭️ Question Skipped — Solution Revealed") before advancing to the next skipped question or results.',
+	),
+	createBullet(
+		'Synchronized Final Scoring & PDF Generation',
+		'Final accuracy percentages, ResultOverview breakdown, QuestionSummary cards, and downloadable PDF reports dynamically reflect all revisited answers.',
+	),
+
+	// ─── 13. Performance Optimization & Code-Splitting Architecture ─────
+	createHeading1('13. Performance Optimization & Code-Splitting Architecture'),
+	createParagraph(
+		'To deliver instantaneous page loads and fluid 60fps interaction on desktop, tablet, and mobile devices, AstroQuest implements comprehensive code-splitting, lazy-loading, and build optimizations.',
+	),
+	createHeading2(
+		'13.1 Heavy Modal Code-Splitting & Lazy Loading (src/App.jsx)',
+	),
+	createBullet(
+		'On-Demand Modal Loading',
+		'HintModal, ZoomModal, AskDoubtModal, ExitConfirmationModal, and SkippedReviewModal are lazily loaded via React.lazy() and wrapped in Suspense with fallback={null}.',
+	),
+	createBullet(
+		'Conditional Mounting',
+		'Modals are conditionally mounted only when their isOpen flag is true, ensuring zero modal JavaScript is downloaded until the user explicitly opens that dialog.',
+	),
+	createHeading2(
+		'13.2 Lazy-Loaded Cosmic Quest Loader (utils/CosmicQuestLoader.jsx)',
+	),
+	createBullet(
+		'Landing Page Bundle Protection',
+		'The 20+ KB CosmicQuestLoader component (featuring concentric chromatic rings, 24 hyperspace warp rays, and SVG planetary artwork) is loaded on-demand only when a skill session is launched, keeping the initial dashboard bundle exceptionally lightweight.',
+	),
+	createHeading2('13.3 Dynamic Confetti Loader & Build Chunk Optimization'),
+	createBullet(
+		'On-Demand Confetti Loader',
+		'Replaced the static canvas-confetti import with a dynamic import("canvas-confetti") helper triggered only upon the first correct answer, eliminating 10+ KB from initial bundle parsing.',
+	),
+	createBullet(
+		'Vite 6 Rollup Chunking (vite.config.js)',
+		'Configured targeted vendor chunks for vendor-react, vendor-icons, and vendor-ai, while enabling modern ES2022 output and CSS code-splitting.',
+	),
+	createBullet(
+		'Measurable Bundle Reductions',
+		'The main entry JavaScript chunk was reduced from 330.43 kB (gzip: 97.02 kB) down to 248.23 kB (gzip: 68.72 kB), achieving an ~82 kB uncompressed (~28.3 kB gzipped) payload reduction for drastically faster First Contentful Paint (FCP) and Time-to-Interactive (TTI).',
+	),
+
+	// ─── 14. Articulated Living Cosmic Pet Companion & Interactive Care Engine ────
+	createHeading1(
+		'14. Articulated Living Cosmic Pet Companion & Interactive Care Engine',
+	),
+	createParagraph(
+		'AstroQuest features an articulated, living virtual pet companion that replaces static still pictures with dynamic, life-like animal behaviors. The companion actively walks across the screen with moving paw stride cycles, drinks milk and water from a bowl with an animated lapping tongue and expanding ripples, eats crunchy kibble treats with chewing jaws and popped crumbs, plays catch with a bouncing cosmic star ball, curls up to sleep with rhythmic breathing, and interacts affectionately with procedural audio synthesis.',
+	),
+	createHeading2(
+		'14.1 Dynamic Living Animal Mechanics (features/companion/LivingPetCharacter.jsx)',
+	),
+	createBullet(
+		'Full Articulated Multi-Layered Anatomy',
+		'Rocket the Pup (Golden retriever in astronaut helmet with glossy visor arcs, cosmic purple star suit matching reference designs, floppy animated ears, dark liquid eyes with catchlights, cream muzzle, and fluffy wagging retriever tail), Luna the Cat (graceful kitten with pointed inner-shaded ears, whiskers, bell collar, curling tail, and animated lapping tongue), Beep the Bot (living cyber companion with motorized treads, pulsing radar, and glowing LED visor), and Zog the Alien (3-eyed friendly cosmic pal with pulsing antennae).',
+	),
+	createBullet(
+		'Authentic Living State Engine',
+		'Walking & Trotting (alternating front and back paw stride cycles via @keyframes petPawStrideFront & Back, body trot bounce via @keyframes walkTrotBody, and floppy ear sways), Drinking Milk / Water (interactive ceramic bowl, head dip, pink tongue lapping via @keyframes tongueLap, expanding ripples via @keyframes waterRippleExpand, and splash drops with procedural slurping audio), Eating Crunchy Food (golden bone-treat bowl with chewing jaw motions via @keyframes jawChew and popping crumbs via @keyframes crumbPop), Playing Catch (squash-and-stretch star ball bounce via @keyframes ballBounceSquash), Cuddle Affection (frantic tail wagging, happy barking mouth, blush cheeks, and heart bursts), and Anti-Gravity Sleeping (paws tucked, closed happy eyes, and slow chest expansion breathing via @keyframes petBreathe).',
+	),
+	createBullet(
+		'Natural Eye Blinking',
+		'Automated 3.8-second periodic blink cycle toggling eyelid closures for life-like presence.',
+	),
+	createHeading2('14.2 Physical Stroll Movement & Autonomous Living Loops'),
+	createBullet(
+		'Physical Walking Across Screen (features/companion/PetAssistant.jsx)',
+		'When the explorer triggers Walk (🐾), the pet actively steps across the viewport with trot kinematics, automatically reversing direction upon reaching viewport boundaries.',
+	),
+	createBullet(
+		'Autonomous Living Routines',
+		'When resting idle during a quest, the pet naturally takes occasional sips of water, wags its tail, or takes a gentle short stroll, making it feel like a real living virtual pet.',
+	),
+	createBullet(
+		'Center-Seam In-Quest Anchor & Comic Speech Bubble',
+		'Floating directly beside the question card with dynamic contextual speech cues ("Let\'s figure it out!", cheering correct answers, and offering clues).',
+	),
+	createHeading2('14.3 Full-Featured Non-Blocking Care Toolbar'),
+	createBullet(
+		'Dedicated Care & Quiz Controls',
+		'Compact floating vertical dock providing instant access to Clue (💡), Read Aloud (🗣️), Walk (🐾), Drink (💧/🥛), Eat (🍖), Play (🎾), Cuddle (💖), Nap (💤), Switch Companion (🔄), and Reset to Center (🎯) with zero screen-dimming modals.',
+	),
+	createHeading2('14.4 Hardware-Accelerated CSS Keyframes (src/index.css)'),
+	createBullet(
+		'Living Motion Keyframes',
+		'Features @keyframes tongueLap (.animate-tongue-lap for lapping tongue), @keyframes jawChew (.animate-jaw-chew for chewing jaws), @keyframes petBreathe (.animate-pet-breathe for breathing chest), @keyframes walkTrotBody (.animate-walk-trot for walking trot bounce), @keyframes earFlopFront & Back (.animate-ear-flop-1/2 for floppy ears), @keyframes splashDrop (.animate-splash-1/2/3 for water droplets), @keyframes crumbPop (.animate-crumb-1/2/3 for popped crumbs), and @keyframes petTailSwish (.animate-tail-swish for energetic tail wagging).',
 	),
 ];
 
@@ -1660,7 +1868,7 @@ AstroQuest 2.0 introduces an extensible learning domain architecture that remove
 - **Direct Gemini AI Prompt Injection**: Custom skillset names and pedagogical descriptions are injected verbatim into the real-time AI prompt as \`TARGET SKILLSET\` and \`SKILLSET DESCRIPTION\`. Gemini calibrates problem types, age difficulty, analogies, and hints to match user-defined domains (e.g. Space Astronomy, Nature Science, Vocabulary & Riddles).
 - **Quick Inspiration Presets**: Built-in template presets allow one-click creation of popular STEM and humanities topics, pre-populating icons, color themes, and pedagogical guidelines.
 - **Protected Default Skillsets**: Core foundational skills (Visual Observation and Analytical Thinking) are immutably protected against accidental deletion, while custom skillsets feature safe deletion workflows with confirmation modals.
-- **Dynamic Cosmic Quest Loader Integration**: \`CosmicQuestLoader\` dynamically extracts the chosen skill name and icon to customize the celestial planet graphics, orbital stardust, and real-time telemetry readout.
+- **3D Vortex Space Travel to Skillset Planet (\`CosmicQuestLoader.jsx\`)**: Cinematic 3D hyperspace voyage where the spaceship travels through an expansive 3D cosmic vortex directly reaching the destination skillset planet. Features 3D perspective depth (\`perspective: 800px; transform-style: preserve-3d;\`), a swirling spiral nebula vortex disk, 5 concentric expanding 3D dashed vortex tunnel rings (\`@keyframes vortexTunnelRingExpand\`), and radial hyperspace warp beams. The spaceship executes forward trajectory flight with depth scaling (\`scale(1.15)\` in foreground to \`scale(0.54)\` at planet orbit) as it dives into the vortex core to reach the planet. Clean visual aesthetic completely removes distracting name badges from both the spaceship and the planet, keeping focus on the immersive journey while retaining live approach telemetry (\`RANGE: 14,800 KM ➔ 1,200 KM • WARP 3.8\`) and explorer profile headers.
 
 ### 10.2 Cross-Device Backup & Portability Architecture (\`utils/backupManager.js\`)
 - **Comprehensive Payload Bundling**: The exported JSON backup compiles explorer profile (name, age), encrypted API key, selected Gemini AI model, per-question timer limits, auto-advance delays, visual diagram preferences, voice selection, and all custom skillsets.
@@ -1671,6 +1879,176 @@ AstroQuest 2.0 introduces an extensible learning domain architecture that remove
 ### 10.3 Password-Masked API Key Security & Clipboard Protection
 - **Salted Vault Storage Cipher**: API keys are stored in encrypted format with salted prefixes (\`enc:v1:vault:...\`). Raw plaintext is never exposed in localStorage or the DOM.
 - **3-Second Auto-Masking Timer**: When pasting or typing a key, the text is visible for exactly 3 seconds for verification before automatically converting to password mask (\`••••••••\`). Eye toggle icons have been permanently removed.
+
+### 10.4 AI-Powered Skillset Auto-Fill & Synthesis Engine (\`services/aiGenerator.js\`)
+- **One-Click Intelligent Formulation**: Educators and parents can type rough topic keywords or partial notes in the Create Skillset dialog and click "Auto-Fill with AI". Gemini AI automatically analyzes the input and formulates a complete, age-calibrated skillset package: inspiring title, catchy subtitle, pedagogical prompt description, matching emoji icon, and color theme.
+- **Graceful Cold-Start & Age Calibration**: If triggered with empty inputs, Gemini crafts an age-appropriate STEM or logic exploration domain tailored to the child's configured age (e.g. 5 years old).
+- **Non-Destructive In-Place Customization**: Auto-filled attributes populate form fields in real-time with visual status confirmation, allowing parents to review, tweak, or expand the AI-generated curriculum before saving.
+
+---
+
+## 11. Explorer Avatar System, Gender Personalization & Preset Avatar Gallery
+
+AstroQuest replaces static emojis (\`⭐\` and \`👋\`) with a personalized vector SVG Avatar System. Kids can select their gender, receive an automatic tailored avatar, and customize their appearance from a collection of 12 preset vector avatars across Boys, Girls, and Cosmic Pals.
+
+### 11.1 Vector SVG Avatar Architecture (\`utils/avatarManager.jsx\`)
+- **100% Vector & Offline**: All 12 preset avatars are rendered via embedded inline SVG components, guaranteeing crisp scaling at any resolution (from 24px header icons to 80px preview badges) with zero external asset dependencies or HTTP requests.
+- **Preset Catalog & Categorization**: Avatars are organized into three thematic collections:
+  - **Boys**: Leo the Cadet (\`boy-astronaut-1\`), Max the Ranger (\`boy-ranger-2\`), Sam the Cosmic Cadet (\`boy-cosmic-3\`).
+  - **Girls**: Stella the Cadet (\`girl-astronaut-1\`), Nova the Explorer (\`girl-explorer-2\`), Maya the Cosmic Explorer (\`girl-cosmic-3\`).
+  - **Cosmic Pals**: Alex the Star Rover (\`explorer-rover\`), Sky the Cadet (\`explorer-cadet\`), Beep the Bot (\`robot-beep\`), Luna the Space Cat (\`pet-cat\`), Rocket the Space Pup (\`pet-dog\`), Zog the Friendly Alien (\`alien-zog\`).
+
+### 11.2 Gender-Based Smart Defaulting & Customization Flow
+- **Intelligent Gender Defaulting**: Selecting **Boy** (\`👦\`) defaults to *Leo the Cadet* (\`boy-astronaut-1\`), **Girl** (\`👧\`) defaults to *Stella the Cadet* (\`girl-astronaut-1\`), and **Space Cadet / Neutral** (\`🚀\`) defaults to *Alex the Star Rover* (\`explorer-rover\`).
+- **Complete Freedom of Customization**: Regardless of gender selection, children can choose ANY avatar from the 12-avatar preset gallery using category filter tabs (*All*, *Boys 👦*, *Girls 👧*, *Cosmic Pals 🤖*) with active selection rings and checkmark pins.
+
+### 11.3 Persistent Storage, Header Badging & Cross-Device Portability
+- **Persistent Storage (\`utils/progressTracker.js\`)**: The selected gender and avatar ID are stored under localStorage keys \`astroquest_kid_gender_v1\` and \`astroquest_kid_avatar_v1\`, preserved alongside the child name and age.
+- **Unified Header Badging (\`SkillSelectionDashboard.jsx\` & \`Header.jsx\`)**: The dashboard header profile badge and active quest header render the chosen avatar image circle with the child's name and age, completely replacing the former \`⭐\` and \`👋\` symbols.
+- **Cross-Device Portability (\`utils/backupManager.js\`)**: Exported JSON backup bundles include \`kidGender\` and \`kidAvatar\`, ensuring that importing onto another computer seamlessly restores the child's personalized avatar and gender preferences.
+
+---
+
+## 12. Skipped Question Revisit & Review Engine
+
+AstroQuest provides a child-centered **Skipped Question Revisit & Review Engine**. When students encounter challenging questions, they can skip forward immediately without spoiling the answer. Before reaching the final results, AstroQuest presents an interactive prompt to revisit all skipped questions, earn stars by answering them correctly, or inspect step-by-step solutions if skipped a second time.
+
+### 12.1 Immediate Skip Advancement Without Solution Spoilers (\`src/App.jsx\`)
+- **Instant Question Transition**: Clicking the "Skip" button during the initial question sequence moves directly to the next question without revealing the correct answer or displaying the solution panel.
+- **Session History Bookkeeping**: The skipped question is recorded in session history with \`skipped: true, isCorrect: false, selectedOptionId: null\`, resetting active timer countdowns and clearing input states cleanly.
+
+### 12.2 Pre-Results Review Prompt Dialog (\`src/features/quest/SkippedReviewModal.jsx\`)
+- **Conditional Trigger at Run Completion**: When the child finishes the final question of the sheet, AstroQuest checks if \`skippedCount > 0\`. If any questions were skipped, an interactive modal appears before displaying the Result Summary.
+- **Question Chips & Dual Actions**: Displays visual chips for all skipped questions (e.g. \`Question 3\`, \`Question 7\`) and provides two clear choices:
+  - **Revisit Skipped Questions ({count})**: Enters Review Mode starting at the first skipped question.
+  - **Finish & View Results**: Bypasses review and proceeds directly to the final score and results breakdown.
+- **WCAG AA Conformance**: Supports \`Escape\` key dismissal (gracefully proceeding to results), \`Tab\` key focus trapping, and screen reader modal semantics.
+
+### 12.3 Review Mode Experience & Second Skip Handling (\`QuestionCard.jsx\`, \`SolutionPanel.jsx\`, \`App.jsx\`)
+- **Revisit Banner**: In \`QuestionCard.jsx\`, an animated amber banner notifies the student: \`🔄 REVISITING SKIPPED QUESTION (Question X)\`.
+- **Answering Revisited Questions**: Students can select an option and click **Submit**. Correct answers award stars, celebrate with confetti/audio, and convert the record from \`skipped: true\` to \`isCorrect: true, skipped: false\`, boosting the final score.
+- **Second Skip Handling (Skip Again)**: If the student clicks "Skip" a second time while revisiting a question, AstroQuest displays the full pedagogical explanation and step-by-step solution (\`⏭️ Question Skipped — Solution Revealed\`) before advancing to the next skipped question or results.
+- **Synchronized Final Scoring & PDF Generation**: Final accuracy percentages, \`ResultOverview\` breakdown, \`QuestionSummary\` cards, and downloadable PDF reports (\`pdfGenerator.js\`) dynamically reflect all revisited answers with zero discrepancies.
+
+---
+
+## 13. Performance Optimization & Code-Splitting Architecture
+
+To deliver instantaneous page loads and fluid 60fps interaction across desktop, tablet, and mobile devices, AstroQuest implements comprehensive code-splitting, lazy-loading, and Rollup build optimizations.
+
+### 13.1 Heavy Modal Code-Splitting & Lazy Loading (\`src/App.jsx\`)
+- **On-Demand Modal Loading**: \`HintModal\`, \`ZoomModal\`, \`AskDoubtModal\`, \`ExitConfirmationModal\`, and \`SkippedReviewModal\` are lazily loaded via \`React.lazy()\` and wrapped in \`<Suspense fallback={null}>\`.
+- **Conditional Mounting**: Modals are conditionally mounted only when their \`isOpen\` flag is true, ensuring zero modal JavaScript is downloaded until the user explicitly opens that dialog.
+
+### 13.2 Lazy-Loaded Cosmic Quest Loader (\`src/utils/CosmicQuestLoader.jsx\`)
+- **Landing Page Bundle Protection**: The 20+ KB \`CosmicQuestLoader\` component (featuring concentric chromatic rings, 24 hyperspace warp rays, and SVG planetary artwork) is loaded on-demand only when a skill session is launched, keeping the initial dashboard bundle exceptionally lightweight.
+
+### 13.3 Dynamic Confetti Loader & Build Chunk Optimization
+- **On-Demand Confetti Loader**: Replaced the static \`canvas-confetti\` import with a dynamic \`import('canvas-confetti')\` helper triggered only upon the first correct answer, eliminating 10+ KB from initial bundle parsing.
+- **Vite 6 Rollup Chunking (\`vite.config.js\`)**: Configured targeted vendor chunks for \`vendor-react\`, \`vendor-icons\`, and \`vendor-ai\` (\`@google/genai\`, \`axios\`), while enabling modern \`target: 'es2022'\` output and CSS code-splitting.
+- **Measurable Bundle Reductions**:
+  - The main entry JavaScript chunk was reduced from **330.43 kB (gzip: 97.02 kB)** down to **248.23 kB (gzip: 68.72 kB)**.
+  - Achieved an **~82 kB uncompressed (~28.3 kB gzipped)** payload reduction for drastically faster First Contentful Paint (FCP) and Time-to-Interactive (TTI).
+
+---
+
+## 14. Articulated Living Cosmic Pet Companion & Interactive Care Engine
+
+AstroQuest features an articulated, living virtual pet companion that replaces static still pictures with dynamic, life-like animal behaviors. The companion actively walks across the screen with moving paw stride cycles, drinks milk and water from a bowl with an animated lapping tongue and expanding ripples, eats crunchy kibble treats with chewing jaws and popped crumbs, plays catch with a bouncing cosmic star ball, curls up to sleep with rhythmic breathing, and interacts affectionately with procedural audio synthesis.
+
+### 14.1 Dynamic Living Animal Mechanics (\`features/companion/LivingPetCharacter.jsx\`)
+- **Full Articulated Multi-Layered Anatomy**:
+  - 🐶 **Rocket the Pup** (Golden Retriever Astronaut): Golden fur gradients, glossy space helmet dome with reflection arcs, cosmic purple star suit matching reference designs, floppy animated ears, dark liquid eyes with catchlights, cream muzzle, and fluffy wagging retriever tail.
+  - 🐱 **Luna the Cat** (Astronaut Kitten): Pointed inner-shaded cat ears, whiskers, bell collar, curling feline tail, and animated milk-lapping tongue.
+  - 🤖 **Beep the Bot** (Living Cyber Companion): Motorized treads, pulsing antenna radar, glowing LED chest core, and dark visor screen with glowing smiling cyan LED eyes.
+  - 🛸 **Zog the Alien** (Living Cosmic Pal): 3 expressive blinking eyes, bouncy pulsing antennae, and cosmic star nectar bowl.
+- **Authentic Living State Engine**:
+  - 🚶 **Walking & Trotting**: Alternating front and back paw stride cycles (\`animate-paw-front\`, \`animate-paw-back\`), body trot motion (\`animate-walk-trot\`), floppy ear sways (\`animate-ear-flop-1/2\`), and wagging tail physics (\`animate-tail-swish\`).
+  - 💧 **Drinking Milk / Water**: Spawns an interactive ceramic bowl filled with milk/water. The pet dips its head down, pink tongue repeatedly laps into the liquid (\`animate-tongue-lap\`), concentric ripples expand outward (\`animate-water-ripple\`), and splash droplets jump into the air (\`animate-splash-1/2/3\`) with procedural slurping audio (\`playPetSlurp\`).
+  - 🍖 **Eating Crunchy Food**: Spawns a bowl filled with golden bone-shaped treats. The pet lowers its head, jaw moves up and down in a rhythmic munch (\`animate-jaw-chew\`), and crunchy crumb particles burst into the air (\`animate-crumb-1/2/3\`).
+  - 🎾 **Playing Catch**: Spawns a bouncing cosmic star ball with squash-and-stretch physics (\`animate-ball-bounce\`) that the pet leaps up to swat with its paws.
+  - 💖 **Cuddle & Affection**: Frantic tail wagging, blushing pink cheeks (\`#FDA4AF\`), open happy barking mouth, and a shower of floating hearts and stars.
+  - 💤 **Anti-Gravity Sleeping**: Paws tucked neatly under the body, eyes closed in peaceful curved arcs, slow rhythmic chest breathing (\`animate-pet-breathe\`), and drifting Zzz sleep bubbles.
+  - 👁️ **Natural Eye Blinking**: Automated 3.8-second periodic blink cycle toggling eyelid closures for life-like presence.
+
+### 14.2 Physical Stroll Movement & Autonomous Living Loops (\`features/companion/PetAssistant.jsx\`)
+- **Physical Walking Across Screen**: When the explorer triggers **Walk (🐾)**, the pet actively steps across the viewport with trot kinematics, automatically reversing direction (\`scaleX(-1)\`) upon reaching viewport boundaries.
+- **Autonomous Living Routines**: When resting idle during a quest, the pet naturally takes occasional sips of water, wags its tail, or takes a gentle short stroll, making it feel like a real living virtual pet.
+- **Center-Seam In-Quest Anchor & Comic Speech Bubble**: Floating directly beside the question card with dynamic contextual speech cues ("Let's figure it out!", celebrating correct answers, and giving clues).
+
+### 14.3 Separate Independent Vertical Control Buttons & Minimal Screen Footprint
+- **Complete Decoupling from Pet Avatar**: The interactive control toolbar is completely detached from the floating pet character. The living companion walks, trots, eats, drinks, and plays freely without dragging any UI buttons beneath its paws.
+- **Dedicated Independent Vertical Strip**:
+  - **Minimal Lateral Footprint**: Formatted as a sleek, ultra-narrow vertical column (\`w-11\` width, 44px) docked along the screen edge by default (\`x = window.innerWidth - 64\`), ensuring 100% unobstructed visibility for question cards, formulas, and multiple-choice options.
+  - **Independent Drag Handle (\`GripVertical\`)**: Equipped with its own top drag handle, allowing learners to freely reposition the control strip anywhere on the screen independently of the pet.
+  - **Independent Position Persistence**: Persists custom screen coordinates across page reloads via \`localStorage\` key \`astroquest_pet_vertical_toolbar_pos_v6\`.
+  - **Collapsible Mini Mode**: Features a collapse toggle (\`ChevronUp\` / \`ChevronDown\`) that compresses the full button stack into an ultra-compact 44px round badge showing the active pet emoji.
+  - **Smart Adjacent Companion Picker**: The companion selection menu dynamically detects screen position and flies out cleanly to the left or right of the vertical bar without obstructing question options.
+- **Full Action Button Stack**:
+  - 💡 **Clue Hint**: Age-appropriate pedagogical guidance for the current question.
+  - 🗣️ **Read Aloud**: Clear voice narration of the question using Web Speech API.
+  - 🐾 **Walk**: Starts/stops active strolling motion across the screen.
+  - 🥛 **Drink**: Spawns fresh milk/water bowl with lapping tongue and splashing ripples.
+  - 🍖 **Eat**: Spawns crunchy kibble treats bowl with chewing jaws and popped crumbs.
+  - 🎾 **Play**: Spawns bouncing star toy ball with squash-and-stretch physics.
+  - 💖 **Cuddle**: Affectionate cuddle with tail wagging, happy bark, and heart burst.
+  - 💤 **Nap**: Toggles sleep / wake cycles with rhythmic chest breathing and drifting Zzzs.
+  - 🔄 **Switch Companion**: Opens the flyout selector (Rocket, Luna, Beep, Zog).
+  - 🎯 **Center Pet**: Re-centers the living pet between the question and options.
+  - ⌄ **Minimize Pet**: Sends pet to the bottom corner wake-up button.
+  - ⌃ **Collapse Toolbar**: Toggles vertical toolbar between full and mini coin modes.
+
+### 14.4 Hardware-Accelerated CSS Keyframes (\`src/index.css\`)
+- **Living Motion Keyframes**:
+  - \`@keyframes tongueLap\` (\`.animate-tongue-lap\`): Lapping tongue dipping into bowl.
+  - \`@keyframes jawChew\` (\`.animate-jaw-chew\`): Chewing jaw motion.
+  - \`@keyframes petBreathe\` (\`.animate-pet-breathe\`): Gentle chest expansion breathing.
+  - \`@keyframes walkTrotBody\` (\`.animate-walk-trot\`): Walking body trot bounce.
+  - \`@keyframes earFlopFront\` & \`earFlopBack\` (\`.animate-ear-flop-1/2\`): Floppy ear physics.
+  - \`@keyframes splashDrop\` (\`.animate-splash-1/2/3\`): Splashing water droplets.
+  - \`@keyframes crumbPop\` (\`.animate-crumb-1/2/3\`): Popping food crumbs.
+  - \`@keyframes petPawStrideFront\` & \`petPawStrideBack\`: Walking paw strides.
+  - \`@keyframes petTailSwish\`: Smooth wagging tail.
+  - \`@keyframes waterRippleExpand\`: Concentric water ripple waves.
+  - \`@keyframes ballBounceSquash\`: Squash-and-stretch toy ball bounce.
+  - \`@keyframes zzzDrift\`: Drifting sleep bubbles.
+
+### 14.5 Settings Screen Enable / Disable Pet Assistance Control
+- **Customizable Preference Toggle**: Learners, educators, and parents can choose to enable or disable the Pet Assistant at any time via the dedicated Settings Screen.
+- **Settings UI & Configuration**:
+  - **Status Pill**: Displays live status (\`Enabled\` in vibrant pink or \`Disabled\` in slate).
+  - **Toggle Button**: Instant switch (\`🐾 Enabled\` / \`🚫 Disabled\`) with audio feedback.
+  - **Active Companion Card Selector**: When enabled, allows previewing and selecting the active companion profile (Rocket the Space Scout Pup, Luna the Cat, Beep the Bot, Zog the Alien) directly within Settings.
+  - **Unsaved Changes Guard**: Integrated with \`isDirty\` change detection and modal confirmation to prevent accidental loss of edits.
+  - **Clean DOM Unmounting**: When disabled, the Pet Assistant is completely removed from the DOM, terminating all animation loops, sound listeners, and interval timers to ensure zero background overhead.
+  - **Persistence & Portability**: Persists to \`localStorage\` (\`astroquest_pet_assistance_enabled_v1\`) and is included in cross-device JSON backup and restore operations via \`backupManager.js\`.
+
+### 14.6 Smart Floating Hover Tooltips for Vertical Controls (\`ToolbarButton\`)
+- **Interactive Hover Context & Clarity**:
+  - Every button on the independent floating vertical control strip provides a styled, floating tooltip on hover and focus.
+  - Displays the action title (e.g., _Take a Walk_, _Drink Fresh Water_, _Feed Crunchy Kibble_, _Play Star Ball_, _Pet & Cuddle_, _Nap Time_, _Resize Pet_, _Switch Companion_, _Center Pet_), an uppercase category badge (_Motion_, _Water_, _Treat_, _Fun_, _Love_, _Rest_, _Size_), and a clear descriptive sentence explaining the action.
+- **Smart Viewport Boundary Projection**:
+  - Computes \`isToolbarNearRight\` dynamically based on the vertical strip's dragged position: \`toolbarPos.x > window.innerWidth / 2\`.
+  - When docked on the right half of the screen, tooltips project smoothly to the **left** (\`right-full mr-2.5\`) with a right-pointing arrow to prevent screen overflow.
+  - When dragged to the left half of the screen, tooltips project smoothly to the **right** (\`left-full ml-2.5\`) with a left-pointing arrow.
+- **Non-Blocking Pointer Interactions**:
+  - Tooltips are marked with \`pointer-events-none\` so mouse movements, fast clicking, and dragging are never blocked or trapped by popup containers.
+- **Collapsed Mini Pill & Drag Handle Support**:
+  - The collapsed state mini pill button and the drag grip handle also feature contextual hover tooltips explaining how to expand controls or drag the toolbar anywhere on screen.
+
+### 14.7 Pet Assistant Resizing Engine (\`PET_SIZES\` & Settings Integration)
+- **Scalable Size Presets**:
+  - The living pet companion supports 3 calibrated vector sizes engineered to maintain crisp SVG rendering without distortion:
+    1. **Small (\`small\`)**: \`104px\` — Compact footprint suited for small tablets and dense quiz layouts.
+    2. **Medium (\`medium\`)**: \`148px\` — Default standard size with optimal proportions and expressive animated details.
+    3. **Large (\`large\`)**: \`192px\` — Hero showcase mode for maximum visual immersion and detailed facial physics.
+- **Dual-Path Control**:
+  - **In-Toolbar One-Click Cycle**: A dedicated \`Resize Pet\` button in the vertical strip displays the active size badge (\`S\`, \`M\`, or \`L\`) and cycles through sizes instantly with speech bubble feedback (\`"Size: Medium (148px)! 📏✨"\`) and audio pop.
+  - **Settings Screen Selector**: Section 7 in \`SettingsScreen.jsx\` provides a 3-button segmented selector displaying the preset title, exact pixel dimensions, and category badge.
+- **Persistence & Storage Synchronization**:
+  - Key \`astroquest_pet_size_v1\` persists in \`localStorage\`.
+  - Global \`window.addEventListener('storage')\` hooks ensure instantaneous synchronization across components.
+  - Full backup and restore operations in \`backupManager.js\` include \`petSize\` and \`petType\` in JSON export payloads.
 `;
 
 const outputMdPath = path.join(

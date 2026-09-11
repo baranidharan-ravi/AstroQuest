@@ -29,7 +29,8 @@ An engaging, visual-first React.js educational platform designed for early child
   7. **Visual Diagrams & Clues Display** _(Optional 👁️ - Disabled by Default)_: Toggle ON/OFF (`🙈 Hidden Default` / `👁️ Shown`) to choose whether interactive geometric diagrams, 3x3 matrices, sequence patterns, and STEM illustrations appear alongside questions **and** inside answer option cards. When disabled, option cards cleanly hide all shape containers and render full-width text choices.
   8. **Dynamic Visual Synthesis Notice**: Displays an informative amber alert in Settings explaining that visual diagrams and option shapes are dynamically generated via cognitive models and AI prompts, so minor visual variations may occasionally occur.
   9. **Narrator Voice Selector** _(Customizable 🎙️)_: Choose from all text-to-speech voices supported by your web browser and operating system, with an **"Auto (Recommended)"** default option and instant one-click audition audio playback before saving.
-  10. **Cross-Device Backup & Portability Engine (`Export JSON 📤` / `Import JSON 📥`)**:
+  10. **Interactive Cosmic Pet Assistant Toggle & Active Companion Selector** _(Optional 🐾 - Enabled by Default)_: Toggle the living 3D companion ON or OFF anytime (`🐾 Enabled` / `🚫 Disabled`). When enabled, an interactive 4-card selector allows choosing the active companion (Rocket the Pup, Luna the Cat, Beep the Bot, or Zog the Alien) directly inside Settings. When disabled, the Pet Assistant is cleanly unmounted from the DOM for zero resource consumption.
+  11. **Cross-Device Backup & Portability Engine (`Export JSON 📤` / `Import JSON 📥`)**:
       - **Complete Configuration Bundling**: Export your entire setup into a portable JSON backup file (`astroquest_complete_backup_YYYY-MM-DD.json`), including child's name, age, salted encrypted Gemini API key, selected Gemini model, question timer settings, auto-advance delay, visual diagrams toggle, voice selection, and all custom skillsets.
       - **Seamless Multi-Computer Migration**: Transfer your child's learning profile and custom-built topics to any other laptop, classroom computer, or browser with one click.
       - **Zero-Refresh Reactive Hydration**: Importing instantly populates all form fields, updates application state, and syncs `localStorage` without requiring a page reload.
@@ -435,6 +436,36 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 ---
 
 <details>
+<summary><h3 style="display: inline;">15. 🐾 Interactive Cosmic Pet Assistant, Articulated Living Companions & Resizing</h3></summary>
+
+- **Articulated Living Vector Animals (`LivingPetCharacter.jsx`)**:
+  - High-fidelity SVG living companions (Rocket the Space Scout Pup, Luna the Cat, Beep the Bot, Zog the Alien) engineered with zero space helmets or obstructive glass bubbles for an authentic, friendly pet experience.
+  - Multi-state articulated animations:
+    - **Walking & Strolling**: Trotting body bobbing, four-paw alternating strides, and physical horizontal traversal across the screen.
+    - **Drinking Fresh Water & Milk**: Head lowering, lapping pink tongue physics, dipping into a water bowl with animated concentric ripple waves and splashing water droplets.
+    - **Eating Crunchy Treats**: Chewing jaw movement, crunching kibble bowl, and flying treat crumbs.
+    - **Playing Star Ball**: Dynamic squash-and-stretch bouncy ball chasing.
+    - **Affection & Cuddle**: Heart bursts, happy tail wags, eye blinks, ear flops, and synthesized sound effects (meows, barks, slurps, cheerful pops).
+    - **Sleeping & Nap Time**: Closed gentle eyes, rhythmic breathing chest expansion, and floating `Zzz` bubbles.
+- **Independent Floating Vertical Control Toolbar**:
+  - Detached from the pet character, draggable anywhere on screen without covering questions or options.
+  - Collapsible into a minimalist floating bubble or expandable into full action buttons.
+- **Smart Floating Hover Tooltips (`ToolbarButton`)**:
+  - Every button on the vertical control strip displays a high-contrast floating tooltip on hover and focus.
+  - Explains the action title, category badge, and a friendly description of what the button does.
+  - Dynamically calculates screen edge proximity (`isToolbarNearRight`) to flip tooltip projection left or right, preventing viewport overflow.
+- **Pet Assistant Resizing Engine (`PET_SIZES`)**:
+  - Scalable across 3 calibrated presets: **Small** (`104px`), **Medium** (`148px`), and **Large** (`192px`).
+  - **In-Toolbar Sizing**: Click the `Resize Pet` button to cycle instantly through `S`, `M`, and `L` with immediate visual scaling and speech bubble feedback.
+  - **Settings Screen Integration**: Section 7 in Settings includes a 3-button segmented selector with persistent `localStorage` storage and cross-device backup export.
+- **Full Enable / Disable Control**:
+  - Dedicated toggle in Settings allows turning off the pet assistant, cleanly unmounting it from the DOM for zero performance overhead.
+
+</details>
+
+---
+
+<details>
 <summary><h2 style="display: inline;">🔑 How to Get a Google Gemini API Key (Step-by-Step)</h2></summary>
 
 A Gemini API key is mandatory for generating questions in real time. Follow these simple steps to obtain a free key:
@@ -605,6 +636,57 @@ AstroQuest is engineered from the ground up to comply with **Web Content Accessi
 ---
 
 <details>
+<summary><h2 style="display: inline;">🐾 Articulated Living 3D Pet Companion & Independent Controls</h2></summary>
+
+- **True Articulated Living Animal Simulation (`LivingPetCharacter.jsx`)**:
+  - Replaced static pictures with a multi-layered articulated living animal simulation engine:
+    - **Rocket the Space Scout Pup**: Golden retriever puppy with reflective astronaut helmet, purple space suit, floppy ears, dark sparkling eyes, soft pink paw pads, and wagging tail.
+    - **Luna the Cat**: Astronaut kitten drinking fresh milk, eating tasty tuna, and curling up for naps.
+    - **Beep the Bot**: Cyber companion with energetic antenna, plasma thruster glows, and battery recharge animations.
+    - **Zog the Buddy**: Cosmic alien friend with twinkling antennae and sweet cosmic gummy treats.
+  - **Authentic Living Behavior Cycles**:
+    - 🚶 **Walking & Trotting**: Physical stepping strides across the viewport with trot bounces (`animate-walk-trot`), ear flop physics, and automatic direction reversal (`scaleX(-1)`) at screen edges.
+    - 🥛 **Drinking Milk / Water**: Ceramic bowl appears, head dips down, pink tongue rhythmically laps liquid (`animate-tongue-lap`), concentric ripples expand (`animate-water-ripple`), and splash droplets jump into the air with procedural slurping audio.
+    - 🍖 **Eating Crunchy Food**: Ceramic treat bowl appears, head dips, chewing jaws munch up and down (`animate-jaw-chew`), and popped crumb particles fly with crunchy munching sound effects.
+    - 🎾 **Playing Catch**: Bouncing cosmic star ball with squash-and-stretch physics (`animate-ball-bounce`) that the pet swats playfully.
+    - 💖 **Cuddling & Affection**: Tail wags frantically, mouth opens in a happy bark, cheeks blush pink (`#FDA4AF`), and a shower of floating hearts/stars appears.
+    - 💤 **Anti-Gravity Sleeping**: Paws tucked under chest, curved closed eyelids (`⌒ ⌒`), slow rhythmic breathing (`animate-pet-breathe`), and drifting Zzz bubbles.
+    - 👁️ **Natural Eye Blinking**: Automated 3.8-second periodic blink cycle toggling eyelid closures for life-like presence.
+  - **Contextual Comic Speech Bubble**: Dynamic speech cues (`"Let's figure it out! 🚀"`, celebrating correct answers, and giving clues) anchored smoothly beside the question card.
+
+- **Separate Independent Vertical Control Buttons (`PetAssistant.jsx`)**:
+  - **Zero Obstruction & Decoupled Architecture**: The control toolbar is completely detached from the pet character. The living pet walks and plays freely without dragging UI buttons beneath it.
+  - **Ultra-Slim Vertical Column (`w-11`, 44px)**: Formatted as a sleek vertical strip docked along the screen edge by default (`x = window.innerWidth - 64`), leaving 100% of question prompts, math diagrams, and answer choices completely unobstructed.
+  - **Independent Drag Handle (`GripVertical`)**: Equipped with its own top drag handle so users can freely reposition the toolbar anywhere on screen independently of the pet.
+  - **Persistent Coordinates**: Remembers user positioning across page reloads via `localStorage` key `astroquest_pet_vertical_toolbar_pos_v6`.
+  - **One-Click Collapsible Mini Mode**: A collapse toggle (`ChevronUp` / `ChevronDown`) condenses the full toolbar into an ultra-compact 44px round coin badge showing the active pet emoji.
+  - **Smart Adjacent Companion Flyout**: The companion selection menu dynamically detects screen position and projects out cleanly to the left or right of the vertical bar without obstructing question options.
+  - **Full Vertical Button Stack**:
+    - ⠿ **Drag Grip**: Reposition toolbar anywhere.
+    - 💡 **Clue Hint**: Age-appropriate pedagogical quiz hint.
+    - 🗣️ **Read Aloud**: Clear voice narration using Web Speech API.
+    - 🐾 **Walk**: Starts/stops screen walking trot.
+    - 🥛 **Drink**: Spawns milk/water bowl with lapping tongue and ripples.
+    - 🍖 **Eat**: Spawns crunchy treats bowl with chewing jaws and crumbs.
+    - 🎾 **Play**: Spawns bouncing star toy ball with squash-and-stretch physics.
+    - 💖 **Cuddle**: Petting, tail wagging, happy bark, and heart burst.
+    - 💤 **Nap**: Toggles sleep / wake cycles with rhythmic breathing and drifting Zzzs.
+    - 🔄 **Switch Companion**: Flyout selector (Rocket, Luna, Beep, Zog).
+    - 🎯 **Center Pet**: Re-centers living pet between cards.
+    - ⌄ **Minimize Pet**: Sends pet to bottom corner wake-up button.
+    - ⌃ **Collapse Toolbar**: Toggles vertical toolbar between full and mini coin modes.
+
+- **Settings Screen Enable / Disable Control**:
+  - **Configurable Toggle**: Parents and teachers can toggle Pet Assistance ON or OFF at any time in the Settings screen (`🐾 Enabled` / `🚫 Disabled`).
+  - **Active Companion Card Selector**: When enabled, lets users preview and choose their default companion directly in Settings.
+  - **Clean DOM Unmounting**: When disabled, the component is completely unmounted from the DOM, shutting down all interval timers and background animations for zero resource usage.
+  - **Persistence & Portability**: Stored in `localStorage` (`astroquest_pet_assistance_enabled_v1`) and included in cross-device JSON backup and restore files.
+
+</details>
+
+---
+
+<details>
 <summary><h2 style="display: inline;">📁 Project Structure</h2></summary>
 
 ```
@@ -614,6 +696,9 @@ AstroQuest is engineered from the ground up to comply with **Web Content Accessi
 │   └── index.js                              # Shields API keys, handles Gemini & Imagen routing via Axios
 src/
 ├── features/                                 # Feature-specific components and UI modules
+│   ├── companion/                            # Interactive 3D living animal companion & controls
+│   │   ├── LivingPetCharacter.jsx            # Articulated SVG living animal character engine
+│   │   └── PetAssistant.jsx                  # Living companion controller & independent vertical toolbar
 │   ├── dashboard/                            # Landing screen & skill selection
 │   │   └── SkillSelectionDashboard.jsx
 │   ├── settings/                             # Full-screen profile, voice & preferences screen

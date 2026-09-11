@@ -10,7 +10,12 @@ import {
 } from 'lucide-react';
 import React from 'react';
 import { playButtonPop } from './audioSynthesis';
-import { getStoredKidAge, getStoredKidName } from './progressTracker';
+import { KidAvatar } from './avatarManager';
+import {
+	getStoredKidAge,
+	getStoredKidAvatar,
+	getStoredKidName,
+} from './progressTracker';
 
 const Header = React.memo(function Header({
 	questionIndex,
@@ -26,6 +31,7 @@ const Header = React.memo(function Header({
 	onExitClick,
 	kidName,
 	kidAge,
+	kidAvatar,
 }) {
 	const [isFullscreen, setIsFullscreen] = React.useState(false);
 
@@ -83,7 +89,12 @@ const Header = React.memo(function Header({
 				<div
 					className='hidden md:flex items-center gap-2 bg-[#151747] border border-[#2B3075] rounded-xl px-2.5 py-1 sm:px-3 sm:py-1.5 shadow-lg select-none'
 					title={`Explorer: ${resolvedKidName} (Age ${resolvedKidAge})`}>
-					<span className='text-base leading-none'>🧑‍🚀</span>
+					<KidAvatar
+						avatarId={kidAvatar || getStoredKidAvatar()}
+						size='xs'
+						className='ring-1 ring-purple-400/40 shadow-sm'
+						alt={`${resolvedKidName} avatar`}
+					/>
 					<div className='flex flex-col items-start leading-none'>
 						<span className='text-white font-extrabold text-xs tracking-wide truncate max-w-[90px] lg:max-w-[130px]'>
 							{resolvedKidName}
@@ -119,6 +130,10 @@ const Header = React.memo(function Header({
 						} else {
 							bgClass =
 								'bg-gradient-to-r from-[#FF435A] to-[#F43F5E] shadow-[0_0_8px_#FF435A]';
+						}
+						if (idx === questionIndex) {
+							borderClass =
+								'border-2 border-white ring-2 ring-white/60 animate-pulse';
 						}
 					} else if (idx === questionIndex) {
 						bgClass = 'bg-[#4B56B2] animate-pulse';

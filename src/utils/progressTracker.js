@@ -3,6 +3,8 @@
 const PROFILE_KEY = 'thinksheet_kid_profile_v4';
 const KID_NAME_KEY = 'thinksheet_custom_kid_name_v2';
 const KID_AGE_KEY = 'thinksheet_custom_kid_age_v2';
+const KID_GENDER_KEY = 'astroquest_kid_gender_v1';
+const KID_AVATAR_KEY = 'astroquest_kid_avatar_v1';
 const TIMER_CONFIG_KEY = 'thinksheet_timer_config_v1';
 
 export const DEFAULT_TIMER_CONFIG = {
@@ -76,6 +78,44 @@ export function saveStoredShowVisualDiagrams(show) {
 	}
 }
 
+const PET_ASSISTANCE_CONFIG_KEY = 'astroquest_pet_assistance_enabled_v1';
+
+export function getStoredPetAssistanceEnabled() {
+	try {
+		const raw = localStorage.getItem(PET_ASSISTANCE_CONFIG_KEY);
+		if (raw !== null) {
+			return raw === 'true';
+		}
+	} catch {}
+	return true; // Enabled by default
+}
+
+export function saveStoredPetAssistanceEnabled(enabled) {
+	try {
+		localStorage.setItem(PET_ASSISTANCE_CONFIG_KEY, String(Boolean(enabled)));
+	} catch (err) {
+		console.warn('Could not save pet assistance preference', err);
+	}
+}
+
+const PET_SIZE_KEY = 'astroquest_pet_size_v1';
+
+export function getStoredPetSize() {
+	try {
+		return localStorage.getItem(PET_SIZE_KEY) || 'medium';
+	} catch {
+		return 'medium';
+	}
+}
+
+export function saveStoredPetSize(size) {
+	try {
+		if (size) localStorage.setItem(PET_SIZE_KEY, size);
+	} catch (err) {
+		console.warn('Could not save pet size preference', err);
+	}
+}
+
 export const INITIAL_PROFILE = {
 	visualSolved: 0,
 	analyticalSolved: 0,
@@ -104,7 +144,43 @@ export function getStoredKidAge() {
 	}
 }
 
-export function saveStoredKidProfile(name, age) {
+export function getStoredKidGender() {
+	try {
+		return localStorage.getItem(KID_GENDER_KEY) || 'boy';
+	} catch {
+		return 'boy';
+	}
+}
+
+export function saveStoredKidGender(gender) {
+	try {
+		if (gender) {
+			localStorage.setItem(KID_GENDER_KEY, String(gender).toLowerCase().trim());
+		}
+	} catch (err) {
+		console.warn('Could not save kid gender to localStorage', err);
+	}
+}
+
+export function getStoredKidAvatar() {
+	try {
+		return localStorage.getItem(KID_AVATAR_KEY) || 'boy-astronaut-1';
+	} catch {
+		return 'boy-astronaut-1';
+	}
+}
+
+export function saveStoredKidAvatar(avatar) {
+	try {
+		if (avatar) {
+			localStorage.setItem(KID_AVATAR_KEY, String(avatar).trim());
+		}
+	} catch (err) {
+		console.warn('Could not save kid avatar to localStorage', err);
+	}
+}
+
+export function saveStoredKidProfile(name, age, gender, avatar) {
 	try {
 		if (name) {
 			localStorage.setItem(KID_NAME_KEY, name.trim());
@@ -113,6 +189,12 @@ export function saveStoredKidProfile(name, age) {
 		}
 		if (age) {
 			localStorage.setItem(KID_AGE_KEY, String(age));
+		}
+		if (gender) {
+			localStorage.setItem(KID_GENDER_KEY, String(gender).toLowerCase().trim());
+		}
+		if (avatar) {
+			localStorage.setItem(KID_AVATAR_KEY, String(avatar).trim());
 		}
 	} catch (err) {
 		console.warn('Could not save kid profile to localStorage', err);

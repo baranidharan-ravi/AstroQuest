@@ -15,10 +15,15 @@ import {
 import { getStoredVoiceURI, setStoredVoiceURI } from './audioSynthesis';
 import {
 	getStoredKidAge,
+	getStoredKidAvatar,
 	getStoredKidName,
+	getStoredPetAssistanceEnabled,
+	getStoredPetSize,
 	getStoredShowVisualDiagrams,
 	getStoredTimerConfig,
 	saveStoredKidProfile,
+	saveStoredPetAssistanceEnabled,
+	saveStoredPetSize,
 	saveStoredShowVisualDiagrams,
 	saveStoredTimerConfig,
 } from './progressTracker';
@@ -35,10 +40,21 @@ export function createFullBackupPayload() {
 		settings: {
 			kidName: getStoredKidName() || '',
 			kidAge: Number(getStoredKidAge()) || 5,
+			kidGender: getStoredKidGender() || 'boy',
+			kidAvatar: getStoredKidAvatar() || 'boy-astronaut-1',
 			apiKey: getStoredEncryptedApiKey() || '',
 			selectedModel: getStoredSelectedModel() || '',
 			timerConfig: getStoredTimerConfig(),
 			showVisualDiagrams: getStoredShowVisualDiagrams(),
+			petAssistanceEnabled: getStoredPetAssistanceEnabled(),
+			petSize: getStoredPetSize() || 'medium',
+			petType: (() => {
+				try {
+					return localStorage.getItem('astroquest_pet_type_v2') || 'dog';
+				} catch {
+					return 'dog';
+				}
+			})(),
 			voiceURI: getStoredVoiceURI() || '',
 		},
 		skillsets: getCustomSkillsets(),
@@ -86,10 +102,19 @@ export function importFullBackupFromJson(jsonString) {
 	// 1. Import Settings
 	if (data && data.settings && typeof data.settings === 'object') {
 		const s = data.settings;
-		if (s.kidName !== undefined || s.kidAge !== undefined) {
+		if (
+			s.kidName !== undefined ||
+			s.kidAge !== undefined ||
+			s.kidGender !== undefined ||
+			s.kidAvatar !== undefined
+		) {
 			const name = String(s.kidName || '').trim();
 			const age = Number(s.kidAge) || 5;
-			saveStoredKidProfile(name, age);
+			const gender = String(s.kidGender || 'boy')
+				.toLowerCase()
+				.trim();
+			const avatar = String(s.kidAvatar || 'boy-astronaut-1').trim();
+			saveStoredKidProfile(name, age, gender, avatar);
 		}
 		if (s.apiKey) {
 			setStoredApiKey(s.apiKey);
@@ -102,6 +127,17 @@ export function importFullBackupFromJson(jsonString) {
 		}
 		if (s.showVisualDiagrams !== undefined) {
 			saveStoredShowVisualDiagrams(Boolean(s.showVisualDiagrams));
+		}
+		if (s.petAssistanceEnabled !== undefined) {
+			saveStoredPetAssistanceEnabled(Boolean(s.petAssistanceEnabled));
+		}
+		if (s.petSize) {
+			saveStoredPetSize(s.petSize);
+		}
+		if (s.petType) {
+			try {
+				localStorage.setItem('astroquest_pet_type_v2', s.petType);
+			} catch {}
 		}
 		if (s.voiceURI !== undefined) {
 			setStoredVoiceURI(s.voiceURI || null);
