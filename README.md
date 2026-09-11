@@ -14,7 +14,11 @@ An engaging, visual-first React.js educational platform designed for early child
 - **Full-Page Configuration Experience**: Replaced popup modals with a dedicated full-screen configuration interface:
   1. **Child's Name** _(Required)_: Personalized explorer name.
   2. **Child's Age** _(Required)_: Quick age selector pills (`3`–`8`) + custom stepper supporting ages `2` to `14`.
-  3. **Google Gemini API Key** _(Mandatory 🔑 with Live Validation)_: Features an **Eye (`👁️`) visibility toggle** to easily show or mask your API key, with a direct link to get a free key from Google AI Studio.
+  3. **Google Gemini API Key** _(Mandatory 🔑 with Live Validation & Vault Security)_:
+     - **Encrypted Value Display in Field**: The field strictly renders the salted encrypted vault ciphertext (`enc:v1:vault:...`) rather than exposed plaintext credentials, completely preventing DOM inspection and scraping of the raw key.
+     - **3-Second Auto-Masking Window**: When a new or existing key is pasted or entered, the text is temporarily revealed for 3 seconds so the user can verify their input, after which it automatically masks into a password field (`••••••••`). The eye icon toggle has been removed to permanently prevent snooping.
+     - **Copy & Cut Prevention with Tooltip Notification**: Copying or cutting from the API key input is strictly disallowed (`Ctrl+C`, `Cmd+C`, `Ctrl+X`, `Cmd+X`, and context menus are intercepted). When attempted, an alert notification badge displays: _"Copy functionality is not allowed for this field"_.
+     - **On-the-Fly Transparent Decryption**: While the input field and local storage remain securely encrypted, the app transparently decrypts the key on-demand when dispatching network calls (live validation, dynamic model fetching, and real-time quiz synthesis). Direct link to get a free key from Google AI Studio is provided.
   4. **Gemini AI Model Engine (Auto-Downloaded on Load & Persistently Cached 🤖)**:
      - **Automatic Download on Initial Load**: When opening Settings, if models are not yet cached, AstroQuest automatically queries Google's live `models.list` API and downloads all compatible Gemini models in the background.
      - **Persistent Local Caching**: The downloaded model list and timestamps are cached locally in browser storage (`thinksheet_dynamic_gemini_models_v1`). Subsequent visits to the Settings page load the models instantly from cache with **zero redundant network calls**.
@@ -25,6 +29,10 @@ An engaging, visual-first React.js educational platform designed for early child
   7. **Visual Diagrams & Clues Display** _(Optional 👁️ - Disabled by Default)_: Toggle ON/OFF (`🙈 Hidden Default` / `👁️ Shown`) to choose whether interactive geometric diagrams, 3x3 matrices, sequence patterns, and STEM illustrations appear alongside questions **and** inside answer option cards. When disabled, option cards cleanly hide all shape containers and render full-width text choices.
   8. **Dynamic Visual Synthesis Notice**: Displays an informative amber alert in Settings explaining that visual diagrams and option shapes are dynamically generated via cognitive models and AI prompts, so minor visual variations may occasionally occur.
   9. **Narrator Voice Selector** _(Customizable 🎙️)_: Choose from all text-to-speech voices supported by your web browser and operating system, with an **"Auto (Recommended)"** default option and instant one-click audition audio playback before saving.
+  10. **Cross-Device Backup & Portability Engine (`Export JSON 📤` / `Import JSON 📥`)**:
+      - **Complete Configuration Bundling**: Export your entire setup into a portable JSON backup file (`astroquest_complete_backup_YYYY-MM-DD.json`), including child's name, age, salted encrypted Gemini API key, selected Gemini model, question timer settings, auto-advance delay, visual diagrams toggle, voice selection, and all custom skillsets.
+      - **Seamless Multi-Computer Migration**: Transfer your child's learning profile and custom-built topics to any other laptop, classroom computer, or browser with one click.
+      - **Zero-Refresh Reactive Hydration**: Importing instantly populates all form fields, updates application state, and syncs `localStorage` without requiring a page reload.
 - **Live Verification on Save**: When clicking **"Save & Launch 🚀"**, the app sends an asynchronous test ping to Google Gemini API. If the key is invalid or expired, a clear red error is shown and the settings page remains open until a valid key is provided.
 - **Settings Dirty-State Guard & Save Confirmation Before Navigation**:
   - Automatically tracks whether any setting (explorer name, age, API key, model selection, timer challenge, auto-advance delay, voice, or visual diagram preference) has been modified.
@@ -79,8 +87,32 @@ An engaging, visual-first React.js educational platform designed for early child
   - Dynamically extracts the active skillset name from session props and `localStorage` (`thinksheet_selected_skill_v1`):
     - **Visual Skillset**: Cyan and deep navy planetary gradient (`from-[#00E5FF] via-[#0284C7] to-[#0F172A]`), glowing `<Eye />` core icon, cyan ring, `👁️` orbiting stardust, and telemetry calibrating observation & visual patterns.
     - **Analytical Thinking Skillset**: Purple and indigo planetary gradient (`from-[#A855F7] via-[#6366F1] to-[#1E1B4B]`), glowing `<Brain />` core icon, purple ring, `🧩` orbiting stardust, and telemetry calibrating analytical deduction & logic relationships.
-    - Dynamic Header: `Generating {Visual | Analytical Thinking} Challenges... {👁️ | 🧠}`.
-    - Live Telemetry Cue: `SKILL: VISUAL` or `SKILL: ANALYTICAL THINKING`.
+    - **Custom User-Created Skillsets**: Automatically adapts to custom emojis, titles, and tailored cosmic mission telemetry cues (e.g. `"Scanning Deep Space for Science & Space Exploration Challenges... 🚀"`).
+
+</details>
+
+---
+
+<details>
+<summary><h3 style="display: inline;">2.2. 🛠️ User-Defined Custom Skillset Creation & File / LocalStorage Persistence</h3></summary>
+
+- **Unlimited Custom Learning Domains**:
+  - AstroQuest breaks free from static 2-skill constraints by allowing educators, parents, and students to create an unlimited number of custom skillsets directly from the dashboard.
+- **Direct Gemini AI Prompt Calibration**:
+  - The custom skillset name, tagline, and detailed pedagogical description are sent directly in Google Gemini's live API prompts.
+  - The AI synthesizes questions, hints, explanations, and diagram types precisely aligned with the user-defined topic (e.g., _"Planets, gravity, constellations, and astronaut equipment"_ for a Space Exploration skill).
+- **Personalized Visual Identity**:
+  - **Emoji Icon Picker**: Choose from popular educational emojis (🚀, 🪐, 🔬, 📐, 🌿, ⭐, 🧩, 🎨, 📚, 🐾, 🎯, 🔢, 🦖, 🤖) or input any custom character.
+  - **Color Accent Themes**: Select between 6 cosmic palettes (`Cosmic Cyan`, `Nebula Purple`, `Emerald Aurora`, `Solar Amber`, `Supernova Rose`, `Deep Orbit Blue`).
+  - **Quick Inspiration Presets**: One-click preset pills (Science & Space, Math Word Problems, Nature & Animals, Word Power) instantly populate fields.
+- **Cross-Device Migration & Dual Persistence Architecture (`backupManager.js`)**:
+  - **Persistent LocalStorage**: Stored under `astroquest_custom_skillsets_v1` so custom skillsets appear on the home page automatically whenever returning.
+  - **Complete Backup Export (`Export JSON 📤`)**: Available on both Settings and Dashboard screens. Generates a timestamped JSON file containing all custom skillsets and explorer configuration (profile, encrypted API key, model, timer, auto-advance, voice, visual diagrams) for effortless migration across computers.
+  - **Instant Schema Validation & Import (`Import JSON 📥`)**: Safely imports settings and custom skillsets, validating payloads and immediately hydrating active state across the entire UI with zero page reload required.
+  - **Dual-Payload Schema Parser**: Automatically recognizes and imports both complete system backups (`{ settings, skillsets }`) and legacy skillset-only JSON files (`[ ... ]`).
+- **Protected Defaults & Safe Management**:
+  - Built-in default skills ("Visual" and "Analytical Thinking") are protected and cannot be deleted.
+  - Custom skills feature a dedicated delete action with an interactive confirmation modal to prevent accidental loss.
 
 </details>
 

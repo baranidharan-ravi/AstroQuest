@@ -5,6 +5,7 @@ import {
 	getStoredKidName,
 	getStoredSelectedSkill,
 } from './progressTracker';
+import { getSkillDefinition } from './skillManager';
 
 const CosmicQuestLoader = memo(function CosmicQuestLoader({
 	selectedSkill,
@@ -16,17 +17,16 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 		(kidName && String(kidName).trim()) || getStoredKidName() || 'Explorer';
 	const effectiveAge = Number(kidAge) || Number(getStoredKidAge()) || 5;
 
-	// Dynamically extract and resolve selected skillset name from props or persistent storage
+	// Dynamically extract and resolve selected skillset name and metadata
 	const rawSkill =
 		(selectedSkill && String(selectedSkill).trim()) ||
 		getStoredSelectedSkill() ||
 		'Visual';
 
-	const isAnalytical = rawSkill.toLowerCase().includes('analy');
-	const skillName = isAnalytical ? 'Analytical Thinking' : 'Visual';
-	const skillTagline =
-		isAnalytical ? 'Logic & Relationships' : 'Observation & Patterns';
-	const skillIcon = isAnalytical ? '🧠' : '👁️';
+	const skillDef = getSkillDefinition(rawSkill);
+	const skillName = skillDef.name || rawSkill;
+	const skillIcon = skillDef.icon || '🚀';
+	const isAnalytical = skillDef.id === 'analytical_thinking';
 
 	const missionSteps = useMemo(
 		() => [
@@ -35,26 +35,23 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 				title: `Plotting Flight Coordinates for ${effectiveName}...`,
 			},
 			{
-				icon: isAnalytical ? '🧠' : '🪐',
+				icon: skillIcon,
 				title: `Scanning Deep Space for ${skillName} Challenges...`,
 			},
 			{
-				icon: isAnalytical ? '🧩' : '👁️',
+				icon: '✨',
 				title: `AI Neural Core Synthesizing Age ${effectiveAge} Puzzles...`,
 			},
 			{
-				icon: '✨',
-				title:
-					isAnalytical ?
-						`Calibrating Analytical Deduction & Logical Relationships...`
-					:	`Calibrating Customized Observation & Visual Patterns...`,
+				icon: skillIcon,
+				title: `Calibrating ${skillName} Challenges & Creative Logic...`,
 			},
 			{
 				icon: '🛰️',
 				title: `Mission Locked for Astronaut ${effectiveName}! Launching...`,
 			},
 		],
-		[effectiveName, effectiveAge, skillName, isAnalytical],
+		[effectiveName, effectiveAge, skillName, skillIcon],
 	);
 
 	const [stepIndex, setStepIndex] = useState(0);
@@ -213,9 +210,13 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 
 					{/* Skill Core at the center of the Planet */}
 					<div className='relative z-20 flex flex-col items-center justify-center text-white'>
-						{isAnalytical ?
+						{skillDef.id === 'analytical_thinking' ?
 							<Brain className='w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] animate-pulse' />
-						:	<Eye className='w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] animate-pulse' />
+						: skillDef.id === 'visual' ?
+							<Eye className='w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] animate-pulse' />
+						:	<span className='text-3xl sm:text-4xl drop-shadow animate-pulse select-none'>
+								{skillIcon}
+							</span>
 						}
 					</div>
 				</div>
@@ -329,7 +330,7 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 					style={{
 						animation: 'cosmicFloat 2.5s ease-in-out infinite reverse',
 					}}>
-					{isAnalytical ? '🧩' : '👁️'}
+					{skillIcon}
 				</div>
 			</div>
 

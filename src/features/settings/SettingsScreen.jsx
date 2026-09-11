@@ -5,30 +5,37 @@ import {
 	Check,
 	Clock,
 	Cpu,
+	Download,
 	ExternalLink,
 	Eye,
-	EyeOff,
 	FastForward,
 	Key,
+	Lock,
 	Minus,
 	Plus,
 	RefreshCw,
 	Rocket,
 	RotateCcw,
 	Save,
+	ShieldAlert,
 	Smile,
 	Sparkles,
+	Upload,
 	Volume2,
 	X,
 } from 'lucide-react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
+	decryptApiKey,
+	encryptApiKey,
 	fetchOnlineGeminiModels,
 	getAvailableGeminiModels,
 	getLatestGeminiModel,
 	getStoredApiKey,
+	getStoredEncryptedApiKey,
 	getStoredSelectedModel,
 	hasCachedGeminiModels,
+	isModelRateLimited,
 	setStoredApiKey,
 	setStoredSelectedModel,
 	validateGeminiApiKey,
@@ -40,6 +47,10 @@ import {
 	setStoredVoiceURI,
 	speakText,
 } from '../../utils/audioSynthesis';
+import {
+	exportFullBackupToJsonFile,
+	importFullBackupFromJson,
+} from '../../utils/backupManager';
 import {
 	getStoredKidAge,
 	getStoredKidName,
@@ -58,8 +69,100 @@ const SettingsScreen = memo(function SettingsScreen({
 }) {
 	const [nameInput, setNameInput] = useState(() => getStoredKidName() || '');
 	const [ageInput, setAgeInput] = useState(() => getStoredKidAge() || 5);
-	const [apiKeyInput, setApiKeyInput] = useState(() => getStoredApiKey() || '');
-	const [showApiKey, setShowApiKey] = useState(false);
+	const [apiKeyInput, setApiKeyInput] = useState(
+		() => getStoredEncryptedApiKey() || '',
+	);
+	// API Key security & auto-masking state
+	const [isRevealed, setIsRevealed] = useState(false);
+	const [copyBlockedMessage, setCopyBlockedMessage] = useState(false);
+	const revealTimeoutRef = useRef(null);
+	const copyBlockedTimeoutRef = useRef(null);
+
+	const triggerRevealTimer = () => {
+		if (revealTimeoutRef.current) {
+			clearTimeout(revealTimeoutRef.current);
+		}
+		setIsRevealed(true);
+		revealTimeoutRef.current = setTimeout(() => {
+			setIsRevealed(false);
+			setApiKeyInput((curr) => {
+				if (curr && !curr.startsWith('enc:v1:')) {
+					return encryptApiKey(curr);
+				}
+				return curr;
+			});
+		}, 3000);
+	};
+
+	const showCopyBlockedTooltip = () => {
+		if (copyBlockedTimeoutRef.current) {
+			clearTimeout(copyBlockedTimeoutRef.current);
+		}
+		setCopyBlockedMessage(true);
+		copyBlockedTimeoutRef.current = setTimeout(() => {
+			setCopyBlockedMessage(false);
+		}, 3000);
+	};
+
+	const handlePasteKey = (e) => {
+		e.preventDefault();
+		const pasted = e.clipboardData?.getData('text')?.trim() || '';
+		if (!pasted) return;
+
+		// Immediately convert to encrypted string so plaintext is never exposed in the field
+		const encrypted = encryptApiKey(pasted);
+		setApiKeyInput(encrypted);
+		if (error) setError('');
+		triggerRevealTimer();
+	};
+
+	const handleKeyChange = (e) => {
+		const val = e.target.value;
+		if (error) setError('');
+
+		if (!val) {
+			setApiKeyInput('');
+			return;
+		}
+
+		// User is typing/editing: reveal text while actively typing
+		triggerRevealTimer();
+
+		if (val.startsWith('enc:v1:')) {
+			setApiKeyInput(val);
+			return;
+		}
+
+		setApiKeyInput(val);
+	};
+
+	const handleKeyBlur = () => {
+		// When user leaves the field, ensure any plaintext typed value is converted to encrypted payload
+		if (apiKeyInput && !apiKeyInput.startsWith('enc:v1:')) {
+			setApiKeyInput(encryptApiKey(apiKeyInput));
+		}
+	};
+
+	const handleBlockCopy = (e) => {
+		e.preventDefault();
+		showCopyBlockedTooltip();
+	};
+
+	const handleKeyDownKey = (e) => {
+		// Intercept copy and cut shortcuts (Ctrl+C, Cmd+C, Ctrl+X, Cmd+X)
+		if ((e.ctrlKey || e.metaKey) && ['c', 'C', 'x', 'X'].includes(e.key)) {
+			e.preventDefault();
+			showCopyBlockedTooltip();
+		}
+	};
+
+	useEffect(() => {
+		return () => {
+			if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
+			if (copyBlockedTimeoutRef.current)
+				clearTimeout(copyBlockedTimeoutRef.current);
+		};
+	}, []);
 	const [isCustomAge, setIsCustomAge] = useState(false);
 	const [showVisualDiagrams, setShowVisualDiagrams] = useState(
 		getStoredShowVisualDiagrams,
@@ -100,11 +203,116 @@ const SettingsScreen = memo(function SettingsScreen({
 	const [initialValues, setInitialValues] = useState(null);
 	const [showUnsavedModal, setShowUnsavedModal] = useState(false);
 
+	// Cross-Device Backup & Restore State
+	const backupFileInputRef = useRef(null);
+	const [backupStatus, setBackupStatus] = useState(null);
+
 	const quickAges = [3, 4, 5, 6, 7, 8];
+
+	const handleExportBackup = () => {
+		playButtonPop(soundEnabled);
+		try {
+			exportFullBackupToJsonFile();
+			setBackupStatus({
+				type: 'success',
+				text: '✓ Downloaded complete configuration and skillsets backup JSON!',
+			});
+			setTimeout(() => setBackupStatus(null), 4000);
+		} catch (err) {
+			setBackupStatus({
+				type: 'error',
+				text: `Export failed: ${err.message}`,
+			});
+			setTimeout(() => setBackupStatus(null), 4000);
+		}
+	};
+
+	const handleTriggerImportBackup = () => {
+		playButtonPop(soundEnabled);
+		if (backupFileInputRef.current) {
+			backupFileInputRef.current.value = '';
+			backupFileInputRef.current.click();
+		}
+	};
+
+	const handleBackupFileChange = (e) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = (event) => {
+			try {
+				const result = importFullBackupFromJson(event.target?.result);
+				const newKidName = getStoredKidName() || '';
+				const newKidAge = Number(getStoredKidAge() || 5);
+				const newEncryptedKey = getStoredEncryptedApiKey() || '';
+				const newModel = getStoredSelectedModel();
+				const newTimerConfig = getStoredTimerConfig();
+				const newTimerSec = Number(newTimerConfig.secondsPerQuestion) || 90;
+				const newAutoAdvanceSec =
+					Number(newTimerConfig.autoAdvanceSeconds) || 7;
+				const newShowDiagrams = Boolean(getStoredShowVisualDiagrams());
+				const newVoiceURI = getStoredVoiceURI() || '';
+
+				setNameInput(newKidName);
+				setAgeInput(newKidAge);
+				setApiKeyInput(newEncryptedKey);
+				setSelectedModel(newModel);
+				setTimerEnabled(Boolean(newTimerConfig.enabled));
+				setTimerSeconds(newTimerSec);
+				setIsCustomTimer(![45, 60, 90, 120, 180].includes(newTimerSec));
+				setAutoAdvanceEnabled(newTimerConfig.autoAdvanceEnabled !== false);
+				setAutoAdvanceSeconds(newAutoAdvanceSec);
+				setIsCustomAutoAdvance(![3, 5, 7, 10, 15].includes(newAutoAdvanceSec));
+				setIsCustomAge(!quickAges.includes(newKidAge));
+				setShowVisualDiagrams(newShowDiagrams);
+				setSelectedVoiceURI(newVoiceURI);
+
+				setInitialValues({
+					name: newKidName,
+					age: newKidAge,
+					apiKey: newEncryptedKey,
+					selectedModel: newModel,
+					timerEnabled: Boolean(newTimerConfig.enabled),
+					timerSeconds: newTimerSec,
+					autoAdvanceEnabled: newTimerConfig.autoAdvanceEnabled !== false,
+					autoAdvanceSeconds: newAutoAdvanceSec,
+					showVisualDiagrams: newShowDiagrams,
+					selectedVoiceURI: newVoiceURI,
+				});
+
+				playButtonPop(soundEnabled);
+				const toastNotice =
+					result.importedSettings ?
+						`✓ Successfully imported settings & ${result.importedSkillCount} custom skillset(s)!`
+					:	`✓ Successfully imported ${result.importedSkillCount} custom skillset(s)!`;
+
+				// Automatically save the settings page and return to the homepage with the imported info
+				if (onSaveAndReturn) {
+					onSaveAndReturn({
+						name: newKidName,
+						age: newKidAge,
+						apiKey: decryptApiKey(newEncryptedKey),
+						selectedModel: newModel,
+						timerConfig: newTimerConfig,
+						showVisualDiagrams: newShowDiagrams,
+						toastNotice,
+					});
+				}
+			} catch (err) {
+				setBackupStatus({
+					type: 'error',
+					text: `⚠️ Import failed: ${err.message}`,
+				});
+				setTimeout(() => setBackupStatus(null), 5000);
+			}
+		};
+		reader.readAsText(file);
+	};
 
 	const handleFetchLiveModels = async () => {
 		playButtonPop(soundEnabled);
-		const targetKey = apiKeyInput.trim() || getStoredApiKey();
+		const targetKey = decryptApiKey(apiKeyInput.trim()) || getStoredApiKey();
 		if (!targetKey) {
 			setFetchModelStatus({
 				type: 'error',
@@ -149,7 +357,8 @@ const SettingsScreen = memo(function SettingsScreen({
 			return;
 		}
 
-		const targetKey = (apiKeyInput || '').trim() || getStoredApiKey();
+		const targetKey =
+			decryptApiKey((apiKeyInput || '').trim()) || getStoredApiKey();
 		if (!targetKey) {
 			return;
 		}
@@ -163,16 +372,23 @@ const SettingsScreen = memo(function SettingsScreen({
 				setModelsList(liveModels);
 				const latest = getLatestGeminiModel(liveModels);
 				if (latest && latest.id) {
-					// Select the latest model as the default one in the downloaded list
-					setSelectedModel(latest.id);
-					setStoredSelectedModel(latest.id);
-					setInitialValues((prev) =>
-						prev ? { ...prev, selectedModel: latest.id } : prev,
-					);
-					setFetchModelStatus({
-						type: 'success',
-						text: `✓ Downloaded and cached ${liveModels.length} latest Gemini models! "${latest.name}" set as default.`,
-					});
+					const currentSaved = getStoredSelectedModel();
+					// Auto-select latest healthy model if none set, or if current selection is rate-limited
+					if (
+						!currentSaved ||
+						isModelRateLimited(currentSaved) ||
+						currentSaved === 'gemini-3.8-flash'
+					) {
+						setSelectedModel(latest.id);
+						setStoredSelectedModel(latest.id);
+						setInitialValues((prev) =>
+							prev ? { ...prev, selectedModel: latest.id } : prev,
+						);
+						setFetchModelStatus({
+							type: 'success',
+							text: `✓ Downloaded and cached ${liveModels.length} latest Gemini models! "${latest.name}" set as default.`,
+						});
+					}
 				}
 			} catch (err) {
 				if (isCancelled) return;
@@ -201,7 +417,7 @@ const SettingsScreen = memo(function SettingsScreen({
 		const initAutoAdvanceSec = Number(existingTimer.autoAdvanceSeconds) || 7;
 		const initName = getStoredKidName() || '';
 		const initAge = Number(getStoredKidAge() || 5);
-		const initApiKey = getStoredApiKey() || '';
+		const initApiKey = getStoredEncryptedApiKey() || '';
 		const initModel = getStoredSelectedModel();
 		const initShowDiagrams = Boolean(getStoredShowVisualDiagrams());
 		const initVoiceURI = getStoredVoiceURI() || '';
@@ -413,13 +629,15 @@ const SettingsScreen = memo(function SettingsScreen({
 			return;
 		}
 
+		const decryptedKey = decryptApiKey(trimmedKey);
+
 		setError('');
 		setIsValidating(true);
 		playButtonPop(soundEnabled);
 
 		// Validate API Key live against the selected Gemini model
 		const validationResult = await validateGeminiApiKey(
-			trimmedKey,
+			decryptedKey,
 			selectedModel,
 		);
 
@@ -432,16 +650,20 @@ const SettingsScreen = memo(function SettingsScreen({
 			return;
 		}
 
-		// 1. Save API Key
+		// 1. Save API Key (encrypted in secure storage)
 		setStoredApiKey(validationResult.cleanedKey);
 
-		// 2. Save Selected Gemini Model
+		// 2. Encrypted string to display in field and update initialValues
+		const encryptedKey = getStoredEncryptedApiKey();
+		setApiKeyInput(encryptedKey);
+
+		// 3. Save Selected Gemini Model
 		setStoredSelectedModel(selectedModel);
 
-		// 3. Save Kid Profile
+		// 4. Save Kid Profile
 		saveStoredKidProfile(trimmedName, numAge);
 
-		// 4. Save Settings, Timer Config & Visual Diagrams Preference
+		// 5. Save Settings, Timer Config & Visual Diagrams Preference
 		const updatedConfig = {
 			enabled: timerEnabled,
 			secondsPerQuestion: timerSeconds,
@@ -456,7 +678,7 @@ const SettingsScreen = memo(function SettingsScreen({
 		setInitialValues({
 			name: trimmedName,
 			age: numAge,
-			apiKey: validationResult.cleanedKey,
+			apiKey: encryptedKey,
 			selectedModel,
 			timerEnabled,
 			timerSeconds,
@@ -492,24 +714,24 @@ const SettingsScreen = memo(function SettingsScreen({
 	const hasProfile = Boolean(getStoredKidName() && getStoredApiKey());
 
 	return (
-		<div className='min-h-screen space-background flex flex-col text-white font-sans overflow-x-hidden select-none py-4 px-3 sm:px-6'>
+		<div className='min-h-screen space-background flex flex-col text-white font-sans overflow-x-hidden select-none py-3 sm:py-6 px-2 sm:px-6'>
 			{/* Top Bar Header */}
-			<div className='max-w-3xl w-full mx-auto flex items-center justify-between gap-4 mb-6'>
-				<div className='flex items-center gap-3'>
+			<div className='max-w-3xl w-full mx-auto flex items-center justify-between gap-3 mb-4 sm:mb-6'>
+				<div className='flex items-center gap-2.5 sm:gap-3'>
 					{hasProfile && onBack && (
 						<button
 							onClick={handleAttemptLeave}
-							className='p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white transition-all shadow-md cursor-pointer'
+							className='p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white transition-all shadow-md cursor-pointer flex-shrink-0'
 							title='Back to Dashboard'>
-							<ArrowLeft className='w-5 h-5' />
+							<ArrowLeft className='w-4 h-4 sm:w-5 sm:h-5' />
 						</button>
 					)}
 					<div>
-						<h1 className='text-xl sm:text-2xl font-black text-white flex items-center gap-2'>
+						<h1 className='text-lg sm:text-2xl font-black text-white flex items-center gap-1.5 sm:gap-2'>
 							<span>Explorer Profile & Settings</span>
-							<Sparkles className='w-5 h-5 text-amber-300' />
+							<Sparkles className='w-4 h-4 sm:w-5 sm:h-5 text-amber-300 flex-shrink-0' />
 						</h1>
-						<p className='text-xs text-slate-300 font-semibold'>
+						<p className='text-[11px] sm:text-xs text-slate-300 font-semibold'>
 							Configure child profile, Gemini API Key, AI model, and question
 							pacing.
 						</p>
@@ -517,22 +739,88 @@ const SettingsScreen = memo(function SettingsScreen({
 				</div>
 
 				{pendingSkill && (
-					<div className='hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-black shadow'>
+					<div className='hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-black shadow flex-shrink-0'>
 						<span>Ready to launch:</span>
 						<span className='text-white'>{pendingSkill}</span>
 					</div>
 				)}
 			</div>
 
+			{/* Hidden file input for importing backup */}
+			<input
+				type='file'
+				ref={backupFileInputRef}
+				accept='.json,application/json'
+				className='hidden'
+				onChange={handleBackupFileChange}
+			/>
+
 			{/* Main Settings Form */}
-			<div className='max-w-3xl w-full mx-auto bg-gradient-to-b from-[#1C1F5E]/90 via-[#141846]/95 to-[#0D1030] border-4 border-amber-400/80 rounded-3xl p-5 sm:p-8 shadow-[0_0_60px_rgba(251,191,36,0.25)] flex flex-col gap-6 backdrop-blur-md'>
+			<div className='max-w-3xl w-full mx-auto bg-gradient-to-b from-[#1C1F5E]/90 via-[#141846]/95 to-[#0D1030] border-2 sm:border-4 border-amber-400/80 rounded-2xl sm:rounded-3xl p-3 sm:p-8 shadow-[0_0_60px_rgba(251,191,36,0.25)] flex flex-col gap-3.5 sm:gap-6 backdrop-blur-md'>
+				{/* Cross-Device Backup & Portability Card */}
+				<div className='bg-gradient-to-r from-cyan-950/50 via-indigo-950/40 to-purple-950/50 border border-cyan-400/40 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 shadow-md'>
+					<div className='flex items-center gap-2.5 sm:gap-3'>
+						<div className='w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 flex-shrink-0'>
+							<Sparkles className='w-4 h-4 sm:w-5 sm:h-5 text-cyan-300' />
+						</div>
+						<div className='min-w-0'>
+							<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+								<span>Cross-Device Backup & Portability</span>
+								<span className='text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 uppercase font-black'>
+									Multi-PC
+								</span>
+							</h2>
+							<p className='text-[11px] sm:text-xs text-slate-300 font-semibold mt-0.5'>
+								Export or import your profile, API key, model choice, and custom
+								skillsets to move to another computer.
+							</p>
+						</div>
+					</div>
+
+					<div className='flex items-center gap-2 w-full sm:w-auto'>
+						<button
+							type='button'
+							disabled={isValidating}
+							onClick={handleTriggerImportBackup}
+							className='flex-1 sm:flex-initial px-3 sm:px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer'
+							title='Import complete backup (settings and custom skillsets) from JSON file'>
+							<Upload className='w-3.5 h-3.5 text-cyan-300' />
+							<span>Import JSON</span>
+						</button>
+
+						<button
+							type='button'
+							disabled={isValidating}
+							onClick={handleExportBackup}
+							className='flex-1 sm:flex-initial px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-400/40 text-amber-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer'
+							title='Export complete backup (settings and custom skillsets) to JSON file'>
+							<Download className='w-3.5 h-3.5 text-amber-300' />
+							<span>Export JSON</span>
+						</button>
+					</div>
+				</div>
+
+				{/* Backup Feedback Alert Banner */}
+				{backupStatus && (
+					<div
+						role='status'
+						aria-live='polite'
+						className={`p-3 rounded-xl sm:rounded-2xl border text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 ${
+							backupStatus.type === 'success' ?
+								'bg-emerald-500/20 border-emerald-400 text-emerald-200 shadow-md'
+							:	'bg-rose-500/20 border-rose-400 text-rose-200 shadow-md'
+						}`}>
+						<span>{backupStatus.text}</span>
+					</div>
+				)}
+
 				{/* Section 1: Child Name & Age */}
-				<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+				<div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4'>
 					{/* Name Card */}
-					<div className='bg-[#090B24]/80 p-4 sm:p-5 rounded-2xl border border-[#2C3380]'>
+					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
 						<label
 							htmlFor='child-name-input'
-							className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5 mb-2'>
+							className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5 mb-1.5 sm:mb-2'>
 							<Smile className='w-4 h-4 text-pink-400' />
 							<span>Child's Name</span>
 						</label>
@@ -549,17 +837,17 @@ const SettingsScreen = memo(function SettingsScreen({
 								if (error) setError('');
 							}}
 							placeholder='e.g. Leo, Maya, Alex...'
-							className='w-full bg-[#0D1030] border border-pink-500/40 focus:border-pink-400 text-white font-bold text-sm sm:text-base rounded-xl px-4 py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 transition-all'
+							className='w-full bg-[#0D1030] border border-pink-500/40 focus:border-pink-400 text-white font-bold text-sm sm:text-base rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 transition-all'
 						/>
 						<span
 							id='child-name-desc'
-							className='text-[11px] text-slate-400 mt-1.5 block'>
+							className='text-[10px] sm:text-[11px] text-slate-400 mt-1 block'>
 							Used to personalize questions, voice feedback & reports.
 						</span>
 					</div>
 
 					{/* Age Card */}
-					<div className='bg-[#090B24]/80 p-4 sm:p-5 rounded-2xl border border-[#2C3380]'>
+					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
 						<div className='flex items-center justify-between mb-2'>
 							<label className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5'>
 								<Calendar className='w-4 h-4 text-cyan-400' />
@@ -574,7 +862,7 @@ const SettingsScreen = memo(function SettingsScreen({
 						<div
 							role='group'
 							aria-label='Select explorer age'
-							className='grid grid-cols-3 sm:grid-cols-6 gap-1.5'>
+							className='grid grid-cols-6 gap-1 sm:gap-1.5'>
 							{quickAges.map((age) => (
 								<button
 									key={age}
@@ -583,12 +871,12 @@ const SettingsScreen = memo(function SettingsScreen({
 									aria-label={`${age} years old`}
 									aria-pressed={Number(ageInput) === age && !isCustomAge}
 									onClick={() => handleQuickAgeSelect(age)}
-									className={`py-2 rounded-xl text-xs font-black transition-all border cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+									className={`py-2 px-0.5 sm:px-1 rounded-xl text-xs font-black transition-all border cursor-pointer text-center focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
 										Number(ageInput) === age && !isCustomAge ?
 											'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-md scale-105'
 										:	'bg-[#0D1030] text-slate-300 border-slate-700/80 hover:bg-slate-800'
 									}`}>
-									{age} yo
+									{age}y
 								</button>
 							))}
 						</div>
@@ -661,43 +949,56 @@ const SettingsScreen = memo(function SettingsScreen({
 
 				{/* Section 2: Google Gemini API Key (Mandatory with Live Validation) */}
 				<div
-					className={`bg-[#090B24]/80 p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-inner ${
+					className={`bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all shadow-inner ${
 						isKeyError ?
 							'border-rose-500 ring-2 ring-rose-400/40 animate-shake'
 						:	'border-amber-400/60'
 					}`}>
-					<div className='flex items-center justify-between mb-2'>
+					<div className='flex flex-wrap items-center justify-between gap-1.5 mb-2'>
 						<label
 							htmlFor='gemini-api-key-input'
 							className='text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1.5'>
-							<Key className='w-4 h-4 text-amber-400' />
-							<span>
-								Google Gemini API Key{' '}
-								<span className='text-rose-400'>* (Mandatory)</span>
+							<Key className='w-4 h-4 text-amber-400 flex-shrink-0' />
+							<span>Google Gemini API Key</span>
+							<span className='text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase'>
+								Mandatory
 							</span>
 						</label>
 						<a
 							href='https://aistudio.google.com/app/apikey'
 							target='_blank'
 							rel='noopener noreferrer'
-							className='text-xs font-bold text-cyan-300 hover:text-cyan-200 underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded'>
-							<span>Get Free Key from Google</span>
-							<ExternalLink className='w-3.5 h-3.5' />
+							className='text-[11px] sm:text-xs font-bold text-cyan-300 hover:text-cyan-200 underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded'>
+							<span>Get Free Key</span>
+							<ExternalLink className='w-3 h-3' />
 						</a>
 					</div>
 
 					<div className='relative flex items-center'>
+						{/* Copy-blocked tooltip notification */}
+						{copyBlockedMessage && (
+							<div
+								role='alert'
+								aria-live='assertive'
+								className='absolute -top-10 left-0 sm:left-auto right-0 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold shadow-xl border border-rose-400'>
+								<ShieldAlert className='w-4 h-4 text-amber-200 flex-shrink-0' />
+								<span>Copy functionality is not allowed for this field</span>
+							</div>
+						)}
+
 						<input
 							id='gemini-api-key-input'
 							aria-required='true'
 							aria-describedby='api-key-desc'
-							type={showApiKey ? 'text' : 'password'}
+							type={isRevealed ? 'text' : 'password'}
 							disabled={isValidating}
 							value={apiKeyInput}
-							onChange={(e) => {
-								setApiKeyInput(e.target.value);
-								if (error) setError('');
-							}}
+							onPaste={handlePasteKey}
+							onChange={handleKeyChange}
+							onBlur={handleKeyBlur}
+							onCopy={handleBlockCopy}
+							onCut={handleBlockCopy}
+							onKeyDown={handleKeyDownKey}
 							placeholder='Paste your Gemini API key here (AIzaSy...)'
 							className={`w-full bg-[#0D1030] border text-white font-mono text-xs sm:text-sm rounded-xl pl-4 pr-12 py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 transition-all ${
 								isKeyError ?
@@ -705,72 +1006,82 @@ const SettingsScreen = memo(function SettingsScreen({
 								:	'border-amber-400/50 focus:border-amber-400'
 							}`}
 						/>
-						<button
-							type='button'
-							disabled={isValidating}
-							onClick={() => {
-								playButtonPop(soundEnabled);
-								setShowApiKey((prev) => !prev);
-							}}
-							aria-label={showApiKey ? 'Hide API Key' : 'Show API Key'}
-							aria-pressed={showApiKey}
-							className='absolute right-3 p-1.5 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-white/10 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none'
-							title={showApiKey ? 'Hide API Key' : 'Show API Key'}>
-							{showApiKey ?
-								<EyeOff className='w-4 h-4 text-amber-400' />
-							:	<Eye className='w-4 h-4' />}
-						</button>
+
+						{/* Encrypted Vault indicator (Replaces eye icon toggle) */}
+						<div
+							className='absolute right-3 p-1.5 rounded-lg text-emerald-400/80 flex items-center justify-center'
+							title={
+								isRevealed ?
+									'Revealed (auto-masking in 3 seconds)'
+								:	'Secure Encrypted Field'
+							}
+							aria-hidden='true'>
+							<Lock
+								className={`w-4 h-4 ${
+									isRevealed ?
+										'text-amber-400 animate-pulse'
+									:	'text-emerald-400'
+								}`}
+							/>
+						</div>
 					</div>
-					<span
-						id='api-key-desc'
-						className='text-[11px] text-slate-400 mt-1.5 block'>
-						Required for 100% real-time AI generation. Validated live with
-						Google Gemini API upon saving.
-					</span>
+					<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-1 mt-1.5'>
+						<span
+							id='api-key-desc'
+							className='text-[11px] text-slate-400 block'>
+							{isRevealed ?
+								<span className='text-amber-300 font-semibold'>
+									⚠️ Key visible — auto-masking like password in 3 seconds.
+								</span>
+							:	'Required for 100% real-time AI generation. Value is encrypted in the field.'
+							}
+						</span>
+						<span className='text-[10px] text-emerald-400/90 font-mono flex items-center gap-1'>
+							<Lock className='w-3 h-3 inline' />
+							<span>Encrypted Vault (Copy Disabled)</span>
+						</span>
+					</div>
 				</div>
 
 				{/* Section 3: Gemini AI Model Engine Selection */}
-				<div className='bg-[#090B24]/80 p-4 sm:p-5 rounded-2xl border border-cyan-500/40 shadow-inner'>
-					<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2.5'>
-						<div className='flex items-center gap-2'>
-							<Cpu className='w-4 h-4 text-cyan-400' />
+				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-cyan-500/40 shadow-inner'>
+					<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2'>
+						<div className='flex items-center gap-2 flex-wrap'>
+							<Cpu className='w-4 h-4 text-cyan-400 flex-shrink-0' />
 							<span className='text-xs sm:text-sm font-bold text-white'>
 								Gemini AI Model Engine
 							</span>
-						</div>
-						<div className='flex items-center gap-2 flex-wrap'>
 							{hasCachedGeminiModels() && !isFetchingModels && (
 								<span
-									className='text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-1'
+									className='text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-1'
 									title='Models are cached locally and loaded instantly without re-fetching'>
 									⚡ Cached
 								</span>
 							)}
+						</div>
+						<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap'>
 							<button
 								type='button'
 								disabled={isFetchingModels || isValidating}
 								onClick={handleFetchLiveModels}
-								className='flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-bold text-[11px] shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50'>
+								className='flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-bold text-[11px] shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50'>
 								<RefreshCw
 									className={`w-3.5 h-3.5 ${
 										isFetchingModels ? 'animate-spin text-cyan-200' : ''
 									}`}
 								/>
 								<span>
-									{isFetchingModels ?
-										'Downloading Models...'
-									:	'Fetch Latest Models 🔄'}
+									{isFetchingModels ? 'Downloading...' : 'Fetch Latest 🔄'}
 								</span>
 							</button>
-							<span className='text-[10px] font-black px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'>
-								Active:{' '}
+							<span className='text-[10px] font-black px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 truncate max-w-[130px] sm:max-w-none'>
 								{modelsList.find((m) => m.id === selectedModel)?.name ||
 									selectedModel}
 							</span>
 						</div>
 					</div>
 
-					<p className='text-xs text-slate-300 mb-2'>
+					<p className='text-[11px] sm:text-xs text-slate-300 mb-2'>
 						Select which Google Gemini AI model generates questions in real
 						time:
 					</p>
@@ -792,7 +1103,7 @@ const SettingsScreen = memo(function SettingsScreen({
 						</div>
 					)}
 
-					<div className='grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1'>
+					<div className='grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 max-h-[360px] overflow-y-auto pr-1'>
 						{modelsList.map((model) => {
 							const isSelected = selectedModel === model.id;
 							return (
@@ -805,34 +1116,41 @@ const SettingsScreen = memo(function SettingsScreen({
 										setSelectedModel(model.id);
 										if (error) setError('');
 									}}
-									className={`p-3.5 rounded-2xl border text-left transition-all relative cursor-pointer flex flex-col justify-between gap-1.5 ${
+									className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left transition-all relative cursor-pointer flex flex-col justify-between gap-1.5 ${
 										isSelected ?
 											'bg-cyan-500/20 border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.35)] ring-2 ring-cyan-400/50'
 										:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 hover:bg-[#121644]'
 									}`}>
-									<div className='flex items-center justify-between gap-2'>
+									<div className='flex items-start justify-between gap-2'>
 										<span
-											className={`text-xs font-black ${
+											className={`text-xs font-black leading-tight ${
 												isSelected ? 'text-cyan-300' : 'text-white'
 											}`}>
 											{model.name}
 										</span>
-										<span
-											className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${model.badgeColor}`}>
-											{model.badge}
-										</span>
+										<div className='flex items-center gap-1.5 flex-shrink-0'>
+											{isSelected && (
+												<div className='w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shadow'>
+													<Check className='w-3 h-3 stroke-[3]' />
+												</div>
+											)}
+											{isModelRateLimited(model.id) ?
+												<span className='text-[9px] font-black px-2 py-0.5 rounded-full border bg-rose-500/20 text-rose-300 border-rose-400/40'>
+													⚠️ 429 Quota Limited
+												</span>
+											:	<span
+													className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${model.badgeColor}`}>
+													{model.badge}
+												</span>
+											}
+										</div>
 									</div>
-									<div className='text-[11px] font-bold text-slate-300 flex items-center gap-1'>
+									<div className='text-[10px] sm:text-[11px] font-bold text-slate-300 flex items-center gap-1'>
 										<span>{model.tag}</span>
 									</div>
 									<p className='text-[10px] text-slate-400 leading-snug'>
 										{model.description}
 									</p>
-									{isSelected && (
-										<div className='absolute top-3 right-3 w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shadow'>
-											<Check className='w-3 h-3 stroke-[3]' />
-										</div>
-									)}
 								</button>
 							);
 						})}
@@ -840,16 +1158,16 @@ const SettingsScreen = memo(function SettingsScreen({
 				</div>
 
 				{/* Section 4: Per-Question Time Limit */}
-				<div className='bg-[#090B24]/80 p-4 sm:p-5 rounded-2xl border border-[#2C3380]'>
-					<div className='flex items-center justify-between mb-2.5'>
-						<div>
-							<div className='flex items-center gap-2'>
-								<Clock className='w-4 h-4 text-cyan-400' />
+				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
+					<div className='flex items-center justify-between gap-2 mb-2.5'>
+						<div className='min-w-0'>
+							<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+								<Clock className='w-4 h-4 text-cyan-400 flex-shrink-0' />
 								<span className='text-xs sm:text-sm font-bold text-white'>
 									Per-Question Time Limit
 								</span>
 								<span
-									className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase ${
+									className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
 										timerEnabled ?
 											'bg-amber-400 text-slate-950 shadow'
 										:	'bg-slate-800 text-slate-400'
@@ -857,7 +1175,7 @@ const SettingsScreen = memo(function SettingsScreen({
 									{timerEnabled ? 'Enabled' : 'Optional'}
 								</span>
 							</div>
-							<p className='text-xs text-slate-400 mt-0.5'>
+							<p className='text-[11px] sm:text-xs text-slate-400 mt-0.5'>
 								Sets a countdown challenge for each individual question.
 							</p>
 						</div>
@@ -869,22 +1187,22 @@ const SettingsScreen = memo(function SettingsScreen({
 								playButtonPop(soundEnabled);
 								setTimerEnabled((prev) => !prev);
 							}}
-							className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
+							className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
 								timerEnabled ?
 									'bg-amber-400 text-slate-950 border-amber-300 shadow'
 								:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
 							}`}>
-							{timerEnabled ? '⏱️ Timer ON' : 'Timer OFF'}
+							{timerEnabled ? '⏱️ ON' : 'Timer OFF'}
 						</button>
 					</div>
 
 					{timerEnabled && (
-						<div className='space-y-3 pt-2 animate-in fade-in duration-200 border-t border-white/10'>
-							<div className='flex items-center gap-1.5 flex-wrap'>
+						<div className='space-y-2.5 pt-2.5 animate-in fade-in duration-200 border-t border-white/10'>
+							<div className='grid grid-cols-3 sm:flex sm:flex-wrap gap-1.5'>
 								{[
 									{ label: '45s', sec: 45 },
 									{ label: '60s', sec: 60 },
-									{ label: '90s (Default)', sec: 90 },
+									{ label: '90s (Def)', sec: 90 },
 									{ label: '2m', sec: 120 },
 									{ label: '3m', sec: 180 },
 								].map((preset) => (
@@ -897,7 +1215,7 @@ const SettingsScreen = memo(function SettingsScreen({
 											setTimerSeconds(preset.sec);
 											setIsCustomTimer(false);
 										}}
-										className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all border cursor-pointer ${
+										className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-black transition-all border cursor-pointer text-center ${
 											timerSeconds === preset.sec && !isCustomTimer ?
 												'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 border-amber-300 shadow-md font-black'
 											:	'bg-[#0D1030] text-slate-300 border-slate-700 hover:bg-slate-800'
@@ -913,12 +1231,12 @@ const SettingsScreen = memo(function SettingsScreen({
 										playButtonPop(soundEnabled);
 										setIsCustomTimer((prev) => !prev);
 									}}
-									className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+									className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
 										isCustomTimer ?
 											'bg-amber-400/30 text-amber-300 border-amber-400'
 										:	'bg-[#0D1030] text-slate-400 border-slate-700 hover:text-white'
 									}`}>
-									Custom Duration
+									Custom
 								</button>
 							</div>
 
@@ -948,26 +1266,25 @@ const SettingsScreen = memo(function SettingsScreen({
 				</div>
 
 				{/* Section 5: Next Question Auto-Advance Delay */}
-				<div className='bg-[#090B24]/80 p-4 sm:p-5 rounded-2xl border border-[#2C3380]'>
-					<div className='flex items-center justify-between mb-2.5'>
-						<div>
-							<div className='flex items-center gap-2'>
-								<FastForward className='w-4 h-4 text-emerald-400' />
+				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
+					<div className='flex items-center justify-between gap-2 mb-2.5'>
+						<div className='min-w-0'>
+							<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+								<FastForward className='w-4 h-4 text-emerald-400 flex-shrink-0' />
 								<span className='text-xs sm:text-sm font-bold text-white'>
 									Next Question Auto-Advance
 								</span>
 								<span
-									className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase ${
+									className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
 										autoAdvanceEnabled ?
 											'bg-emerald-400 text-slate-950 shadow'
 										:	'bg-slate-800 text-slate-400'
 									}`}>
-									{autoAdvanceEnabled ? 'Auto-Next Active' : 'Manual Next'}
+									{autoAdvanceEnabled ? 'Active' : 'Manual'}
 								</span>
 							</div>
-							<p className='text-xs text-slate-400 mt-0.5'>
-								Controls how long the solution is displayed before moving to the
-								next question.
+							<p className='text-[11px] sm:text-xs text-slate-400 mt-0.5'>
+								Controls how long solution is shown before next question.
 							</p>
 						</div>
 
@@ -978,12 +1295,12 @@ const SettingsScreen = memo(function SettingsScreen({
 								playButtonPop(soundEnabled);
 								setAutoAdvanceEnabled((prev) => !prev);
 							}}
-							className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
+							className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
 								autoAdvanceEnabled ?
 									'bg-emerald-400 text-slate-950 border-emerald-300 shadow'
 								:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
 							}`}>
-							{autoAdvanceEnabled ? '⏩ Auto Next ON' : 'Manual Next'}
+							{autoAdvanceEnabled ? '⏩ Auto ON' : 'Manual Next'}
 						</button>
 					</div>
 
@@ -995,12 +1312,12 @@ const SettingsScreen = memo(function SettingsScreen({
 					)}
 
 					{autoAdvanceEnabled && (
-						<div className='space-y-3 pt-2 animate-in fade-in duration-200 border-t border-white/10'>
-							<div className='flex items-center gap-1.5 flex-wrap'>
+						<div className='space-y-2.5 pt-2.5 animate-in fade-in duration-200 border-t border-white/10'>
+							<div className='grid grid-cols-3 sm:flex sm:flex-wrap gap-1.5'>
 								{[
 									{ label: '3s', sec: 3 },
 									{ label: '5s', sec: 5 },
-									{ label: '7s (Default)', sec: 7 },
+									{ label: '7s (Def)', sec: 7 },
 									{ label: '10s', sec: 10 },
 									{ label: '15s', sec: 15 },
 								].map((preset) => (
@@ -1013,7 +1330,7 @@ const SettingsScreen = memo(function SettingsScreen({
 											setAutoAdvanceSeconds(preset.sec);
 											setIsCustomAutoAdvance(false);
 										}}
-										className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all border cursor-pointer ${
+										className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-black transition-all border cursor-pointer text-center ${
 											(
 												autoAdvanceSeconds === preset.sec &&
 												!isCustomAutoAdvance
@@ -1032,12 +1349,12 @@ const SettingsScreen = memo(function SettingsScreen({
 										playButtonPop(soundEnabled);
 										setIsCustomAutoAdvance((prev) => !prev);
 									}}
-									className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+									className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
 										isCustomAutoAdvance ?
 											'bg-emerald-400/30 text-emerald-300 border-emerald-400'
 										:	'bg-[#0D1030] text-slate-400 border-slate-700 hover:text-white'
 									}`}>
-									Custom Delay
+									Custom
 								</button>
 							</div>
 
@@ -1051,7 +1368,7 @@ const SettingsScreen = memo(function SettingsScreen({
 										<Minus className='w-4 h-4' />
 									</button>
 									<div className='flex-1 text-center font-mono font-black text-sm text-emerald-300'>
-										{autoAdvanceSeconds} seconds delay
+										{autoAdvanceSeconds}s delay
 									</div>
 									<button
 										type='button'
@@ -1067,21 +1384,23 @@ const SettingsScreen = memo(function SettingsScreen({
 				</div>
 
 				{/* Section 6: Visual Diagrams & Clues Display */}
-				<div className='bg-[#090B24]/80 p-4 sm:p-5 rounded-2xl border border-indigo-500/40 shadow-inner'>
-					<div className='flex items-center justify-between mb-2'>
-						<div className='flex items-center gap-2'>
-							<Eye className='w-4 h-4 text-indigo-400' />
-							<span className='text-xs sm:text-sm font-bold text-white'>
-								Visual Diagrams & Clues
-							</span>
-							<span
-								className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase ${
-									showVisualDiagrams ?
-										'bg-indigo-500 text-white shadow'
-									:	'bg-slate-800 text-slate-400'
-								}`}>
-								{showVisualDiagrams ? 'Enabled' : 'Disabled'}
-							</span>
+				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-indigo-500/40 shadow-inner'>
+					<div className='flex items-center justify-between gap-2 mb-2'>
+						<div className='min-w-0'>
+							<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+								<Eye className='w-4 h-4 text-indigo-400 flex-shrink-0' />
+								<span className='text-xs sm:text-sm font-bold text-white'>
+									Visual Diagrams & Clues
+								</span>
+								<span
+									className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
+										showVisualDiagrams ?
+											'bg-indigo-500 text-white shadow'
+										:	'bg-slate-800 text-slate-400'
+									}`}>
+									{showVisualDiagrams ? 'Enabled' : 'Disabled'}
+								</span>
+							</div>
 						</div>
 
 						<button
@@ -1091,7 +1410,7 @@ const SettingsScreen = memo(function SettingsScreen({
 								playButtonPop(soundEnabled);
 								setShowVisualDiagrams((prev) => !prev);
 							}}
-							className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
+							className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
 								showVisualDiagrams ?
 									'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]'
 								:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
@@ -1100,42 +1419,40 @@ const SettingsScreen = memo(function SettingsScreen({
 						</button>
 					</div>
 
-					<p className='text-xs text-slate-300 leading-relaxed'>
+					<p className='text-[11px] sm:text-xs text-slate-300 leading-relaxed'>
 						Choose whether interactive visual diagrams, 3x3 matrices, sequence
 						patterns, and STEM illustrations appear alongside questions and
 						option choices.
 					</p>
 
 					{/* Warning Notice for Dynamic Visual Generation */}
-					<div className='mt-3 p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs flex items-start gap-2.5'>
+					<div className='mt-2.5 p-2.5 sm:p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-[11px] sm:text-xs flex items-start gap-2.5 leading-relaxed'>
 						<AlertTriangle className='w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5' />
-						<div className='leading-relaxed'>
-							<span className='font-bold text-amber-300'>
-								Note on Dynamic Visual Generation:
-							</span>{' '}
-							Visual diagrams and option shapes are dynamically synthesized
-							based on algorithmic models and AI prompts. Occasional visual
-							discrepancies or slight mismatches between the text and rendered
-							shapes may occur.
+						<div>
+							<strong className='text-amber-300'>Note:</strong> Visual diagrams
+							and option shapes are dynamically synthesized based on AI prompts.
+							Minor visual variations may occasionally occur.
 						</div>
 					</div>
 				</div>
 
 				{/* Section 7: Narrator Voice */}
-				<div className='bg-[#090B24]/80 p-4 sm:p-5 rounded-2xl border border-purple-500/40 shadow-inner'>
-					<div className='flex items-center gap-2 mb-2'>
-						<Volume2 className='w-4 h-4 text-purple-400' />
-						<span className='text-xs sm:text-sm font-bold text-white'>
-							Narrator Voice
-						</span>
+				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-purple-500/40 shadow-inner'>
+					<div className='flex items-center justify-between gap-2 mb-2'>
+						<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+							<Volume2 className='w-4 h-4 text-purple-400 flex-shrink-0' />
+							<span className='text-xs sm:text-sm font-bold text-white'>
+								Narrator Voice
+							</span>
+						</div>
 						{selectedVoiceURI && (
-							<span className='text-[10px] font-black px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-400/40 truncate max-w-[160px]'>
+							<span className='text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-400/40 truncate max-w-[130px] sm:max-w-[200px]'>
 								{availableVoices.find((v) => v.voiceURI === selectedVoiceURI)
 									?.name || 'Custom'}
 							</span>
 						)}
 					</div>
-					<p className='text-xs text-slate-300 mb-3'>
+					<p className='text-[11px] sm:text-xs text-slate-300 mb-2.5'>
 						Choose the voice used when reading questions aloud. Only one voice
 						speaks at a time.
 					</p>
@@ -1234,13 +1551,13 @@ const SettingsScreen = memo(function SettingsScreen({
 				)}
 
 				{/* Save / Launch Action Bar */}
-				<div className='flex flex-col sm:flex-row gap-3 items-center justify-end pt-2 border-t border-white/10'>
+				<div className='flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 items-stretch sm:items-center justify-end pt-2 border-t border-white/10'>
 					{hasProfile && onBack && (
 						<button
 							type='button'
 							disabled={isValidating}
 							onClick={handleAttemptLeave}
-							className='w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400'>
+							className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400 text-center'>
 							Cancel
 						</button>
 					)}
@@ -1249,7 +1566,7 @@ const SettingsScreen = memo(function SettingsScreen({
 						type='button'
 						disabled={isValidating}
 						onClick={handleSave}
-						className={`w-full sm:w-auto px-8 py-4 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 focus-visible:ring-4 focus-visible:ring-amber-400 ${
+						className={`w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 focus-visible:ring-4 focus-visible:ring-amber-400 ${
 							isValidating ?
 								'bg-gradient-to-r from-amber-600 via-pink-600 to-purple-700 opacity-90 cursor-wait animate-pulse text-white'
 							:	'bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white hover:scale-105 active:scale-95 cursor-pointer'

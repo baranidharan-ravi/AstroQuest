@@ -737,6 +737,56 @@ const docContent = [
 		'The getModelScore ranking engine parses version numbers and latency tiers (flash-lite > flash > pro), sorting models newest-first. The latest model is marked with a "Latest Default" badge and pre-selected as the default model.',
 	),
 
+	createHeading2(
+		'4.10 API Key Field Security, Auto-Masking & Vault Encryption (src/features/settings/SettingsScreen.jsx)',
+	),
+	createParagraph(
+		'Implements enterprise-grade API key field isolation, preventing credentials from being exposed in DOM elements, clipboard buffers, or through shoulder-surfing.',
+	),
+	createBullet(
+		'Encrypted Vault Ciphertext Representation',
+		'The input field value strictly holds the salted encrypted ciphertext (enc:v1:vault:...) rather than raw credentials, preventing DOM query selectors and DevTools from extracting plaintext keys.',
+	),
+	createBullet(
+		'3-Second Privacy Auto-Masking & Eye Icon Removal',
+		'The manual eye icon visibility toggle has been removed. When a user pastes or enters a key, the field is temporarily visible for 3 seconds before automatically masking as a password field (••••••••).',
+	),
+	createBullet(
+		'Copy Prevention & Screen-Reader Alert Tooltip',
+		'Copy and cut events (Ctrl+C, Cmd+C, Ctrl+X, Cmd+X, right-click) on the input field are intercepted and cancelled. An assertive alert badge notifies the user: "Copy functionality is not allowed for this field".',
+	),
+	createBullet(
+		'Transparent On-The-Fly Decryption',
+		'Decryption occurs transparently and ephemerally in memory only when dispatching network calls (validation ping, dynamic model fetching, and background quiz synthesis), keeping credentials shielded at rest and in the UI.',
+	),
+
+	createHeading2(
+		'4.11 User-Defined Custom Skillset Engine (src/utils/skillManager.js & src/features/dashboard/SkillSelectionDashboard.jsx)',
+	),
+	createParagraph(
+		'Expands the AstroQuest learning catalog beyond fixed built-in skills, empowering users to manually create, customize, persist, and export unlimited learning topics.',
+	),
+	createBullet(
+		'Dynamic Skillset Management (skillManager.js)',
+		'Provides storage abstraction in localStorage under astroquest_custom_skillsets_v1, maintaining default skills (Visual, Analytical Thinking) alongside user-defined domains with name, tagline, description, icon, and color theme mappings.',
+	),
+	createBullet(
+		'Direct Gemini AI Prompt Calibration',
+		'The custom skillset name and pedagogical description are injected directly into Google Gemini API prompts (TARGET SKILLSET, SKILLSET DESCRIPTION, and CORE LEARNING OBJECTIVE), synthesizing 100% domain-relevant questions live.',
+	),
+	createBullet(
+		'Personalized Dashboard UI & Creation Modal',
+		'The dashboard dynamically renders an auto-fitting grid of all available skillsets. Features an interactive "+ Add Custom Skill" modal with an emoji picker (16+ popular educational icons), 6 cosmic color themes, and quick inspiration preset pills.',
+	),
+	createBullet(
+		'JSON Backup & Cross-Device Portability',
+		'Implements exportSkillsetsToJsonFile and importSkillsetsFromJson, enabling one-click local file backup and seamless sharing of customized learning topics across devices.',
+	),
+	createBullet(
+		'Dynamic Loader & Telemetry Flight Integration',
+		'CosmicQuestLoader dynamically queries getSkillDefinition, rendering the custom skill emoji in the central planet core and adapting flight telemetry status messages to the active custom mission.',
+	),
+
 	// SECTION 5: SECURITY ARCHITECTURE
 	createHeading1('5. Security Architecture & Data Protection Features'),
 	createParagraph(
@@ -750,6 +800,12 @@ const docContent = [
 			'Verification Standard',
 		],
 		[
+			[
+				'API Key Field Shielding & Copy Lock',
+				'Input renders encrypted ciphertext (enc:v1:vault:...), auto-masks after 3s, blocks copy/cut with alert tooltip.',
+				'Prevents clipboard sniffing, DOM element scraping, and visual snooping of the API key.',
+				'Copy/cut intercepted; input value is encrypted vault payload in DOM.',
+			],
 			[
 				'API Key Shielding',
 				'Express Proxy (/server/index.js) routes all calls server-side.',
@@ -1128,6 +1184,77 @@ const docContent = [
 	createBullet(
 		'Automated Windows Git Index Integrity Tool (scripts/fix-git-index.ps1)',
 		'Configured Git filesystem synchronization (git config core.fsync index,committed) and added standalone PowerShell recovery script scripts/fix-git-index.ps1 and npm shortcut "npm run fix-git" to instantly recover from zero-byte Windows index truncation (fatal: .git/index: index file smaller than expected) without data loss.',
+	),
+	new Paragraph({ spacing: { after: 200 } }),
+
+	// SECTION 10: DYNAMIC CUSTOM SKILLSETS & CROSS-DEVICE BACKUP ENGINE
+	createHeading1(
+		'10. Dynamic Custom Skillsets & Cross-Device Backup/Portability Engine',
+	),
+	createParagraph(
+		'AstroQuest 2.0 introduces an extensible learning domain architecture that removes fixed two-skill limits, enabling educators and parents to author custom curriculum topics while facilitating seamless multi-computer deployment through unified JSON backup and restore pipelines.',
+	),
+
+	createHeading2(
+		'10.1 Dynamic Skillset Management Engine (utils/skillManager.js)',
+	),
+	createParagraph(
+		'The custom skillset engine allows dynamic registration and persistent storage of unlimited learning domains. Each skillset is defined by a unique name, pedagogical description, subtitle tagline, emoji icon, and color theme.',
+	),
+	createBullet(
+		'Direct Gemini AI Prompt Injection',
+		'Custom skillset names and pedagogical descriptions are injected verbatim into the real-time AI prompt as TARGET SKILLSET and SKILLSET DESCRIPTION. Gemini calibrates problem types, age difficulty, analogies, and hints to match user-defined domains (e.g. Space Astronomy, Nature Science, Vocabulary & Riddles).',
+	),
+	createBullet(
+		'Quick Inspiration Presets',
+		'Built-in template presets allow one-click creation of popular STEM and humanities topics, pre-populating icons, color themes, and pedagogical guidelines.',
+	),
+	createBullet(
+		'Protected Default Skillsets',
+		'Core foundational skills (Visual Observation and Analytical Thinking) are immutably protected against accidental deletion, while custom skillsets feature safe deletion workflows with confirmation modals.',
+	),
+	createBullet(
+		'Dynamic Cosmic Quest Loader Integration',
+		'CosmicQuestLoader dynamically extracts the chosen skill name and icon to customize the celestial planet graphics, orbital stardust, and real-time telemetry readout.',
+	),
+
+	createHeading2(
+		'10.2 Cross-Device Backup & Portability Architecture (utils/backupManager.js)',
+	),
+	createParagraph(
+		'To enable effortless migration between different computers, classrooms, and browsers, AstroQuest provides a unified backup and portability orchestrator:',
+	),
+	createBullet(
+		'Comprehensive Payload Bundling',
+		'The exported JSON backup compiles explorer profile (name, age), encrypted API key, selected Gemini AI model, per-question timer limits, auto-advance delays, visual diagram preferences, voice selection, and all custom skillsets.',
+	),
+	createBullet(
+		'Cross-Computer Portability',
+		'Backups exported on Computer A can be imported directly into Computer B through either the Settings Screen or Skill Selection Dashboard. API keys encrypted with salted vault ciphers remain instantly operational on the target device.',
+	),
+	createBullet(
+		'Zero-Refresh Reactive Hydration',
+		'Importing a backup immediately updates React state and writes to persistent localStorage, updating form controls and dashboard cards instantaneously without requiring a page reload.',
+	),
+	createBullet(
+		'Dual-Payload Compatibility',
+		'The import parser seamlessly accepts both full backup bundles ({ settings, skillsets }) and legacy skillset-only JSON arrays ([ ... ]), ensuring backward compatibility with older exports.',
+	),
+
+	createHeading2(
+		'10.3 Password-Masked API Key Security & Clipboard Protection',
+	),
+	createBullet(
+		'Salted Vault Storage Cipher',
+		'API keys are stored in encrypted format with salted prefixes (enc:v1:vault:...). Raw plaintext is never exposed in localStorage or the DOM.',
+	),
+	createBullet(
+		'3-Second Auto-Masking Timer',
+		'When pasting or typing a key, the text is visible for exactly 3 seconds for verification before automatically converting to password mask (••••••••). Eye toggle icons have been permanently removed.',
+	),
+	createBullet(
+		'Clipboard Copy Interception',
+		'Keyboard shortcuts (Ctrl+C, Cmd+C, Ctrl+X, Cmd+X) and context menu copy actions are blocked with an accessible tooltip notification: "Copy functionality is not allowed for this field".',
 	),
 ];
 
@@ -1522,6 +1649,28 @@ AstroQuest is architected from the ground up to achieve full **Web Content Acces
 - **Automated Windows Git Index Integrity Tool (\`scripts/fix-git-index.ps1\`)**:
   - Configured Git filesystem synchronization (\`git config core.fsync index,committed\`).
   - Added standalone PowerShell recovery script \`scripts/fix-git-index.ps1\` and npm shortcut \`npm run fix-git\` to instantly recover from zero-byte Windows index truncation (\`fatal: .git/index: index file smaller than expected\`) without data loss.
+
+---
+
+## 10. Dynamic Custom Skillsets & Cross-Device Backup/Portability Engine
+
+AstroQuest 2.0 introduces an extensible learning domain architecture that removes fixed two-skill limits, enabling educators and parents to author custom curriculum topics while facilitating seamless multi-computer deployment through unified JSON backup and restore pipelines.
+
+### 10.1 Dynamic Skillset Management Engine (\`utils/skillManager.js\`)
+- **Direct Gemini AI Prompt Injection**: Custom skillset names and pedagogical descriptions are injected verbatim into the real-time AI prompt as \`TARGET SKILLSET\` and \`SKILLSET DESCRIPTION\`. Gemini calibrates problem types, age difficulty, analogies, and hints to match user-defined domains (e.g. Space Astronomy, Nature Science, Vocabulary & Riddles).
+- **Quick Inspiration Presets**: Built-in template presets allow one-click creation of popular STEM and humanities topics, pre-populating icons, color themes, and pedagogical guidelines.
+- **Protected Default Skillsets**: Core foundational skills (Visual Observation and Analytical Thinking) are immutably protected against accidental deletion, while custom skillsets feature safe deletion workflows with confirmation modals.
+- **Dynamic Cosmic Quest Loader Integration**: \`CosmicQuestLoader\` dynamically extracts the chosen skill name and icon to customize the celestial planet graphics, orbital stardust, and real-time telemetry readout.
+
+### 10.2 Cross-Device Backup & Portability Architecture (\`utils/backupManager.js\`)
+- **Comprehensive Payload Bundling**: The exported JSON backup compiles explorer profile (name, age), encrypted API key, selected Gemini AI model, per-question timer limits, auto-advance delays, visual diagram preferences, voice selection, and all custom skillsets.
+- **Cross-Computer Portability**: Backups exported on Computer A can be imported directly into Computer B through either the Settings Screen or Skill Selection Dashboard. API keys encrypted with salted vault ciphers remain instantly operational on the target device.
+- **Zero-Refresh Reactive Hydration**: Importing a backup immediately updates React state and writes to persistent localStorage, updating form controls and dashboard cards instantaneously without requiring a page reload.
+- **Dual-Payload Compatibility**: The import parser seamlessly accepts both full backup bundles (\`{ settings, skillsets }\`) and legacy skillset-only JSON arrays (\`[ ... ]\`), ensuring backward compatibility with older exports.
+
+### 10.3 Password-Masked API Key Security & Clipboard Protection
+- **Salted Vault Storage Cipher**: API keys are stored in encrypted format with salted prefixes (\`enc:v1:vault:...\`). Raw plaintext is never exposed in localStorage or the DOM.
+- **3-Second Auto-Masking Timer**: When pasting or typing a key, the text is visible for exactly 3 seconds for verification before automatically converting to password mask (\`••••••••\`). Eye toggle icons have been permanently removed.
 `;
 
 const outputMdPath = path.join(

@@ -126,6 +126,11 @@ apiClient.interceptors.response.use(
 			return Promise.reject(error);
 		}
 
+		// Fast-fail on rate limits (HTTP 429) when caller has alternative model fallbacks
+		if (config.skipRetry429 && error.response?.status === 429) {
+			return Promise.reject(error);
+		}
+
 		config._retryCount = config._retryCount ?? 0;
 
 		// Check if error qualifies for retry
@@ -134,11 +139,13 @@ apiClient.interceptors.response.use(
 			const attempt = config._retryCount;
 			const backoff = BASE_BACKOFF_MS * Math.pow(2, attempt - 1);
 
-			// User requirement: "Inform the user that there is a network drop happened and is retrying to get the information again."
-			showNetworkNotification(
-				`A network drop happened. Retrying to get the information again (${attempt}/${MAX_RETRIES})...`,
-				'warning',
-			);
+			// Inform the user of retry with appropriate context (rate limit vs network drop)
+			const notificationMsg =
+				kind === 'rate_limit' ?
+					`AI rate limit reached. Retrying (${attempt}/${MAX_RETRIES})...`
+				:	`A network drop happened. Retrying to get the information again (${attempt}/${MAX_RETRIES})...`;
+
+			showNetworkNotification(notificationMsg, 'warning');
 
 			console.warn(
 				`[apiClient] Network issue detected (${errorMsg}). Retrying attempt ${attempt}/${MAX_RETRIES} in ${backoff}ms...`,

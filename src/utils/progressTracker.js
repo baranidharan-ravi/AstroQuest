@@ -192,12 +192,22 @@ export function recordCompletedSheet(skill, scorePercent) {
 	if (skill === 'Visual') {
 		profile.visualSolved = (profile.visualSolved || 0) + 1;
 		profile.visualScores = [...(profile.visualScores || []), scorePercent];
-	} else {
+	} else if (skill === 'Analytical Thinking') {
 		profile.analyticalSolved = (profile.analyticalSolved || 0) + 1;
 		profile.analyticalScores = [
 			...(profile.analyticalScores || []),
 			scorePercent,
 		];
+	} else {
+		// Custom Skillset Tracking
+		profile.customSkills = profile.customSkills || {};
+		const skillKey = String(skill || 'Custom').trim();
+		profile.customSkills[skillKey] = profile.customSkills[skillKey] || {
+			solved: 0,
+			scores: [],
+		};
+		profile.customSkills[skillKey].solved += 1;
+		profile.customSkills[skillKey].scores.push(scorePercent);
 	}
 
 	if (profile.thinksheetsRemaining > 0) {

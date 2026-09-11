@@ -20,7 +20,7 @@ const memoryVault = new Map();
 /**
  * Synchronous salted XOR cipher
  */
-function encryptPayload(text) {
+export function encryptPayload(text) {
 	if (!text || typeof text !== 'string') return '';
 	try {
 		let xored = '';
@@ -39,7 +39,7 @@ function encryptPayload(text) {
 /**
  * Synchronous salted XOR decipher
  */
-function decryptPayload(cipher) {
+export function decryptPayload(cipher) {
 	if (!cipher || typeof cipher !== 'string') return '';
 
 	// Legacy unencrypted plaintext

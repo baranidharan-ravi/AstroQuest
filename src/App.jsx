@@ -111,10 +111,25 @@ export default function App() {
 	// Pending Skill target to auto-launch after setup
 	const [pendingSkill, setPendingSkill] = useState(null);
 
-	// Always start on dashboard on load
+	// Dashboard announcement toast (e.g. after backup import)
+	const [dashboardToast, setDashboardToast] = useState(null);
+
+	// Always start on dashboard on load & scroll to top by default
 	useEffect(() => {
 		setCurrentScreen('dashboard');
+		window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+		document.documentElement.scrollTop = 0;
+		document.body.scrollTop = 0;
 	}, []);
+
+	// Scroll to top by default whenever dashboard is displayed
+	useEffect(() => {
+		if (currentScreen === 'dashboard') {
+			window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+			document.documentElement.scrollTop = 0;
+			document.body.scrollTop = 0;
+		}
+	}, [currentScreen]);
 
 	// Save session state to localStorage
 	useEffect(() => {
@@ -312,6 +327,7 @@ export default function App() {
 		age,
 		timerConfig: newTimerConfig,
 		showVisualDiagrams: newShowVisualDiagrams,
+		toastNotice,
 	}) => {
 		saveStoredKidProfile(name, age);
 		setKidName(name);
@@ -323,6 +339,9 @@ export default function App() {
 		if (newShowVisualDiagrams !== undefined) {
 			setShowVisualDiagrams(newShowVisualDiagrams);
 		}
+		if (toastNotice) {
+			setDashboardToast(toastNotice);
+		}
 
 		// If user clicked a skill card before entering their key, auto-launch that skill immediately!
 		if (pendingSkill) {
@@ -331,7 +350,21 @@ export default function App() {
 			startSkillSession(skillToLaunch, age);
 		} else {
 			setCurrentScreen('dashboard');
+			window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+			document.documentElement.scrollTop = 0;
+			document.body.scrollTop = 0;
 		}
+	};
+
+	// Refresh settings in App state from localStorage (e.g. after direct dashboard import)
+	const handleRefreshSettingsFromStorage = () => {
+		setKidName(getStoredKidName());
+		setKidAge(getStoredKidAge());
+		setTimerConfig(getStoredTimerConfig());
+		setShowVisualDiagrams(getStoredShowVisualDiagrams());
+		window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+		document.documentElement.scrollTop = 0;
+		document.body.scrollTop = 0;
 	};
 
 	// Handle Question Timeout (when timer runs out)
@@ -765,6 +798,9 @@ export default function App() {
 				}}
 				timerConfig={timerConfig}
 				showVisualDiagrams={showVisualDiagrams}
+				dashboardToast={dashboardToast}
+				onClearDashboardToast={() => setDashboardToast(null)}
+				onUpdateSettings={handleRefreshSettingsFromStorage}
 			/>
 		);
 	}

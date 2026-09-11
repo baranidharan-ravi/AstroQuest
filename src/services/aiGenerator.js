@@ -1,4 +1,6 @@
 import {
+	decryptPayload,
+	encryptPayload,
 	getSecureStorageItem,
 	setSecureStorageItem,
 } from '../utils/cryptoStorage';
@@ -9,6 +11,7 @@ import {
 	parseRotationSequence,
 	parseStepShapeCountSequence,
 } from '../utils/shapeGenerator';
+import { getSkillDefinition } from '../utils/skillManager';
 import { isDiagramAppropriateForQuestion } from '../utils/VisualDiagrams';
 import apiClient from './apiClient';
 
@@ -80,6 +83,42 @@ export const AVAILABLE_GEMINI_MODELS = [
 	},
 ];
 
+export function encryptApiKey(key) {
+	if (!key || typeof key !== 'string') return '';
+	const trimmed = key.replace(/^["']|["']$/g, '').trim();
+	if (!trimmed) return '';
+	if (trimmed.startsWith('enc:v1:')) return trimmed;
+	return encryptPayload(trimmed);
+}
+
+export function decryptApiKey(cipherOrPlain) {
+	if (!cipherOrPlain || typeof cipherOrPlain !== 'string') return '';
+	const trimmed = cipherOrPlain.replace(/^["']|["']$/g, '').trim();
+	if (!trimmed) return '';
+	if (!trimmed.startsWith('enc:v1:')) return trimmed;
+	return decryptPayload(trimmed);
+}
+
+export function getStoredEncryptedApiKey() {
+	try {
+		const raw = localStorage.getItem(AI_KEY_STORAGE);
+		if (raw && typeof raw === 'string') {
+			const trimmed = raw.trim();
+			if (trimmed.startsWith('enc:v1:')) return trimmed;
+			if (trimmed) return encryptPayload(trimmed);
+		}
+		const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+		if (envKey) {
+			const cleaned = envKey.replace(/^["']|["']$/g, '').trim();
+			if (cleaned.startsWith('enc:v1:')) return cleaned;
+			if (cleaned) return encryptPayload(cleaned);
+		}
+		return '';
+	} catch (_) {
+		return '';
+	}
+}
+
 export function getStoredApiKey() {
 	let key = getSecureStorageItem(AI_KEY_STORAGE);
 	if (!key || key.startsWith('enc:v1:')) {
@@ -92,7 +131,7 @@ export function getStoredApiKey() {
 
 	// Defensive check: NEVER return encrypted ciphertext as a usable API key!
 	if (key.startsWith('enc:v1:')) {
-		return '';
+		return decryptApiKey(key);
 	}
 
 	return key;
@@ -100,7 +139,9 @@ export function getStoredApiKey() {
 
 export function setStoredApiKey(key) {
 	if (key) {
-		const cleaned = key.replace(/^["']|["']$/g, '').trim();
+		const cleaned = decryptApiKey(key)
+			.replace(/^["']|["']$/g, '')
+			.trim();
 		setSecureStorageItem(AI_KEY_STORAGE, cleaned);
 	} else {
 		localStorage.removeItem(AI_KEY_STORAGE);
@@ -110,31 +151,110 @@ export function setStoredApiKey(key) {
 export const DYNAMIC_MODELS_STORAGE_KEY = 'thinksheet_dynamic_gemini_models_v1';
 export const DYNAMIC_MODELS_TIMESTAMP_KEY =
 	'thinksheet_dynamic_gemini_models_timestamp_v1';
+export const RATE_LIMITED_MODELS_STORAGE_KEY =
+	'thinksheet_rate_limited_models_v1';
+
+// In-memory set of rate-limited/exhausted models for current session
+const inMemoryRateLimitedModels = new Set();
+
+/**
+ * Detect quota exhaustion / rate limit / resource exhausted errors (HTTP 429 / 503)
+ */
+export function isResourceExhausted(status, errorPayload, errorText = '') {
+	if (status === 429 || status === 503) return true;
+	const text =
+		`${JSON.stringify(errorPayload || {})} ${errorText}`.toUpperCase();
+	return (
+		text.includes('RESOURCE_EXHAUSTED') ||
+		text.includes('QUOTA') ||
+		text.includes('RATE_LIMIT') ||
+		text.includes('LIMIT EXCEEDED') ||
+		text.includes('BILLING')
+	);
+}
+
+/**
+ * Marks a model as rate-limited/quota-exhausted for the current session
+ */
+export function markModelRateLimited(modelId) {
+	if (!modelId) return;
+	const clean = modelId.replace(/^models\//, '').trim();
+	inMemoryRateLimitedModels.add(clean);
+	try {
+		const raw = sessionStorage.getItem(RATE_LIMITED_MODELS_STORAGE_KEY);
+		const list = raw ? JSON.parse(raw) : [];
+		if (!list.includes(clean)) {
+			list.push(clean);
+			sessionStorage.setItem(
+				RATE_LIMITED_MODELS_STORAGE_KEY,
+				JSON.stringify(list),
+			);
+		}
+	} catch {}
+}
+
+/**
+ * Checks if a model is currently marked as rate-limited or quota-exhausted
+ */
+export function isModelRateLimited(modelId) {
+	if (!modelId) return false;
+	const clean = modelId.replace(/^models\//, '').trim();
+	if (inMemoryRateLimitedModels.has(clean)) return true;
+	try {
+		const raw = sessionStorage.getItem(RATE_LIMITED_MODELS_STORAGE_KEY);
+		if (raw) {
+			const list = JSON.parse(raw);
+			return Array.isArray(list) && list.includes(clean);
+		}
+	} catch {}
+	return false;
+}
+
+/**
+ * Clears the rate-limited model cache
+ */
+export function clearRateLimitedModels() {
+	inMemoryRateLimitedModels.clear();
+	try {
+		sessionStorage.removeItem(RATE_LIMITED_MODELS_STORAGE_KEY);
+	} catch {}
+}
 
 /**
  * Computes a numeric ranking score for a Gemini model ID.
  * Higher score = newer version and better suited for real-time quiz generation.
  */
 export function getModelScore(modelId) {
-	const id = (modelId || '').toLowerCase();
+	const id = (modelId || '').toLowerCase().replace(/^models\//, '');
+
+	// Heavily penalize models that currently have exhausted quota (HTTP 429) or unreleased rate-limited previews
+	if (isModelRateLimited(id) || id === 'gemini-3.8-flash') {
+		return -10000;
+	}
+
 	// Extract version number: e.g. "gemini-3.5-flash-lite" -> 3.5, "gemini-3-flash-preview" -> 3.0, "gemini-2.5-flash" -> 2.5
 	const versionMatch = id.match(/gemini-(\d+(?:\.\d+)?)/);
 	const version = versionMatch ? parseFloat(versionMatch[1]) : 1.0;
 
-	// Variant scoring: flash-lite is ultra-fast & recommended for real-time educational quizes
+	// Variant scoring: flash-lite is ultra-fast & has high quota for real-time educational quizzes
 	let typeScore = 0;
 	if (id.includes('flash-lite') || id.includes('lite')) {
-		typeScore = 35;
+		typeScore = 500; // Strong boost: high RPM quota & lowest generation latency
 	} else if (id.includes('flash')) {
-		typeScore = 25;
+		typeScore = 200;
 	} else if (id.includes('pro')) {
-		typeScore = 15;
+		typeScore = 50;
 	}
 
-	// Minor penalty for experimental/preview variants compared to stable of same version
+	// Penalize experimental/preview variants that often have zero/strict free-tier quota
 	let modifier = 0;
 	if (id.includes('exp') || id.includes('preview')) {
-		modifier = -2;
+		modifier -= 100;
+	}
+
+	// Any unverified high-version models above 3.5 that are NOT flash-lite should not supersede proven models
+	if (version > 3.5 && !id.includes('lite')) {
+		modifier -= 300;
 	}
 
 	return version * 1000 + typeScore + modifier;
@@ -169,7 +289,7 @@ export function getCachedGeminiModelsTimestamp() {
 }
 
 /**
- * Finds and returns the latest / highest-scoring Gemini model from a list
+ * Finds and returns the latest / highest-scoring healthy Gemini model from a list
  */
 export function getLatestGeminiModel(modelsList) {
 	const list =
@@ -179,7 +299,12 @@ export function getLatestGeminiModel(modelsList) {
 	if (!Array.isArray(list) || list.length === 0) {
 		return AVAILABLE_GEMINI_MODELS[0];
 	}
-	const sorted = [...list].sort(
+
+	// Prefer non-rate-limited models first
+	const healthy = list.filter((m) => !isModelRateLimited(m.id));
+	const candidates = healthy.length > 0 ? healthy : list;
+
+	const sorted = [...candidates].sort(
 		(a, b) => getModelScore(b.id) - getModelScore(a.id),
 	);
 	return sorted[0];
@@ -206,7 +331,8 @@ export function getAvailableGeminiModels() {
  * Fetches the latest available Gemini models live from Google's Gemini API
  */
 export async function fetchOnlineGeminiModels(apiKey) {
-	const cleanedKey = (apiKey || getStoredApiKey() || '').trim();
+	const rawTarget = apiKey || getStoredApiKey() || '';
+	const cleanedKey = decryptApiKey(rawTarget).trim();
 	if (!cleanedKey) {
 		throw new Error(
 			'Please enter a Gemini API key first to fetch available models.',
@@ -314,10 +440,16 @@ export function getStoredSelectedModel() {
 	try {
 		const saved = localStorage.getItem(SELECTED_MODEL_KEY);
 		const available = getAvailableGeminiModels();
-		if (saved && available.some((m) => m.id === saved)) {
+		// If saved model exists and is NOT currently rate-limited, use it
+		if (
+			saved &&
+			saved !== 'gemini-3.8-flash' &&
+			available.some((m) => m.id === saved) &&
+			!isModelRateLimited(saved)
+		) {
 			return saved;
 		}
-		// If no model is explicitly saved or valid, default to the latest available model
+		// If no model is saved or saved model is rate-limited, default to the latest healthy model
 		const latest = getLatestGeminiModel(available);
 		if (latest && latest.id) {
 			return latest.id;
@@ -383,11 +515,12 @@ export const SKILL_DEFINITIONS = {
 };
 
 /**
- * Universal Gemini API Caller prioritizing the user's selected model with automatic fallback
+ * Universal Gemini API Caller prioritizing healthy models with fast fallback on HTTP 429 rate limits
  */
 async function callGeminiApi(payload, apiKey, preferredModel = null) {
 	const activeSelected =
 		preferredModel || getStoredSelectedModel() || DEFAULT_GEMINI_MODEL;
+	const realApiKey = decryptApiKey(apiKey || getStoredApiKey());
 
 	// 1. Check if secure Node.js Express proxy is available (Zero API key in Network tab!)
 	const hasProxy = await checkProxyAvailability();
@@ -403,8 +536,9 @@ async function callGeminiApi(payload, apiKey, preferredModel = null) {
 				},
 				{
 					headers: {
-						...(apiKey ? { 'x-gemini-key': apiKey } : {}),
+						...(realApiKey ? { 'x-gemini-key': realApiKey } : {}),
 					},
+					skipRetry429: true,
 				},
 			);
 
@@ -419,28 +553,50 @@ async function callGeminiApi(payload, apiKey, preferredModel = null) {
 		}
 	}
 
-	if (!apiKey) {
+	if (!realApiKey) {
 		throw new Error('MISSING_API_KEY');
 	}
 
-	const allModelIds = AVAILABLE_GEMINI_MODELS.map((m) => m.id);
+	const availableModels = getAvailableGeminiModels();
+	const allModelIds = Array.from(
+		new Set([
+			...availableModels.map((m) => m.id),
+			...AVAILABLE_GEMINI_MODELS.map((m) => m.id),
+		]),
+	);
 
-	// Sequence: user's selected model first, followed by remaining models
-	const modelsToTry = [
-		activeSelected,
-		...allModelIds.filter((m) => m !== activeSelected),
-	];
+	// Separate models into healthy vs rate-limited
+	const healthyModels = allModelIds.filter(
+		(m) => !isModelRateLimited(m) && m !== activeSelected,
+	);
+	const rateLimitedModels = allModelIds.filter(
+		(m) => isModelRateLimited(m) && m !== activeSelected,
+	);
+
+	// Sequence: if activeSelected is healthy, try it first; if it's already rate-limited, try healthy models first!
+	const modelsToTry =
+		isModelRateLimited(activeSelected) ?
+			[...healthyModels, activeSelected, ...rateLimitedModels]
+		:	[activeSelected, ...healthyModels, ...rateLimitedModels];
 
 	let lastError = null;
 
 	for (const model of modelsToTry) {
 		try {
 			const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(
-				apiKey,
+				realApiKey,
 			)}`;
 
-			const res = await apiClient.post(url, payload);
+			// Pass skipRetry429: true so rate limit exhaustion fails fast to the next fallback model without 7-second retry delay
+			const res = await apiClient.post(url, payload, { skipRetry429: true });
 			if (res.data) {
+				// If a fallback model was used, auto-switch and persist it as active model
+				if (model !== activeSelected) {
+					console.log(
+						`[Gemini API] Successfully auto-switched and saved active model to healthy fallback: "${model}" (was "${activeSelected}")`,
+					);
+					setStoredSelectedModel(model);
+				}
 				return res.data;
 			}
 		} catch (err) {
@@ -448,9 +604,17 @@ async function callGeminiApi(payload, apiKey, preferredModel = null) {
 			const body = err.response?.data;
 			const errMsg = body?.error?.message || err.message || '';
 			lastError = new Error(`Model ${model} (${status || 'ERR'}): ${errMsg}`);
-			console.warn(
-				`[Gemini API] ${model} returned HTTP ${status}, trying fallback model...`,
-			);
+
+			if (isResourceExhausted(status, body, errMsg)) {
+				markModelRateLimited(model);
+				console.warn(
+					`[Gemini API] Model ${model} returned HTTP ${status} (Quota / Rate Limit Exceeded). Flagged as rate-limited, immediately trying fallback model...`,
+				);
+			} else {
+				console.warn(
+					`[Gemini API] ${model} returned HTTP ${status}, trying fallback model...`,
+				);
+			}
 
 			if (
 				status === 400 &&
@@ -495,8 +659,9 @@ export async function validateGeminiApiKey(apiKey, preferredModel = null) {
 	}
 
 	const cleanedKey = apiKey.replace(/^["']|["']$/g, '').trim();
+	const decryptedKey = decryptApiKey(cleanedKey);
 
-	if (cleanedKey.length < 15) {
+	if (decryptedKey.length < 15) {
 		return {
 			valid: false,
 			message:
@@ -510,8 +675,8 @@ export async function validateGeminiApiKey(apiKey, preferredModel = null) {
 			generationConfig: { maxOutputTokens: 10 },
 		};
 
-		await callGeminiApi(payload, cleanedKey, preferredModel);
-		return { valid: true, cleanedKey };
+		await callGeminiApi(payload, decryptedKey, preferredModel);
+		return { valid: true, cleanedKey: decryptedKey };
 	} catch (err) {
 		console.error('API Key validation error:', err);
 		return {
@@ -1101,6 +1266,10 @@ function parseGeminiJsonResponse(rawText) {
  */
 function getAgeSpecificPedagogy(age, selectedSkill) {
 	const numAge = parseInt(age, 10) || 5;
+	const skillInfo = getSkillDefinition(selectedSkill);
+	const isDefaultVisual = selectedSkill === 'Visual';
+	const isDefaultAnalytical = selectedSkill === 'Analytical Thinking';
+	const isCustom = !isDefaultVisual && !isDefaultAnalytical;
 
 	if (numAge <= 4) {
 		return {
@@ -1108,11 +1277,14 @@ function getAgeSpecificPedagogy(age, selectedSkill) {
 			guidelines: `
 - Keep questions super short, simple, and visual with familiar animals, fruits, and shapes.
 - For Visual: simple counting (1-5 objects), AB color patterns (🔴 🔵 🔴 🔵).
-- For Analytical: Animal babies (Puppy to Dog, Kitten to Cat), basic sounds, color matching.`,
+- For Analytical: Animal babies (Puppy to Dog, Kitten to Cat), basic sounds, color matching.
+${isCustom ? `- For "${skillInfo.name}": Keep questions super simple, fun, and age-appropriate for a toddler, focusing on: ${skillInfo.description}` : ''}`,
 			examples:
-				selectedSkill === 'Visual' ?
+				isDefaultVisual ?
 					`Example: "How many red apples 🍎 are in the basket?" -> "diagramType": "apple-counting", "diagramData": {"count": 3, "emoji": "🍎"}, "correctAnswer": "3 apples"`
-				:	`Example: "Puppy 🐶 is to Dog 🐕, as Kitten 🐱 is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Puppy 🐶", "itemB": "Dog 🐕", "itemC": "Kitten 🐱", "itemD": "Cat 🐈"}, "correctAnswer": "Cat 🐈"`,
+				: isDefaultAnalytical ?
+					`Example: "Puppy 🐶 is to Dog 🐕, as Kitten 🐱 is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Puppy 🐶", "itemB": "Dog 🐕", "itemC": "Kitten 🐱", "itemD": "Cat 🐈"}, "correctAnswer": "Cat 🐈"`
+				:	`Example: Age-appropriate introductory question directly exploring ${skillInfo.name}.`,
 		};
 	}
 
@@ -1122,11 +1294,14 @@ function getAgeSpecificPedagogy(age, selectedSkill) {
 			guidelines: `
 - Use kindergarten/early grade-school vocabulary, addition within 1-12, AAB/ABC repeating patterns.
 - For Visual: Counting 4-12 objects, grid tile gaps, balance scales.
-- For Analytical: Functional analogies (Bird : Nest :: Bee : Hive), everyday cause-and-effect (sun melts ice, rain grows plants), odd-one-out categories.`,
+- For Analytical: Functional analogies (Bird : Nest :: Bee : Hive), everyday cause-and-effect (sun melts ice, rain grows plants), odd-one-out categories.
+${isCustom ? `- For "${skillInfo.name}": Create engaging early elementary challenges directly applying: ${skillInfo.description}` : ''}`,
 			examples:
-				selectedSkill === 'Visual' ?
+				isDefaultVisual ?
 					`Example: "Complete the pattern: 🔴 🔴 🔷 🔴 🔴 ?" -> "diagramType": "pattern-shapes", "diagramData": {"sequence": ["🔴", "🔴", "🔷", "🔴", "🔴"], "nextItem": "🔷"}, "correctAnswer": "🔷"`
-				:	`Example: "If you leave an ice cube 🧊 in the warm sun ☀️, what happens?" -> "diagramType": "cause-effect", "diagramData": {"cause": "Ice Cube 🧊 in Sun ☀️", "action": "melts", "effect": "Water 💧"}, "correctAnswer": "It melts into water 💧"`,
+				: isDefaultAnalytical ?
+					`Example: "If you leave an ice cube 🧊 in the warm sun ☀️, what happens?" -> "diagramType": "cause-effect", "diagramData": {"cause": "Ice Cube 🧊 in Sun ☀️", "action": "melts", "effect": "Water 💧"}, "correctAnswer": "It melts into water 💧"`
+				:	`Example: Creative elementary puzzle centered on ${skillInfo.name}.`,
 		};
 	}
 
@@ -1136,11 +1311,14 @@ function getAgeSpecificPedagogy(age, selectedSkill) {
 			guidelines: `
 - DO NOT generate baby/preschool counting questions!
 - Use multi-step reasoning, geometric & number sequences (e.g. 4, 8, 12, 16, ? or 3, 6, 12, 24, ?), 3D block projections, grid matrices.
-- For Analytical: Higher-order analogies (Author : Novel :: Sculptor : Statue, Thermometer : Temperature :: Speedometer : Speed), scientific classification (Carnivore/Herbivore/Omnivore, States of matter, simple machines), multi-step deductive clues.`,
+- For Analytical: Higher-order analogies (Author : Novel :: Sculptor : Statue, Thermometer : Temperature :: Speedometer : Speed), scientific classification (Carnivore/Herbivore/Omnivore, States of matter, simple machines), multi-step deductive clues.
+${isCustom ? `- For "${skillInfo.name}": Create rigorous upper-elementary challenges, facts, and deductions testing: ${skillInfo.description}` : ''}`,
 			examples:
-				selectedSkill === 'Visual' ?
+				isDefaultVisual ?
 					`Example: "Look at the number sequence: 5, 10, 20, 40, ? What comes next?" -> "diagramType": "sequence-ladder", "diagramData": {"steps": ["5", "10", "20", "40"], "nextVal": "80", "rule": "x2"}, "correctAnswer": "80", "options": ["60", "70", "80", "90"]`
-				:	`Example: "Author is to Book, as Architect is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Author ✍️", "itemB": "Book 📖", "itemC": "Architect 📐", "itemD": "Building 🏛️"}, "correctAnswer": "Building", "options": ["Painting", "Building", "Song", "Meal"]`,
+				: isDefaultAnalytical ?
+					`Example: "Author is to Book, as Architect is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Author ✍️", "itemB": "Book 📖", "itemC": "Architect 📐", "itemD": "Building 🏛️"}, "correctAnswer": "Building", "options": ["Painting", "Building", "Song", "Meal"]`
+				:	`Example: Thought-provoking challenge testing concepts in ${skillInfo.name}.`,
 		};
 	}
 
@@ -1150,11 +1328,14 @@ function getAgeSpecificPedagogy(age, selectedSkill) {
 		guidelines: `
 - STRICTLY FORBIDDEN: Do NOT give young kid questions (NO simple apple counting, NO baby animal pairings like puppy-dog!).
 - For Visual: Challenging numerical sequences (e.g. 2, 5, 10, 17, 26, ? or Fibonacci), geometric matrix transformations, spatial rotations, isometric block tower volumes, coordinate reflections.
-- For Analytical: Advanced abstract analogies (Microscope : Microorganism :: Telescope : Distant Galaxy, Catalyst : Chemical Reaction :: Mentor : Personal Growth), deductive syllogisms, physics principles (density, balance levers, electric circuits, refraction), critical thinking puzzles.`,
+- For Analytical: Advanced abstract analogies (Microscope : Microorganism :: Telescope : Distant Galaxy, Catalyst : Chemical Reaction :: Mentor : Personal Growth), deductive syllogisms, physics principles (density, balance levers, electric circuits, refraction), critical thinking puzzles.
+${isCustom ? `- For "${skillInfo.name}": Present advanced critical thinking and multi-step problem solving exploring: ${skillInfo.description}` : ''}`,
 		examples:
-			selectedSkill === 'Visual' ?
+			isDefaultVisual ?
 				`Example: "Identify the pattern rule in the sequence: 2, 5, 10, 17, 26, ? What is the next term?" -> "diagramType": "sequence-ladder", "diagramData": {"steps": ["2", "5", "10", "17", "26"], "nextVal": "37", "rule": "+3, +5, +7, +9, +11"}, "correctAnswer": "37", "options": ["35", "37", "39", "41"], "solution": "The difference between terms increases by consecutive odd numbers (+3, +5, +7, +9, +11). 26 + 11 = 37."`
-			:	`Example: "Microscope is to Microorganism, as Telescope is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Microscope 🔬", "itemB": "Microorganism 🦠", "itemC": "Telescope 🔭", "itemD": "Distant Galaxy 🌌"}, "correctAnswer": "Distant Galaxy", "options": ["Subatomic Particle", "Distant Galaxy", "Microscopic Cell", "Sound Wave"], "solution": "A microscope is an instrument used to observe microscopic organisms, just as a telescope is used to observe distant galaxies."`,
+			: isDefaultAnalytical ?
+				`Example: "Microscope is to Microorganism, as Telescope is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Microscope 🔬", "itemB": "Microorganism 🦠", "itemC": "Telescope 🔭", "itemD": "Distant Galaxy 🌌"}, "correctAnswer": "Distant Galaxy", "options": ["Subatomic Particle", "Distant Galaxy", "Microscopic Cell", "Sound Wave"], "solution": "A microscope is an instrument used to observe microscopic organisms, just as a telescope is used to observe distant galaxies."`
+			:	`Example: Advanced conceptual question on ${skillInfo.name}.`,
 	};
 }
 
@@ -1169,18 +1350,24 @@ async function fetchBatch(
 	apiKey,
 	preferredModel = null,
 ) {
-	const isVisual = selectedSkill === 'Visual';
-	const skillInfo =
-		SKILL_DEFINITIONS[selectedSkill] || SKILL_DEFINITIONS.Visual;
+	const skillInfo = getSkillDefinition(selectedSkill);
+	const isVisual =
+		selectedSkill === 'Visual' ||
+		skillInfo.id === 'visual' ||
+		skillInfo.name?.toLowerCase() === 'visual';
 	const pedagogy = getAgeSpecificPedagogy(kidAge, selectedSkill);
 
 	const domainFocus =
-		batchId === 1 ? skillInfo.batch1Domain : skillInfo.batch2Domain;
+		batchId === 1 ?
+			skillInfo.batch1Domain ||
+			`Batch 1 Focus: Core principles, foundational concepts, and introductory puzzles directly reflecting: ${skillInfo.description}`
+		:	skillInfo.batch2Domain ||
+			`Batch 2 Focus: Multi-step reasoning, practical problem-solving, and engaging challenges directly reflecting: ${skillInfo.description}`;
 
 	const prompt = `You are an expert educator and puzzle creator.
-TARGET SKILLSET: "${skillInfo.title}"
+TARGET SKILLSET: "${skillInfo.title || skillInfo.name}"
 SKILLSET DESCRIPTION: "${skillInfo.description}"
-CORE LEARNING OBJECTIVE: "${skillInfo.coreObjective}"
+CORE LEARNING OBJECTIVE: "${skillInfo.coreObjective || `The student must solve age-appropriate challenges and questions focused specifically on ${skillInfo.name}: ${skillInfo.description}`}"
 TARGET STUDENT AGE: Strictly calibrated for a ${kidAge}-year-old child (Grade/Cognitive level appropriate).
 
 CURRENT BATCH DOMAIN (Batch ${batchId}):
@@ -1649,22 +1836,6 @@ function blobToDataUri(blob) {
 		reader.onerror = reject;
 		reader.readAsDataURL(blob);
 	});
-}
-
-/**
- * Detect quota exhaustion / rate limit / resource exhausted errors
- */
-function isResourceExhausted(status, errorPayload, errorText = '') {
-	if (status === 429 || status === 503) return true;
-	const text =
-		`${JSON.stringify(errorPayload || {})} ${errorText}`.toUpperCase();
-	return (
-		text.includes('RESOURCE_EXHAUSTED') ||
-		text.includes('QUOTA') ||
-		text.includes('RATE_LIMIT') ||
-		text.includes('LIMIT EXCEEDED') ||
-		text.includes('BILLING')
-	);
 }
 
 // 1. Google Imagen 3 Handler
