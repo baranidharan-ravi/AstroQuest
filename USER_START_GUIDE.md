@@ -1,7 +1,20 @@
 # 🚀 AstroQuest: User Quick Start Guide
 
-| 📖 [**README**](README.md) | 🚀 **User Quick Start Guide** _(Current)_ | 📘 [**Technical Architecture**](documentation/AstroQuest_Implementation_Documentation.md) |
-| :------------------------: | :---------------------------------------: | :---------------------------------------------------------------------------------------: |
+<table>
+  <tr>
+    <td align="center" bgcolor="#161b22"><a href="README.md"><b>📖 README</b></a><br/><sub><font color="#7d8590">Overview</font></sub></td>
+    <td align="center" bgcolor="#21262d"><b>🚀 User Quick Start Guide</b><br/><sub><font color="#f78166">━━━━━━ <b>Active Tab</b> ━━━━━━</font></sub></td>
+    <td align="center" bgcolor="#161b22"><a href="CONTRIBUTING.md"><b>🤝 Contributing</b></a><br/><sub><font color="#7d8590">Community & Setup</font></sub></td>
+    <td align="center" bgcolor="#161b22"><a href="documentation/AstroQuest_Implementation_Documentation.md"><b>📘 Technical Architecture</b></a><br/><sub><font color="#7d8590">System Specs</font></sub></td>
+  </tr>
+</table>
+
+<p>
+  <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Overview-1f6feb?style=for-the-badge" alt="README tab"/></a>
+  <a href="USER_START_GUIDE.md"><img src="https://img.shields.io/badge/🚀_User_Guide-Active-f78166?style=for-the-badge" alt="User Quick Start Guide tab"/></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🤝_Contributing-Community-1f6feb?style=for-the-badge" alt="Contributing tab"/></a>
+  <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
+</p>
 
 Welcome to **AstroQuest**, an AI-powered cosmic learning adventure designed for young explorers (Ages 2 to 14)! This guide will walk parents, educators, and children through everything needed to get started, master the features, and make the most of every mission.
 

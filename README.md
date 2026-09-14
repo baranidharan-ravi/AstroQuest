@@ -1,12 +1,22 @@
 # 🚀 AstroQuest - 100% Live AI-Powered Cosmic Learning for Early Explorers
 
-| 📖 **README** _(Current)_ | 🚀 [**User Quick Start Guide**](USER_START_GUIDE.md) | 📘 [**Technical Architecture**](documentation/AstroQuest_Implementation_Documentation.md) |
-| :-----------------------: | :--------------------------------------------------: | :---------------------------------------------------------------------------------------: |
+<table>
+  <tr>
+    <td align="center" bgcolor="#21262d"><b>📖 README</b><br/><sub><font color="#f78166">━━━━━━ <b>Active Tab</b> ━━━━━━</font></sub></td>
+    <td align="center" bgcolor="#161b22"><a href="USER_START_GUIDE.md"><b>🚀 User Quick Start Guide</b></a><br/><sub><font color="#7d8590">Parents & Educators</font></sub></td>
+    <td align="center" bgcolor="#161b22"><a href="CONTRIBUTING.md"><b>🤝 Contributing</b></a><br/><sub><font color="#7d8590">Community & Setup</font></sub></td>
+    <td align="center" bgcolor="#161b22"><a href="documentation/AstroQuest_Implementation_Documentation.md"><b>📘 Technical Architecture</b></a><br/><sub><font color="#7d8590">System Specs</font></sub></td>
+  </tr>
+</table>
+
+<p>
+  <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Active-f78166?style=for-the-badge" alt="README tab"/></a>
+  <a href="USER_START_GUIDE.md"><img src="https://img.shields.io/badge/🚀_User_Guide-Quick_Start-2ea44f?style=for-the-badge" alt="User Quick Start Guide tab"/></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🤝_Contributing-Community-1f6feb?style=for-the-badge" alt="Contributing tab"/></a>
+  <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
+</p>
 
 An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **100% real-time direct AI question generation via Google Gemini API (Mandatory API Key with Live Validation)**, configurable auto-advance question pacing, customizable per-question countdown timers, streamlined exit workflows, dynamic mathematical SVG shape generation, and strict age-calibrated difficulty with zero offline/cached questions.
-
-[![User Quick Start Guide](https://img.shields.io/badge/User%20Guide-Quick%20Start%20Guide-brightgreen?style=for-the-badge&logo=rocket)](USER_START_GUIDE.md)
-[![Implementation Documentation](https://img.shields.io/badge/Docs-Technical%20Architecture-blue?style=for-the-badge&logo=googledocs)](documentation/AstroQuest_Implementation_Documentation.md)
 
 > 📘 **New to AstroQuest?** Check out the comprehensive [**User Quick Start Guide (USER_START_GUIDE.md)**](USER_START_GUIDE.md) for a complete step-by-step walkthrough covering profile creation, Gemini API key setup, answering challenges, audio focus tools, and exploration modes!
 
