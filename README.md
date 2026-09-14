@@ -1,13 +1,5 @@
 # 🚀 AstroQuest - 100% Live AI-Powered Cosmic Learning for Early Explorers
 
-<table>
-  <tr>
-    <td align="center" bgcolor="#21262d"><b>📖 README</b><br/><sub><font color="#f78166">━━━━━━ <b>Active Tab</b> ━━━━━━</font></sub></td>
-    <td align="center" bgcolor="#161b22"><a href="CONTRIBUTING.md"><b>🚀 User Guide & Contributing</b></a><br/><sub><font color="#7d8590">Parents, Educators & Developers</font></sub></td>
-    <td align="center" bgcolor="#161b22"><a href="documentation/AstroQuest_Implementation_Documentation.md"><b>📘 Technical Architecture</b></a><br/><sub><font color="#7d8590">System Specs</font></sub></td>
-  </tr>
-</table>
-
 <p>
   <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Active-f78166?style=for-the-badge" alt="README tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Quick_Start-2ea44f?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
@@ -16,11 +8,86 @@
 
 An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **100% real-time direct AI question generation via Multi-Provider AI (Google Gemini, OpenAI ChatGPT, and Anthropic Claude with Live Key Validation)**, configurable auto-advance question pacing, customizable per-question countdown timers, streamlined exit workflows, dynamic mathematical SVG shape generation, and strict age-calibrated difficulty with zero offline/cached questions.
 
-> 📘 **New to AstroQuest?** Check out the comprehensive [**User Guide & Contributing Hub (CONTRIBUTING.md)**](CONTRIBUTING.md) for a complete step-by-step walkthrough covering profile creation, Multi-Provider AI key setup (Gemini, OpenAI, Claude), answering challenges, audio focus tools, and exploration modes!
+---
+
+<details>
+<summary><h2 style="display: inline;">🚀 User Quick Start Guide (Click to Expand / Collapse)</h2></summary>
+
+### 🧑‍🚀 Quick Setup in 3 Easy Steps
+
+```mermaid
+flowchart LR
+    Step1["Step 1<br/>Get AI API Key<br/>(Gemini, OpenAI, Claude)"]
+    Step2["Step 2<br/>Setup Explorer Profile<br/>(Name, Age & Avatar)"]
+    Step3["Step 3<br/>Choose Settings & Model<br/>(Timer, Voice & AI Engine)"]
+
+    Step1 --> Step2 --> Step3
+```
+
+#### Step 1: Obtain an AI API Key
+- **✨ Google Gemini (Recommended Free Tier)**: Visit [Google AI Studio](https://aistudio.google.com/app/apikey) and click **"Create API Key"**. No credit card required!
+- **🟢 OpenAI (ChatGPT)**: Visit [OpenAI Platform API Keys](https://platform.openai.com/api-keys) to generate an API key (`sk-...`).
+- **🎭 Anthropic (Claude)**: Visit [Anthropic Console](https://console.anthropic.com/settings/keys) to generate an API key (`sk-ant-...`).
+
+#### Step 2: Configure Explorer Profile
+1. Launch AstroQuest in your browser.
+2. Click **"Settings ⚙️"** in the top-right corner.
+3. Enter your **Child's Name** and **Age** (Ages 2–14). The pedagogy automatically calibrates to their cognitive level!
+4. Pick an **Astronaut Avatar** (Boy, Girl, Robot, or Alien).
+
+#### Step 3: Select AI Provider & Save Key
+1. Under **"Select AI Intelligence Provider"**, click your preferred provider (**Google Gemini**, **OpenAI**, or **Anthropic Claude**).
+2. Paste your API key into the secure vault and pick your preferred AI model.
+3. Click **"Save & Launch 🚀"**. The app runs an instant live verification ping.
+
+> 📘 For the complete detailed guide on managing multi-child flight crews, custom skillset synthesis, audio focus tools, and open-source contribution guidelines, visit the [**User Guide & Contributing Hub (CONTRIBUTING.md)**](CONTRIBUTING.md).
+
+</details>
 
 ---
 
-## ✨ Key Features & Architecture
+<details>
+<summary><h2 style="display: inline;">📘 Technical Architecture & System Specs (Click to Expand / Collapse)</h2></summary>
+
+```mermaid
+flowchart TD
+    subgraph UI ["User Interface Layer"]
+        Settings["Settings & Preferences Screen"]
+        HUD["Cosmic Quest HUD & Answering System"]
+        Dashboard["Skill Selection & Crew Dashboard"]
+    end
+
+    subgraph Core ["Universal AI Service (aiGenerator.js)"]
+        Router["Multi-Provider AI Router"]
+        GeminiAdapter["Google Gemini Adapter"]
+        OpenAIAdapter["OpenAI ChatGPT Adapter"]
+        ClaudeAdapter["Anthropic Claude Adapter"]
+    end
+
+    subgraph Privacy ["Security & Storage"]
+        Vault["AES-GCM Key Vault (Salted XOR + 3s Auto-Mask)"]
+        BackupMgr["Cross-Device Backup Engine (JSON)"]
+    end
+
+    UI --> Router
+    Router --> GeminiAdapter
+    Router --> OpenAIAdapter
+    Router --> ClaudeAdapter
+    Router --> Vault
+    UI --> BackupMgr
+```
+
+- **Universal Multi-Provider Architecture**: Direct client-side calls to Google Gemini, OpenAI (`v1/chat/completions`), and Anthropic (`v1/messages` with direct browser access header).
+- **Security & Privacy First**: Zero third-party tracking, client-side AES-GCM encrypted key storage, 3-second auto-masking, DOM vault inspection defense, and cut/copy prevention.
+- **Cognitive Science & Pedagogy**: Strict 4-tier age calibration (Ages 2–14) with dynamic SVG math diagrams and instant voice feedback.
+- **Detailed Blueprint**: See the full architectural specification at [**AstroQuest_Implementation_Documentation.md**](documentation/AstroQuest_Implementation_Documentation.md).
+
+</details>
+
+---
+
+<details open>
+<summary><h2 style="display: inline;">✨ Key Features & Architecture (Click to Collapse / Expand)</h2></summary>
 
 <details>
 <summary><h3 style="display: inline;">1. ⚙️ Dedicated Full-Screen Settings & Preferences Page</h3></summary>
@@ -486,46 +553,56 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 
 </details>
 
+</details>
+
 ---
 
 <details>
-<summary><h2 style="display: inline;">🔑 How to Get a Google Gemini API Key (Step-by-Step)</h2></summary>
+<summary><h2 style="display: inline;">🔑 How to Get an AI API Key (Google Gemini, OpenAI, Claude)</h2></summary>
 
-A Gemini API key is mandatory for generating questions in real time. Follow these simple steps to obtain a free key:
+An AI API key is mandatory for synthesizing 100% real-time cosmic puzzles. You can use any of the three supported providers:
 
-### Step 1: Open Google AI Studio
+### 1. Google Gemini (Recommended Free Tier 🌟)
+1. Navigate to [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Sign in with any standard Google account.
+3. Click **"Create API Key"** and copy your generated key (starts with `AIzaSy...`).
+4. _(Free tier available; no credit card required)_.
 
-1. Navigate to [Google AI Studio](https://aistudio.google.com/app/apikey) in your web browser.
-2. Sign in with your Google account.
+### 2. OpenAI (ChatGPT 🟢)
+1. Navigate to [OpenAI Platform API Keys](https://platform.openai.com/api-keys).
+2. Sign in or create an account.
+3. Click **"Create new secret key"** and copy the key (starts with `sk-...` or `sk-proj-...`).
 
-### Step 2: Create Your API Key
-
-1. Click the **"Create API Key"** (or **"Get API Key"**) button.
-2. Select an existing Google Cloud project or choose **"Create API key in new project"**.
-3. Copy the generated API key (it starts with `AIzaSy...`).
+### 3. Anthropic (Claude 🎭)
+1. Navigate to [Anthropic Console](https://console.anthropic.com/settings/keys).
+2. Sign in or create an account.
+3. Click **"Create Key"** and copy the key (starts with `sk-ant-...`).
 
 </details>
 
 ---
 
 <details>
-<summary><h2 style="display: inline;">⚙️ How to Configure the API Key</h2></summary>
+<summary><h2 style="display: inline;">⚙️ How to Configure Your AI API Key</h2></summary>
 
 You can configure your API key using either of the following two methods:
 
-### Option A: Enter in the App Settings Page (Easiest & Validated Live)
+### Option A: In the App Settings Page (Easiest & Validated Live)
 
 1. Launch the app (`npm run dev`) and open `http://localhost:3000`.
-2. Navigate to **Settings** (or click any skill card).
-3. Enter your child's Name, Age, and paste your Gemini API Key.
-4. Click **"Save Settings 🚀"**.
-5. The key is verified live with Google Gemini API and securely saved in your browser's local storage for all subsequent sessions.
+2. Navigate to **Settings** (or click any skill card on the Dashboard).
+3. Under **"Select AI Intelligence Provider"**, choose your provider: **Google Gemini**, **OpenAI**, or **Anthropic Claude**.
+4. Paste your API key into the secure vault input field.
+5. Select your desired AI model engine (e.g., `gemini-2.5-flash`, `gpt-4o-mini`, or `claude-3-5-haiku`).
+6. Click **"Save & Launch 🚀"**. The app performs an immediate live validation ping and encrypts the key in your browser's private vault.
 
-### Option B: Configure via `.env` File
+### Option B: Configure via `.env` File (Optional Developer Setup)
 
 1. In the root directory of the project, create a `.env` file:
    ```env
-   VITE_GEMINI_API_KEY=your_actual_gemini_api_key_here
+   VITE_GEMINI_API_KEY=your_gemini_api_key_here
+   VITE_OPENAI_API_KEY=your_openai_api_key_here
+   VITE_CLAUDE_API_KEY=your_claude_api_key_here
    ```
 2. Restart the Vite development server (`npm run dev`).
 

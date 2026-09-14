@@ -1,13 +1,5 @@
 # 🚀 AstroQuest: User Guide & Contributing Hub
 
-<table>
-  <tr>
-    <td align="center" bgcolor="#161b22"><a href="README.md"><b>📖 README</b></a><br/><sub><font color="#7d8590">Project Overview</font></sub></td>
-    <td align="center" bgcolor="#21262d"><b>🚀 User Guide & Contributing</b><br/><sub><font color="#f78166">━━━━━━ <b>Active Tab</b> ━━━━━━</font></sub></td>
-    <td align="center" bgcolor="#161b22"><a href="documentation/AstroQuest_Implementation_Documentation.md"><b>📘 Technical Architecture</b></a><br/><sub><font color="#7d8590">System Specs</font></sub></td>
-  </tr>
-</table>
-
 <p>
   <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Overview-1f6feb?style=for-the-badge" alt="README tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Active-f78166?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
