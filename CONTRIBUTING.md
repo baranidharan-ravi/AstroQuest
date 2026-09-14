@@ -21,6 +21,7 @@ Welcome to **AstroQuest**, an AI-powered cosmic learning adventure designed for 
 ## 📋 Table of Contents
 
 ### 🧑‍🚀 Part I: User Quick Start Guide
+
 1. [Quick Setup in 3 Easy Steps](#1-quick-setup-in-3-easy-steps)
 2. [Navigating the Cosmic Dashboard](#2-navigating-the-cosmic-dashboard)
 3. [Managing Multi-Child Flight Crew Profiles](#3-managing-multi-child-flight-crew-profiles)
@@ -37,6 +38,7 @@ Welcome to **AstroQuest**, an AI-powered cosmic learning adventure designed for 
 10. [Frequently Asked Questions (FAQ)](#10-frequently-asked-questions-faq)
 
 ### 🛠️ Part II: Contributing & Developer Guidelines
+
 11. [Reporting Bugs & Suggesting Features](#11-reporting-bugs--suggesting-features)
 12. [Submitting Pull Requests (PRs)](#12-submitting-pull-requests-prs)
 13. [Architecture & Coding Standards](#13-architecture--coding-standards)
