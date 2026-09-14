@@ -1,27 +1,14 @@
 # 🚀 AstroQuest - 100% Live AI-Powered Cosmic Learning for Early Explorers
 
+| 📖 **README** _(Current)_ | 🚀 [**User Quick Start Guide**](USER_START_GUIDE.md) | 📘 [**Technical Architecture**](documentation/AstroQuest_Implementation_Documentation.md) |
+| :-----------------------: | :--------------------------------------------------: | :---------------------------------------------------------------------------------------: |
+
 An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **100% real-time direct AI question generation via Google Gemini API (Mandatory API Key with Live Validation)**, configurable auto-advance question pacing, customizable per-question countdown timers, streamlined exit workflows, dynamic mathematical SVG shape generation, and strict age-calibrated difficulty with zero offline/cached questions.
 
 [![User Quick Start Guide](https://img.shields.io/badge/User%20Guide-Quick%20Start%20Guide-brightgreen?style=for-the-badge&logo=rocket)](USER_START_GUIDE.md)
 [![Implementation Documentation](https://img.shields.io/badge/Docs-Technical%20Architecture-blue?style=for-the-badge&logo=googledocs)](documentation/AstroQuest_Implementation_Documentation.md)
 
 > 📘 **New to AstroQuest?** Check out the comprehensive [**User Quick Start Guide (USER_START_GUIDE.md)**](USER_START_GUIDE.md) for a complete step-by-step walkthrough covering profile creation, Gemini API key setup, answering challenges, audio focus tools, and exploration modes!
-
----
-
-## 📸 Application Feature Gallery
-
-|              🪐 Cosmic Dashboard & Mission Selection              |                      🧩 Active Quest & Geometric Shapes                      |
-| :---------------------------------------------------------------: | :--------------------------------------------------------------------------: |
-| ![Cosmic Dashboard](documentation/screenshots/dashboard_main.png) | ![Active Quest Visual](documentation/screenshots/quest_interface_visual.png) |
-
-|                     🚀 Space Mission Telemetry Loader                     |                            🛡️ Anti-Screenshot Paused Challenge                            |
-| :-----------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: |
-| ![Cosmic Quest Loader](documentation/screenshots/cosmic_quest_loader.png) | ![Anti-Screenshot Challenge Paused](documentation/screenshots/anti_screenshot_paused.png) |
-
-|                  💡 Solution Reveal & Cause-and-Effect                  |               🏆 Session Results & Starlight Badges               |
-| :---------------------------------------------------------------------: | :---------------------------------------------------------------: |
-| ![Solution Reveal](documentation/screenshots/solution_auto_advance.png) | ![Result Overview](documentation/screenshots/result_overview.png) |
 
 ---
 
@@ -33,8 +20,6 @@ An engaging, visual-first React.js educational platform designed for early child
 - **Full-Page Configuration Experience**: Replaced popup modals with a dedicated full-screen configuration interface:
   1. **Child's Name** _(Required)_: Personalized explorer name.
   2. **Child's Age** _(Required & Strictly Clamped 2–14)_: Quick age selector pills (`3`–`8`) + custom stepper and direct numeric input strictly restricted between ages `2` and `14` (non-digits and invalid characters blocked, live clamping to 14, and onBlur bounds enforcement).
-
-  ![Child Age Selection & Configuration](documentation/screenshots/settings_age_selection.png)
   3. **Google Gemini API Key** _(Mandatory 🔑 with Live Validation & Vault Security)_:
      - **Encrypted Value Display in Field**: The field strictly renders the salted encrypted vault ciphertext (`enc:v1:vault:...`) rather than exposed plaintext credentials, completely preventing DOM inspection and scraping of the raw key.
      - **3-Second Auto-Masking Window**: When a new or existing key is pasted or entered, the text is temporarily revealed for 3 seconds so the user can verify their input, after which it automatically masks into a password field (`••••••••`). The eye icon toggle has been removed to permanently prevent snooping.
@@ -90,16 +75,12 @@ An engaging, visual-first React.js educational platform designed for early child
   - Allows students to skip challenging or unfamiliar questions directly from the question screen.
   - Skipped questions are marked with an amber indicator in the top progress bar and recorded in the Question Summary and Result Overview (`{correctCount} Correct • {skippedCount} Skipped`).
 
-![Active Analytical Thinking Quest Interface](documentation/screenshots/quest_interface_analytical.png)
-
 </details>
 
 ---
 
 <details>
 <summary><h3 style="display: inline;">2.1. 🛸 Immersive Space-Themed Cosmic Quest Loader (`CosmicQuestLoader.jsx`)</h3></summary>
-
-![Cosmic Quest Loader Space Mission](documentation/screenshots/cosmic_quest_loader.png)
 
 - **Dynamic Space Mission Theater**:
   - Replaced generic loading spinners with a custom, application-connected space theater that engages young explorers while the Gemini AI synthesizes questions.
@@ -208,8 +189,6 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
     - Pairs every cell with the exact shape (`Star`, `Moon`, `Sun`, etc.) and pattern (`Solid`, `Striped`, `Dotted`).
     - In Question mode: The unknown tile renders a purple dashed cell with `❓`.
     - In Solution mode: The target tile displays the correct answer tile highlighted in emerald green.
-
-  ![3x3 Matrix Grid Shape Progression](documentation/screenshots/quest_matrix_grid.png)
   - **Clean & Deduplicated Visual Cards (`DynamicShapeCard`)**:
     - Renders the exact geometric shape cleanly on a pedestal with a deduplicated style tag (e.g. `Gold Star`, `Gold Moon`, `Dotted Sun`).
     - Prevents duplicate emoji output by ensuring the visual representation and text label never redundantly print identical emojis.
@@ -236,21 +215,12 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
   - Includes a step-by-step physics breakdown (`Incident Ray` ➔ `Light Bends (Refraction)` ➔ `Rainbow Colors Split`) and solution confirmation.
 - **Rich Relational Analogy Boards (`analogy-map`)**:
   - Activated strictly for genuine 4-term analogies (`A : B :: C : D`), eliminating generic dummy placeholder fallbacks.
-
-  ![Relational Analogy Board](documentation/screenshots/quest_analogy.png)
-
 - **Cause & Effect Flow (`cause-effect`)**:
   - Process chains visualizing scientific actions, experiments, and resulting phenomena.
-
-  ![Cause and Effect Flow Solution](documentation/screenshots/solution_cause_effect.png)
-
 - **Growing Shape Count Progressions & Triangular Clusters (`shape-pattern-grid`)**:
   - Automatically parses multi-step shape count progressions (e.g. Step 1 has 1 square, Step 2 has 3 squares, Step 3 has 6 squares, Step 4 has 10 squares).
   - Renders true visual clusters of $N$ geometric shapes (e.g. 1 square, a triangular cluster of 3 squares, a triangular cluster of 6 squares, a triangular cluster of 10 squares) rather than a single shape.
   - Step 6 target card (`❓ Step 6: How many?`) reveals 21 shaded squares in Solution mode with step and count badges.
-
-  ![Geometric Shape Progression & Zoom](documentation/screenshots/geometric_progression_zoom.png)
-
 - **Sequence Ladders (`sequence-ladder`)**: Number lines and progression steps with interval rules.
 - **3D Isometric Block Pyramids & Cube Towers (`block-tower` / `isometric-tower`)**:
   - Automatically parses layer dimensions from question text (e.g. $3\times3$ base with 9 cubes, $2\times2$ middle with 4 cubes, $1\times1$ top with 1 cube = 14 unit cubes).
@@ -293,8 +263,6 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
     - The solution and visual diagram remain on screen indefinitely.
     - The student or parent clicks the `Next Question ➔` button when ready to proceed.
 
-![Solution Panel with Auto-Advance Countdown](documentation/screenshots/solution_auto_advance.png)
-
 </details>
 
 ---
@@ -311,8 +279,6 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
   - **Normal (> 15s)**: Dark translucent pill (`bg-black/30 text-white/90`).
   - **Warning (<= 15s)**: Pulsating amber alert (`bg-amber-950/80 text-amber-300`).
   - **Critical (<= 5s)**: Bouncing red urgent indicator (`bg-rose-950 text-rose-300`).
-
-![Action Bar with Disabled Skip when Paused](documentation/screenshots/disabled_skip_paused.png)
 
 </details>
 
@@ -378,8 +344,6 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
   - 🔴 **Wrong**: Total questions answered incorrectly.
   - 🟡 **Skipped**: Total questions skipped without answering.
 
-![Session Performance Result Overview](documentation/screenshots/result_overview.png)
-
 - **Detailed Question Summary Accordion**:
   - Detailed review comparing the child's selected answers against correct solutions.
   - **"Expand All" & "Collapse All" Actions**: Header controls (`ChevronsDownUp` & `ChevronsUpDown`) allow parents and educators to effortlessly expand all 10 questions simultaneously for a comprehensive evaluation, or collapse them with a single click.
@@ -388,8 +352,6 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
     - 🟡 **Skipped Question** (`SkipForward ⏭️` with amber card and `⏭️ Skipped (Not Answered)` label).
     - ⏱️ **Timed Out** (`⏱️ Timed Out (Not Answered)` label).
     - 🔴 **Incorrect Answer** (`XCircle` with red card).
-
-![Question Summary Review Accordion](documentation/screenshots/question_summary_accordion.png)
 
 - **📄 Download PDF Session Report (`exportSessionToPdf`)**:
   - Replaces raw JSON exports with a beautifully formatted, multi-page PDF document.
@@ -759,14 +721,10 @@ AstroQuest is engineered from the ground up to comply with **Web Content Accessi
 - **Pre-Submission Anti-Screenshot Blurring**:
   - Whenever the timer is paused before submitting (`!isSubmitted`), the question card and answer options are heavily blurred (`filter: blur(16px)`) with an interactive "Challenge Paused ⏸️" shield overlay, preventing students from taking screenshots to look up answers.
 
-![Challenge Paused Anti-Screenshot Blur](documentation/screenshots/anti_screenshot_paused.png)
-
 - **Disabled Skip Action During Timer Pause**:
   - While the timer is paused, the **Skip** button in the bottom action bar is completely disabled with muted styling (`cursor-not-allowed`, `opacity-50`) and accessible ARIA attributes (`aria-disabled="true"`) to prevent skipping questions while paused.
   - The skip handler is strictly guarded (`if (isSubmitted || isTimedOut || isTimerPaused) return;`).
   - As soon as the user resumes the challenge, the Skip button immediately becomes interactive again.
-
-![Disabled Skip in Paused State](documentation/screenshots/disabled_skip_paused.png)
 
 - **Post-Submission Unblurred Study Guarantee**:
   - When the timer is paused after submitting (`isSubmitted === true`), the question and answer choices remain 100% unblurred and readable so learners can freely study the step-by-step solution and pedagogical diagrams.
@@ -802,8 +760,6 @@ AstroQuest is engineered from the ground up to comply with **Web Content Accessi
   2. **✨ Constellation Observatory (`ConstellationObservatory.jsx`)**: Interactive celestial sky chart with 8 ancient constellations (Ursa Major, Orion, Cassiopeia, etc.), interactive star-connection geometry, and deep-space mythological lore.
   3. **🪐 Pocket Planetarium (`PocketPlanetariumModal.jsx`)**: Fully animated interactive canvas solar system with realistic relative orbital mechanics, planetary radii, gravity comparisons, and child-safe STEM telemetry.
   4. **👑 Epic Cosmic Boss Question #10 (`BossQuestionBanner.jsx`)**: The climactic 10th question transforms into a dramatic, high-stakes Boss Encounter with pulsing purple nebula aura, double-XP bounty, and celebratory victory stardust!
-
-![Interstellar Warp Experience](documentation/screenshots/interstellar_warp.png)
 
 </details>
 

@@ -1,5 +1,8 @@
 # 🚀 AstroQuest: User Quick Start Guide
 
+| 📖 [**README**](README.md) | 🚀 **User Quick Start Guide** _(Current)_ | 📘 [**Technical Architecture**](documentation/AstroQuest_Implementation_Documentation.md) |
+| :------------------------: | :---------------------------------------: | :---------------------------------------------------------------------------------------: |
+
 Welcome to **AstroQuest**, an AI-powered cosmic learning adventure designed for young explorers (Ages 2 to 14)! This guide will walk parents, educators, and children through everything needed to get started, master the features, and make the most of every mission.
 
 ---
