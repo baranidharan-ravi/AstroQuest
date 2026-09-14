@@ -23,7 +23,11 @@ import SkillSelectionDashboard from './features/dashboard/SkillSelectionDashboar
 import OptionsGrid from './features/quest/OptionsGrid';
 import QuestionCard from './features/quest/QuestionCard';
 import SolutionPanel from './features/quest/SolutionPanel';
-import { getStoredApiKey } from './services/aiGenerator';
+import {
+	AI_PROVIDER_INFO,
+	getActiveAiProvider,
+	getStoredApiKey,
+} from './services/aiGenerator';
 import { getFreshThinksheetSession } from './services/questionService';
 import {
 	getStoredAmbientEnabled,
@@ -1416,16 +1420,16 @@ export default function App() {
 
 						<h2 className='text-xl sm:text-2xl font-black text-white mb-2'>
 							{aiError === 'MISSING_KEY' ?
-								'Google Gemini API Key Required'
+								`${AI_PROVIDER_INFO[getActiveAiProvider()]?.name || 'AI'} API Key Required`
 							:	'AI Generation Connection Error'}
 						</h2>
 
 						<p className='text-sm text-slate-300 font-semibold mb-6 leading-relaxed'>
 							{aiError === 'MISSING_KEY' ?
-								'All AstroQuest challenges are generated live by Google Gemini AI. Please configure your API key to start generating customized questions.'
+								`All AstroQuest challenges are generated live by ${AI_PROVIDER_INFO[getActiveAiProvider()]?.name || 'AI'}. Please configure your API key to start generating customized questions.`
 							: typeof aiError === 'string' && aiError !== 'API_ERROR' ?
 								aiError
-							:	'Unable to connect to the Gemini AI API. Please check your internet connection or verify your API key in Settings.'
+							:	`Unable to connect to the ${AI_PROVIDER_INFO[getActiveAiProvider()]?.name || 'AI'} API. Please check your internet connection or verify your API key in Settings.`
 							}
 						</p>
 

@@ -15,11 +15,88 @@ import { getSkillDefinition } from '../utils/skillManager';
 import { isDiagramAppropriateForQuestion } from '../utils/VisualDiagrams';
 import apiClient from './apiClient';
 
+export const AI_PROVIDERS = {
+	GEMINI: 'gemini',
+	OPENAI: 'openai',
+	CLAUDE: 'claude',
+};
+
+export const AI_PROVIDER_INFO = {
+	[AI_PROVIDERS.GEMINI]: {
+		id: 'gemini',
+		name: 'Google Gemini',
+		company: 'Google',
+		icon: '🌟',
+		badge: 'Free Tier Available',
+		badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
+		keyStorageKey: 'thinksheet_gemini_api_key',
+		modelStorageKey: 'thinksheet_selected_gemini_model_v1',
+		defaultModel: 'gemini-2.5-flash',
+		keyPrefixHint: 'AIza...',
+		keyPortalUrl: 'https://aistudio.google.com/app/apikey',
+		keyPortalName: 'Google AI Studio',
+		freeNotice:
+			'100% free tier available from Google AI Studio. Zero credit card required.',
+	},
+	[AI_PROVIDERS.OPENAI]: {
+		id: 'openai',
+		name: 'OpenAI (ChatGPT)',
+		company: 'OpenAI',
+		icon: '⚡',
+		badge: 'GPT-4o & Mini',
+		badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40',
+		keyStorageKey: 'thinksheet_openai_api_key',
+		modelStorageKey: 'thinksheet_selected_openai_model_v1',
+		defaultModel: 'gpt-4o-mini',
+		keyPrefixHint: 'sk-proj-... / sk-...',
+		keyPortalUrl: 'https://platform.openai.com/api-keys',
+		keyPortalName: 'OpenAI Platform',
+		freeNotice:
+			'Uses personal OpenAI API Key. Fast generation with GPT-4o Mini.',
+	},
+	[AI_PROVIDERS.CLAUDE]: {
+		id: 'claude',
+		name: 'Anthropic Claude',
+		company: 'Anthropic',
+		icon: '🧠',
+		badge: 'Claude 3.5 Sonnet & Haiku',
+		badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-400/40',
+		keyStorageKey: 'thinksheet_claude_api_key',
+		modelStorageKey: 'thinksheet_selected_claude_model_v1',
+		defaultModel: 'claude-3-5-haiku-20241022',
+		keyPrefixHint: 'sk-ant-api03-...',
+		keyPortalUrl: 'https://console.anthropic.com/settings/keys',
+		keyPortalName: 'Anthropic Console',
+		freeNotice:
+			'Uses personal Anthropic API Key with direct client-side browser access.',
+	},
+};
+
+const ACTIVE_PROVIDER_STORAGE = 'thinksheet_active_ai_provider_v1';
 const AI_KEY_STORAGE = 'thinksheet_gemini_api_key';
 const SELECTED_MODEL_KEY = 'thinksheet_selected_gemini_model_v1';
 const SEEN_QUESTIONS_KEY = 'thinksheet_seen_question_signatures_v9';
 
 export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
+export const DEFAULT_OPENAI_MODEL = 'gpt-4o-mini';
+export const DEFAULT_CLAUDE_MODEL = 'claude-3-5-haiku-20241022';
+
+export function getActiveAiProvider() {
+	try {
+		const raw = localStorage.getItem(ACTIVE_PROVIDER_STORAGE);
+		if (raw && Object.values(AI_PROVIDERS).includes(raw)) {
+			return raw;
+		}
+	} catch (_) {}
+	return AI_PROVIDERS.GEMINI;
+}
+
+export function setActiveAiProvider(provider) {
+	if (!provider || !Object.values(AI_PROVIDERS).includes(provider)) return;
+	try {
+		localStorage.setItem(ACTIVE_PROVIDER_STORAGE, provider);
+	} catch (_) {}
+}
 
 // Cached proxy availability flag
 let isProxyAvailable = null;
@@ -83,6 +160,75 @@ export const AVAILABLE_GEMINI_MODELS = [
 	},
 ];
 
+export const AVAILABLE_OPENAI_MODELS = [
+	{
+		id: 'gpt-4o-mini',
+		name: 'GPT-4o Mini',
+		badge: 'Recommended',
+		badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
+		tag: '⚡ Ultra-Fast & Cost-Effective',
+		description:
+			'Fastest generation, lowest latency, and excellent child-friendly question formatting.',
+	},
+	{
+		id: 'gpt-4o',
+		name: 'GPT-4o',
+		badge: 'Frontier',
+		badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40',
+		tag: '🧠 Premier Multimodal Intelligence',
+		description:
+			'High intelligence and advanced reasoning for complex analytical and STEM logic.',
+	},
+	{
+		id: 'o3-mini',
+		name: 'o3-mini',
+		badge: 'Reasoning',
+		badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-400/40',
+		tag: '🔬 Advanced Math & Logic',
+		description:
+			'Next-gen reasoning model tailored for deep STEM problem-solving and puzzles.',
+	},
+	{
+		id: 'o1-mini',
+		name: 'o1-mini',
+		badge: 'Logic',
+		badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-400/40',
+		tag: '🧩 Deep Deductive Reasoning',
+		description:
+			'Thorough step-by-step thinking for multi-step logic riddles and analogies.',
+	},
+];
+
+export const AVAILABLE_CLAUDE_MODELS = [
+	{
+		id: 'claude-3-5-haiku-20241022',
+		name: 'Claude 3.5 Haiku',
+		badge: 'Recommended',
+		badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
+		tag: '⚡ Lightning-Fast & Snappy',
+		description:
+			'Anthropic’s fastest model with superb comprehension, ideal for rapid interactive quizzes.',
+	},
+	{
+		id: 'claude-3-5-sonnet-20241022',
+		name: 'Claude 3.5 Sonnet',
+		badge: 'Frontier',
+		badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-400/40',
+		tag: '🏆 Industry-Leading Reasoning',
+		description:
+			'Unmatched pedagogical clarity, thoughtful explanations, and rich creative puzzles.',
+	},
+	{
+		id: 'claude-3-opus-20240229',
+		name: 'Claude 3 Opus',
+		badge: 'Deep Thought',
+		badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-400/40',
+		tag: '📚 Comprehensive Synthesis',
+		description:
+			'Deep analytical power for nuanced curriculum design and complex logic trees.',
+	},
+];
+
 export function encryptApiKey(key) {
 	if (!key || typeof key !== 'string') return '';
 	const trimmed = key.replace(/^["']|["']$/g, '').trim();
@@ -99,19 +245,38 @@ export function decryptApiKey(cipherOrPlain) {
 	return decryptPayload(trimmed);
 }
 
-export function getStoredEncryptedApiKey() {
+export function getStoredEncryptedApiKey(provider = null) {
+	const targetProvider = provider || getActiveAiProvider();
+	const storageKey =
+		AI_PROVIDER_INFO[targetProvider]?.keyStorageKey || AI_KEY_STORAGE;
 	try {
-		const raw = localStorage.getItem(AI_KEY_STORAGE);
+		const raw = localStorage.getItem(storageKey);
 		if (raw && typeof raw === 'string') {
 			const trimmed = raw.trim();
 			if (trimmed.startsWith('enc:v1:')) return trimmed;
 			if (trimmed) return encryptPayload(trimmed);
 		}
-		const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-		if (envKey) {
-			const cleaned = envKey.replace(/^["']|["']$/g, '').trim();
-			if (cleaned.startsWith('enc:v1:')) return cleaned;
-			if (cleaned) return encryptPayload(cleaned);
+		if (targetProvider === AI_PROVIDERS.GEMINI) {
+			const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+			if (envKey) {
+				const cleaned = envKey.replace(/^["']|["']$/g, '').trim();
+				if (cleaned.startsWith('enc:v1:')) return cleaned;
+				if (cleaned) return encryptPayload(cleaned);
+			}
+		} else if (targetProvider === AI_PROVIDERS.OPENAI) {
+			const envKey = import.meta.env.VITE_OPENAI_API_KEY || '';
+			if (envKey) {
+				const cleaned = envKey.replace(/^["']|["']$/g, '').trim();
+				if (cleaned.startsWith('enc:v1:')) return cleaned;
+				if (cleaned) return encryptPayload(cleaned);
+			}
+		} else if (targetProvider === AI_PROVIDERS.CLAUDE) {
+			const envKey = import.meta.env.VITE_CLAUDE_API_KEY || '';
+			if (envKey) {
+				const cleaned = envKey.replace(/^["']|["']$/g, '').trim();
+				if (cleaned.startsWith('enc:v1:')) return cleaned;
+				if (cleaned) return encryptPayload(cleaned);
+			}
 		}
 		return '';
 	} catch (_) {
@@ -119,10 +284,20 @@ export function getStoredEncryptedApiKey() {
 	}
 }
 
-export function getStoredApiKey() {
-	let key = getSecureStorageItem(AI_KEY_STORAGE);
+export function getStoredApiKey(provider = null) {
+	const targetProvider = provider || getActiveAiProvider();
+	const storageKey =
+		AI_PROVIDER_INFO[targetProvider]?.keyStorageKey || AI_KEY_STORAGE;
+	let key = getSecureStorageItem(storageKey);
+
 	if (!key || key.startsWith('enc:v1:')) {
-		key = import.meta.env.VITE_GEMINI_API_KEY || '';
+		if (targetProvider === AI_PROVIDERS.GEMINI) {
+			key = import.meta.env.VITE_GEMINI_API_KEY || '';
+		} else if (targetProvider === AI_PROVIDERS.OPENAI) {
+			key = import.meta.env.VITE_OPENAI_API_KEY || '';
+		} else if (targetProvider === AI_PROVIDERS.CLAUDE) {
+			key = import.meta.env.VITE_CLAUDE_API_KEY || '';
+		}
 	}
 
 	if (typeof key === 'string') {
@@ -130,21 +305,24 @@ export function getStoredApiKey() {
 	}
 
 	// Defensive check: NEVER return encrypted ciphertext as a usable API key!
-	if (key.startsWith('enc:v1:')) {
+	if (key && key.startsWith('enc:v1:')) {
 		return decryptApiKey(key);
 	}
 
-	return key;
+	return key || '';
 }
 
-export function setStoredApiKey(key) {
+export function setStoredApiKey(key, provider = null) {
+	const targetProvider = provider || getActiveAiProvider();
+	const storageKey =
+		AI_PROVIDER_INFO[targetProvider]?.keyStorageKey || AI_KEY_STORAGE;
 	if (key) {
 		const cleaned = decryptApiKey(key)
 			.replace(/^["']|["']$/g, '')
 			.trim();
-		setSecureStorageItem(AI_KEY_STORAGE, cleaned);
+		setSecureStorageItem(storageKey, cleaned);
 	} else {
-		localStorage.removeItem(AI_KEY_STORAGE);
+		localStorage.removeItem(storageKey);
 	}
 }
 
@@ -436,11 +614,31 @@ export async function fetchOnlineGeminiModels(apiKey) {
 	return filtered;
 }
 
-export function getStoredSelectedModel() {
+export function getStoredSelectedModel(provider = null) {
+	const targetProvider = provider || getActiveAiProvider();
+	const storageKey =
+		AI_PROVIDER_INFO[targetProvider]?.modelStorageKey || SELECTED_MODEL_KEY;
+	const defaultModel =
+		AI_PROVIDER_INFO[targetProvider]?.defaultModel || DEFAULT_GEMINI_MODEL;
+
 	try {
-		const saved = localStorage.getItem(SELECTED_MODEL_KEY);
+		const saved = localStorage.getItem(storageKey);
+		if (targetProvider === AI_PROVIDERS.OPENAI) {
+			if (saved && AVAILABLE_OPENAI_MODELS.some((m) => m.id === saved)) {
+				return saved;
+			}
+			return DEFAULT_OPENAI_MODEL;
+		}
+
+		if (targetProvider === AI_PROVIDERS.CLAUDE) {
+			if (saved && AVAILABLE_CLAUDE_MODELS.some((m) => m.id === saved)) {
+				return saved;
+			}
+			return DEFAULT_CLAUDE_MODEL;
+		}
+
+		// Gemini
 		const available = getAvailableGeminiModels();
-		// If saved model exists and is NOT currently rate-limited, use it
 		if (
 			saved &&
 			saved !== 'gemini-3.8-flash' &&
@@ -449,23 +647,36 @@ export function getStoredSelectedModel() {
 		) {
 			return saved;
 		}
-		// If no model is saved or saved model is rate-limited, default to the latest healthy model
 		const latest = getLatestGeminiModel(available);
 		if (latest && latest.id) {
 			return latest.id;
 		}
 	} catch {}
-	return DEFAULT_GEMINI_MODEL;
+	return defaultModel;
 }
 
-export function setStoredSelectedModel(modelId) {
+export function setStoredSelectedModel(modelId, provider = null) {
+	const targetProvider = provider || getActiveAiProvider();
+	const storageKey =
+		AI_PROVIDER_INFO[targetProvider]?.modelStorageKey || SELECTED_MODEL_KEY;
 	try {
 		if (modelId) {
-			localStorage.setItem(SELECTED_MODEL_KEY, modelId);
+			localStorage.setItem(storageKey, String(modelId).trim());
 		}
 	} catch (err) {
-		console.warn('Could not save selected Gemini model', err);
+		console.warn(`Could not save selected model for ${targetProvider}`, err);
 	}
+}
+
+export function getAvailableModels(provider = null) {
+	const targetProvider = provider || getActiveAiProvider();
+	if (targetProvider === AI_PROVIDERS.OPENAI) {
+		return AVAILABLE_OPENAI_MODELS;
+	}
+	if (targetProvider === AI_PROVIDERS.CLAUDE) {
+		return AVAILABLE_CLAUDE_MODELS;
+	}
+	return getAvailableGeminiModels();
 }
 
 function getSeenSignatures() {
@@ -689,6 +900,282 @@ export async function validateGeminiApiKey(apiKey, preferredModel = null) {
 }
 
 /**
+ * Validates an OpenAI API key via GET /v1/models (zero token cost)
+ * Returns { valid: true, cleanedKey } or { valid: false, message }
+ */
+export async function validateOpenAiApiKey(apiKey, preferredModel = null) {
+	if (!apiKey || typeof apiKey !== 'string' || !apiKey.trim()) {
+		return {
+			valid: false,
+			message: 'Please enter your OpenAI API Key! 🔑',
+		};
+	}
+
+	const cleanedKey = apiKey.replace(/^["']|["']$/g, '').trim();
+	const decryptedKey = decryptApiKey(cleanedKey);
+
+	if (decryptedKey.length < 20) {
+		return {
+			valid: false,
+			message: 'Invalid OpenAI API Key format. Keys usually start with "sk-".',
+		};
+	}
+
+	try {
+		const res = await apiClient.get('https://api.openai.com/v1/models', {
+			headers: {
+				Authorization: `Bearer ${decryptedKey}`,
+			},
+			skipRetry: true,
+		});
+
+		if (res.status === 200) {
+			return { valid: true, cleanedKey: decryptedKey };
+		}
+		return { valid: false, message: 'OpenAI API key validation failed.' };
+	} catch (err) {
+		const status = err.response?.status;
+		const errMsg = err.response?.data?.error?.message;
+		if (status === 401) {
+			return {
+				valid: false,
+				message:
+					'Invalid OpenAI API Key. Please verify your key at platform.openai.com.',
+			};
+		}
+		return {
+			valid: false,
+			message:
+				errMsg ||
+				'Unable to connect to OpenAI API. Please check your internet connection and API key.',
+		};
+	}
+}
+
+/**
+ * Validates an Anthropic Claude API key via a minimal 1-token message ping
+ * Returns { valid: true, cleanedKey } or { valid: false, message }
+ */
+export async function validateClaudeApiKey(apiKey, preferredModel = null) {
+	if (!apiKey || typeof apiKey !== 'string' || !apiKey.trim()) {
+		return {
+			valid: false,
+			message: 'Please enter your Anthropic Claude API Key! 🔑',
+		};
+	}
+
+	const cleanedKey = apiKey.replace(/^["']|["']$/g, '').trim();
+	const decryptedKey = decryptApiKey(cleanedKey);
+
+	if (decryptedKey.length < 20) {
+		return {
+			valid: false,
+			message:
+				'Invalid Anthropic Claude API Key format. Keys start with "sk-ant-".',
+		};
+	}
+
+	try {
+		const model = preferredModel || DEFAULT_CLAUDE_MODEL;
+		const res = await apiClient.post(
+			'https://api.anthropic.com/v1/messages',
+			{
+				model,
+				max_tokens: 1,
+				messages: [{ role: 'user', content: 'Hi' }],
+			},
+			{
+				headers: {
+					'x-api-key': decryptedKey,
+					'anthropic-version': '2023-06-01',
+					'anthropic-dangerous-direct-browser-access': 'true',
+					'Content-Type': 'application/json',
+				},
+				skipRetry: true,
+			},
+		);
+
+		if (res.status === 200) {
+			return { valid: true, cleanedKey: decryptedKey };
+		}
+		return {
+			valid: false,
+			message: 'Anthropic Claude API key validation failed.',
+		};
+	} catch (err) {
+		const status = err.response?.status;
+		const errMsg = err.response?.data?.error?.message;
+		if (status === 401) {
+			return {
+				valid: false,
+				message:
+					'Invalid Anthropic Claude API Key. Please verify your key at console.anthropic.com.',
+			};
+		}
+		return {
+			valid: false,
+			message:
+				errMsg ||
+				'Unable to connect to Anthropic Claude API. Please check your internet connection and API key.',
+		};
+	}
+}
+
+/**
+ * Universal validator that routes validation to the requested or active provider
+ */
+export async function validateApiKey(
+	apiKey,
+	provider = null,
+	preferredModel = null,
+) {
+	const targetProvider = provider || getActiveAiProvider();
+	if (targetProvider === AI_PROVIDERS.OPENAI) {
+		return validateOpenAiApiKey(apiKey, preferredModel);
+	}
+	if (targetProvider === AI_PROVIDERS.CLAUDE) {
+		return validateClaudeApiKey(apiKey, preferredModel);
+	}
+	return validateGeminiApiKey(apiKey, preferredModel);
+}
+
+/**
+ * Calls OpenAI Chat Completions API with JSON mode
+ */
+export async function callOpenAiApi(prompt, apiKey, preferredModel = null) {
+	const realApiKey = decryptApiKey(
+		apiKey || getStoredApiKey(AI_PROVIDERS.OPENAI),
+	);
+	if (!realApiKey) {
+		throw new Error('MISSING_API_KEY');
+	}
+
+	const model =
+		preferredModel ||
+		getStoredSelectedModel(AI_PROVIDERS.OPENAI) ||
+		DEFAULT_OPENAI_MODEL;
+
+	const requestBody = {
+		model,
+		messages: [
+			{
+				role: 'system',
+				content:
+					'You are an expert educator and puzzle creator for children. Output ONLY valid, parseable JSON conforming strictly to the requested schema. Never output markdown commentary, explanations, or code fences outside the JSON.',
+			},
+			{
+				role: 'user',
+				content: prompt,
+			},
+		],
+		temperature: 0.75,
+		response_format: { type: 'json_object' },
+	};
+
+	try {
+		const res = await apiClient.post(
+			'https://api.openai.com/v1/chat/completions',
+			requestBody,
+			{
+				headers: {
+					Authorization: `Bearer ${realApiKey}`,
+					'Content-Type': 'application/json',
+				},
+				skipRetry429: true,
+			},
+		);
+
+		const content = res.data?.choices?.[0]?.message?.content || '';
+		return content;
+	} catch (err) {
+		const status = err.response?.status;
+		const errMsg = err.response?.data?.error?.message || err.message || '';
+		if (status === 401) {
+			throw new Error(
+				'Invalid OpenAI API Key. Please verify your key at platform.openai.com.',
+			);
+		}
+		if (status === 429) {
+			throw new Error(
+				'OpenAI rate limit reached or insufficient quota. Check usage at platform.openai.com.',
+			);
+		}
+		throw new Error(errMsg || 'Failed to generate questions via OpenAI API.');
+	}
+}
+
+/**
+ * Calls Anthropic Claude Messages API with assistant prefill for guaranteed JSON array
+ */
+export async function callClaudeApi(prompt, apiKey, preferredModel = null) {
+	const realApiKey = decryptApiKey(
+		apiKey || getStoredApiKey(AI_PROVIDERS.CLAUDE),
+	);
+	if (!realApiKey) {
+		throw new Error('MISSING_API_KEY');
+	}
+
+	const model =
+		preferredModel ||
+		getStoredSelectedModel(AI_PROVIDERS.CLAUDE) ||
+		DEFAULT_CLAUDE_MODEL;
+
+	const requestBody = {
+		model,
+		max_tokens: 4096,
+		temperature: 0.75,
+		system:
+			'You are an expert educator and puzzle creator for children. You output strictly raw JSON matching the requested structure. Never include markdown code fences or conversational text.',
+		messages: [
+			{
+				role: 'user',
+				content: prompt,
+			},
+			{
+				role: 'assistant',
+				content: '[', // Assistant prefill forces Claude to directly continue the JSON array!
+			},
+		],
+	};
+
+	try {
+		const res = await apiClient.post(
+			'https://api.anthropic.com/v1/messages',
+			requestBody,
+			{
+				headers: {
+					'x-api-key': realApiKey,
+					'anthropic-version': '2023-06-01',
+					'anthropic-dangerous-direct-browser-access': 'true',
+					'Content-Type': 'application/json',
+				},
+				skipRetry429: true,
+			},
+		);
+
+		const rawText = res.data?.content?.[0]?.text || '';
+		const fullJson = '[' + rawText.trim();
+		return fullJson;
+	} catch (err) {
+		const status = err.response?.status;
+		const errMsg = err.response?.data?.error?.message || err.message || '';
+		if (status === 401) {
+			throw new Error(
+				'Invalid Anthropic Claude API Key. Please verify your key at console.anthropic.com.',
+			);
+		}
+		if (status === 429) {
+			throw new Error(
+				'Anthropic Claude rate limit reached. Please check your credit balance at console.anthropic.com.',
+			);
+		}
+		throw new Error(
+			errMsg || 'Failed to generate questions via Anthropic Claude API.',
+		);
+	}
+}
+
+/**
  * Asks Gemini AI to suggest and formulate a complete, kid-friendly skillset
  * (Name, Subtitle Tagline, Pedagogical Description, Icon Emoji, and Color Theme)
  * based on user-provided rough keywords or partial input.
@@ -713,7 +1200,8 @@ export async function suggestSkillsetDetails({
 	const userContextParts = [];
 	if (cleanName) userContextParts.push(`- Topic / Title hint: "${cleanName}"`);
 	if (cleanTagline) userContextParts.push(`- Subtitle hint: "${cleanTagline}"`);
-	if (cleanDesc) userContextParts.push(`- Concept / Description hint: "${cleanDesc}"`);
+	if (cleanDesc)
+		userContextParts.push(`- Concept / Description hint: "${cleanDesc}"`);
 
 	const userContextStr =
 		userContextParts.length > 0 ?
@@ -744,22 +1232,36 @@ Return ONLY a single valid raw JSON object without markdown formatting, code blo
   "color": "..."
 }`;
 
-	const payload = {
-		contents: [{ parts: [{ text: promptText }] }],
-		generationConfig: {
-			temperature: 0.7,
-			topP: 0.95,
-			maxOutputTokens: 500,
-		},
-	};
+	const activeProvider = getActiveAiProvider();
+	let candidateText = '';
 
-	const rawResponse = await callGeminiApi(payload, realApiKey, preferredModel);
+	if (activeProvider === AI_PROVIDERS.OPENAI) {
+		candidateText = await callOpenAiApi(promptText, realApiKey, preferredModel);
+	} else if (activeProvider === AI_PROVIDERS.CLAUDE) {
+		candidateText = await callClaudeApi(promptText, realApiKey, preferredModel);
+	} else {
+		const payload = {
+			contents: [{ parts: [{ text: promptText }] }],
+			generationConfig: {
+				temperature: 0.7,
+				topP: 0.95,
+				maxOutputTokens: 500,
+			},
+		};
 
-	// Extract candidate text
-	const candidateText =
-		rawResponse?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+		const rawResponse = await callGeminiApi(
+			payload,
+			realApiKey,
+			preferredModel,
+		);
+		candidateText =
+			rawResponse?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+	}
+
 	if (!candidateText) {
-		throw new Error('No response received from Gemini AI.');
+		throw new Error(
+			`No response received from ${activeProvider.toUpperCase()} AI.`,
+		);
 	}
 
 	// Clean code blocks or wrapping text
@@ -1524,24 +2026,40 @@ Output a valid JSON Array of ${count} items. Format:
 ]
 Return ONLY the valid JSON array without any markdown preamble.`;
 
-	const bodyPayload = {
-		contents: [{ parts: [{ text: prompt }] }],
-		generationConfig: {
-			responseMimeType: 'application/json',
-			temperature: 0.75,
-			maxOutputTokens: 8192,
-		},
-	};
+	const activeProvider = getActiveAiProvider();
+	let rawText = '';
+	let parsed = null;
 
-	const data = await callGeminiApi(bodyPayload, apiKey, preferredModel);
-	const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-	const parsed = parseGeminiJsonResponse(rawText);
+	if (activeProvider === AI_PROVIDERS.OPENAI) {
+		rawText = await callOpenAiApi(prompt, apiKey, preferredModel);
+		parsed = parseGeminiJsonResponse(rawText);
+	} else if (activeProvider === AI_PROVIDERS.CLAUDE) {
+		rawText = await callClaudeApi(prompt, apiKey, preferredModel);
+		parsed = parseGeminiJsonResponse(rawText);
+	} else {
+		// Default: Google Gemini
+		const bodyPayload = {
+			contents: [{ parts: [{ text: prompt }] }],
+			generationConfig: {
+				responseMimeType: 'application/json',
+				temperature: 0.75,
+				maxOutputTokens: 8192,
+			},
+		};
+
+		const data = await callGeminiApi(bodyPayload, apiKey, preferredModel);
+		rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+		parsed = parseGeminiJsonResponse(rawText);
+	}
 
 	if (Array.isArray(parsed) && parsed.length > 0) {
 		return parsed;
 	}
 
-	console.warn('[Gemini API] Failed to parse JSON response batch:', rawText);
+	console.warn(
+		`[${activeProvider.toUpperCase()} API] Failed to parse JSON response batch:`,
+		rawText,
+	);
 	return [];
 }
 

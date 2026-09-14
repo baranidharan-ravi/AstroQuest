@@ -14,9 +14,9 @@
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
 </p>
 
-An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **100% real-time direct AI question generation via Google Gemini API (Mandatory API Key with Live Validation)**, configurable auto-advance question pacing, customizable per-question countdown timers, streamlined exit workflows, dynamic mathematical SVG shape generation, and strict age-calibrated difficulty with zero offline/cached questions.
+An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **100% real-time direct AI question generation via Multi-Provider AI (Google Gemini, OpenAI ChatGPT, and Anthropic Claude with Live Key Validation)**, configurable auto-advance question pacing, customizable per-question countdown timers, streamlined exit workflows, dynamic mathematical SVG shape generation, and strict age-calibrated difficulty with zero offline/cached questions.
 
-> 📘 **New to AstroQuest?** Check out the comprehensive [**User Guide & Contributing Hub (CONTRIBUTING.md)**](CONTRIBUTING.md) for a complete step-by-step walkthrough covering profile creation, Gemini API key setup, answering challenges, audio focus tools, and exploration modes!
+> 📘 **New to AstroQuest?** Check out the comprehensive [**User Guide & Contributing Hub (CONTRIBUTING.md)**](CONTRIBUTING.md) for a complete step-by-step walkthrough covering profile creation, Multi-Provider AI key setup (Gemini, OpenAI, Claude), answering challenges, audio focus tools, and exploration modes!
 
 ---
 
@@ -28,30 +28,32 @@ An engaging, visual-first React.js educational platform designed for early child
 - **Full-Page Configuration Experience**: Replaced popup modals with a dedicated full-screen configuration interface:
   1. **Child's Name** _(Required)_: Personalized explorer name.
   2. **Child's Age** _(Required & Strictly Clamped 2–14)_: Quick age selector pills (`3`–`8`) + custom stepper and direct numeric input strictly restricted between ages `2` and `14` (non-digits and invalid characters blocked, live clamping to 14, and onBlur bounds enforcement).
-  3. **Google Gemini API Key** _(Mandatory 🔑 with Live Validation & Vault Security)_:
+  3. **Multi-Provider AI Intelligence Selector (Google Gemini, OpenAI ChatGPT, Anthropic Claude 🤖)**:
+     - **Select Your Preferred AI**: Choose between Google Gemini (Free Tier Available), OpenAI ChatGPT (High Intelligence), or Anthropic Claude (Fast & Precise).
+     - **Individual Encrypted API Key Storage**: Seamlessly enter and securely store API keys for each provider independently. Switching providers dynamically updates model catalogs, portal links, and placeholders without wiping credentials.
+  4. **Active Provider API Key** _(Mandatory 🔑 with Live Validation & Vault Security)_:
      - **Encrypted Value Display in Field**: The field strictly renders the salted encrypted vault ciphertext (`enc:v1:vault:...`) rather than exposed plaintext credentials, completely preventing DOM inspection and scraping of the raw key.
      - **3-Second Auto-Masking Window**: When a new or existing key is pasted or entered, the text is temporarily revealed for 3 seconds so the user can verify their input, after which it automatically masks into a password field (`••••••••`). The eye icon toggle has been removed to permanently prevent snooping.
      - **Copy & Cut Prevention with Tooltip Notification**: Copying or cutting from the API key input is strictly disallowed (`Ctrl+C`, `Cmd+C`, `Ctrl+X`, `Cmd+X`, and context menus are intercepted). When attempted, an alert notification badge displays: _"Copy functionality is not allowed for this field"_.
-     - **On-the-Fly Transparent Decryption**: While the input field and local storage remain securely encrypted, the app transparently decrypts the key on-demand when dispatching network calls (live validation, dynamic model fetching, and real-time quiz synthesis). Direct link to get a free key from Google AI Studio is provided.
-  4. **Gemini AI Model Engine (Auto-Downloaded on Load & Persistently Cached 🤖)**:
-     - **Automatic Download on Initial Load**: When opening Settings, if models are not yet cached, AstroQuest automatically queries Google's live `models.list` API and downloads all compatible Gemini models in the background.
-     - **Persistent Local Caching**: The downloaded model list and timestamps are cached locally in browser storage (`thinksheet_dynamic_gemini_models_v1`). Subsequent visits to the Settings page load the models instantly from cache with **zero redundant network calls**.
-     - **Automatic Latest Model Default Selection**: Models are dynamically parsed and ranked by version and performance score. The newest model is automatically identified, marked with a `Latest Default` badge, and pre-selected as the default model.
-     - **Manual Refresh On Demand (`Fetch Latest Models 🔄`)**: Allows checking for and pulling newly announced Google Gemini frontier models at any time with one click.
-  5. **Per-Question Time Limit & Unlimited Stopwatch Mode** _(Optional ⏱️)_:
+     - **On-the-Fly Transparent Decryption**: While the input field and local storage remain securely encrypted, the app transparently decrypts the key on-demand when dispatching network calls (live validation, dynamic model fetching, and real-time quiz synthesis). Direct links to obtain keys (Google AI Studio, OpenAI Platform, Anthropic Console) are provided.
+  5. **Curated & Live AI Model Engine Selection**:
+     - **Google Gemini**: Auto-downloads and caches frontier models (`gemini-2.5-flash`, `gemini-2.5-pro`, etc.) with one-click manual refresh (`Fetch Latest 🔄`).
+     - **OpenAI (ChatGPT)**: Curated high-performance models including `gpt-4o-mini`, `gpt-4o`, `o3-mini`, and `o1-mini`.
+     - **Anthropic (Claude)**: Curated frontier models including `claude-3-5-haiku-20241022`, `claude-3-5-sonnet-20241022`, and `claude-3-opus-20240229`.
+  6. **Per-Question Time Limit & Unlimited Stopwatch Mode** _(Optional ⏱️)_:
      - **Countdown Mode**: Toggle ON to select preset per-question countdowns (`45s`, `60s`, `90s`, `2m`, `3m`) or a custom duration (`15s`–`300s`).
      - **Unlimited Stopwatch Mode**: When disabled, elapsed session time is counted upward in a pausable stopwatch widget. Clicking either the Header timer badge or bottom bar timer toggles pause, and the timer **automatically resumes immediately whenever the student interacts with the question** (touches question card, selects an option, requests hints, or presses keyboard shortcuts).
-  6. **Next Question Auto-Advance Delay** _(Optional ⏩)_: Toggle Auto-Advance ON/OFF, select preset delay (`3s`, `5s`, `7s Default`, `10s`, `15s`), or set a custom delay (`2s`–`30s`).
-  7. **Visual Diagrams & Clues Display** _(Optional 👁️ - Disabled by Default)_: Toggle ON/OFF (`🙈 Hidden Default` / `👁️ Shown`) to choose whether interactive geometric diagrams, 3x3 matrices, sequence patterns, and STEM illustrations appear alongside questions **and** inside answer option cards. When disabled, option cards cleanly hide all shape containers and render full-width text choices.
-  8. **Dynamic Visual Synthesis Notice**: Displays an informative amber alert in Settings explaining that visual diagrams and option shapes are dynamically generated via cognitive models and AI prompts, so minor visual variations may occasionally occur.
-  9. **Narrator Voice Selector** _(Customizable 🎙️)_: Choose from all text-to-speech voices supported by your web browser and operating system, with an **"Auto (Recommended)"** default option and instant one-click audition audio playback before saving.
-  10. **Clean, Unobstructed Question Focus (Pet Assistant Removed)**: Streamlined learning experience ensuring young explorers maintain 100% focused attention on question prompts, cognitive patterns, and answer choices with zero floating visual distractions.
-  11. **Cross-Device Backup & Portability Engine (`Export JSON 📤` / `Import JSON 📥`)**:
-      - **Complete Configuration Bundling**: Export your entire setup into a portable JSON backup file (`astroquest_complete_backup_YYYY-MM-DD.json`), including child's name, age, salted encrypted Gemini API key, selected Gemini model, question timer settings, auto-advance delay, visual diagrams toggle, voice selection, and all custom skillsets.
+  7. **Next Question Auto-Advance Delay** _(Optional ⏩)_: Toggle Auto-Advance ON/OFF, select preset delay (`3s`, `5s`, `7s Default`, `10s`, `15s`), or set a custom delay (`2s`–`30s`).
+  8. **Visual Diagrams & Clues Display** _(Optional 👁️ - Disabled by Default)_: Toggle ON/OFF (`🙈 Hidden Default` / `👁️ Shown`) to choose whether interactive geometric diagrams, 3x3 matrices, sequence patterns, and STEM illustrations appear alongside questions **and** inside answer option cards. When disabled, option cards cleanly hide all shape containers and render full-width text choices.
+  9. **Dynamic Visual Synthesis Notice**: Displays an informative amber alert in Settings explaining that visual diagrams and option shapes are dynamically generated via cognitive models and AI prompts, so minor visual variations may occasionally occur.
+  10. **Narrator Voice Selector** _(Customizable 🎙️)_: Choose from all text-to-speech voices supported by your web browser and operating system, with an **"Auto (Recommended)"** default option and instant one-click audition audio playback before saving.
+  11. **Clean, Unobstructed Question Focus (Pet Assistant Removed)**: Streamlined learning experience ensuring young explorers maintain 100% focused attention on question prompts, cognitive patterns, and answer choices with zero floating visual distractions.
+  12. **Cross-Device Backup & Portability Engine (`Export JSON 📤` / `Import JSON 📥`)**:
+      - **Complete Configuration Bundling**: Export your entire setup into a portable JSON backup file (`astroquest_complete_backup_YYYY-MM-DD.json`), including child's name, age, active AI provider, provider API keys, model selections, question timer settings, auto-advance delay, visual diagrams toggle, voice selection, and all custom skillsets.
       - **Seamless Multi-Computer Migration**: Transfer your child's learning profile and custom-built topics to any other laptop, classroom computer, or browser with one click.
       - **Zero-Refresh Reactive Hydration**: Importing instantly populates all form fields, updates application state, and syncs `localStorage` without requiring a page reload.
 
-- **Live Verification on Save**: When clicking **"Save & Launch 🚀"**, the app sends an asynchronous test ping to Google Gemini API. If the key is invalid or expired, a clear red error is shown and the settings page remains open until a valid key is provided.
+- **Live Verification on Save**: When clicking **"Save & Launch 🚀"**, the app sends an asynchronous test ping to the active AI provider (Google Gemini, OpenAI, or Anthropic). If the key is invalid or expired, a clear red error is shown and the settings page remains open until a valid key is provided.
 - **Settings Dirty-State Guard & Save Confirmation Before Navigation**:
   - Automatically tracks whether any setting (explorer name, age, API key, model selection, timer challenge, auto-advance delay, voice, or visual diagram preference) has been modified.
   - If a user changes settings and attempts to navigate away without clicking **"Save Settings"**, an interactive confirmation dialog alerts the user:

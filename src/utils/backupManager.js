@@ -7,8 +7,11 @@
  */
 
 import {
+	AI_PROVIDERS,
+	getActiveAiProvider,
 	getStoredEncryptedApiKey,
 	getStoredSelectedModel,
+	setActiveAiProvider,
 	setStoredApiKey,
 	setStoredSelectedModel,
 } from '../services/aiGenerator';
@@ -56,8 +59,22 @@ export function createFullBackupPayload() {
 			kidAge: Number(getStoredKidAge()) || 5,
 			kidGender: getStoredKidGender() || 'boy',
 			kidAvatar: getStoredKidAvatar() || 'boy-astronaut-1',
+			activeAiProvider: getActiveAiProvider() || AI_PROVIDERS.GEMINI,
 			apiKey: getStoredEncryptedApiKey() || '',
+			providerKeys: {
+				[AI_PROVIDERS.GEMINI]:
+					getStoredEncryptedApiKey(AI_PROVIDERS.GEMINI) || '',
+				[AI_PROVIDERS.OPENAI]:
+					getStoredEncryptedApiKey(AI_PROVIDERS.OPENAI) || '',
+				[AI_PROVIDERS.CLAUDE]:
+					getStoredEncryptedApiKey(AI_PROVIDERS.CLAUDE) || '',
+			},
 			selectedModel: getStoredSelectedModel() || '',
+			providerModels: {
+				[AI_PROVIDERS.GEMINI]: getStoredSelectedModel(AI_PROVIDERS.GEMINI),
+				[AI_PROVIDERS.OPENAI]: getStoredSelectedModel(AI_PROVIDERS.OPENAI),
+				[AI_PROVIDERS.CLAUDE]: getStoredSelectedModel(AI_PROVIDERS.CLAUDE),
+			},
 			timerConfig: getStoredTimerConfig(),
 			showVisualDiagrams: getStoredShowVisualDiagrams(),
 			voiceURI: getStoredVoiceURI() || '',
@@ -127,11 +144,25 @@ export function importFullBackupFromJson(jsonString) {
 			const avatar = String(s.kidAvatar || 'boy-astronaut-1').trim();
 			saveStoredKidProfile(name, age, gender, avatar);
 		}
-		if (s.apiKey) {
-			setStoredApiKey(s.apiKey);
+		if (s.activeAiProvider) {
+			setActiveAiProvider(s.activeAiProvider);
 		}
-		if (s.selectedModel) {
-			setStoredSelectedModel(s.selectedModel);
+		if (s.providerKeys && typeof s.providerKeys === 'object') {
+			Object.entries(s.providerKeys).forEach(([prov, key]) => {
+				if (key) setStoredApiKey(key, prov);
+			});
+		} else if (s.apiKey) {
+			setStoredApiKey(s.apiKey, s.activeAiProvider || AI_PROVIDERS.GEMINI);
+		}
+		if (s.providerModels && typeof s.providerModels === 'object') {
+			Object.entries(s.providerModels).forEach(([prov, mod]) => {
+				if (mod) setStoredSelectedModel(mod, prov);
+			});
+		} else if (s.selectedModel) {
+			setStoredSelectedModel(
+				s.selectedModel,
+				s.activeAiProvider || AI_PROVIDERS.GEMINI,
+			);
 		}
 		if (s.timerConfig && typeof s.timerConfig === 'object') {
 			saveStoredTimerConfig(s.timerConfig);

@@ -27,19 +27,23 @@ import {
 } from 'lucide-react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
+	AI_PROVIDER_INFO,
+	AI_PROVIDERS,
 	decryptApiKey,
 	encryptApiKey,
 	fetchOnlineGeminiModels,
-	getAvailableGeminiModels,
+	getActiveAiProvider,
+	getAvailableModels,
 	getLatestGeminiModel,
 	getStoredApiKey,
 	getStoredEncryptedApiKey,
 	getStoredSelectedModel,
 	hasCachedGeminiModels,
 	isModelRateLimited,
+	setActiveAiProvider,
 	setStoredApiKey,
 	setStoredSelectedModel,
-	validateGeminiApiKey,
+	validateApiKey,
 } from '../../services/aiGenerator';
 import {
 	getStoredAmbientEnabled,
@@ -104,8 +108,25 @@ const SettingsScreen = memo(function SettingsScreen({
 		() => getStoredKidAvatar() || 'boy-astronaut-1',
 	);
 	const [avatarCategoryFilter, setAvatarCategoryFilter] = useState('All');
+	// Multi-Provider AI State
+	const [selectedProvider, setSelectedProvider] = useState(
+		() => getActiveAiProvider() || AI_PROVIDERS.GEMINI,
+	);
+	const [providerKeys, setProviderKeys] = useState(() => ({
+		[AI_PROVIDERS.GEMINI]: getStoredEncryptedApiKey(AI_PROVIDERS.GEMINI) || '',
+		[AI_PROVIDERS.OPENAI]: getStoredEncryptedApiKey(AI_PROVIDERS.OPENAI) || '',
+		[AI_PROVIDERS.CLAUDE]: getStoredEncryptedApiKey(AI_PROVIDERS.CLAUDE) || '',
+	}));
+	const [providerModels, setProviderModels] = useState(() => ({
+		[AI_PROVIDERS.GEMINI]: getStoredSelectedModel(AI_PROVIDERS.GEMINI),
+		[AI_PROVIDERS.OPENAI]: getStoredSelectedModel(AI_PROVIDERS.OPENAI),
+		[AI_PROVIDERS.CLAUDE]: getStoredSelectedModel(AI_PROVIDERS.CLAUDE),
+	}));
+
 	const [apiKeyInput, setApiKeyInput] = useState(
-		() => getStoredEncryptedApiKey() || '',
+		() =>
+			getStoredEncryptedApiKey(getActiveAiProvider() || AI_PROVIDERS.GEMINI) ||
+			'',
 	);
 	// API Key security & auto-masking state
 	const [isRevealed, setIsRevealed] = useState(false);
@@ -147,6 +168,7 @@ const SettingsScreen = memo(function SettingsScreen({
 		// Immediately convert to encrypted string so plaintext is never exposed in the field
 		const encrypted = encryptApiKey(pasted);
 		setApiKeyInput(encrypted);
+		setProviderKeys((prev) => ({ ...prev, [selectedProvider]: encrypted }));
 		if (error) setError('');
 		triggerRevealTimer();
 	};
@@ -157,6 +179,7 @@ const SettingsScreen = memo(function SettingsScreen({
 
 		if (!val) {
 			setApiKeyInput('');
+			setProviderKeys((prev) => ({ ...prev, [selectedProvider]: '' }));
 			return;
 		}
 
@@ -165,16 +188,20 @@ const SettingsScreen = memo(function SettingsScreen({
 
 		if (val.startsWith('enc:v1:')) {
 			setApiKeyInput(val);
+			setProviderKeys((prev) => ({ ...prev, [selectedProvider]: val }));
 			return;
 		}
 
 		setApiKeyInput(val);
+		setProviderKeys((prev) => ({ ...prev, [selectedProvider]: val }));
 	};
 
 	const handleKeyBlur = () => {
 		// When user leaves the field, ensure any plaintext typed value is converted to encrypted payload
 		if (apiKeyInput && !apiKeyInput.startsWith('enc:v1:')) {
-			setApiKeyInput(encryptApiKey(apiKeyInput));
+			const encrypted = encryptApiKey(apiKeyInput);
+			setApiKeyInput(encrypted);
+			setProviderKeys((prev) => ({ ...prev, [selectedProvider]: encrypted }));
 		}
 	};
 
@@ -203,9 +230,9 @@ const SettingsScreen = memo(function SettingsScreen({
 		getStoredShowVisualDiagrams,
 	);
 
-	// Gemini Model selection state
+	// Active AI Model selection state
 	const [selectedModel, setSelectedModel] = useState(() =>
-		getStoredSelectedModel(),
+		getStoredSelectedModel(getActiveAiProvider() || AI_PROVIDERS.GEMINI),
 	);
 
 	// Question Timer Challenge state
@@ -224,10 +251,43 @@ const SettingsScreen = memo(function SettingsScreen({
 
 	// Dynamic Models State
 	const [modelsList, setModelsList] = useState(() =>
-		getAvailableGeminiModels(),
+		getAvailableModels(getActiveAiProvider() || AI_PROVIDERS.GEMINI),
 	);
 	const [isFetchingModels, setIsFetchingModels] = useState(false);
 	const [fetchModelStatus, setFetchModelStatus] = useState(null);
+
+	// Provider Switch Handler
+	const handleSelectProvider = (prov) => {
+		playButtonPop(soundEnabled);
+		if (prov === selectedProvider) return;
+
+		// Persist in-progress state for current provider
+		const currentKey = apiKeyInput;
+		const updatedKeys = {
+			...providerKeys,
+			[selectedProvider]: currentKey,
+		};
+		const updatedModels = {
+			...providerModels,
+			[selectedProvider]: selectedModel,
+		};
+		setProviderKeys(updatedKeys);
+		setProviderModels(updatedModels);
+
+		setSelectedProvider(prov);
+		const newKey = updatedKeys[prov] || '';
+		setApiKeyInput(newKey);
+		const newModels = getAvailableModels(prov);
+		setModelsList(newModels);
+		const newSelectedModel =
+			updatedModels[prov] ||
+			newModels[0]?.id ||
+			AI_PROVIDER_INFO[prov]?.defaultModel ||
+			'';
+		setSelectedModel(newSelectedModel);
+		if (error) setError('');
+		setIsRevealed(false);
+	};
 
 	// Voice personality & Ambient audio state
 	const [selectedPersonality, setSelectedPersonality] = useState(
@@ -314,8 +374,25 @@ const SettingsScreen = memo(function SettingsScreen({
 				const newKidGender = getStoredKidGender() || 'boy';
 				const newKidAvatar =
 					getStoredKidAvatar() || getDefaultAvatarForGender(newKidGender);
-				const newEncryptedKey = getStoredEncryptedApiKey() || '';
-				const newModel = getStoredSelectedModel();
+				const newActiveProv =
+					result.settings?.activeAiProvider ||
+					getActiveAiProvider() ||
+					AI_PROVIDERS.GEMINI;
+				const newEncryptedKey = getStoredEncryptedApiKey(newActiveProv) || '';
+				const newModel = getStoredSelectedModel(newActiveProv);
+				const newProviderKeys = {
+					[AI_PROVIDERS.GEMINI]:
+						getStoredEncryptedApiKey(AI_PROVIDERS.GEMINI) || '',
+					[AI_PROVIDERS.OPENAI]:
+						getStoredEncryptedApiKey(AI_PROVIDERS.OPENAI) || '',
+					[AI_PROVIDERS.CLAUDE]:
+						getStoredEncryptedApiKey(AI_PROVIDERS.CLAUDE) || '',
+				};
+				const newProviderModels = {
+					[AI_PROVIDERS.GEMINI]: getStoredSelectedModel(AI_PROVIDERS.GEMINI),
+					[AI_PROVIDERS.OPENAI]: getStoredSelectedModel(AI_PROVIDERS.OPENAI),
+					[AI_PROVIDERS.CLAUDE]: getStoredSelectedModel(AI_PROVIDERS.CLAUDE),
+				};
 				const newTimerConfig = getStoredTimerConfig();
 				const newTimerSec = Number(newTimerConfig.secondsPerQuestion) || 90;
 				const newAutoAdvanceSec =
@@ -327,6 +404,10 @@ const SettingsScreen = memo(function SettingsScreen({
 				setAgeInput(newKidAge);
 				setGenderInput(newKidGender);
 				setAvatarInput(newKidAvatar);
+				setSelectedProvider(newActiveProv);
+				setProviderKeys(newProviderKeys);
+				setProviderModels(newProviderModels);
+				setModelsList(getAvailableModels(newActiveProv));
 				setApiKeyInput(newEncryptedKey);
 				setSelectedModel(newModel);
 				setTimerEnabled(Boolean(newTimerConfig.enabled));
@@ -344,7 +425,10 @@ const SettingsScreen = memo(function SettingsScreen({
 					age: newKidAge,
 					gender: newKidGender,
 					avatar: newKidAvatar,
+					selectedProvider: newActiveProv,
 					apiKey: newEncryptedKey,
+					providerKeys: newProviderKeys,
+					providerModels: newProviderModels,
 					selectedModel: newModel,
 					timerEnabled: Boolean(newTimerConfig.enabled),
 					timerSeconds: newTimerSec,
@@ -387,7 +471,16 @@ const SettingsScreen = memo(function SettingsScreen({
 
 	const handleFetchLiveModels = async () => {
 		playButtonPop(soundEnabled);
-		const targetKey = decryptApiKey(apiKeyInput.trim()) || getStoredApiKey();
+		if (selectedProvider !== AI_PROVIDERS.GEMINI) {
+			setFetchModelStatus({
+				type: 'success',
+				text: `✓ Models for ${AI_PROVIDER_INFO[selectedProvider]?.name || 'AI'} are curated, tested, and up to date.`,
+			});
+			return;
+		}
+
+		const targetKey =
+			decryptApiKey(apiKeyInput.trim()) || getStoredApiKey(AI_PROVIDERS.GEMINI);
 		if (!targetKey) {
 			setFetchModelStatus({
 				type: 'error',
@@ -404,9 +497,22 @@ const SettingsScreen = memo(function SettingsScreen({
 			const latest = getLatestGeminiModel(liveModels);
 			if (latest && latest.id) {
 				setSelectedModel(latest.id);
-				setStoredSelectedModel(latest.id);
+				setStoredSelectedModel(latest.id, AI_PROVIDERS.GEMINI);
+				setProviderModels((prev) => ({
+					...prev,
+					[AI_PROVIDERS.GEMINI]: latest.id,
+				}));
 				setInitialValues((prev) =>
-					prev ? { ...prev, selectedModel: latest.id } : prev,
+					prev ?
+						{
+							...prev,
+							selectedModel: latest.id,
+							providerModels: {
+								...prev.providerModels,
+								[AI_PROVIDERS.GEMINI]: latest.id,
+							},
+						}
+					:	prev,
 				);
 			}
 			setFetchModelStatus({
@@ -427,13 +533,18 @@ const SettingsScreen = memo(function SettingsScreen({
 
 	// Auto-download latest models while loading if not yet cached
 	useEffect(() => {
+		if (selectedProvider !== AI_PROVIDERS.GEMINI) {
+			return;
+		}
+
 		// If models are already cached in localStorage, do not re-fetch on every opening
 		if (hasCachedGeminiModels()) {
 			return;
 		}
 
 		const targetKey =
-			decryptApiKey((apiKeyInput || '').trim()) || getStoredApiKey();
+			decryptApiKey((apiKeyInput || '').trim()) ||
+			getStoredApiKey(AI_PROVIDERS.GEMINI);
 		if (!targetKey) {
 			return;
 		}
@@ -447,7 +558,7 @@ const SettingsScreen = memo(function SettingsScreen({
 				setModelsList(liveModels);
 				const latest = getLatestGeminiModel(liveModels);
 				if (latest && latest.id) {
-					const currentSaved = getStoredSelectedModel();
+					const currentSaved = getStoredSelectedModel(AI_PROVIDERS.GEMINI);
 					// Auto-select latest healthy model if none set, or if current selection is rate-limited
 					if (
 						!currentSaved ||
@@ -455,9 +566,22 @@ const SettingsScreen = memo(function SettingsScreen({
 						currentSaved === 'gemini-3.8-flash'
 					) {
 						setSelectedModel(latest.id);
-						setStoredSelectedModel(latest.id);
+						setStoredSelectedModel(latest.id, AI_PROVIDERS.GEMINI);
+						setProviderModels((prev) => ({
+							...prev,
+							[AI_PROVIDERS.GEMINI]: latest.id,
+						}));
 						setInitialValues((prev) =>
-							prev ? { ...prev, selectedModel: latest.id } : prev,
+							prev ?
+								{
+									...prev,
+									selectedModel: latest.id,
+									providerModels: {
+										...prev.providerModels,
+										[AI_PROVIDERS.GEMINI]: latest.id,
+									},
+								}
+							:	prev,
 						);
 						setFetchModelStatus({
 							type: 'success',
@@ -479,7 +603,7 @@ const SettingsScreen = memo(function SettingsScreen({
 		return () => {
 			isCancelled = true;
 		};
-	}, []);
+	}, [selectedProvider]);
 
 	useEffect(() => {
 		const existingTimer = getStoredTimerConfig();
@@ -495,8 +619,24 @@ const SettingsScreen = memo(function SettingsScreen({
 		const initGender = getStoredKidGender() || 'boy';
 		const initAvatar =
 			getStoredKidAvatar() || getDefaultAvatarForGender(initGender);
-		const initApiKey = getStoredEncryptedApiKey() || '';
-		const initModel = getStoredSelectedModel();
+
+		const initProvider = getActiveAiProvider() || AI_PROVIDERS.GEMINI;
+		const initProviderKeys = {
+			[AI_PROVIDERS.GEMINI]:
+				getStoredEncryptedApiKey(AI_PROVIDERS.GEMINI) || '',
+			[AI_PROVIDERS.OPENAI]:
+				getStoredEncryptedApiKey(AI_PROVIDERS.OPENAI) || '',
+			[AI_PROVIDERS.CLAUDE]:
+				getStoredEncryptedApiKey(AI_PROVIDERS.CLAUDE) || '',
+		};
+		const initProviderModels = {
+			[AI_PROVIDERS.GEMINI]: getStoredSelectedModel(AI_PROVIDERS.GEMINI),
+			[AI_PROVIDERS.OPENAI]: getStoredSelectedModel(AI_PROVIDERS.OPENAI),
+			[AI_PROVIDERS.CLAUDE]: getStoredSelectedModel(AI_PROVIDERS.CLAUDE),
+		};
+		const initApiKey = initProviderKeys[initProvider] || '';
+		const initModel = initProviderModels[initProvider];
+
 		const initShowDiagrams = Boolean(getStoredShowVisualDiagrams());
 		const initVoiceURI = getStoredVoiceURI() || '';
 		const initPersonality = getStoredVoicePersonality() || 'classic';
@@ -508,7 +648,10 @@ const SettingsScreen = memo(function SettingsScreen({
 			age: initAge,
 			gender: initGender,
 			avatar: initAvatar,
+			selectedProvider: initProvider,
 			apiKey: initApiKey,
+			providerKeys: initProviderKeys,
+			providerModels: initProviderModels,
 			selectedModel: initModel,
 			timerEnabled: initTimerEnabled,
 			timerSeconds: initTimerSec,
@@ -525,8 +668,12 @@ const SettingsScreen = memo(function SettingsScreen({
 		setAgeInput(initAge);
 		setGenderInput(initGender);
 		setAvatarInput(initAvatar);
+		setSelectedProvider(initProvider);
+		setProviderKeys(initProviderKeys);
+		setProviderModels(initProviderModels);
 		setApiKeyInput(initApiKey);
 		setSelectedModel(initModel);
+		setModelsList(getAvailableModels(initProvider));
 		setTimerEnabled(initTimerEnabled);
 		setTimerSeconds(initTimerSec);
 		setIsCustomTimer(![45, 60, 90, 120, 180].includes(initTimerSec));
@@ -601,8 +748,21 @@ const SettingsScreen = memo(function SettingsScreen({
 			Number(ageInput) !== Number(initialValues.age) ||
 			genderInput !== initialValues.gender ||
 			avatarInput !== initialValues.avatar ||
+			selectedProvider !== initialValues.selectedProvider ||
 			apiKeyInput.trim() !== initialValues.apiKey.trim() ||
 			selectedModel !== initialValues.selectedModel ||
+			(providerKeys[AI_PROVIDERS.GEMINI] || '') !==
+				(initialValues.providerKeys?.[AI_PROVIDERS.GEMINI] || '') ||
+			(providerKeys[AI_PROVIDERS.OPENAI] || '') !==
+				(initialValues.providerKeys?.[AI_PROVIDERS.OPENAI] || '') ||
+			(providerKeys[AI_PROVIDERS.CLAUDE] || '') !==
+				(initialValues.providerKeys?.[AI_PROVIDERS.CLAUDE] || '') ||
+			(providerModels[AI_PROVIDERS.GEMINI] || '') !==
+				(initialValues.providerModels?.[AI_PROVIDERS.GEMINI] || '') ||
+			(providerModels[AI_PROVIDERS.OPENAI] || '') !==
+				(initialValues.providerModels?.[AI_PROVIDERS.OPENAI] || '') ||
+			(providerModels[AI_PROVIDERS.CLAUDE] || '') !==
+				(initialValues.providerModels?.[AI_PROVIDERS.CLAUDE] || '') ||
 			timerEnabled !== initialValues.timerEnabled ||
 			Number(timerSeconds) !== Number(initialValues.timerSeconds) ||
 			autoAdvanceEnabled !== initialValues.autoAdvanceEnabled ||
@@ -619,8 +779,11 @@ const SettingsScreen = memo(function SettingsScreen({
 		ageInput,
 		genderInput,
 		avatarInput,
+		selectedProvider,
 		apiKeyInput,
 		selectedModel,
+		providerKeys,
+		providerModels,
 		timerEnabled,
 		timerSeconds,
 		autoAdvanceEnabled,
@@ -688,8 +851,12 @@ const SettingsScreen = memo(function SettingsScreen({
 			setAgeInput(initialValues.age);
 			setGenderInput(initialValues.gender);
 			setAvatarInput(initialValues.avatar);
+			setSelectedProvider(initialValues.selectedProvider);
 			setApiKeyInput(initialValues.apiKey);
+			setProviderKeys(initialValues.providerKeys || {});
 			setSelectedModel(initialValues.selectedModel);
+			setProviderModels(initialValues.providerModels || {});
+			setModelsList(getAvailableModels(initialValues.selectedProvider));
 			setTimerEnabled(initialValues.timerEnabled);
 			setTimerSeconds(initialValues.timerSeconds);
 			setIsCustomTimer(
@@ -763,10 +930,13 @@ const SettingsScreen = memo(function SettingsScreen({
 			return;
 		}
 
+		const activeProviderInfo =
+			AI_PROVIDER_INFO[selectedProvider] ||
+			AI_PROVIDER_INFO[AI_PROVIDERS.GEMINI];
 		const trimmedKey = apiKeyInput.trim();
 		if (!trimmedKey) {
 			setError(
-				'Google Gemini API Key is mandatory for real-time AI questions! 🔑',
+				`${activeProviderInfo.name} API Key is mandatory for real-time AI questions! 🔑`,
 			);
 			return;
 		}
@@ -777,9 +947,10 @@ const SettingsScreen = memo(function SettingsScreen({
 		setIsValidating(true);
 		playButtonPop(soundEnabled);
 
-		// Validate API Key live against the selected Gemini model
-		const validationResult = await validateGeminiApiKey(
+		// Validate API Key live against the selected AI provider and model
+		const validationResult = await validateApiKey(
 			decryptedKey,
+			selectedProvider,
 			selectedModel,
 		);
 
@@ -787,25 +958,50 @@ const SettingsScreen = memo(function SettingsScreen({
 			setIsValidating(false);
 			setError(
 				validationResult.message ||
-					'Invalid Google Gemini API Key. Please verify your key from Google AI Studio.',
+					`Invalid ${activeProviderInfo.name} API Key. Please verify your key.`,
 			);
 			return;
 		}
 
-		// 1. Save API Key (encrypted in secure storage)
-		setStoredApiKey(validationResult.cleanedKey);
+		// 1. Save Active AI Provider
+		setActiveAiProvider(selectedProvider);
 
-		// 2. Encrypted string to display in field and update initialValues
-		const encryptedKey = getStoredEncryptedApiKey();
+		// 2. Save API Key for active provider (encrypted)
+		setStoredApiKey(validationResult.cleanedKey, selectedProvider);
+		// Save any secondary keys entered across other providers
+		Object.entries(providerKeys).forEach(([prov, encKey]) => {
+			if (prov !== selectedProvider && encKey) {
+				const plain = decryptApiKey(encKey);
+				if (plain) setStoredApiKey(plain, prov);
+			}
+		});
+
+		// 3. Encrypted string to display in field and update initialValues
+		const encryptedKey = getStoredEncryptedApiKey(selectedProvider);
 		setApiKeyInput(encryptedKey);
+		const updatedSavedKeys = {
+			...providerKeys,
+			[selectedProvider]: encryptedKey,
+		};
+		setProviderKeys(updatedSavedKeys);
 
-		// 3. Save Selected Gemini Model
-		setStoredSelectedModel(selectedModel);
+		// 4. Save Selected AI Model
+		setStoredSelectedModel(selectedModel, selectedProvider);
+		Object.entries(providerModels).forEach(([prov, modId]) => {
+			if (prov !== selectedProvider && modId) {
+				setStoredSelectedModel(modId, prov);
+			}
+		});
+		const updatedSavedModels = {
+			...providerModels,
+			[selectedProvider]: selectedModel,
+		};
+		setProviderModels(updatedSavedModels);
 
-		// 4. Save Kid Profile
+		// 5. Save Kid Profile
 		saveStoredKidProfile(trimmedName, numAge, genderInput, avatarInput);
 
-		// 5. Save Settings, Timer Config, Visual Diagrams & Pet Assistance
+		// 6. Save Settings, Timer Config, Visual Diagrams & Pet Assistance
 		const updatedConfig = {
 			enabled: timerEnabled,
 			secondsPerQuestion: timerSeconds,
@@ -831,7 +1027,10 @@ const SettingsScreen = memo(function SettingsScreen({
 			age: numAge,
 			gender: genderInput,
 			avatar: avatarInput,
+			selectedProvider,
 			apiKey: encryptedKey,
+			providerKeys: updatedSavedKeys,
+			providerModels: updatedSavedModels,
 			selectedModel,
 			timerEnabled,
 			timerSeconds,
@@ -867,6 +1066,10 @@ const SettingsScreen = memo(function SettingsScreen({
 		error &&
 		(error.toLowerCase().includes('key') ||
 			error.toLowerCase().includes('gemini') ||
+			error.toLowerCase().includes('openai') ||
+			error.toLowerCase().includes('claude') ||
+			error.toLowerCase().includes('chatgpt') ||
+			error.toLowerCase().includes('anthropic') ||
 			error.toLowerCase().includes('api'));
 
 	const hasProfile = Boolean(getStoredKidName() && getStoredApiKey());
@@ -1379,7 +1582,101 @@ const SettingsScreen = memo(function SettingsScreen({
 					</div>
 				</div>
 
-				{/* Section 2: Google Gemini API Key (Mandatory with Live Validation) */}
+				{/* Section 2: AI Intelligence Provider Selection */}
+				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-indigo-500/40 shadow-inner flex flex-col gap-3'>
+					<div className='flex items-center justify-between gap-2 flex-wrap'>
+						<div className='flex items-center gap-2'>
+							<Sparkles className='w-4 h-4 text-amber-400 flex-shrink-0' />
+							<span className='text-xs sm:text-sm font-bold text-white'>
+								Select AI Intelligence Provider
+							</span>
+						</div>
+						<span className='text-[10px] font-black px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/40 uppercase'>
+							{AI_PROVIDER_INFO[selectedProvider]?.name || 'Gemini'} Active
+						</span>
+					</div>
+
+					<p className='text-[11px] sm:text-xs text-slate-300'>
+						Choose your preferred AI to generate 100% real-time, adaptive
+						AstroQuest questions:
+					</p>
+
+					<div
+						className='grid grid-cols-1 sm:grid-cols-3 gap-2.5'
+						role='radiogroup'
+						aria-label='Select AI Provider'>
+						{Object.values(AI_PROVIDERS).map((provId) => {
+							const info = AI_PROVIDER_INFO[provId];
+							const isSelected = selectedProvider === provId;
+							const hasKey = Boolean(providerKeys[provId]);
+
+							return (
+								<button
+									key={provId}
+									type='button'
+									role='radio'
+									aria-checked={isSelected}
+									disabled={isValidating}
+									onClick={() => handleSelectProvider(provId)}
+									className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left transition-all relative cursor-pointer flex flex-col justify-between gap-2.5 ${
+										isSelected ?
+											'bg-gradient-to-b from-indigo-950/80 via-[#161c4e] to-purple-950/80 border-amber-400 ring-2 ring-amber-400/50 shadow-[0_0_20px_rgba(251,191,36,0.3)]'
+										:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 hover:bg-[#121644]'
+									}`}>
+									<div className='flex items-start justify-between gap-1.5'>
+										<div className='flex items-center gap-2'>
+											<span
+												className='text-xl flex-shrink-0'
+												role='img'
+												aria-label={info.name}>
+												{provId === AI_PROVIDERS.GEMINI ?
+													'✨'
+												: provId === AI_PROVIDERS.OPENAI ?
+													'🟢'
+												:	'🎭'}
+											</span>
+											<div>
+												<h3
+													className={`text-xs sm:text-sm font-black leading-tight ${
+														isSelected ? 'text-amber-300' : 'text-white'
+													}`}>
+													{info.name}
+												</h3>
+												<p className='text-[10px] text-slate-400 font-medium'>
+													{provId === AI_PROVIDERS.GEMINI ?
+														'Google AI Studio'
+													: provId === AI_PROVIDERS.OPENAI ?
+														'OpenAI Platform'
+													:	'Anthropic Console'}
+												</p>
+											</div>
+										</div>
+
+										{isSelected && (
+											<div className='w-4 h-4 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow flex-shrink-0'>
+												<Check className='w-3 h-3 stroke-[3]' />
+											</div>
+										)}
+									</div>
+
+									<div className='flex items-center justify-between gap-1 mt-0.5 flex-wrap'>
+										<span
+											className={`text-[9px] font-black px-1.5 py-0.5 rounded-full border ${info.badgeColor}`}>
+											{info.badge}
+										</span>
+										{hasKey && (
+											<span className='text-[9px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-0.5'>
+												<Check className='w-2.5 h-2.5' /> Key Stored
+											</span>
+										)}
+									</div>
+								</button>
+							);
+						})}
+					</div>
+				</div>
+
+				{/* Section 2B: Provider API Key (Mandatory with Live Validation) */}
 				<div
 					className={`bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all shadow-inner ${
 						isKeyError ?
@@ -1388,20 +1685,24 @@ const SettingsScreen = memo(function SettingsScreen({
 					}`}>
 					<div className='flex flex-wrap items-center justify-between gap-1.5 mb-2'>
 						<label
-							htmlFor='gemini-api-key-input'
+							htmlFor='active-api-key-input'
 							className='text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1.5'>
 							<Key className='w-4 h-4 text-amber-400 flex-shrink-0' />
-							<span>Google Gemini API Key</span>
+							<span>{AI_PROVIDER_INFO[selectedProvider]?.name} API Key</span>
 							<span className='text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase'>
 								Mandatory
 							</span>
 						</label>
 						<a
-							href='https://aistudio.google.com/app/apikey'
+							href={AI_PROVIDER_INFO[selectedProvider]?.portalUrl}
 							target='_blank'
 							rel='noopener noreferrer'
 							className='text-[11px] sm:text-xs font-bold text-cyan-300 hover:text-cyan-200 underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded'>
-							<span>Get Free Key</span>
+							<span>
+								{selectedProvider === AI_PROVIDERS.GEMINI ?
+									'Get Free Key'
+								:	`Get ${AI_PROVIDER_INFO[selectedProvider]?.name} Key`}
+							</span>
 							<ExternalLink className='w-3 h-3' />
 						</a>
 					</div>
@@ -1419,8 +1720,8 @@ const SettingsScreen = memo(function SettingsScreen({
 						)}
 
 						<input
-							id='gemini-api-key-input'
-							name='gemini_api_key_field'
+							id='active-api-key-input'
+							name='active_api_key_field'
 							aria-required='true'
 							aria-describedby='api-key-desc'
 							type='text'
@@ -1444,7 +1745,7 @@ const SettingsScreen = memo(function SettingsScreen({
 							onCopy={handleBlockCopy}
 							onCut={handleBlockCopy}
 							onKeyDown={handleKeyDownKey}
-							placeholder='Paste your Gemini API key here (AIzaSy...)'
+							placeholder={AI_PROVIDER_INFO[selectedProvider]?.keyPlaceholder}
 							className={`w-full bg-[#0D1030] border text-white font-mono text-xs sm:text-sm rounded-xl pl-4 pr-12 py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 transition-all ${
 								isKeyError ?
 									'border-rose-400 focus:border-rose-500'
@@ -1478,7 +1779,7 @@ const SettingsScreen = memo(function SettingsScreen({
 								<span className='text-amber-300 font-semibold'>
 									⚠️ Key visible — auto-masking in 3 seconds.
 								</span>
-							:	'Required for 100% real-time AI generation. Value is encrypted in the field.'
+							:	`Required for 100% real-time AI generation via ${AI_PROVIDER_INFO[selectedProvider]?.name}. Value is encrypted in the field.`
 							}
 						</span>
 						<span className='text-[10px] text-emerald-400/90 font-mono flex items-center gap-1'>
@@ -1488,37 +1789,41 @@ const SettingsScreen = memo(function SettingsScreen({
 					</div>
 				</div>
 
-				{/* Section 3: Gemini AI Model Engine Selection */}
+				{/* Section 3: AI Model Engine Selection */}
 				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-cyan-500/40 shadow-inner'>
 					<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2'>
 						<div className='flex items-center gap-2 flex-wrap'>
 							<Cpu className='w-4 h-4 text-cyan-400 flex-shrink-0' />
 							<span className='text-xs sm:text-sm font-bold text-white'>
-								Gemini AI Model Engine
+								{AI_PROVIDER_INFO[selectedProvider]?.name} Model Engine
 							</span>
-							{hasCachedGeminiModels() && !isFetchingModels && (
-								<span
-									className='text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-1'
-									title='Models are cached locally and loaded instantly without re-fetching'>
-									⚡ Cached
-								</span>
-							)}
+							{selectedProvider === AI_PROVIDERS.GEMINI &&
+								hasCachedGeminiModels() &&
+								!isFetchingModels && (
+									<span
+										className='text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-1'
+										title='Models are cached locally and loaded instantly without re-fetching'>
+										⚡ Cached
+									</span>
+								)}
 						</div>
 						<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap'>
-							<button
-								type='button'
-								disabled={isFetchingModels || isValidating}
-								onClick={handleFetchLiveModels}
-								className='flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-bold text-[11px] shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50'>
-								<RefreshCw
-									className={`w-3.5 h-3.5 ${
-										isFetchingModels ? 'animate-spin text-cyan-200' : ''
-									}`}
-								/>
-								<span>
-									{isFetchingModels ? 'Downloading...' : 'Fetch Latest 🔄'}
-								</span>
-							</button>
+							{selectedProvider === AI_PROVIDERS.GEMINI && (
+								<button
+									type='button'
+									disabled={isFetchingModels || isValidating}
+									onClick={handleFetchLiveModels}
+									className='flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-bold text-[11px] shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50'>
+									<RefreshCw
+										className={`w-3.5 h-3.5 ${
+											isFetchingModels ? 'animate-spin text-cyan-200' : ''
+										}`}
+									/>
+									<span>
+										{isFetchingModels ? 'Downloading...' : 'Fetch Latest 🔄'}
+									</span>
+								</button>
+							)}
 							<span className='text-[10px] font-black px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 truncate max-w-[130px] sm:max-w-none'>
 								{modelsList.find((m) => m.id === selectedModel)?.name ||
 									selectedModel}
@@ -1527,8 +1832,8 @@ const SettingsScreen = memo(function SettingsScreen({
 					</div>
 
 					<p className='text-[11px] sm:text-xs text-slate-300 mb-2'>
-						Select which Google Gemini AI model generates questions in real
-						time:
+						Select which {AI_PROVIDER_INFO[selectedProvider]?.name} model
+						generates questions in real time:
 					</p>
 
 					{fetchModelStatus && (
@@ -1559,6 +1864,10 @@ const SettingsScreen = memo(function SettingsScreen({
 									onClick={() => {
 										playButtonPop(soundEnabled);
 										setSelectedModel(model.id);
+										setProviderModels((prev) => ({
+											...prev,
+											[selectedProvider]: model.id,
+										}));
 										if (error) setError('');
 									}}
 									className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left transition-all relative cursor-pointer flex flex-col justify-between gap-1.5 ${
@@ -1579,7 +1888,10 @@ const SettingsScreen = memo(function SettingsScreen({
 													<Check className='w-3 h-3 stroke-[3]' />
 												</div>
 											)}
-											{isModelRateLimited(model.id) ?
+											{(
+												selectedProvider === AI_PROVIDERS.GEMINI &&
+												isModelRateLimited(model.id)
+											) ?
 												<span className='text-[9px] font-black px-2 py-0.5 rounded-full border bg-rose-500/20 text-rose-300 border-rose-400/40'>
 													⚠️ 429 Quota Limited
 												</span>

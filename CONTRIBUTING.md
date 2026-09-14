@@ -53,19 +53,20 @@ AstroQuest generates 100% fresh, non-repetitive educational challenges live via 
 
 ```mermaid
 flowchart LR
-    Step1["Step 1<br/>Get Free Gemini Key<br/>(Google AI Studio)"]
+    Step1["Step 1<br/>Get AI API Key<br/>(Gemini, OpenAI, Claude)"]
     Step2["Step 2<br/>Setup Explorer Profile<br/>(Name, Age & Avatar)"]
-    Step3["Step 3<br/>Choose Settings<br/>(Timer, Voice & Audio)"]
+    Step3["Step 3<br/>Choose Settings & Model<br/>(Timer, Voice & AI Engine)"]
 
     Step1 --> Step2 --> Step3
 ```
 
-### Step 1: Obtain a Free Google Gemini API Key
+### Step 1: Obtain an AI API Key
 
-1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey).
-2. Sign in with any standard Google account.
-3. Click **"Create API Key"** and copy your generated key string.
-4. _(AstroQuest uses the free tier; no billing or credit card is required)_.
+AstroQuest supports three world-class AI providers:
+
+- **✨ Google Gemini (Recommended Free Tier)**: Visit [Google AI Studio](https://aistudio.google.com/app/apikey) and click **"Create API Key"**. No billing or credit card required!
+- **🟢 OpenAI (ChatGPT)**: Visit [OpenAI Platform API Keys](https://platform.openai.com/api-keys) and generate an API key (`sk-...`).
+- **🎭 Anthropic (Claude)**: Visit [Anthropic Console](https://console.anthropic.com/settings/keys) and generate an API key (`sk-ant-...`).
 
 ### Step 2: Configure the Explorer Profile
 
@@ -75,10 +76,12 @@ flowchart LR
 4. Select their **Age** (Ages 2–14). The pedagogy automatically calibrates to their age level!
 5. Pick an **Astronaut Avatar** (Boy, Girl, Robot, or Alien).
 
-### Step 3: Paste and Save API Key
+### Step 3: Select AI Provider & Save Key
 
-1. Paste your key into the **Google Gemini API Key** field.
-2. Click **"Save & Launch 🚀"**. AstroQuest runs an instant live verification ping. Once verified, your key is encrypted in your browser's private storage (AES-GCM 256-bit encryption).
+1. Under **"Select AI Intelligence Provider"**, click your preferred provider (**Google Gemini**, **OpenAI**, or **Anthropic Claude**).
+2. Paste your key into the corresponding API Key field.
+3. Select your desired AI Model Engine (e.g. `gemini-2.5-flash`, `gpt-4o-mini`, or `claude-3-5-haiku`).
+4. Click **"Save & Launch 🚀"**. AstroQuest runs an instant live verification ping. Once verified, your key is encrypted in your browser's private vault (AES-GCM encryption with 3-second auto-masking).
 
 ---
 
