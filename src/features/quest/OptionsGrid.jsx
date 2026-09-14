@@ -16,6 +16,7 @@ const OptionsGrid = memo(function OptionsGrid({
 	correctAnswerId,
 	soundEnabled,
 	showVisualDiagrams = false,
+	eliminatedOptionIds = [],
 }) {
 	const handleKeyDown = (e, currentIdx) => {
 		if (isSubmitted) return;
@@ -59,6 +60,9 @@ const OptionsGrid = memo(function OptionsGrid({
 				const optionImage =
 					showVisualDiagrams ? opt.imageUrl || opt.image || null : null;
 
+				const isEliminated =
+					!isSubmitted && eliminatedOptionIds.includes(opt.id);
+
 				// Distinct Card Background & Ring State
 				let cardStyle =
 					'bg-white text-slate-800 border-2 border-slate-200 hover:border-indigo-400 shadow-md hover:shadow-lg hover:scale-[1.01]';
@@ -66,7 +70,14 @@ const OptionsGrid = memo(function OptionsGrid({
 				let contrastBoxStyle =
 					'bg-slate-100/90 border border-slate-300 shadow-inner';
 
-				if (!isSubmitted) {
+				if (isEliminated) {
+					// 50/50 Cosmic Ray Eliminated Option
+					cardStyle =
+						'bg-slate-900/40 text-slate-500 border-2 border-dashed border-rose-500/30 opacity-30 pointer-events-none scale-95 shadow-none select-none';
+					badgeStyle = 'bg-rose-950/70 text-rose-400 border border-rose-500/40';
+					contrastBoxStyle =
+						'bg-slate-900/60 border border-slate-700 opacity-40';
+				} else if (!isSubmitted) {
 					if (isSelected) {
 						// Selected State: High-contrast Orange gradient with dark offset ring
 						cardStyle =
@@ -102,14 +113,17 @@ const OptionsGrid = memo(function OptionsGrid({
 					}
 				}
 
-				const accessibleLabel = `Option ${opt.id}: ${text}${
-					isSubmitted ?
-						isCorrect ? ' - Correct answer'
-						: isSelected ? ' - Your incorrect answer'
-						: ''
-					: isSelected ? ' - Selected'
-					: ''
-				}`;
+				const accessibleLabel =
+					isEliminated ?
+						`Option ${opt.id}: ${text} - Eliminated by 50/50 Cosmic Ray`
+					:	`Option ${opt.id}: ${text}${
+							isSubmitted ?
+								isCorrect ? ' - Correct answer'
+								: isSelected ? ' - Your incorrect answer'
+								: ''
+							: isSelected ? ' - Selected'
+							: ''
+						}`;
 
 				return (
 					<button
@@ -118,11 +132,12 @@ const OptionsGrid = memo(function OptionsGrid({
 						type='button'
 						role='radio'
 						aria-checked={isSelected}
-						aria-disabled={isSubmitted}
+						aria-disabled={isSubmitted || isEliminated}
 						aria-label={accessibleLabel}
-						disabled={isSubmitted}
+						disabled={isSubmitted || isEliminated}
 						onKeyDown={(e) => handleKeyDown(e, idx)}
 						onClick={() => {
+							if (isEliminated) return;
 							playButtonPop(soundEnabled);
 							onSelectOption(opt.id);
 						}}
@@ -179,6 +194,15 @@ const OptionsGrid = memo(function OptionsGrid({
 								{text}
 							</span>
 						</div>
+
+						{/* 50/50 Cosmic Ray Elimination Pill */}
+						{isEliminated && (
+							<span
+								aria-hidden='true'
+								className='ml-auto text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full border border-rose-500/30 flex-shrink-0'>
+								50/50 Blasted ☄️
+							</span>
+						)}
 					</button>
 				);
 			})}

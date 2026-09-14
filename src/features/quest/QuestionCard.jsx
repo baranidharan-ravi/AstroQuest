@@ -1,5 +1,5 @@
 import { Brain, Eye, Volume2, ZoomIn } from 'lucide-react';
-import { memo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import {
 	playButtonPop,
 	speakText,
@@ -23,10 +23,38 @@ const QuestionCard = memo(function QuestionCard({
 	isReviewMode = false,
 }) {
 	const [isSpeaking, setIsSpeaking] = useState(false);
+	const [activeCharIndex, setActiveCharIndex] = useState(-1);
 
 	const resolvedKidName =
 		(kidName && String(kidName).trim()) || getStoredKidName() || 'Explorer';
 	const resolvedKidAge = kidAge || getStoredKidAge() || 5;
+
+	// Reset speech on question transition
+	useEffect(() => {
+		setIsSpeaking(false);
+		setActiveCharIndex(-1);
+		return () => {
+			stopSpeaking();
+		};
+	}, [question]);
+
+	const promptText = question.question || question.questionText || '';
+
+	// Memoize word tokens with character boundaries for high-performance karaoke highlighting
+	const wordsWithOffsets = useMemo(() => {
+		if (!promptText) return [];
+		const tokens = [];
+		const regex = /\S+/g;
+		let match;
+		while ((match = regex.exec(promptText)) !== null) {
+			tokens.push({
+				word: match[0],
+				startIndex: match.index,
+				endIndex: match.index + match[0].length,
+			});
+		}
+		return tokens;
+	}, [promptText]);
 
 	const hasAppropriateDiagram = Boolean(
 		showVisualDiagrams &&
@@ -34,7 +62,7 @@ const QuestionCard = memo(function QuestionCard({
 		isDiagramAppropriateForQuestion(
 			question.diagramType,
 			question.diagramData,
-			question.question || question.questionText,
+			promptText,
 		),
 	);
 
@@ -43,31 +71,64 @@ const QuestionCard = memo(function QuestionCard({
 		if (isSpeaking) {
 			stopSpeaking();
 			setIsSpeaking(false);
+			setActiveCharIndex(-1);
 			return;
 		}
 
-		const textToRead =
-			question.promptAudio || question.question || question.questionText || '';
+		const textToRead = question.promptAudio || promptText;
 		if (!textToRead) return;
 
 		setIsSpeaking(true);
+		setActiveCharIndex(0);
 		speakText(
 			textToRead,
-			() => setIsSpeaking(true),
-			() => setIsSpeaking(false),
+			() => {
+				setIsSpeaking(true);
+				setActiveCharIndex(0);
+			},
+			() => {
+				setIsSpeaking(false);
+				setActiveCharIndex(-1);
+			},
+			(boundary) => {
+				if (boundary && typeof boundary.charIndex === 'number') {
+					setActiveCharIndex(boundary.charIndex);
+				}
+			},
 		);
 	};
 
 	const isVisual = question.category === 'Visual';
+	const isBossQuestion =
+		currentIndex === totalQuestions - 1 && totalQuestions >= 5;
 
 	return (
 		<section
 			aria-labelledby='question-prompt-heading'
-			className={`bg-white text-[#1E293B] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-2xl flex flex-col justify-between border-4 border-white/90 relative overflow-hidden transition-all duration-300 flex-1 h-full w-full min-h-0 ${
+			className={`bg-white text-[#1E293B] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 flex-1 h-full w-full min-h-0 ${
+				isBossQuestion ?
+					'border-4 border-red-500 shadow-[0_0_35px_rgba(239,68,68,0.35)] ring-2 ring-amber-400/60'
+				:	'border-4 border-white/90 shadow-2xl'
+			} ${
 				isSubmitted ?
 					'min-h-[180px] sm:min-h-[220px]'
 				:	'min-h-[240px] sm:min-h-[280px]'
 			}`}>
+			{/* Mission Control Super Challenge (Boss Question) Alert Banner */}
+			{isBossQuestion && !isReviewMode && (
+				<div
+					role='status'
+					className='bg-gradient-to-r from-red-600 via-amber-600 to-red-700 text-white text-xs sm:text-sm font-black px-3 py-1.5 rounded-xl mb-2 flex items-center justify-between shadow-lg animate-pulse border-2 border-amber-300 flex-shrink-0'>
+					<div className='flex items-center gap-1.5'>
+						<span className='text-sm'>⚠️</span>
+						<span>MISSION CONTROL SUPER CHALLENGE: FINAL BOSS ENCOUNTER!</span>
+					</div>
+					<span className='bg-black/40 text-amber-300 text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full shadow-inner border border-amber-400/50 flex-shrink-0'>
+						🔥 2X XP REWARD
+					</span>
+				</div>
+			)}
+
 			{/* Top Bar: Question Index, Explorer Profile, Category Badge, Zoom Button */}
 			<div className='flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5 mb-2 flex-shrink-0'>
 				{/* Left: Step Indicator & Explorer Badge */}
@@ -158,7 +219,25 @@ const QuestionCard = memo(function QuestionCard({
 					<h2
 						id='question-prompt-heading'
 						className='text-base sm:text-lg md:text-xl font-extrabold text-slate-800 leading-snug'>
-						{question.question || question.questionText}
+						{wordsWithOffsets.length > 0 ?
+							wordsWithOffsets.map((token, idx) => {
+								const isSpoken =
+									isSpeaking &&
+									activeCharIndex >= token.startIndex &&
+									activeCharIndex <= token.endIndex + 1;
+								return (
+									<span
+										key={idx}
+										className={`transition-all duration-150 inline-block mr-1.5 ${
+											isSpoken ?
+												'bg-cyan-100 text-cyan-950 font-black px-1 rounded-md shadow-xs ring-2 ring-cyan-400 scale-105'
+											:	''
+										}`}>
+										{token.word}
+									</span>
+								);
+							})
+						:	question.question || question.questionText}
 					</h2>
 
 					{/* Read-Aloud Speaker Button */}

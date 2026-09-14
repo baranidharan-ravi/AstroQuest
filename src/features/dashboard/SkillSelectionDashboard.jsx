@@ -14,6 +14,7 @@ import {
 	Timer,
 	Trash2,
 	Upload,
+	Users,
 	X,
 } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
@@ -65,6 +66,10 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	kidAge = 5,
 	kidAvatar = 'boy-astronaut-1',
 	onOpenSettings,
+	onOpenCrewModal,
+	onStartTimeWarp,
+	onOpenObservatory,
+	onOpenPlanetarium,
 	onAnimationComplete,
 	timerConfig = {
 		enabled: false,
@@ -354,29 +359,54 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 
 			{/* Top Header Bar */}
 			<header className='w-full max-w-5xl mx-auto flex items-center justify-between gap-2 relative z-10'>
-				{/* Child Profile Badge with Personalized Avatar */}
-				<button
-					onClick={() => {
-						playButtonPop(soundEnabled);
-						onOpenSettings();
-					}}
-					className={`flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-500/40 hover:border-purple-400 px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer flex-shrink-0 ${
+				{/* Combined Explorer Cadet & Flight Crew Capsule */}
+				<div
+					className={`flex items-center bg-gradient-to-r from-purple-950/80 via-[#131745] to-cyan-950/80 border border-purple-500/40 hover:border-cyan-400/60 p-0.5 sm:p-1 rounded-full shadow-lg transition-all flex-shrink-0 backdrop-blur-md ${
 						isIntroActive ?
 							'opacity-0 -translate-y-4 pointer-events-none'
 						:	'opacity-100 translate-y-0'
-					}`}
-					title='Open Profile & Settings'>
-					<KidAvatar
-						avatarId={kidAvatar}
-						size='xs'
-						className='ring-1 ring-purple-300/60 shadow-sm'
-						alt={`${kidName || 'Explorer'} avatar`}
-					/>
-					<span className='text-[10px] sm:text-xs font-black text-white whitespace-nowrap tracking-tight sm:tracking-wide'>
-						{kidName || 'Explorer'} ({kidAge || 5}y)
-					</span>
-					<Edit2 className='w-2.5 h-2.5 sm:w-3 sm:h-3 text-pink-300 opacity-80 flex-shrink-0' />
-				</button>
+					}`}>
+					{/* Explorer Profile Details */}
+					<button
+						type='button'
+						onClick={() => {
+							playButtonPop(soundEnabled);
+							onOpenSettings();
+						}}
+						className='flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 rounded-full hover:bg-white/10 active:scale-95 transition-all cursor-pointer group'
+						title='Open Profile & Settings'>
+						<KidAvatar
+							avatarId={kidAvatar}
+							size='xs'
+							className='ring-1 ring-purple-300/60 group-hover:ring-purple-300 shadow-sm'
+							alt={`${kidName || 'Explorer'} avatar`}
+						/>
+						<span className='text-[10px] sm:text-xs font-black text-white whitespace-nowrap tracking-tight sm:tracking-wide'>
+							{kidName || 'Explorer'} ({kidAge || 5}y)
+						</span>
+						<Edit2 className='w-2.5 h-2.5 sm:w-3 sm:h-3 text-pink-300/80 group-hover:text-pink-300 flex-shrink-0' />
+					</button>
+
+					{/* Subtle Divider */}
+					{onOpenCrewModal && (
+						<div className='w-px h-3.5 sm:h-4 bg-white/20 mx-0.5 sm:mx-1 flex-shrink-0' />
+					)}
+
+					{/* Crew Switcher Action */}
+					{onOpenCrewModal && (
+						<button
+							type='button'
+							onClick={() => {
+								playButtonPop(soundEnabled);
+								onOpenCrewModal();
+							}}
+							className='flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full hover:bg-cyan-500/20 text-cyan-300 hover:text-white active:scale-95 transition-all cursor-pointer group'
+							title='Switch Flight Crew Astronaut Profile'>
+							<Users className='w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400 group-hover:scale-110 transition-transform' />
+							<span className='text-[10px] sm:text-xs font-black'>Crew</span>
+						</button>
+					)}
+				</div>
 
 				{/* Center ThinkSheet Badge with Animated Shrink-to-Top Transition */}
 				{animationPhase !== 'docked' ?
@@ -558,6 +588,126 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 					</button>
 				</div>
 
+				{/* Cosmic Explorations & Special Modes Suite */}
+				<div className='w-full grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-6'>
+					{/* 1. Time Warp Lightning Survival */}
+					<div
+						role='button'
+						tabIndex={0}
+						onClick={() => {
+							playButtonPop(soundEnabled);
+							if (onStartTimeWarp) onStartTimeWarp();
+						}}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								playButtonPop(soundEnabled);
+								if (onStartTimeWarp) onStartTimeWarp();
+							}
+						}}
+						className='group bg-gradient-to-br from-amber-500/20 via-orange-600/20 to-purple-900/40 border-2 border-amber-400/50 hover:border-amber-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
+						<div>
+							<div className='flex items-center justify-between gap-2 mb-2'>
+								<div className='w-9 h-9 rounded-xl bg-amber-400/30 border border-amber-300/50 flex items-center justify-center text-lg shadow-inner'>
+									⚡
+								</div>
+								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400/30 text-amber-200 border border-amber-400/40'>
+									Survival Mode
+								</span>
+							</div>
+							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-amber-300 transition-colors'>
+								Time Warp Lightning
+							</h3>
+							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
+								60s master timer! +5s bonus for correct, -3s for wrong. How long
+								can you survive?
+							</p>
+						</div>
+						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-amber-300'>
+							<span>Launch Warp Speed</span>
+							<span>⚡ →</span>
+						</div>
+					</div>
+
+					{/* 2. Constellation Observatory */}
+					<div
+						role='button'
+						tabIndex={0}
+						onClick={() => {
+							playButtonPop(soundEnabled);
+							if (onOpenObservatory) onOpenObservatory();
+						}}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								playButtonPop(soundEnabled);
+								if (onOpenObservatory) onOpenObservatory();
+							}
+						}}
+						className='group bg-gradient-to-br from-indigo-500/20 via-sky-600/20 to-purple-900/40 border-2 border-indigo-400/50 hover:border-indigo-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
+						<div>
+							<div className='flex items-center justify-between gap-2 mb-2'>
+								<div className='w-9 h-9 rounded-xl bg-indigo-400/30 border border-indigo-300/50 flex items-center justify-center text-lg shadow-inner'>
+									🌌
+								</div>
+								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-400/30 text-indigo-200 border border-indigo-400/40'>
+									Daily Stargazer
+								</span>
+							</div>
+							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-cyan-300 transition-colors'>
+								Stellar Sky Observatory
+							</h3>
+							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
+								Map Orion, Big Dipper & real celestial constellations
+								star-by-star every day!
+							</p>
+						</div>
+						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-cyan-300'>
+							<span>View Night Sky</span>
+							<span>🔭 →</span>
+						</div>
+					</div>
+
+					{/* 3. Pocket Planetarium */}
+					<div
+						role='button'
+						tabIndex={0}
+						onClick={() => {
+							playButtonPop(soundEnabled);
+							if (onOpenPlanetarium) onOpenPlanetarium();
+						}}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								playButtonPop(soundEnabled);
+								if (onOpenPlanetarium) onOpenPlanetarium();
+							}
+						}}
+						className='group bg-gradient-to-br from-cyan-500/20 via-teal-600/20 to-indigo-900/40 border-2 border-cyan-400/50 hover:border-cyan-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
+						<div>
+							<div className='flex items-center justify-between gap-2 mb-2'>
+								<div className='w-9 h-9 rounded-xl bg-cyan-400/30 border border-cyan-300/50 flex items-center justify-center text-lg shadow-inner'>
+									🪐
+								</div>
+								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-cyan-400/30 text-cyan-200 border border-cyan-400/40'>
+									3D Exploration
+								</span>
+							</div>
+							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-teal-300 transition-colors'>
+								Pocket Planetarium
+							</h3>
+							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
+								Tour 10 celestial worlds with interactive 3D spheres, moon
+								counts & audio guides.
+							</p>
+						</div>
+						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-teal-300'>
+							<span>Explore Worlds</span>
+							<span>🌍 →</span>
+						</div>
+					</div>
+				</div>
+
 				{/* Section Header with Action Buttons */}
 				<div className='w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-4'>
 					<div>
@@ -576,18 +726,18 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 							type='button'
 							onClick={handleTriggerImport}
 							className='px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer'
-							title='Import complete backup or skillsets from JSON file'>
+							title='Import complete backup or skillsets'>
 							<Upload className='w-3.5 h-3.5 text-cyan-300' />
-							<span>Import JSON</span>
+							<span>Import</span>
 						</button>
 
 						<button
 							type='button'
 							onClick={handleExportSkills}
 							className='px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer'
-							title='Export complete backup (settings + skillsets) to JSON file'>
+							title='Export complete backup (settings + skillsets)'>
 							<Download className='w-3.5 h-3.5 text-amber-300' />
-							<span>Export JSON</span>
+							<span>Export</span>
 						</button>
 
 						<button
@@ -797,7 +947,8 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 										</span>
 									</h4>
 									<p className='text-[11px] text-slate-300'>
-										Type any topic or keyword below, then click to auto-generate the complete skillset details!
+										Type any topic or keyword below, then click to auto-generate
+										the complete skillset details!
 									</p>
 								</div>
 							</div>
@@ -812,17 +963,16 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 									:	'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 hover:scale-105 active:scale-95 border border-amber-300 cursor-pointer'
 								}`}
 								title='Auto-generate skillset name, tagline, and pedagogical description using Google Gemini AI'>
-								{isAiSuggesting ? (
+								{isAiSuggesting ?
 									<>
 										<RefreshCw className='w-3.5 h-3.5 animate-spin text-cyan-300' />
 										<span>Generating with AI...</span>
 									</>
-								) : (
-									<>
+								:	<>
 										<Sparkles className='w-3.5 h-3.5' />
 										<span>Auto-Fill with AI</span>
 									</>
-								)}
+								}
 							</button>
 						</div>
 
@@ -833,7 +983,10 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 								aria-live='polite'
 								className='mb-4 p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-200 text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2'>
 								<Check className='w-4 h-4 text-emerald-400 flex-shrink-0' />
-								<span>✓ Gemini AI successfully auto-filled the skillset name, description, tagline, and icon!</span>
+								<span>
+									✓ Gemini AI successfully auto-filled the skillset name,
+									description, tagline, and icon!
+								</span>
 							</div>
 						)}
 

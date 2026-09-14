@@ -483,3 +483,180 @@ export function exportSessionToPdf(sessionData, customFilename) {
 
 	doc.save(safeFileName);
 }
+
+/**
+ * Generates an official, printable landscape Galactic Explorer Certificate of Excellence.
+ * Designed for parents to print and hang up on the wall or refrigerator!
+ */
+export function exportGalacticCertificateToPdf({
+	studentName = 'Explorer',
+	studentAge = 6,
+	rankTitle = 'Stargazer',
+	rankLevel = 1,
+	scorePercent = 100,
+	skillName = 'Space STEM',
+	date = new Date().toLocaleDateString(),
+}) {
+	const doc = new jsPDF({
+		orientation: 'landscape',
+		unit: 'mm',
+		format: 'a4',
+	});
+
+	const pageWidth = doc.internal.pageSize.getWidth(); // 297mm
+	const pageHeight = doc.internal.pageSize.getHeight(); // 210mm
+
+	// 1. Deep Space Background
+	doc.setFillColor(10, 13, 40); // Deep Cosmic Navy
+	doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+	// 2. Double Ornamental Border
+	doc.setDrawColor(245, 158, 11); // Gold outer border
+	doc.setLineWidth(2.5);
+	doc.roundedRect(10, 10, pageWidth - 20, pageHeight - 20, 4, 4, 'S');
+
+	doc.setDrawColor(34, 211, 238); // Cyan inner border
+	doc.setLineWidth(1.0);
+	doc.roundedRect(13, 13, pageWidth - 26, pageHeight - 26, 3, 3, 'S');
+
+	// Corner star accents
+	doc.setTextColor(251, 191, 36);
+	doc.setFont('helvetica', 'bold');
+	doc.setFontSize(14);
+	doc.text('+', 16, 19);
+	doc.text('+', pageWidth - 19, 19);
+	doc.text('+', 16, pageHeight - 16);
+	doc.text('+', pageWidth - 19, pageHeight - 16);
+
+	// 3. Institution Header
+	doc.setTextColor(147, 197, 253);
+	doc.setFont('helvetica', 'bold');
+	doc.setFontSize(11);
+	doc.text('ASTROQUEST SPACE ACADEMY - MISSION CONTROL', pageWidth / 2, 28, {
+		align: 'center',
+	});
+
+	// 4. Main Certificate Title
+	doc.setTextColor(255, 255, 255);
+	doc.setFont('helvetica', 'bold');
+	doc.setFontSize(26);
+	doc.text('GALACTIC EXPLORER DIPLOMA', pageWidth / 2, 42, {
+		align: 'center',
+	});
+
+	doc.setTextColor(251, 191, 36);
+	doc.setFontSize(13);
+	doc.text('OFFICIAL CERTIFICATE OF COSMIC EXCELLENCE', pageWidth / 2, 50, {
+		align: 'center',
+	});
+
+	// 5. Presentation Line
+	doc.setTextColor(203, 213, 225);
+	doc.setFont('helvetica', 'normal');
+	doc.setFontSize(12);
+	doc.text(
+		'This official space diploma is proudly awarded to',
+		pageWidth / 2,
+		65,
+		{
+			align: 'center',
+		},
+	);
+
+	// 6. Child's Name (Prominent Gold Banner)
+	const cleanName = cleanPdfText(studentName).toUpperCase() || 'CADET EXPLORER';
+	doc.setFillColor(18, 24, 75);
+	doc.roundedRect(40, 72, pageWidth - 80, 18, 3, 3, 'F');
+	doc.setDrawColor(245, 158, 11);
+	doc.setLineWidth(0.8);
+	doc.roundedRect(40, 72, pageWidth - 80, 18, 3, 3, 'S');
+
+	doc.setTextColor(255, 255, 255);
+	doc.setFont('helvetica', 'bold');
+	doc.setFontSize(22);
+	doc.text(cleanName, pageWidth / 2, 84, {
+		align: 'center',
+	});
+
+	// 7. Citation Body
+	doc.setTextColor(226, 232, 240);
+	doc.setFont('helvetica', 'normal');
+	doc.setFontSize(11.5);
+	const citation = `For extraordinary problem-solving, cognitive bravery, and stellar performance in ${cleanPdfText(skillName)}. By completing this cosmic mission with ${scorePercent}% accuracy, this cadet is hereby honored as:`;
+	const splitCitation = doc.splitTextToSize(citation, 210);
+	doc.text(splitCitation, pageWidth / 2, 103, { align: 'center' });
+
+	// 8. Astronaut Rank Insignia Box
+	doc.setFillColor(13, 20, 60);
+	doc.roundedRect(65, 120, pageWidth - 130, 24, 3, 3, 'F');
+	doc.setDrawColor(34, 211, 238);
+	doc.setLineWidth(1.2);
+	doc.roundedRect(65, 120, pageWidth - 130, 24, 3, 3, 'S');
+
+	doc.setTextColor(34, 211, 238);
+	doc.setFont('helvetica', 'bold');
+	doc.setFontSize(16);
+	doc.text(
+		`RANK: ${cleanPdfText(rankTitle).toUpperCase()}  -  LEVEL ${rankLevel}`,
+		pageWidth / 2,
+		131,
+		{ align: 'center' },
+	);
+
+	doc.setTextColor(251, 191, 36);
+	doc.setFontSize(10);
+	doc.text(
+		`MISSION STATUS: VERIFIED STEM CADET  -  AGE ${studentAge}`,
+		pageWidth / 2,
+		139,
+		{ align: 'center' },
+	);
+
+	// 9. Seal & Signatures
+	// Date on Left
+	doc.setTextColor(148, 163, 184);
+	doc.setFont('helvetica', 'normal');
+	doc.setFontSize(10);
+	doc.text('Date of Launch:', 45, 172);
+	doc.setTextColor(255, 255, 255);
+	doc.setFont('helvetica', 'bold');
+	doc.text(String(date), 45, 178);
+
+	// Golden Star Seal in Center
+	doc.setFillColor(245, 158, 11);
+	doc.circle(pageWidth / 2, 175, 14, 'F');
+	doc.setFillColor(10, 13, 40);
+	doc.circle(pageWidth / 2, 175, 11.5, 'F');
+	doc.setTextColor(251, 191, 36);
+	doc.setFont('helvetica', 'bold');
+	doc.setFontSize(8);
+	doc.text('OFFICIAL', pageWidth / 2, 173, { align: 'center' });
+	doc.text('SEAL', pageWidth / 2, 178, { align: 'center' });
+
+	// Signature on Right
+	doc.setDrawColor(148, 163, 184);
+	doc.setLineWidth(0.6);
+	doc.line(pageWidth - 95, 176, pageWidth - 45, 176);
+	doc.setTextColor(148, 163, 184);
+	doc.setFont('helvetica', 'normal');
+	doc.setFontSize(9);
+	doc.text('Chief Flight Director / Educator', pageWidth - 70, 181, {
+		align: 'center',
+	});
+
+	// 10. Footer Security Verification
+	doc.setTextColor(71, 85, 105);
+	doc.setFontSize(8);
+	const certId = `AQ-CERT-${Math.abs(cleanName.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0))}-${Date.now().toString().slice(-4)}`;
+	doc.text(
+		`Official Document ID: ${certId}  -  Generated by AstroQuest`,
+		pageWidth / 2,
+		198,
+		{
+			align: 'center',
+		},
+	);
+
+	const safeFilename = `${cleanName.replace(/[^\w-]/g, '_')}_AstroQuest_Certificate.pdf`;
+	doc.save(safeFilename);
+}

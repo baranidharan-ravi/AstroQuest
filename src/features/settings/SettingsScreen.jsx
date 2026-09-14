@@ -9,7 +9,6 @@ import {
 	ExternalLink,
 	Eye,
 	FastForward,
-	Footprints,
 	Key,
 	Lock,
 	Minus,
@@ -22,6 +21,7 @@ import {
 	Smile,
 	Sparkles,
 	Upload,
+	Users,
 	Volume2,
 	X,
 } from 'lucide-react';
@@ -42,9 +42,22 @@ import {
 	validateGeminiApiKey,
 } from '../../services/aiGenerator';
 import {
+	getStoredAmbientEnabled,
+	getStoredAmbientVolume,
+	isAmbientSoundPlaying,
+	setAmbientVolume,
+	setStoredAmbientEnabled,
+	setStoredAmbientVolume,
+	startAmbientSound,
+	stopAmbientSound,
+} from '../../utils/ambientAudio';
+import {
+	COSMIC_VOICE_PERSONALITIES,
 	getAvailableVoices,
+	getStoredVoicePersonality,
 	getStoredVoiceURI,
 	playButtonPop,
+	setStoredVoicePersonality,
 	setStoredVoiceURI,
 	speakText,
 } from '../../utils/audioSynthesis';
@@ -59,25 +72,22 @@ import {
 	importFullBackupFromJson,
 } from '../../utils/backupManager';
 import {
+	getActiveCrewId,
+	getAllCrewMembers,
+	switchActiveCrewMember,
+} from '../../utils/crewManager';
+import {
 	getStoredKidAge,
 	getStoredKidAvatar,
 	getStoredKidGender,
 	getStoredKidName,
-	getStoredPetAssistanceEnabled,
-	getStoredPetSize,
 	getStoredShowVisualDiagrams,
 	getStoredTimerConfig,
 	saveStoredKidProfile,
-	saveStoredPetAssistanceEnabled,
-	saveStoredPetSize,
 	saveStoredShowVisualDiagrams,
 	saveStoredTimerConfig,
 } from '../../utils/progressTracker';
-import {
-	PET_PROFILES,
-	PET_SIZES,
-	STORAGE_PET_KEY,
-} from '../companion/PetAssistant';
+import CrewSwitcherModal from '../dashboard/CrewSwitcherModal';
 
 const SettingsScreen = memo(function SettingsScreen({
 	onSaveAndReturn,
@@ -192,23 +202,6 @@ const SettingsScreen = memo(function SettingsScreen({
 	const [showVisualDiagrams, setShowVisualDiagrams] = useState(
 		getStoredShowVisualDiagrams,
 	);
-	const [petAssistanceEnabled, setPetAssistanceEnabled] = useState(
-		getStoredPetAssistanceEnabled,
-	);
-	const [selectedPetType, setSelectedPetType] = useState(() => {
-		try {
-			return localStorage.getItem(STORAGE_PET_KEY) || 'dog';
-		} catch {
-			return 'dog';
-		}
-	});
-	const [selectedPetSize, setSelectedPetSize] = useState(() => {
-		try {
-			return getStoredPetSize() || 'medium';
-		} catch {
-			return 'medium';
-		}
-	});
 
 	// Gemini Model selection state
 	const [selectedModel, setSelectedModel] = useState(() =>
@@ -236,6 +229,16 @@ const SettingsScreen = memo(function SettingsScreen({
 	const [isFetchingModels, setIsFetchingModels] = useState(false);
 	const [fetchModelStatus, setFetchModelStatus] = useState(null);
 
+	// Voice personality & Ambient audio state
+	const [selectedPersonality, setSelectedPersonality] = useState(
+		() => getStoredVoicePersonality() || 'classic',
+	);
+	const [ambientAudioEnabled, setAmbientAudioEnabled] = useState(() =>
+		getStoredAmbientEnabled(),
+	);
+	const [ambientAudioVolume, setAmbientAudioVolume] = useState(() =>
+		getStoredAmbientVolume(),
+	);
 	// Voice picker state
 	const [availableVoices, setAvailableVoices] = useState([]);
 	const [selectedVoiceURI, setSelectedVoiceURI] = useState(
@@ -244,6 +247,8 @@ const SettingsScreen = memo(function SettingsScreen({
 
 	const [initialValues, setInitialValues] = useState(null);
 	const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+	const [isCrewModalOpen, setIsCrewModalOpen] = useState(false);
+	const [crewMembers, setCrewMembers] = useState(() => getAllCrewMembers());
 
 	// Cross-Device Backup & Restore State
 	const backupFileInputRef = useRef(null);
@@ -316,12 +321,6 @@ const SettingsScreen = memo(function SettingsScreen({
 				const newAutoAdvanceSec =
 					Number(newTimerConfig.autoAdvanceSeconds) || 7;
 				const newShowDiagrams = Boolean(getStoredShowVisualDiagrams());
-				const newPetAssistance = Boolean(getStoredPetAssistanceEnabled());
-				let newPetType = 'dog';
-				try {
-					newPetType = localStorage.getItem(STORAGE_PET_KEY) || 'dog';
-				} catch {}
-				const newPetSize = getStoredPetSize() || 'medium';
 				const newVoiceURI = getStoredVoiceURI() || '';
 
 				setNameInput(newKidName);
@@ -338,9 +337,6 @@ const SettingsScreen = memo(function SettingsScreen({
 				setIsCustomAutoAdvance(![3, 5, 7, 10, 15].includes(newAutoAdvanceSec));
 				setIsCustomAge(!quickAges.includes(newKidAge));
 				setShowVisualDiagrams(newShowDiagrams);
-				setPetAssistanceEnabled(newPetAssistance);
-				setSelectedPetType(newPetType);
-				setSelectedPetSize(newPetSize);
 				setSelectedVoiceURI(newVoiceURI);
 
 				setInitialValues({
@@ -355,9 +351,6 @@ const SettingsScreen = memo(function SettingsScreen({
 					autoAdvanceEnabled: newTimerConfig.autoAdvanceEnabled !== false,
 					autoAdvanceSeconds: newAutoAdvanceSec,
 					showVisualDiagrams: newShowDiagrams,
-					petAssistanceEnabled: newPetAssistance,
-					selectedPetType: newPetType,
-					selectedPetSize: newPetSize,
 					selectedVoiceURI: newVoiceURI,
 				});
 
@@ -505,13 +498,10 @@ const SettingsScreen = memo(function SettingsScreen({
 		const initApiKey = getStoredEncryptedApiKey() || '';
 		const initModel = getStoredSelectedModel();
 		const initShowDiagrams = Boolean(getStoredShowVisualDiagrams());
-		const initPetAssistance = Boolean(getStoredPetAssistanceEnabled());
-		let initPetType = 'dog';
-		try {
-			initPetType = localStorage.getItem(STORAGE_PET_KEY) || 'dog';
-		} catch {}
-		const initPetSize = getStoredPetSize() || 'medium';
 		const initVoiceURI = getStoredVoiceURI() || '';
+		const initPersonality = getStoredVoicePersonality() || 'classic';
+		const initAmbientEnabled = getStoredAmbientEnabled();
+		const initAmbientVol = getStoredAmbientVolume();
 
 		setInitialValues({
 			name: initName,
@@ -525,10 +515,10 @@ const SettingsScreen = memo(function SettingsScreen({
 			autoAdvanceEnabled: initAutoAdvanceEnabled,
 			autoAdvanceSeconds: initAutoAdvanceSec,
 			showVisualDiagrams: initShowDiagrams,
-			petAssistanceEnabled: initPetAssistance,
-			selectedPetType: initPetType,
-			selectedPetSize: initPetSize,
 			selectedVoiceURI: initVoiceURI,
+			voicePersonality: initPersonality,
+			ambientEnabled: initAmbientEnabled,
+			ambientVolume: initAmbientVol,
 		});
 
 		setNameInput(initName);
@@ -547,10 +537,10 @@ const SettingsScreen = memo(function SettingsScreen({
 
 		setIsCustomAge(!quickAges.includes(initAge));
 		setShowVisualDiagrams(initShowDiagrams);
-		setPetAssistanceEnabled(initPetAssistance);
-		setSelectedPetType(initPetType);
-		setSelectedPetSize(initPetSize);
 		setSelectedVoiceURI(initVoiceURI);
+		setSelectedPersonality(initPersonality);
+		setAmbientAudioEnabled(initAmbientEnabled);
+		setAmbientAudioVolume(initAmbientVol);
 
 		// Load available voices — Chrome loads them async, so retry after a delay
 		const loadVoices = () => {
@@ -562,6 +552,45 @@ const SettingsScreen = memo(function SettingsScreen({
 		loadVoices();
 		const voiceTimer = setTimeout(loadVoices, 500);
 		return () => clearTimeout(voiceTimer);
+	}, []);
+
+	// Sync settings inputs when an astronaut flight crew profile is switched
+	useEffect(() => {
+		const handleCrewSync = () => {
+			setCrewMembers(getAllCrewMembers());
+			const initName = getStoredKidName() || '';
+			const initAge = Number(getStoredKidAge() || 5);
+			const initGender = getStoredKidGender() || 'boy';
+			const initAvatar =
+				getStoredKidAvatar() || getDefaultAvatarForGender(initGender);
+			const initPersonality = getStoredVoicePersonality() || 'classic';
+
+			setNameInput(initName);
+			setAgeInput(initAge);
+			setGenderInput(initGender);
+			setAvatarInput(initAvatar);
+			setSelectedPersonality(initPersonality);
+
+			setInitialValues((prev) =>
+				prev ?
+					{
+						...prev,
+						name: initName,
+						age: initAge,
+						gender: initGender,
+						avatar: initAvatar,
+						voicePersonality: initPersonality,
+					}
+				:	prev,
+			);
+		};
+
+		window.addEventListener('astroquest:crew_switched', handleCrewSync);
+		window.addEventListener('astroquest:crew_updated', handleCrewSync);
+		return () => {
+			window.removeEventListener('astroquest:crew_switched', handleCrewSync);
+			window.removeEventListener('astroquest:crew_updated', handleCrewSync);
+		};
 	}, []);
 
 	// Change detection: true if any setting differs from initial stored values
@@ -579,10 +608,10 @@ const SettingsScreen = memo(function SettingsScreen({
 			autoAdvanceEnabled !== initialValues.autoAdvanceEnabled ||
 			Number(autoAdvanceSeconds) !== Number(initialValues.autoAdvanceSeconds) ||
 			showVisualDiagrams !== initialValues.showVisualDiagrams ||
-			petAssistanceEnabled !== initialValues.petAssistanceEnabled ||
-			selectedPetType !== initialValues.selectedPetType ||
-			selectedPetSize !== initialValues.selectedPetSize ||
-			selectedVoiceURI !== initialValues.selectedVoiceURI
+			selectedVoiceURI !== initialValues.selectedVoiceURI ||
+			selectedPersonality !== initialValues.voicePersonality ||
+			ambientAudioEnabled !== initialValues.ambientEnabled ||
+			Number(ambientAudioVolume) !== Number(initialValues.ambientVolume)
 		);
 	}, [
 		initialValues,
@@ -597,10 +626,10 @@ const SettingsScreen = memo(function SettingsScreen({
 		autoAdvanceEnabled,
 		autoAdvanceSeconds,
 		showVisualDiagrams,
-		petAssistanceEnabled,
-		selectedPetType,
-		selectedPetSize,
 		selectedVoiceURI,
+		selectedPersonality,
+		ambientAudioEnabled,
+		ambientAudioVolume,
 	]);
 
 	// Warn browser before tab close/refresh if unsaved changes exist
@@ -673,9 +702,6 @@ const SettingsScreen = memo(function SettingsScreen({
 			);
 			setIsCustomAge(!quickAges.includes(Number(initialValues.age)));
 			setShowVisualDiagrams(initialValues.showVisualDiagrams);
-			setPetAssistanceEnabled(initialValues.petAssistanceEnabled);
-			setSelectedPetType(initialValues.selectedPetType);
-			setSelectedPetSize(initialValues.selectedPetSize);
 			setSelectedVoiceURI(initialValues.selectedVoiceURI);
 		}
 		setShowUnsavedModal(false);
@@ -788,12 +814,16 @@ const SettingsScreen = memo(function SettingsScreen({
 		};
 		saveStoredTimerConfig(updatedConfig);
 		saveStoredShowVisualDiagrams(showVisualDiagrams);
-		saveStoredPetAssistanceEnabled(petAssistanceEnabled);
-		try {
-			localStorage.setItem(STORAGE_PET_KEY, selectedPetType);
-		} catch {}
-		saveStoredPetSize(selectedPetSize);
 		setStoredVoiceURI(selectedVoiceURI || null);
+		setStoredVoicePersonality(selectedPersonality);
+		setStoredAmbientEnabled(ambientAudioEnabled);
+		setStoredAmbientVolume(ambientAudioVolume);
+
+		if (ambientAudioEnabled) {
+			startAmbientSound(ambientAudioVolume);
+		} else {
+			stopAmbientSound();
+		}
 
 		// Update initialValues to reflect newly saved state
 		setInitialValues({
@@ -808,10 +838,10 @@ const SettingsScreen = memo(function SettingsScreen({
 			autoAdvanceEnabled,
 			autoAdvanceSeconds,
 			showVisualDiagrams,
-			petAssistanceEnabled,
-			selectedPetType,
-			selectedPetSize,
 			selectedVoiceURI: selectedVoiceURI || '',
+			voicePersonality: selectedPersonality,
+			ambientEnabled: ambientAudioEnabled,
+			ambientVolume: ambientAudioVolume,
 		});
 
 		setIsValidating(false);
@@ -829,7 +859,6 @@ const SettingsScreen = memo(function SettingsScreen({
 				selectedModel,
 				timerConfig: updatedConfig,
 				showVisualDiagrams,
-				petAssistanceEnabled,
 			});
 		}
 	};
@@ -912,9 +941,9 @@ const SettingsScreen = memo(function SettingsScreen({
 							disabled={isValidating}
 							onClick={handleTriggerImportBackup}
 							className='flex-1 sm:flex-initial px-3 sm:px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer'
-							title='Import complete backup (settings and custom skillsets) from JSON file'>
+							title='Import complete backup (settings and custom skillsets)'>
 							<Upload className='w-3.5 h-3.5 text-cyan-300' />
-							<span>Import JSON</span>
+							<span>Import</span>
 						</button>
 
 						<button
@@ -922,9 +951,9 @@ const SettingsScreen = memo(function SettingsScreen({
 							disabled={isValidating}
 							onClick={handleExportBackup}
 							className='flex-1 sm:flex-initial px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-400/40 text-amber-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer'
-							title='Export complete backup (settings and custom skillsets) to JSON file'>
+							title='Export complete backup (settings and custom skillsets)'>
 							<Download className='w-3.5 h-3.5 text-amber-300' />
-							<span>Export JSON</span>
+							<span>Export</span>
 						</button>
 					</div>
 				</div>
@@ -943,6 +972,75 @@ const SettingsScreen = memo(function SettingsScreen({
 					</div>
 				)}
 
+				{/* Astronaut Flight Crew Management Card */}
+				<div className='bg-gradient-to-r from-blue-950/40 via-indigo-950/40 to-cyan-950/40 border border-cyan-500/30 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md'>
+					<div className='flex items-center justify-between gap-2 flex-wrap'>
+						<div className='flex items-center gap-2'>
+							<Users className='w-5 h-5 text-cyan-400' />
+							<div>
+								<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-2'>
+									<span>Astronaut Flight Crew Profiles</span>
+									<span className='text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'>
+										{crewMembers.length} Explorer
+										{crewMembers.length === 1 ? '' : 's'}
+									</span>
+								</h2>
+								<p className='text-[11px] text-slate-300'>
+									Manage multiple children on this device without sharing
+									progress or settings.
+								</p>
+							</div>
+						</div>
+
+						<button
+							type='button'
+							onClick={() => {
+								playButtonPop(soundEnabled);
+								setIsCrewModalOpen(true);
+							}}
+							className='px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer'>
+							<Users className='w-3.5 h-3.5' />
+							<span>Manage Crew Profiles</span>
+						</button>
+					</div>
+
+					{/* Crew Member Quick-Switch Chips */}
+					<div className='flex items-center gap-2 overflow-x-auto pb-1 pt-1'>
+						{crewMembers.map((member) => {
+							const isActive = member.id === getActiveCrewId();
+							return (
+								<button
+									key={member.id}
+									type='button'
+									onClick={() => {
+										playButtonPop(soundEnabled);
+										if (!isActive) {
+											switchActiveCrewMember(member.id);
+										}
+									}}
+									className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex-shrink-0 ${
+										isActive ?
+											'bg-cyan-500/25 border-cyan-400 ring-2 ring-cyan-400/40 text-white shadow-md'
+										:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 text-slate-300 hover:text-white'
+									}`}>
+									<KidAvatar
+										avatarId={member.avatar}
+										gender={member.gender}
+										size='xs'
+									/>
+									<span className='text-xs font-black'>{member.name}</span>
+									<span className='text-[10px] text-slate-400 font-bold'>
+										Age {member.age}
+									</span>
+									{isActive && (
+										<span className='w-2 h-2 rounded-full bg-cyan-400 animate-pulse' />
+									)}
+								</button>
+							);
+						})}
+					</div>
+				</div>
+
 				{/* Section 1: Child Name & Age */}
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4'>
 					{/* Name Card */}
@@ -955,8 +1053,13 @@ const SettingsScreen = memo(function SettingsScreen({
 						</label>
 						<input
 							id='child-name-input'
+							name='child_display_name'
 							type='text'
 							maxLength={30}
+							autoComplete='off'
+							data-1p-ignore='true'
+							data-lpignore='true'
+							data-form-type='other'
 							aria-required='true'
 							aria-describedby='child-name-desc'
 							disabled={isValidating}
@@ -1046,16 +1149,54 @@ const SettingsScreen = memo(function SettingsScreen({
 								<div className='flex-1 text-center'>
 									<input
 										id='custom-age-input'
+										name='child_age_years'
 										aria-label='Custom age in years'
 										type='number'
 										min={2}
 										max={14}
+										maxLength={2}
+										autoComplete='off'
+										data-1p-ignore='true'
+										data-lpignore='true'
+										data-form-type='other'
 										disabled={isValidating}
 										value={ageInput}
+										onKeyDown={(e) => {
+											// Block exponential, sign, and decimal characters
+											if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+												e.preventDefault();
+											}
+										}}
 										onChange={(e) => {
-											const val = parseInt(e.target.value, 10);
-											setAgeInput(isNaN(val) ? '' : val);
+											const raw = e.target.value;
+											if (raw === '') {
+												setAgeInput('');
+												if (error) setError('');
+												return;
+											}
+											// Keep only digits
+											const digits = raw.replace(/\D/g, '');
+											if (!digits) {
+												setAgeInput('');
+												return;
+											}
+											const parsed = parseInt(digits, 10);
+											if (parsed > 14) {
+												setAgeInput(14);
+											} else {
+												setAgeInput(parsed);
+											}
 											if (error) setError('');
+										}}
+										onBlur={() => {
+											const val = parseInt(ageInput, 10);
+											if (isNaN(val) || val < 2) {
+												setAgeInput(2);
+											} else if (val > 14) {
+												setAgeInput(14);
+											} else {
+												setAgeInput(val);
+											}
 										}}
 										className='w-full bg-transparent text-center text-base font-black text-cyan-300 focus:outline-none'
 									/>
@@ -1279,9 +1420,22 @@ const SettingsScreen = memo(function SettingsScreen({
 
 						<input
 							id='gemini-api-key-input'
+							name='gemini_api_key_field'
 							aria-required='true'
 							aria-describedby='api-key-desc'
-							type={isRevealed ? 'text' : 'password'}
+							type='text'
+							style={{
+								WebkitTextSecurity: isRevealed ? 'none' : 'disc',
+								textSecurity: isRevealed ? 'none' : 'disc',
+							}}
+							autoComplete='off'
+							autoCorrect='off'
+							autoCapitalize='off'
+							spellCheck='false'
+							data-1p-ignore='true'
+							data-lpignore='true'
+							data-form-type='other'
+							data-bwignore='true'
 							disabled={isValidating}
 							value={apiKeyInput}
 							onPaste={handlePasteKey}
@@ -1322,7 +1476,7 @@ const SettingsScreen = memo(function SettingsScreen({
 							className='text-[11px] text-slate-400 block'>
 							{isRevealed ?
 								<span className='text-amber-300 font-semibold'>
-									⚠️ Key visible — auto-masking like password in 3 seconds.
+									⚠️ Key visible — auto-masking in 3 seconds.
 								</span>
 							:	'Required for 100% real-time AI generation. Value is encrypted in the field.'
 							}
@@ -1727,234 +1881,244 @@ const SettingsScreen = memo(function SettingsScreen({
 					</div>
 				</div>
 
-				{/* Section 7: Interactive Cosmic Pet Assistant */}
-				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-pink-500/40 shadow-inner'>
-					<div className='flex items-center justify-between gap-2 mb-2'>
-						<div className='min-w-0'>
-							<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
-								<Footprints className='w-4 h-4 text-pink-400 flex-shrink-0' />
-								<span className='text-xs sm:text-sm font-bold text-white'>
-									Interactive Cosmic Pet Assistant
-								</span>
-								<span
-									className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
-										petAssistanceEnabled ?
-											'bg-pink-500 text-white shadow'
-										:	'bg-slate-800 text-slate-400'
-									}`}>
-									{petAssistanceEnabled ? 'Enabled' : 'Disabled'}
-								</span>
-							</div>
-						</div>
-
-						<button
-							type='button'
-							disabled={isValidating}
-							onClick={() => {
-								playButtonPop(soundEnabled);
-								setPetAssistanceEnabled((prev) => !prev);
-							}}
-							className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
-								petAssistanceEnabled ?
-									'bg-pink-500 text-white border-pink-400 shadow-[0_0_15px_rgba(244,114,182,0.4)]'
-								:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
-							}`}>
-							{petAssistanceEnabled ? '🐾 Enabled' : '🚫 Disabled'}
-						</button>
-					</div>
-
-					<p className='text-[11px] sm:text-xs text-slate-300 leading-relaxed mb-3'>
-						Choose whether the living 3D pet companion (Rocket the Pup, Luna the
-						Cat, Beep the Bot, or Zog) appears on screen to walk, drink water,
-						eat treats, and provide clues and audio narration.
-					</p>
-
-					{petAssistanceEnabled && (
-						<div className='pt-2.5 border-t border-white/10 space-y-2 animate-in fade-in duration-200'>
-							<span className='text-[10px] sm:text-[11px] font-bold text-pink-300 uppercase tracking-wider block'>
-								Active Companion
-							</span>
-							<div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
-								{Object.values(PET_PROFILES).map((pet) => {
-									const isSelected = selectedPetType === pet.id;
-									return (
-										<button
-											key={pet.id}
-											type='button'
-											onClick={() => {
-												playButtonPop(soundEnabled);
-												setSelectedPetType(pet.id);
-											}}
-											className={`p-2.5 rounded-xl border flex items-center gap-2.5 transition-all cursor-pointer text-left ${
-												isSelected ?
-													`bg-gradient-to-r ${pet.themeColor} ${pet.borderColor} ring-2 ring-white/60 shadow-md text-slate-950 font-black`
-												:	'bg-white/5 hover:bg-white/10 border-white/15 text-white'
-											}`}>
-											<img
-												src={pet.imageSrc}
-												alt={pet.name}
-												className='w-9 h-9 object-contain flex-shrink-0'
-											/>
-											<div className='min-w-0'>
-												<div className='text-xs font-bold truncate leading-tight'>
-													{pet.name}
-												</div>
-												<div
-													className={`text-[10px] ${
-														isSelected ?
-															'text-slate-900/80 font-semibold'
-														:	'text-slate-400'
-													} truncate`}>
-													{pet.badge}
-												</div>
-											</div>
-										</button>
-									);
-								})}
-							</div>
-
-							{/* Pet Companion Size Selection */}
-							<div className='pt-3 border-t border-white/10'>
-								<span className='text-[10px] sm:text-[11px] font-bold text-pink-300 uppercase tracking-wider block mb-2'>
-									Pet Companion Size
-								</span>
-								<div className='grid grid-cols-3 gap-2'>
-									{Object.values(PET_SIZES).map((size) => {
-										const isSelected = selectedPetSize === size.id;
-										return (
-											<button
-												key={size.id}
-												type='button'
-												onClick={() => {
-													playButtonPop(soundEnabled);
-													setSelectedPetSize(size.id);
-												}}
-												className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer text-center ${
-													isSelected ?
-														'bg-pink-500/25 border-pink-400 text-pink-200 ring-2 ring-pink-400/50 shadow-md font-bold'
-													:	'bg-white/5 hover:bg-white/10 border-white/15 text-slate-300'
-												}`}>
-												<div className='flex items-center gap-1'>
-													<span className='text-xs font-black text-white'>
-														{size.label}
-													</span>
-													<span className='text-[10px] text-pink-300/80 font-mono'>
-														({size.px}px)
-													</span>
-												</div>
-												<span className='text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider bg-white/10 text-white/90 font-black'>
-													{size.badge}
-												</span>
-											</button>
-										);
-									})}
-								</div>
-							</div>
-						</div>
-					)}
-				</div>
-
-				{/* Section 8: Narrator Voice */}
-				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-purple-500/40 shadow-inner'>
-					<div className='flex items-center justify-between gap-2 mb-2'>
+				{/* Section 7: Cosmic Audio & Sensory Focus Suite */}
+				<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-purple-500/40 shadow-inner space-y-4'>
+					{/* Header */}
+					<div className='flex items-center justify-between gap-2 border-b border-purple-500/20 pb-2.5'>
 						<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
 							<Volume2 className='w-4 h-4 text-purple-400 flex-shrink-0' />
 							<span className='text-xs sm:text-sm font-bold text-white'>
-								Narrator Voice
+								Cosmic Voice & Audio Focus Suite
 							</span>
 						</div>
-						{selectedVoiceURI && (
-							<span className='text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-400/40 truncate max-w-[130px] sm:max-w-[200px]'>
-								{availableVoices.find((v) => v.voiceURI === selectedVoiceURI)
-									?.name || 'Custom'}
-							</span>
-						)}
+						<span className='text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'>
+							Real-Time Audio
+						</span>
 					</div>
-					<p className='text-[11px] sm:text-xs text-slate-300 mb-2.5'>
-						Choose the voice used when reading questions aloud. Only one voice
-						speaks at a time.
-					</p>
 
-					{availableVoices.length === 0 ?
-						<div className='text-xs text-slate-400 font-semibold p-3 rounded-xl bg-slate-800/60 border border-slate-700'>
-							⚠️ No voices available yet. Try clicking the speaker icon on a
-							question to trigger voice loading, then reopen Settings.
+					{/* 7.1 Cosmic Voice Personalities */}
+					<div>
+						<div className='text-xs font-black text-purple-200 mb-1 flex items-center gap-1.5'>
+							<span>🎙️ Narrator Personality</span>
 						</div>
-					:	<div className='grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1'>
-							{/* Default / Auto option */}
-							<button
-								type='button'
-								onClick={() => {
-									playButtonPop(soundEnabled);
-									setSelectedVoiceURI('');
-								}}
-								className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-									!selectedVoiceURI ?
-										'bg-purple-500/20 border-purple-400 ring-2 ring-purple-400/40'
-									:	'bg-[#0D1030] border-slate-700 hover:border-slate-500'
-								}`}>
-								<div
-									className={`w-3 h-3 rounded-full flex-shrink-0 border-2 ${
-										!selectedVoiceURI ?
-											'bg-purple-400 border-purple-300'
-										:	'bg-transparent border-slate-500'
-									}`}
-								/>
-								<div className='min-w-0'>
-									<div className='text-xs font-black text-white'>
-										Auto (Recommended)
-									</div>
-									<div className='text-[10px] text-slate-400'>
-										Best available English voice
-									</div>
-								</div>
-							</button>
-
-							{availableVoices.map((voice) => {
-								const isSelected = selectedVoiceURI === voice.voiceURI;
+						<p className='text-[11px] sm:text-xs text-slate-300 mb-2.5'>
+							Select the personality and vocal pace of your cosmic flight
+							instructor:
+						</p>
+						<div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+							{COSMIC_VOICE_PERSONALITIES.map((p) => {
+								const isSelected = selectedPersonality === p.id;
 								return (
 									<button
-										key={voice.voiceURI}
+										key={p.id}
 										type='button'
 										onClick={() => {
 											playButtonPop(soundEnabled);
-											setSelectedVoiceURI(voice.voiceURI);
-											// Live preview of the voice
-											speakText(
-												'Hello! I am ready to read questions for you.',
-												null,
-												null,
-											);
+											setSelectedPersonality(p.id);
+											const phrases = {
+												classic: 'Hello! I am ready to read questions for you.',
+												bot: 'Beep-boop! All circuits operational. Ready for mission!',
+												nova: 'Commander Nova here! Prepare for stellar navigation!',
+												nebula:
+													'Welcome, young star traveler. Take a gentle breath.',
+											};
+											speakText(phrases[p.id] || phrases.classic);
 										}}
-										className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
+										className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
 											isSelected ?
-												'bg-purple-500/20 border-purple-400 ring-2 ring-purple-400/40'
-											:	'bg-[#0D1030] border-slate-700 hover:border-slate-500'
+												'bg-purple-500/25 border-purple-400 ring-2 ring-purple-400/50 shadow-md'
+											:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500'
 										}`}>
-										<div
-											className={`w-3 h-3 rounded-full flex-shrink-0 border-2 ${
-												isSelected ?
-													'bg-purple-400 border-purple-300'
-												:	'bg-transparent border-slate-500'
-											}`}
-										/>
-										<div className='min-w-0'>
-											<div
-												className={`text-xs font-black truncate ${
-													isSelected ? 'text-purple-200' : 'text-white'
-												}`}>
-												{voice.name}
+										<span className='text-xl sm:text-2xl leading-none flex-shrink-0'>
+											{p.emoji}
+										</span>
+										<div className='min-w-0 flex-1'>
+											<div className='flex items-center justify-between gap-1'>
+												<span
+													className={`text-xs font-black ${
+														isSelected ? 'text-purple-200' : 'text-white'
+													}`}>
+													{p.name}
+												</span>
+												{isSelected && (
+													<span className='text-[9px] font-black text-purple-300 bg-purple-500/30 px-1.5 py-0.2 rounded-full border border-purple-400/50'>
+														ACTIVE
+													</span>
+												)}
 											</div>
-											<div className='text-[10px] text-slate-400 truncate'>
-												{voice.lang}
-												{voice.localService ? ' · Local' : ' · Network'}
+											<div className='text-[10px] text-slate-400 leading-tight mt-0.5'>
+												{p.description}
 											</div>
 										</div>
 									</button>
 								);
 							})}
 						</div>
-					}
+					</div>
+
+					{/* 7.2 Ambient Deep-Space Focus Lo-Fi Soundscape */}
+					<div className='pt-3 border-t border-purple-500/20'>
+						<div className='flex items-center justify-between gap-2 mb-1.5'>
+							<div className='flex items-center gap-1.5'>
+								<span className='text-sm'>🎧</span>
+								<span className='text-xs font-black text-cyan-200'>
+									Deep-Space Focus Ambient Sound
+								</span>
+							</div>
+							<button
+								type='button'
+								onClick={() => {
+									playButtonPop(soundEnabled);
+									const next = !ambientAudioEnabled;
+									setAmbientAudioEnabled(next);
+									if (next) {
+										startAmbientSound(ambientAudioVolume);
+									} else {
+										stopAmbientSound();
+									}
+								}}
+								className={`px-3 py-1 rounded-full text-xs font-black transition-all border cursor-pointer ${
+									ambientAudioEnabled ?
+										'bg-cyan-500 text-cyan-950 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
+									:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+								}`}>
+								{ambientAudioEnabled ? '✨ Active' : 'Off'}
+							</button>
+						</div>
+						<p className='text-[11px] text-slate-300 mb-2 leading-relaxed'>
+							Gentle 432Hz harmonic space drone &amp; soothing star chimes.
+							Scientifically designed to calm test anxiety and improve focus.
+						</p>
+
+						{ambientAudioEnabled && (
+							<div className='bg-[#080B1E] p-2.5 rounded-xl border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn'>
+								<div className='flex items-center gap-2 w-full sm:w-auto'>
+									<span className='text-xs text-slate-400 font-bold'>
+										Soundscape Volume:
+									</span>
+									<input
+										type='range'
+										min='0.05'
+										max='0.8'
+										step='0.05'
+										value={ambientAudioVolume}
+										onChange={(e) => {
+											const val = parseFloat(e.target.value);
+											setAmbientAudioVolume(val);
+											setAmbientVolume(val);
+										}}
+										className='w-28 sm:w-36 accent-cyan-400 cursor-pointer'
+									/>
+									<span className='text-xs font-mono font-bold text-cyan-300'>
+										{Math.round(ambientAudioVolume * 100)}%
+									</span>
+								</div>
+								<button
+									type='button'
+									onClick={() => {
+										if (isAmbientSoundPlaying()) {
+											stopAmbientSound();
+										} else {
+											startAmbientSound(ambientAudioVolume);
+										}
+									}}
+									className='text-[11px] font-bold text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/80 px-2.5 py-1 rounded-lg border border-cyan-500/40 transition-all cursor-pointer'>
+									{isAmbientSoundPlaying() ? '⏸ Pause Preview' : '▶ Test Audio'}
+								</button>
+							</div>
+						)}
+					</div>
+
+					{/* 7.3 Specific Browser Voice Picker */}
+					<div className='pt-3 border-t border-purple-500/20'>
+						<div className='flex items-center justify-between gap-2 mb-1.5'>
+							<span className='text-xs font-bold text-slate-300'>
+								Specific Synthesizer Voice Override
+							</span>
+							{selectedVoiceURI && (
+								<span className='text-[9px] font-black px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-400/40 truncate max-w-[150px]'>
+									{availableVoices.find((v) => v.voiceURI === selectedVoiceURI)
+										?.name || 'Custom'}
+								</span>
+							)}
+						</div>
+
+						{availableVoices.length === 0 ?
+							<div className='text-xs text-slate-400 font-semibold p-2.5 rounded-xl bg-slate-800/60 border border-slate-700'>
+								⚠️ No voices loaded yet. Click speaker icon on a question to
+								pre-warm voices.
+							</div>
+						:	<div className='grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[160px] overflow-y-auto pr-1'>
+								{/* Default / Auto option */}
+								<button
+									type='button'
+									onClick={() => {
+										playButtonPop(soundEnabled);
+										setSelectedVoiceURI('');
+									}}
+									className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
+										!selectedVoiceURI ?
+											'bg-purple-500/20 border-purple-400 ring-2 ring-purple-400/40'
+										:	'bg-[#0D1030] border-slate-700 hover:border-slate-500'
+									}`}>
+									<div
+										className={`w-2.5 h-2.5 rounded-full flex-shrink-0 border-2 ${
+											!selectedVoiceURI ?
+												'bg-purple-400 border-purple-300'
+											:	'bg-transparent border-slate-500'
+										}`}
+									/>
+									<div className='min-w-0'>
+										<div className='text-xs font-bold text-white'>
+											Auto (Recommended)
+										</div>
+										<div className='text-[10px] text-slate-400'>
+											Matches personality automatically
+										</div>
+									</div>
+								</button>
+
+								{availableVoices.map((voice) => {
+									const isSelected = selectedVoiceURI === voice.voiceURI;
+									return (
+										<button
+											key={voice.voiceURI}
+											type='button'
+											onClick={() => {
+												playButtonPop(soundEnabled);
+												setSelectedVoiceURI(voice.voiceURI);
+												speakText('Voice calibrated for mission.');
+											}}
+											className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
+												isSelected ?
+													'bg-purple-500/20 border-purple-400 ring-2 ring-purple-400/40'
+												:	'bg-[#0D1030] border-slate-700 hover:border-slate-500'
+											}`}>
+											<div
+												className={`w-2.5 h-2.5 rounded-full flex-shrink-0 border-2 ${
+													isSelected ?
+														'bg-purple-400 border-purple-300'
+													:	'bg-transparent border-slate-500'
+												}`}
+											/>
+											<div className='min-w-0'>
+												<div
+													className={`text-xs font-bold truncate ${
+														isSelected ? 'text-purple-200' : 'text-white'
+													}`}>
+													{voice.name}
+												</div>
+												<div className='text-[10px] text-slate-400 truncate'>
+													{voice.lang}
+													{voice.localService ? ' · Local' : ' · Network'}
+												</div>
+											</div>
+										</button>
+									);
+								})}
+							</div>
+						}
+					</div>
 				</div>
 
 				{/* Error Alert */}
@@ -2085,6 +2249,15 @@ const SettingsScreen = memo(function SettingsScreen({
 						</div>
 					</div>
 				</div>
+			)}
+
+			{/* Crew Switcher Modal */}
+			{isCrewModalOpen && (
+				<CrewSwitcherModal
+					isOpen={isCrewModalOpen}
+					onClose={() => setIsCrewModalOpen(false)}
+					soundEnabled={soundEnabled}
+				/>
 			)}
 		</div>
 	);

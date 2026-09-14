@@ -183,8 +183,83 @@ export function playVictoryFanfare(enabled = true) {
 	});
 }
 
-// Emoji-to-word dictionary for emoji-only prompts (e.g. pattern sequences "🍎 🍌 🍎 🍌")
+// Emoji-to-word dictionary for emoji-only prompts (e.g. pattern sequences "🌟 🌙 🌟 🌙 🌟 ?")
 const EMOJI_SPEECH_MAP = {
+	// Stars & Celestial (Ensure ⭐, 🌟, ✨, etc. are pronounced clearly)
+	'⭐': 'star',
+	'🌟': 'star',
+	'✨': 'star',
+	'💫': 'star',
+	'★': 'star',
+	'☆': 'star',
+	'🌠': 'shooting star',
+	'☀️': 'sun',
+	'🌞': 'sun',
+	'🌙': 'moon',
+	'🌛': 'moon',
+	'🌜': 'moon',
+	'🌕': 'full moon',
+	'🪐': 'planet',
+	'🌍': 'earth',
+	'🌎': 'earth',
+	'🌏': 'earth',
+	'🚀': 'rocket',
+	'🛸': 'spaceship',
+	'☄️': 'comet',
+	'☄': 'comet',
+
+	// Geometric Shapes & Colors
+	'🔺': 'triangle',
+	'🔻': 'triangle',
+	'▲': 'triangle',
+	'▼': 'triangle',
+	'△': 'triangle',
+	'▽': 'triangle',
+	'▶': 'triangle',
+	'◀': 'triangle',
+	'🔴': 'red circle',
+	'🔵': 'blue circle',
+	'🟡': 'yellow circle',
+	'🟢': 'green circle',
+	'🟣': 'purple circle',
+	'🟠': 'orange circle',
+	'🟤': 'brown circle',
+	'⚫': 'black circle',
+	'⚪': 'white circle',
+	'●': 'circle',
+	'○': 'circle',
+	'⬛': 'black square',
+	'⬜': 'white square',
+	'🟥': 'red square',
+	'🟦': 'blue square',
+	'🟨': 'yellow square',
+	'🟩': 'green square',
+	'🟪': 'purple square',
+	'🟧': 'orange square',
+	'🟫': 'brown square',
+	'■': 'square',
+	'□': 'square',
+	'🔷': 'blue diamond',
+	'🔶': 'orange diamond',
+	'🔹': 'blue diamond',
+	'🔸': 'orange diamond',
+	'💎': 'diamond',
+	'💠': 'diamond',
+	'◆': 'diamond',
+	'◇': 'diamond',
+
+	// Hearts
+	'❤️': 'heart',
+	'💙': 'blue heart',
+	'💚': 'green heart',
+	'💛': 'yellow heart',
+	'💜': 'purple heart',
+	'🧡': 'orange heart',
+	'🤍': 'white heart',
+	'🖤': 'black heart',
+	'🤎': 'brown heart',
+
+	// Fruits & Food
 	'🍎': 'apple',
 	'🍏': 'green apple',
 	'🍌': 'banana',
@@ -192,6 +267,8 @@ const EMOJI_SPEECH_MAP = {
 	'🍇': 'grapes',
 	'🍊': 'orange',
 	'🍉': 'watermelon',
+
+	// Animals
 	'🐶': 'puppy',
 	'🐕': 'dog',
 	'🐱': 'kitten',
@@ -205,20 +282,11 @@ const EMOJI_SPEECH_MAP = {
 	'🐸': 'frog',
 	'🐝': 'bee',
 	'🦋': 'butterfly',
-	'🔴': 'red circle',
-	'🔵': 'blue circle',
-	'🟡': 'yellow circle',
-	'🟢': 'green circle',
-	'🔷': 'blue diamond',
-	'⭐': 'star',
-	'⬛': 'black square',
-	'⬜': 'white square',
+
+	// Common Objects
 	'🚗': 'car',
-	'🚀': 'rocket',
 	'🎈': 'balloon',
 	'🧊': 'ice cube',
-	'☀️': 'sun',
-	'🌙': 'moon',
 	'🧢': 'hat',
 	'🧦': 'socks',
 };
@@ -228,10 +296,11 @@ const EMOJI_REGEX =
 
 /**
  * Clean text for friendly speech narration:
- * 1. Replaces known emojis with words (e.g. 🍎 -> "apple", 🚗 -> "car")
+ * 1. Replaces known emojis with words (e.g. 🌟 -> "star", 🍎 -> "apple", 🚗 -> "car")
  * 2. Removes remaining symbols/emojis
  * 3. Strips markdown asterisks, hashes, backticks
- * 4. Normalizes whitespace
+ * 4. Handles sequence prompts ending in ? or _ so they sound natural
+ * 5. Normalizes whitespace
  */
 export function cleanTextForSpeech(text) {
 	if (!text || typeof text !== 'string') return '';
@@ -254,6 +323,15 @@ export function cleanTextForSpeech(text) {
 		.replace(/`([^`]+)`/g, '$1')
 		.replace(/^#+\s+/gm, '')
 		.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+
+	// If sequence prompt ends in '?' without an explicit question word (e.g. "star moon star moon ?"),
+	// convert trailing question mark to a friendly spoken prompt
+	if (
+		/\s*\?\s*$/.test(str) &&
+		!/(what|which|who|where|how|why|can|is|are|does|do|count|find)/i.test(str)
+	) {
+		str = str.replace(/\s*\?\s*$/, ', what comes next?');
+	}
 
 	// Normalize spaces
 	str = str.replace(/\s+/g, ' ').trim();
@@ -295,6 +373,64 @@ export function getAvailableVoices() {
 }
 
 const VOICE_URI_KEY = 'thinksheet_voice_uri';
+const VOICE_PERSONALITY_KEY = 'astroquest_voice_personality';
+
+export const COSMIC_VOICE_PERSONALITIES = [
+	{
+		id: 'classic',
+		name: 'Classic Explorer',
+		emoji: '🌟',
+		description: 'Natural, friendly explorer pace',
+		pitch: 1.1,
+		rate: 0.92,
+	},
+	{
+		id: 'bot',
+		name: 'Beep-Boop Bot',
+		emoji: '🤖',
+		description: 'Playful robotic cadence and lively tone',
+		pitch: 1.45,
+		rate: 0.96,
+	},
+	{
+		id: 'nova',
+		name: 'Captain Nova',
+		emoji: '🚀',
+		description: 'Confident, enthusiastic mission commander',
+		pitch: 1.02,
+		rate: 1.04,
+	},
+	{
+		id: 'nebula',
+		name: 'Gentle Nebula',
+		emoji: '🌌',
+		description: 'Calming, reassuring storyteller voice',
+		pitch: 0.92,
+		rate: 0.86,
+	},
+];
+
+export function getVoicePersonalities() {
+	return COSMIC_VOICE_PERSONALITIES;
+}
+
+export function getStoredVoicePersonality() {
+	try {
+		return localStorage.getItem(VOICE_PERSONALITY_KEY) || 'classic';
+	} catch {
+		return 'classic';
+	}
+}
+
+export function setStoredVoicePersonality(personalityId) {
+	try {
+		if (personalityId) {
+			localStorage.setItem(VOICE_PERSONALITY_KEY, personalityId);
+		} else {
+			localStorage.removeItem(VOICE_PERSONALITY_KEY);
+		}
+	} catch {}
+}
 
 /** Persist the user's chosen voice URI to localStorage */
 export function setStoredVoiceURI(uri) {
@@ -323,7 +459,7 @@ export function getStoredVoiceURI() {
  * 3. Any English voice
  * 4. First available voice
  */
-function resolveVoice(voices) {
+function resolveVoice(voices, personality = null) {
 	if (!voices || voices.length === 0) return null;
 
 	// 1. User-selected
@@ -333,7 +469,45 @@ function resolveVoice(voices) {
 		if (match) return match;
 	}
 
-	// 2. Preferred English voice names
+	// 2. Personality-aware matching if personality specified
+	if (personality && personality.id === 'bot') {
+		const robotVoice = voices.find(
+			(v) =>
+				v.lang &&
+				v.lang.startsWith('en') &&
+				(v.name.includes('Fred') ||
+					v.name.includes('Robot') ||
+					v.name.includes('Junior') ||
+					v.name.includes('Zarvox')),
+		);
+		if (robotVoice) return robotVoice;
+	} else if (personality && personality.id === 'nova') {
+		const leaderVoice = voices.find(
+			(v) =>
+				v.lang &&
+				v.lang.startsWith('en') &&
+				(v.name.includes('Guy') ||
+					v.name.includes('David') ||
+					v.name.includes('George') ||
+					v.name.includes('Ryan') ||
+					v.name.includes('Natural')),
+		);
+		if (leaderVoice) return leaderVoice;
+	} else if (personality && personality.id === 'nebula') {
+		const gentleVoice = voices.find(
+			(v) =>
+				v.lang &&
+				v.lang.startsWith('en') &&
+				(v.name.includes('Jenny') ||
+					v.name.includes('Aria') ||
+					v.name.includes('Samantha') ||
+					v.name.includes('Zira') ||
+					v.name.includes('Sonia')),
+		);
+		if (gentleVoice) return gentleVoice;
+	}
+
+	// 3. Preferred English voice names
 	const preferred = voices.find(
 		(v) =>
 			v.lang &&
@@ -350,11 +524,11 @@ function resolveVoice(voices) {
 	);
 	if (preferred) return preferred;
 
-	// 3. Any English voice
+	// 4. Any English voice
 	const anyEn = voices.find((v) => v.lang && v.lang.startsWith('en'));
 	if (anyEn) return anyEn;
 
-	// 4. Fallback
+	// 5. Fallback
 	return voices[0] || null;
 }
 
@@ -362,10 +536,16 @@ let activeUtterance = null; // Hold module-level reference to prevent Chromium g
 
 /**
  * Web Speech API Voice Narrator for Kids
+ * Supports Karaoke Word-by-Word synchronization via onBoundary callback.
  * Resilient against Chromium paused state and garbage collection quirks.
  * Always cancels any previous speech before starting a new one (single voice guarantee).
  */
-export function speakText(text, onStart = null, onEnd = null) {
+export function speakText(
+	text,
+	onStart = null,
+	onEnd = null,
+	onBoundary = null,
+) {
 	try {
 		if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
 			console.warn('Speech synthesis not supported on this browser.');
@@ -392,18 +572,24 @@ export function speakText(text, onStart = null, onEnd = null) {
 			window.__astroUtterance = utterance;
 		}
 
-		utterance.rate = 0.92; // natural pace for young learners
-		utterance.pitch = 1.1; // friendly tone
+		// Apply chosen cosmic voice personality
+		const personalityId = getStoredVoicePersonality();
+		const personality =
+			COSMIC_VOICE_PERSONALITIES.find((p) => p.id === personalityId) ||
+			COSMIC_VOICE_PERSONALITIES[0];
+
+		utterance.rate = personality.rate || 0.92;
+		utterance.pitch = personality.pitch || 1.1;
 		utterance.lang = 'en-US';
 
-		// Resolve and apply voice (respects user's saved preference)
+		// Resolve and apply voice (respects user's saved preference and personality)
 		const liveVoices = window.speechSynthesis.getVoices();
 		const voices =
 			liveVoices && liveVoices.length > 0 ? liveVoices : cachedVoices;
 		if (voices && voices.length > 0) {
 			cachedVoices = voices;
 		}
-		const voice = resolveVoice(voices);
+		const voice = resolveVoice(voices, personality);
 		if (voice) {
 			utterance.voice = voice;
 			utterance.lang = voice.lang || 'en-US';
@@ -425,6 +611,23 @@ export function speakText(text, onStart = null, onEnd = null) {
 			activeUtterance = null;
 			if (onEnd) onEnd();
 		};
+
+		// Real-time Karaoke word boundary tracking
+		if (typeof onBoundary === 'function') {
+			utterance.onboundary = (event) => {
+				try {
+					const charIndex =
+						typeof event.charIndex === 'number' ? event.charIndex : -1;
+					const charLength =
+						typeof event.charLength === 'number' ? event.charLength : 0;
+					onBoundary({
+						charIndex,
+						charLength,
+						name: event.name || 'word',
+					});
+				} catch {}
+			};
+		}
 
 		// Speak immediately to preserve user gesture context in WebKit/Safari/Chromium
 		if (window.speechSynthesis.paused) {

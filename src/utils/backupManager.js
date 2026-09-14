@@ -12,18 +12,32 @@ import {
 	setStoredApiKey,
 	setStoredSelectedModel,
 } from '../services/aiGenerator';
-import { getStoredVoiceURI, setStoredVoiceURI } from './audioSynthesis';
+import {
+	getStoredAmbientEnabled,
+	getStoredAmbientVolume,
+	setStoredAmbientEnabled,
+	setStoredAmbientVolume,
+} from './ambientAudio';
+import {
+	getStoredVoicePersonality,
+	getStoredVoiceURI,
+	setStoredVoicePersonality,
+	setStoredVoiceURI,
+} from './audioSynthesis';
+import { getStoredAchievements, saveAchievements } from './badgeManager';
+import {
+	getActiveCrewId,
+	getAllCrewMembers,
+	switchActiveCrewMember,
+} from './crewManager';
 import {
 	getStoredKidAge,
 	getStoredKidAvatar,
+	getStoredKidGender,
 	getStoredKidName,
-	getStoredPetAssistanceEnabled,
-	getStoredPetSize,
 	getStoredShowVisualDiagrams,
 	getStoredTimerConfig,
 	saveStoredKidProfile,
-	saveStoredPetAssistanceEnabled,
-	saveStoredPetSize,
 	saveStoredShowVisualDiagrams,
 	saveStoredTimerConfig,
 } from './progressTracker';
@@ -35,7 +49,7 @@ import { getCustomSkillsets, saveCustomSkillset } from './skillManager';
 export function createFullBackupPayload() {
 	return {
 		app: 'AstroQuest',
-		version: '2.0.0',
+		version: '2.1.0',
 		exportedAt: new Date().toISOString(),
 		settings: {
 			kidName: getStoredKidName() || '',
@@ -46,17 +60,14 @@ export function createFullBackupPayload() {
 			selectedModel: getStoredSelectedModel() || '',
 			timerConfig: getStoredTimerConfig(),
 			showVisualDiagrams: getStoredShowVisualDiagrams(),
-			petAssistanceEnabled: getStoredPetAssistanceEnabled(),
-			petSize: getStoredPetSize() || 'medium',
-			petType: (() => {
-				try {
-					return localStorage.getItem('astroquest_pet_type_v2') || 'dog';
-				} catch {
-					return 'dog';
-				}
-			})(),
 			voiceURI: getStoredVoiceURI() || '',
+			voicePersonality: getStoredVoicePersonality() || 'classic',
+			ambientEnabled: getStoredAmbientEnabled(),
+			ambientVolume: getStoredAmbientVolume(),
 		},
+		crew: getAllCrewMembers(),
+		activeCrewId: getActiveCrewId(),
+		achievements: getStoredAchievements(),
 		skillsets: getCustomSkillsets(),
 	};
 }
@@ -128,24 +139,45 @@ export function importFullBackupFromJson(jsonString) {
 		if (s.showVisualDiagrams !== undefined) {
 			saveStoredShowVisualDiagrams(Boolean(s.showVisualDiagrams));
 		}
-		if (s.petAssistanceEnabled !== undefined) {
-			saveStoredPetAssistanceEnabled(Boolean(s.petAssistanceEnabled));
-		}
-		if (s.petSize) {
-			saveStoredPetSize(s.petSize);
-		}
-		if (s.petType) {
-			try {
-				localStorage.setItem('astroquest_pet_type_v2', s.petType);
-			} catch {}
-		}
 		if (s.voiceURI !== undefined) {
 			setStoredVoiceURI(s.voiceURI || null);
+		}
+		if (s.voicePersonality) {
+			setStoredVoicePersonality(s.voicePersonality);
+		}
+		if (typeof s.ambientEnabled === 'boolean') {
+			setStoredAmbientEnabled(s.ambientEnabled);
+		}
+		if (typeof s.ambientVolume === 'number') {
+			setStoredAmbientVolume(s.ambientVolume);
 		}
 		importedSettings = true;
 	}
 
-	// 2. Import Skillsets
+	// 2. Import Astronaut Achievements & XP
+	if (data && data.achievements && typeof data.achievements === 'object') {
+		saveAchievements(data.achievements);
+	}
+
+	// 3. Import Multi-Child Astronaut Flight Crew Registry
+	if (data && Array.isArray(data.crew) && data.crew.length > 0) {
+		try {
+			localStorage.setItem(
+				'astroquest_crew_registry',
+				JSON.stringify(data.crew),
+			);
+			const targetActiveId =
+				data.activeCrewId && data.crew.some((m) => m.id === data.activeCrewId) ?
+					data.activeCrewId
+				:	data.crew[0].id;
+			switchActiveCrewMember(targetActiveId);
+			importedSettings = true;
+		} catch (e) {
+			console.warn('Could not restore crew registry:', e);
+		}
+	}
+
+	// 3. Import Skillsets
 	const incomingSkills =
 		Array.isArray(data) ? data
 		: Array.isArray(data.skillsets) ? data.skillsets

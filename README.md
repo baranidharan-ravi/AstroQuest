@@ -2,7 +2,26 @@
 
 An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **100% real-time direct AI question generation via Google Gemini API (Mandatory API Key with Live Validation)**, configurable auto-advance question pacing, customizable per-question countdown timers, streamlined exit workflows, dynamic mathematical SVG shape generation, and strict age-calibrated difficulty with zero offline/cached questions.
 
-> 💡 **Interactive Documentation**: Click on any section heading below to expand and explore the complete details.
+[![User Quick Start Guide](https://img.shields.io/badge/User%20Guide-Quick%20Start%20Guide-brightgreen?style=for-the-badge&logo=rocket)](USER_START_GUIDE.md)
+[![Implementation Documentation](https://img.shields.io/badge/Docs-Technical%20Architecture-blue?style=for-the-badge&logo=googledocs)](documentation/AstroQuest_Implementation_Documentation.md)
+
+> 📘 **New to AstroQuest?** Check out the comprehensive [**User Quick Start Guide (USER_START_GUIDE.md)**](USER_START_GUIDE.md) for a complete step-by-step walkthrough covering profile creation, Gemini API key setup, answering challenges, audio focus tools, and exploration modes!
+
+---
+
+## 📸 Application Feature Gallery
+
+|              🪐 Cosmic Dashboard & Mission Selection              |                      🧩 Active Quest & Geometric Shapes                      |
+| :---------------------------------------------------------------: | :--------------------------------------------------------------------------: |
+| ![Cosmic Dashboard](documentation/screenshots/dashboard_main.png) | ![Active Quest Visual](documentation/screenshots/quest_interface_visual.png) |
+
+|                     🚀 Space Mission Telemetry Loader                     |                            🛡️ Anti-Screenshot Paused Challenge                            |
+| :-----------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: |
+| ![Cosmic Quest Loader](documentation/screenshots/cosmic_quest_loader.png) | ![Anti-Screenshot Challenge Paused](documentation/screenshots/anti_screenshot_paused.png) |
+
+|                  💡 Solution Reveal & Cause-and-Effect                  |               🏆 Session Results & Starlight Badges               |
+| :---------------------------------------------------------------------: | :---------------------------------------------------------------: |
+| ![Solution Reveal](documentation/screenshots/solution_auto_advance.png) | ![Result Overview](documentation/screenshots/result_overview.png) |
 
 ---
 
@@ -13,7 +32,9 @@ An engaging, visual-first React.js educational platform designed for early child
 
 - **Full-Page Configuration Experience**: Replaced popup modals with a dedicated full-screen configuration interface:
   1. **Child's Name** _(Required)_: Personalized explorer name.
-  2. **Child's Age** _(Required)_: Quick age selector pills (`3`–`8`) + custom stepper supporting ages `2` to `14`.
+  2. **Child's Age** _(Required & Strictly Clamped 2–14)_: Quick age selector pills (`3`–`8`) + custom stepper and direct numeric input strictly restricted between ages `2` and `14` (non-digits and invalid characters blocked, live clamping to 14, and onBlur bounds enforcement).
+
+  ![Child Age Selection & Configuration](documentation/screenshots/settings_age_selection.png)
   3. **Google Gemini API Key** _(Mandatory 🔑 with Live Validation & Vault Security)_:
      - **Encrypted Value Display in Field**: The field strictly renders the salted encrypted vault ciphertext (`enc:v1:vault:...`) rather than exposed plaintext credentials, completely preventing DOM inspection and scraping of the raw key.
      - **3-Second Auto-Masking Window**: When a new or existing key is pasted or entered, the text is temporarily revealed for 3 seconds so the user can verify their input, after which it automatically masks into a password field (`••••••••`). The eye icon toggle has been removed to permanently prevent snooping.
@@ -24,16 +45,19 @@ An engaging, visual-first React.js educational platform designed for early child
      - **Persistent Local Caching**: The downloaded model list and timestamps are cached locally in browser storage (`thinksheet_dynamic_gemini_models_v1`). Subsequent visits to the Settings page load the models instantly from cache with **zero redundant network calls**.
      - **Automatic Latest Model Default Selection**: Models are dynamically parsed and ranked by version and performance score. The newest model is automatically identified, marked with a `Latest Default` badge, and pre-selected as the default model.
      - **Manual Refresh On Demand (`Fetch Latest Models 🔄`)**: Allows checking for and pulling newly announced Google Gemini frontier models at any time with one click.
-  5. **Per-Question Time Limit** _(Optional ⏱️)_: Toggle ON/OFF, select preset limits (`45s`, `60s`, `90s`, `2m`, `3m`), or set a custom duration (`15s`–`300s`).
+  5. **Per-Question Time Limit & Unlimited Stopwatch Mode** _(Optional ⏱️)_:
+     - **Countdown Mode**: Toggle ON to select preset per-question countdowns (`45s`, `60s`, `90s`, `2m`, `3m`) or a custom duration (`15s`–`300s`).
+     - **Unlimited Stopwatch Mode**: When disabled, elapsed session time is counted upward in a pausable stopwatch widget. Clicking either the Header timer badge or bottom bar timer toggles pause, and the timer **automatically resumes immediately whenever the student interacts with the question** (touches question card, selects an option, requests hints, or presses keyboard shortcuts).
   6. **Next Question Auto-Advance Delay** _(Optional ⏩)_: Toggle Auto-Advance ON/OFF, select preset delay (`3s`, `5s`, `7s Default`, `10s`, `15s`), or set a custom delay (`2s`–`30s`).
   7. **Visual Diagrams & Clues Display** _(Optional 👁️ - Disabled by Default)_: Toggle ON/OFF (`🙈 Hidden Default` / `👁️ Shown`) to choose whether interactive geometric diagrams, 3x3 matrices, sequence patterns, and STEM illustrations appear alongside questions **and** inside answer option cards. When disabled, option cards cleanly hide all shape containers and render full-width text choices.
   8. **Dynamic Visual Synthesis Notice**: Displays an informative amber alert in Settings explaining that visual diagrams and option shapes are dynamically generated via cognitive models and AI prompts, so minor visual variations may occasionally occur.
   9. **Narrator Voice Selector** _(Customizable 🎙️)_: Choose from all text-to-speech voices supported by your web browser and operating system, with an **"Auto (Recommended)"** default option and instant one-click audition audio playback before saving.
-  10. **Interactive Cosmic Pet Assistant Toggle & Active Companion Selector** _(Optional 🐾 - Enabled by Default)_: Toggle the living 3D companion ON or OFF anytime (`🐾 Enabled` / `🚫 Disabled`). When enabled, an interactive 4-card selector allows choosing the active companion (Rocket the Pup, Luna the Cat, Beep the Bot, or Zog the Alien) directly inside Settings. When disabled, the Pet Assistant is cleanly unmounted from the DOM for zero resource consumption.
+  10. **Clean, Unobstructed Question Focus (Pet Assistant Removed)**: Streamlined learning experience ensuring young explorers maintain 100% focused attention on question prompts, cognitive patterns, and answer choices with zero floating visual distractions.
   11. **Cross-Device Backup & Portability Engine (`Export JSON 📤` / `Import JSON 📥`)**:
       - **Complete Configuration Bundling**: Export your entire setup into a portable JSON backup file (`astroquest_complete_backup_YYYY-MM-DD.json`), including child's name, age, salted encrypted Gemini API key, selected Gemini model, question timer settings, auto-advance delay, visual diagrams toggle, voice selection, and all custom skillsets.
       - **Seamless Multi-Computer Migration**: Transfer your child's learning profile and custom-built topics to any other laptop, classroom computer, or browser with one click.
       - **Zero-Refresh Reactive Hydration**: Importing instantly populates all form fields, updates application state, and syncs `localStorage` without requiring a page reload.
+
 - **Live Verification on Save**: When clicking **"Save & Launch 🚀"**, the app sends an asynchronous test ping to Google Gemini API. If the key is invalid or expired, a clear red error is shown and the settings page remains open until a valid key is provided.
 - **Settings Dirty-State Guard & Save Confirmation Before Navigation**:
   - Automatically tracks whether any setting (explorer name, age, API key, model selection, timer challenge, auto-advance delay, voice, or visual diagram preference) has been modified.
@@ -66,12 +90,16 @@ An engaging, visual-first React.js educational platform designed for early child
   - Allows students to skip challenging or unfamiliar questions directly from the question screen.
   - Skipped questions are marked with an amber indicator in the top progress bar and recorded in the Question Summary and Result Overview (`{correctCount} Correct • {skippedCount} Skipped`).
 
+![Active Analytical Thinking Quest Interface](documentation/screenshots/quest_interface_analytical.png)
+
 </details>
 
 ---
 
 <details>
 <summary><h3 style="display: inline;">2.1. 🛸 Immersive Space-Themed Cosmic Quest Loader (`CosmicQuestLoader.jsx`)</h3></summary>
+
+![Cosmic Quest Loader Space Mission](documentation/screenshots/cosmic_quest_loader.png)
 
 - **Dynamic Space Mission Theater**:
   - Replaced generic loading spinners with a custom, application-connected space theater that engages young explorers while the Gemini AI synthesizes questions.
@@ -180,9 +208,12 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
     - Pairs every cell with the exact shape (`Star`, `Moon`, `Sun`, etc.) and pattern (`Solid`, `Striped`, `Dotted`).
     - In Question mode: The unknown tile renders a purple dashed cell with `❓`.
     - In Solution mode: The target tile displays the correct answer tile highlighted in emerald green.
+
+  ![3x3 Matrix Grid Shape Progression](documentation/screenshots/quest_matrix_grid.png)
   - **Clean & Deduplicated Visual Cards (`DynamicShapeCard`)**:
     - Renders the exact geometric shape cleanly on a pedestal with a deduplicated style tag (e.g. `Gold Star`, `Gold Moon`, `Dotted Sun`).
     - Prevents duplicate emoji output by ensuring the visual representation and text label never redundantly print identical emojis.
+
 - **Dynamic SVG Shapes & Concept Icons in Answer Option Cards (`OptionsGrid.jsx`)**:
   - Each answer option card (A, B, C, D) renders the exact mathematical SVG shape or concept visual icon alongside the answer text.
   - **Automatic Contrast Pedestals**:
@@ -205,11 +236,21 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
   - Includes a step-by-step physics breakdown (`Incident Ray` ➔ `Light Bends (Refraction)` ➔ `Rainbow Colors Split`) and solution confirmation.
 - **Rich Relational Analogy Boards (`analogy-map`)**:
   - Activated strictly for genuine 4-term analogies (`A : B :: C : D`), eliminating generic dummy placeholder fallbacks.
-- **Cause & Effect Flow (`cause-effect`)**: Process chains visualizing scientific actions, experiments, and resulting phenomena.
+
+  ![Relational Analogy Board](documentation/screenshots/quest_analogy.png)
+
+- **Cause & Effect Flow (`cause-effect`)**:
+  - Process chains visualizing scientific actions, experiments, and resulting phenomena.
+
+  ![Cause and Effect Flow Solution](documentation/screenshots/solution_cause_effect.png)
+
 - **Growing Shape Count Progressions & Triangular Clusters (`shape-pattern-grid`)**:
   - Automatically parses multi-step shape count progressions (e.g. Step 1 has 1 square, Step 2 has 3 squares, Step 3 has 6 squares, Step 4 has 10 squares).
   - Renders true visual clusters of $N$ geometric shapes (e.g. 1 square, a triangular cluster of 3 squares, a triangular cluster of 6 squares, a triangular cluster of 10 squares) rather than a single shape.
   - Step 6 target card (`❓ Step 6: How many?`) reveals 21 shaded squares in Solution mode with step and count badges.
+
+  ![Geometric Shape Progression & Zoom](documentation/screenshots/geometric_progression_zoom.png)
+
 - **Sequence Ladders (`sequence-ladder`)**: Number lines and progression steps with interval rules.
 - **3D Isometric Block Pyramids & Cube Towers (`block-tower` / `isometric-tower`)**:
   - Automatically parses layer dimensions from question text (e.g. $3\times3$ base with 9 cubes, $2\times2$ middle with 4 cubes, $1\times1$ top with 1 cube = 14 unit cubes).
@@ -252,6 +293,8 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
     - The solution and visual diagram remain on screen indefinitely.
     - The student or parent clicks the `Next Question ➔` button when ready to proceed.
 
+![Solution Panel with Auto-Advance Countdown](documentation/screenshots/solution_auto_advance.png)
+
 </details>
 
 ---
@@ -268,6 +311,8 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
   - **Normal (> 15s)**: Dark translucent pill (`bg-black/30 text-white/90`).
   - **Warning (<= 15s)**: Pulsating amber alert (`bg-amber-950/80 text-amber-300`).
   - **Critical (<= 5s)**: Bouncing red urgent indicator (`bg-rose-950 text-rose-300`).
+
+![Action Bar with Disabled Skip when Paused](documentation/screenshots/disabled_skip_paused.png)
 
 </details>
 
@@ -328,6 +373,13 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 <summary><h3 style="display: inline;">10. 🏆 Performance Results & Session Summary System</h3></summary>
 
 - **Celebratory Feedback**: 3D `COMPLETED` ribbon banner, glowing star ratings (1 to 3 stars), and confetti particle bursts.
+- **Result Overview Card**: Dedicated session performance card displaying a clear 3-way breakdown:
+  - 🟢 **Correct**: Total questions answered correctly.
+  - 🔴 **Wrong**: Total questions answered incorrectly.
+  - 🟡 **Skipped**: Total questions skipped without answering.
+
+![Session Performance Result Overview](documentation/screenshots/result_overview.png)
+
 - **Detailed Question Summary Accordion**:
   - Detailed review comparing the child's selected answers against correct solutions.
   - **"Expand All" & "Collapse All" Actions**: Header controls (`ChevronsDownUp` & `ChevronsUpDown`) allow parents and educators to effortlessly expand all 10 questions simultaneously for a comprehensive evaluation, or collapse them with a single click.
@@ -336,10 +388,9 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
     - 🟡 **Skipped Question** (`SkipForward ⏭️` with amber card and `⏭️ Skipped (Not Answered)` label).
     - ⏱️ **Timed Out** (`⏱️ Timed Out (Not Answered)` label).
     - 🔴 **Incorrect Answer** (`XCircle` with red card).
-- **Result Overview Card**: Dedicated session performance card displaying a clear 3-way breakdown:
-  - 🟢 **Correct**: Total questions answered correctly.
-  - 🔴 **Wrong**: Total questions answered incorrectly.
-  - 🟡 **Skipped**: Total questions skipped without answering.
+
+![Question Summary Review Accordion](documentation/screenshots/question_summary_accordion.png)
+
 - **📄 Download PDF Session Report (`exportSessionToPdf`)**:
   - Replaces raw JSON exports with a beautifully formatted, multi-page PDF document.
   - **Timestamped & Personalized Filename**: Includes Child Name, Skill, Sheet #, Date, and Time:
@@ -636,51 +687,123 @@ AstroQuest is engineered from the ground up to comply with **Web Content Accessi
 ---
 
 <details>
-<summary><h2 style="display: inline;">🐾 Articulated Living 3D Pet Companion & Independent Controls</h2></summary>
+<summary><h2 style="display: inline;">🚀 Recent Architectural Enhancements & Experience Refinements</h2></summary>
 
-- **True Articulated Living Animal Simulation (`LivingPetCharacter.jsx`)**:
-  - Replaced static pictures with a multi-layered articulated living animal simulation engine:
-    - **Rocket the Space Scout Pup**: Golden retriever puppy with reflective astronaut helmet, purple space suit, floppy ears, dark sparkling eyes, soft pink paw pads, and wagging tail.
-    - **Luna the Cat**: Astronaut kitten drinking fresh milk, eating tasty tuna, and curling up for naps.
-    - **Beep the Bot**: Cyber companion with energetic antenna, plasma thruster glows, and battery recharge animations.
-    - **Zog the Buddy**: Cosmic alien friend with twinkling antennae and sweet cosmic gummy treats.
-  - **Authentic Living Behavior Cycles**:
-    - 🚶 **Walking & Trotting**: Physical stepping strides across the viewport with trot bounces (`animate-walk-trot`), ear flop physics, and automatic direction reversal (`scaleX(-1)`) at screen edges.
-    - 🥛 **Drinking Milk / Water**: Ceramic bowl appears, head dips down, pink tongue rhythmically laps liquid (`animate-tongue-lap`), concentric ripples expand (`animate-water-ripple`), and splash droplets jump into the air with procedural slurping audio.
-    - 🍖 **Eating Crunchy Food**: Ceramic treat bowl appears, head dips, chewing jaws munch up and down (`animate-jaw-chew`), and popped crumb particles fly with crunchy munching sound effects.
-    - 🎾 **Playing Catch**: Bouncing cosmic star ball with squash-and-stretch physics (`animate-ball-bounce`) that the pet swats playfully.
-    - 💖 **Cuddling & Affection**: Tail wags frantically, mouth opens in a happy bark, cheeks blush pink (`#FDA4AF`), and a shower of floating hearts/stars appears.
-    - 💤 **Anti-Gravity Sleeping**: Paws tucked under chest, curved closed eyelids (`⌒ ⌒`), slow rhythmic breathing (`animate-pet-breathe`), and drifting Zzz bubbles.
-    - 👁️ **Natural Eye Blinking**: Automated 3.8-second periodic blink cycle toggling eyelid closures for life-like presence.
-  - **Contextual Comic Speech Bubble**: Dynamic speech cues (`"Let's figure it out! 🚀"`, celebrating correct answers, and giving clues) anchored smoothly beside the question card.
+### 1. AstroQuest Standalone Vector Logo (`src/utils/AstroQuestLogo.jsx`)
 
-- **Separate Independent Vertical Control Buttons (`PetAssistant.jsx`)**:
-  - **Zero Obstruction & Decoupled Architecture**: The control toolbar is completely detached from the pet character. The living pet walks and plays freely without dragging UI buttons beneath it.
-  - **Ultra-Slim Vertical Column (`w-11`, 44px)**: Formatted as a sleek vertical strip docked along the screen edge by default (`x = window.innerWidth - 64`), leaving 100% of question prompts, math diagrams, and answer choices completely unobstructed.
-  - **Independent Drag Handle (`GripVertical`)**: Equipped with its own top drag handle so users can freely reposition the toolbar anywhere on screen independently of the pet.
-  - **Persistent Coordinates**: Remembers user positioning across page reloads via `localStorage` key `astroquest_pet_vertical_toolbar_pos_v6`.
-  - **One-Click Collapsible Mini Mode**: A collapse toggle (`ChevronUp` / `ChevronDown`) condenses the full toolbar into an ultra-compact 44px round coin badge showing the active pet emoji.
-  - **Smart Adjacent Companion Flyout**: The companion selection menu dynamically detects screen position and projects out cleanly to the left or right of the vertical bar without obstructing question options.
-  - **Full Vertical Button Stack**:
-    - ⠿ **Drag Grip**: Reposition toolbar anywhere.
-    - 💡 **Clue Hint**: Age-appropriate pedagogical quiz hint.
-    - 🗣️ **Read Aloud**: Clear voice narration using Web Speech API.
-    - 🐾 **Walk**: Starts/stops screen walking trot.
-    - 🥛 **Drink**: Spawns milk/water bowl with lapping tongue and ripples.
-    - 🍖 **Eat**: Spawns crunchy treats bowl with chewing jaws and crumbs.
-    - 🎾 **Play**: Spawns bouncing star toy ball with squash-and-stretch physics.
-    - 💖 **Cuddle**: Petting, tail wagging, happy bark, and heart burst.
-    - 💤 **Nap**: Toggles sleep / wake cycles with rhythmic breathing and drifting Zzzs.
-    - 🔄 **Switch Companion**: Flyout selector (Rocket, Luna, Beep, Zog).
-    - 🎯 **Center Pet**: Re-centers living pet between cards.
-    - ⌄ **Minimize Pet**: Sends pet to bottom corner wake-up button.
-    - ⌃ **Collapse Toolbar**: Toggles vertical toolbar between full and mini coin modes.
+- **Zero-Dependency Inline SVG Architecture**:
+  - Eliminated static asset path resolution failures (`/astroquest-icon.svg`) by embedding an inline, zero-dependency SVG vector component.
+  - Implements the official AstroQuest squircle icon: deep space gradient canvas (`#312E81` ➔ `#1E1B4B` ➔ `#0B0D28`), 45° aerodynamic space rocket with dual-layer thruster exhaust (`#FBBF24` ➔ `#EF4444`), glass porthole cabin with specular highlights, planetary orbital ring (`#38BDF8`), distant celestial body, and 4-point golden stardust.
+  - Features configurable `className`, smooth vector scaling, and integrated dark/light contrast badges across all headers and modals.
 
-- **Settings Screen Enable / Disable Control**:
-  - **Configurable Toggle**: Parents and teachers can toggle Pet Assistance ON or OFF at any time in the Settings screen (`🐾 Enabled` / `🚫 Disabled`).
-  - **Active Companion Card Selector**: When enabled, lets users preview and choose their default companion directly in Settings.
-  - **Clean DOM Unmounting**: When disabled, the component is completely unmounted from the DOM, shutting down all interval timers and background animations for zero resource usage.
-  - **Persistence & Portability**: Stored in `localStorage` (`astroquest_pet_assistance_enabled_v1`) and included in cross-device JSON backup and restore files.
+### 2. Enhanced Speech Synthesis & Pattern Narration (`src/utils/audioSynthesis.js`)
+
+- **Complete Celestial & Geometric Emoji Speech Dictionary**:
+  - Expanded `EMOJI_SPEECH_MAP` with comprehensive celestial and astronomical symbols: stars (`⭐`, `🌟`, `✨`, `💫`, `★`, `☆`, `🌠`), suns (`☀️`, `🌞`), moons (`🌙`, `🌛`, `🌜`, `🌕`), planets (`🪐`, `🌍`), rockets (`🚀`), and comets.
+  - Full geometric shape phonetic coverage: triangles (`🔺🔻▲▼△▽▶◀`), circles (`🔴🔵🟡🟢🟣🟠🟤⚫⚪●○`), squares (`⬛⬜🟥🟦🟨🟩🟪🟧🟫■□`), diamonds (`🔷🔶🔹🔸💎💠◆◇`), and hearts (`❤️💙💚💛💜🧡🤍🖤🤎`).
+- **Pattern Sequence Cadence & Question Transformation**:
+  - Trailing question marks in visual emoji pattern sequences without explicit interrogatives (e.g., `🌟 🌙 🌟 🌙 🌟 ?`) are now automatically pronounced as natural spoken prompts (e.g., `"star, crescent moon, star, crescent moon, star, what comes next?"`).
+  - Ensures seamless accessibility and voice engagement for young pre-readers.
+
+### 3. Unlimited Timing Pause & Auto-Resume Engine (`src/App.jsx`, `src/utils/Header.jsx`)
+
+- **Pausable Stopwatch in Unlimited Session Mode**:
+  - In untimed/unlimited exploration mode (`timerConfig.enabled === false`), children and educators can pause the elapsed stopwatch at any time via a dedicated Play/Pause toggle widget in the header and mobile action bar.
+  - Visual status indicators: An amber `PAUSED` pill badge and pulsating pause icon clearly inform the child that the session clock is held.
+- **Immediate Auto-Resume on Question Interaction**:
+  - Utilizes capture-phase event listening (`onPointerDownCapture={resumeTimerIfPaused}`) on question containers.
+  - Any user interaction—clicking an answer choice, dragging an option, revealing a cognitive hint, asking an AI doubt, pressing number/arrow hotkeys, or tapping the question canvas—instantly resumes the session clock without requiring manual unpause clicks.
+
+### 4. Strict Child Age Restriction (2 to 14 Years Old) (`src/features/settings/SettingsScreen.jsx`)
+
+- **Tailored Pediatric Age Bounds**:
+  - Restricts custom child age input to the target range of **2 to 14 years old**.
+  - **Keypress Filtering**: Automatically blocks scientific notation, signs, and decimals (`'e'`, `'E'`, `'+'`, `'-'`, `'.'`).
+  - **Real-Time Sanitization**: Strips non-digit characters and dynamically clamps values exceeding 14 down to 14 on keystroke.
+  - **Blur & Form Validation**: Enforces bottom clamp of 2 on focus exit, and hard rejection in `handleSave` if age falls outside `[2, 14]`.
+
+### 5. Clutter-Free Question View & Pet Feature Retirement
+
+- **Unobstructed Cognitive Viewport**:
+  - Completely removed the experimental Pet Assistant floating overlay, independent vertical toolbar, companion selection cards, and settings toggles.
+  - Guarantees 100% unobstructed screen space for complex STEM diagrams, pattern grids, and multiple-choice answer buttons.
+  - Shuts down background animation intervals and audio synthesis loops, maximizing rendering performance and battery life on mobile and tablet devices.
+
+### 6. Unified Quick Controls Option with Floating Tooltip (`src/utils/Header.jsx`)
+
+- **Single Option Header Consolidation**:
+  - Combined the 3 separate buttons (Voice Narrator, Sound Effects, and Fullscreen toggle) into a single, compact Quick Controls button featuring the `SlidersHorizontal` icon.
+  - Features an active cyan indicator dot whenever voice narration or sound effects are active.
+- **Interactive Multi-Option Floating Tooltip**:
+  - Clicking the single button opens a floating cosmic backdrop card displaying all 3 options side-by-side with color-coded active highlights:
+    - **Voice Narrator**: `Mic` / `MicOff` with purple accent glow and status label.
+    - **Sound Effects**: `Volume2` / `VolumeX` with cyan/rose accent and status label.
+    - **Fullscreen**: `Maximize` / `Minimize` with blue accent and status label.
+  - Equipped with outside-click and `Escape` key dismissal, while retaining open state during toggles for multi-setting adjustments.
+
+### 7. Browser Password Manager Suppression (`src/features/settings/SettingsScreen.jsx`)
+
+- **Non-Credential Input Architecture**:
+  - Replaced `type="password"` on the Gemini API key field with `type="text"` combined with CSS `-webkit-text-security: disc`.
+  - Characters are visually masked with bullet dots (`••••••••`), but browsers recognize the element as standard text rather than an account login credential.
+  - Configured inputs with `autoComplete="off"`, `data-1p-ignore="true"`, `data-lpignore="true"`, `data-bwignore="true"`, and `data-form-type="other"`.
+  - Permanently eliminates unexpected browser "Save password?" dialogs (such as Chrome saving "140" as username) upon saving settings.
+
+### 8. Question Loading Timer Synchronization & Anti-Screenshot Blurring (`src/App.jsx`)
+
+- **Automatic Timer Pause & Auto-Resume**:
+  - Transitioning between questions automatically pauses the countdown timer or stopwatch while the next question loads, protecting student time.
+  - As soon as the next challenge is mounted, the timer automatically resumes without manual intervention.
+- **Immediate Resume & Instant Jump**:
+  - If the student or educator resumes the timer while the next question is loading, AstroQuest immediately bypasses the transition wait, instantly mounts the next question, and resumes the timer.
+- **Pre-Submission Anti-Screenshot Blurring**:
+  - Whenever the timer is paused before submitting (`!isSubmitted`), the question card and answer options are heavily blurred (`filter: blur(16px)`) with an interactive "Challenge Paused ⏸️" shield overlay, preventing students from taking screenshots to look up answers.
+
+![Challenge Paused Anti-Screenshot Blur](documentation/screenshots/anti_screenshot_paused.png)
+
+- **Disabled Skip Action During Timer Pause**:
+  - While the timer is paused, the **Skip** button in the bottom action bar is completely disabled with muted styling (`cursor-not-allowed`, `opacity-50`) and accessible ARIA attributes (`aria-disabled="true"`) to prevent skipping questions while paused.
+  - The skip handler is strictly guarded (`if (isSubmitted || isTimedOut || isTimerPaused) return;`).
+  - As soon as the user resumes the challenge, the Skip button immediately becomes interactive again.
+
+![Disabled Skip in Paused State](documentation/screenshots/disabled_skip_paused.png)
+
+- **Post-Submission Unblurred Study Guarantee**:
+  - When the timer is paused after submitting (`isSubmitted === true`), the question and answer choices remain 100% unblurred and readable so learners can freely study the step-by-step solution and pedagogical diagrams.
+
+### 9. Cosmic Feature Innovations (`src/features/quest/`, `src/utils/badgeManager.js`)
+
+- **50/50 Cosmic Ray Power-Up (`HintModal.jsx`, `OptionsGrid.jsx`)**:
+  - Multi-tier hints with a 50/50 Cosmic Ray power-up that disintegrates two incorrect options from the grid with cosmic stardust animations, leaving only the correct answer and one distractor.
+- **Cosmic Space Factoids Library (`src/data/cosmicFacts.js`)**:
+  - Displays child-friendly NASA and planetary science facts during the question-loading pause, turning transition intervals into mini learning discoveries.
+- **Astronaut Rank & Mission Badges Progression (`badgeManager.js`, `ResultOverview.jsx`, `Header.jsx`)**:
+  - Tracks child XP and unlocks progressive Astronaut Ranks (_Stargazer_ $\rightarrow$ _Space Cadet_ $\rightarrow$ _Lunar Explorer_ $\rightarrow$ _Cosmic Navigator_ $\rightarrow$ _Galactic Commander_).
+  - Rewards collectible mission badges (_First Launch_, _Speed of Light_, _Nebula Scholar_, _Stellar Streak_, _Supernova Perfect_, _Cosmic Ray Master_) with full persistence in `localStorage` and JSON backups.
+
+### 10. 🌌 Cosmic Innovations Suite: Multi-Crew, Voice Personalities, Cognitive Radar & 4 Exploration Modes
+
+- **Flight Crew Profiles (`src/utils/crewManager.js`)**:
+  - Seamless multi-child profile switcher on the dashboard (`👨‍🚀 Manage Crew`).
+  - Each crew member maintains their own independent Astronaut Rank, XP stardust, unlocked achievement badges, and session histories.
+  - One-click profile switching with immediate state re-hydration and zero reload.
+- **Voice Personalities & Karaoke Narration (`src/utils/audioSynthesis.js`)**:
+  - Four distinct AI companion voice personas:
+    1. **🤖 Cosmo**: Friendly and supportive companion.
+    2. **🚀 Nova**: High-energy cosmic adventurer.
+    3. **🪐 Orbit**: Calm, methodical professor.
+    4. **⭐ Stella**: Gentle, encouraging celestial guide.
+  - **Karaoke Word-by-Word Narration**: Visual highlighted subtitles synchronize with spoken speech tokens in real-time, boosting phonics and reading fluency for young pre-readers.
+- **Cognitive Radar Chart & Official Graduation Diplomas (`CognitiveRadarChart.jsx`, `diplomaGenerator.js`)**:
+  - **5-Axis Cognitive Radar Analysis**: Visualizes mastery across _Visual Pattern Recognition_, _Analytical Deduction_, _Speed & Agility_, _Perseverance_, and _Spatial Geometry_.
+  - **Printable Astronaut Graduation Diploma**: High-resolution, vector-rendered printable certificates complete with official cosmic seal, starlight rating, child's name, age, skill achievements, and teacher/commander sign-off.
+- **4 Interactive Space Exploration Modes**:
+  1. **⚡ Time Warp Survival Mode (`TimeWarpMode.jsx`)**: High-intensity speed challenge with kinetic star-warp backdrop, combo streak multipliers (up to 3x XP), and emergency streak-freeze shield.
+  2. **✨ Constellation Observatory (`ConstellationObservatory.jsx`)**: Interactive celestial sky chart with 8 ancient constellations (Ursa Major, Orion, Cassiopeia, etc.), interactive star-connection geometry, and deep-space mythological lore.
+  3. **🪐 Pocket Planetarium (`PocketPlanetariumModal.jsx`)**: Fully animated interactive canvas solar system with realistic relative orbital mechanics, planetary radii, gravity comparisons, and child-safe STEM telemetry.
+  4. **👑 Epic Cosmic Boss Question #10 (`BossQuestionBanner.jsx`)**: The climactic 10th question transforms into a dramatic, high-stakes Boss Encounter with pulsing purple nebula aura, double-XP bounty, and celebratory victory stardust!
+
+![Interstellar Warp Experience](documentation/screenshots/interstellar_warp.png)
 
 </details>
 
@@ -690,15 +813,16 @@ AstroQuest is engineered from the ground up to comply with **Web Content Accessi
 <summary><h2 style="display: inline;">📁 Project Structure</h2></summary>
 
 ```
-├── scripts/                                  # Repository utilities & maintenance
-│   └── fix-git-index.ps1                     # Automated Git index recovery script for Windows
+├── documentation/                            # Comprehensive engineering guides & specs
+│   ├── AstroQuest_Implementation_Documentation.docx  # Full formatted Word specification document
+│   └── AstroQuest_Implementation_Documentation.md    # Markdown system documentation
+├── scripts/                                  # Repository utilities & doc generators
+│   ├── fix-git-index.ps1                     # Automated Git index recovery script for Windows
+│   └── generateDocx.js                       # Automated Word DOCX generation script
 ├── server/                                   # Secure Node.js Express API reverse proxy
 │   └── index.js                              # Shields API keys, handles Gemini & Imagen routing via Axios
 src/
 ├── features/                                 # Feature-specific components and UI modules
-│   ├── companion/                            # Interactive 3D living animal companion & controls
-│   │   ├── LivingPetCharacter.jsx            # Articulated SVG living animal character engine
-│   │   └── PetAssistant.jsx                  # Living companion controller & independent vertical toolbar
 │   ├── dashboard/                            # Landing screen & skill selection
 │   │   └── SkillSelectionDashboard.jsx
 │   ├── settings/                             # Full-screen profile, voice & preferences screen
