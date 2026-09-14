@@ -11,7 +11,7 @@ An engaging, visual-first React.js educational platform designed for early child
 ---
 
 <details>
-<summary><h2 style="display: inline;">🚀 User Quick Start Guide (Click to Expand / Collapse)</h2></summary>
+<summary><h2 style="display: inline;">🚀 User Quick Start Guide</h2></summary>
 
 ### 🧑‍🚀 Quick Setup in 3 Easy Steps
 
@@ -50,7 +50,7 @@ flowchart LR
 ---
 
 <details>
-<summary><h2 style="display: inline;">📘 Technical Architecture & System Specs (Click to Expand / Collapse)</h2></summary>
+<summary><h2 style="display: inline;">📘 Technical Architecture & System Specs</h2></summary>
 
 ```mermaid
 flowchart TD
@@ -90,7 +90,7 @@ flowchart TD
 ---
 
 <details open>
-<summary><h2 style="display: inline;">✨ Key Features & Architecture (Click to Collapse / Expand)</h2></summary>
+<summary><h2 style="display: inline;">✨ Key Features & Architecture</h2></summary>
 
 <details>
 <summary><h3 style="display: inline;">1. ⚙️ Dedicated Full-Screen Settings & Preferences Page</h3></summary>
