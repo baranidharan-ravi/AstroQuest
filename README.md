@@ -25,17 +25,20 @@ flowchart LR
 ```
 
 #### Step 1: Obtain an AI API Key
+
 - **✨ Google Gemini (Recommended Free Tier)**: Visit [Google AI Studio](https://aistudio.google.com/app/apikey) and click **"Create API Key"**. No credit card required!
 - **🟢 OpenAI (ChatGPT)**: Visit [OpenAI Platform API Keys](https://platform.openai.com/api-keys) to generate an API key (`sk-...`).
 - **🎭 Anthropic (Claude)**: Visit [Anthropic Console](https://console.anthropic.com/settings/keys) to generate an API key (`sk-ant-...`).
 
 #### Step 2: Configure Explorer Profile
+
 1. Launch AstroQuest in your browser.
 2. Click **"Settings ⚙️"** in the top-right corner.
 3. Enter your **Child's Name** and **Age** (Ages 2–14). The pedagogy automatically calibrates to their cognitive level!
 4. Pick an **Astronaut Avatar** (Boy, Girl, Robot, or Alien).
 
 #### Step 3: Select AI Provider & Save Key
+
 1. Under **"Select AI Intelligence Provider"**, click your preferred provider (**Google Gemini**, **OpenAI**, or **Anthropic Claude**).
 2. Paste your API key into the secure vault and pick your preferred AI model.
 3. Click **"Save & Launch 🚀"**. The app runs an instant live verification ping.
@@ -563,17 +566,20 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 An AI API key is mandatory for synthesizing 100% real-time cosmic puzzles. You can use any of the three supported providers:
 
 ### 1. Google Gemini (Recommended Free Tier 🌟)
+
 1. Navigate to [Google AI Studio](https://aistudio.google.com/app/apikey).
 2. Sign in with any standard Google account.
 3. Click **"Create API Key"** and copy your generated key (starts with `AIzaSy...`).
 4. _(Free tier available; no credit card required)_.
 
 ### 2. OpenAI (ChatGPT 🟢)
+
 1. Navigate to [OpenAI Platform API Keys](https://platform.openai.com/api-keys).
 2. Sign in or create an account.
 3. Click **"Create new secret key"** and copy the key (starts with `sk-...` or `sk-proj-...`).
 
 ### 3. Anthropic (Claude 🎭)
+
 1. Navigate to [Anthropic Console](https://console.anthropic.com/settings/keys).
 2. Sign in or create an account.
 3. Click **"Create Key"** and copy the key (starts with `sk-ant-...`).
