@@ -86,6 +86,12 @@ const PocketPlanetariumModal = lazy(
 const ConstellationObservatory = lazy(
 	() => import('./features/dashboard/ConstellationObservatory'),
 );
+const GalaxyOdysseyModal = lazy(
+	() => import('./features/dashboard/GalaxyOdysseyModal'),
+);
+const EducatorPortalModal = lazy(
+	() => import('./features/dashboard/EducatorPortalModal'),
+);
 
 function ScreenLoadingFallback() {
 	return (
@@ -130,6 +136,8 @@ export default function App() {
 	const [isCrewModalOpen, setIsCrewModalOpen] = useState(false);
 	const [isPlanetariumOpen, setIsPlanetariumOpen] = useState(false);
 	const [isObservatoryOpen, setIsObservatoryOpen] = useState(false);
+	const [isOdysseyOpen, setIsOdysseyOpen] = useState(false);
+	const [isEducatorPortalOpen, setIsEducatorPortalOpen] = useState(false);
 	const nextQuestionTimeoutRef = useRef(null);
 	const pendingNextActionRef = useRef(null);
 
@@ -1293,6 +1301,8 @@ export default function App() {
 					onStartTimeWarp={() => setCurrentScreen('timewarp')}
 					onOpenObservatory={() => setIsObservatoryOpen(true)}
 					onOpenPlanetarium={() => setIsPlanetariumOpen(true)}
+					onOpenOdyssey={() => setIsOdysseyOpen(true)}
+					onOpenEducatorPortal={() => setIsEducatorPortalOpen(true)}
 					onAnimationComplete={() => {
 						if (!getStoredKidName() || !getStoredApiKey()) {
 							setCurrentScreen('settings');
@@ -1319,6 +1329,23 @@ export default function App() {
 							isOpen={isObservatoryOpen}
 							onClose={() => setIsObservatoryOpen(false)}
 							soundEnabled={soundEnabled}
+						/>
+					)}
+					{isOdysseyOpen && (
+						<GalaxyOdysseyModal
+							isOpen={isOdysseyOpen}
+							onClose={() => setIsOdysseyOpen(false)}
+							soundEnabled={soundEnabled}
+							kidName={kidName}
+						/>
+					)}
+					{isEducatorPortalOpen && (
+						<EducatorPortalModal
+							isOpen={isEducatorPortalOpen}
+							onClose={() => setIsEducatorPortalOpen(false)}
+							soundEnabled={soundEnabled}
+							kidName={kidName}
+							kidAge={kidAge}
 						/>
 					)}
 					{isCrewModalOpen && (
@@ -1534,6 +1561,7 @@ export default function App() {
 											kidName={kidName}
 											kidAge={kidAge}
 											isReviewMode={isReviewMode}
+											onSelectOption={handleSelectOption}
 										/>
 									</div>
 
@@ -1874,6 +1902,8 @@ export default function App() {
 						isOpen={isAskDoubtOpen}
 						onClose={() => setIsAskDoubtOpen(false)}
 						soundEnabled={soundEnabled}
+						kidAge={kidAge}
+						kidName={kidName}
 					/>
 				)}
 

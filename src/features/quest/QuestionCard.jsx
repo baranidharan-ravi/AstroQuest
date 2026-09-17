@@ -1,5 +1,6 @@
-import { Brain, Eye, Volume2, ZoomIn } from 'lucide-react';
+import { Brain, Eye, Mic, MicOff, Volume2, ZoomIn } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import {
 	playButtonPop,
 	speakText,
@@ -9,6 +10,7 @@ import { getStoredKidAge, getStoredKidName } from '../../utils/progressTracker';
 import VisualDiagram, {
 	isDiagramAppropriateForQuestion,
 } from '../../utils/VisualDiagrams';
+import InteractiveManipulative from './InteractiveManipulative';
 
 const QuestionCard = memo(function QuestionCard({
 	question,
@@ -21,9 +23,22 @@ const QuestionCard = memo(function QuestionCard({
 	kidName,
 	kidAge,
 	isReviewMode = false,
+	onSelectOption,
 }) {
 	const [isSpeaking, setIsSpeaking] = useState(false);
 	const [activeCharIndex, setActiveCharIndex] = useState(-1);
+
+	// Hands-free Speech-to-Text Answer Input
+	const {
+		isSupported: isSpeechSupported,
+		isListening,
+		transcript,
+		toggleListening,
+	} = useSpeechRecognition({
+		options: question?.options,
+		onSelectOption,
+		soundEnabled,
+	});
 
 	const resolvedKidName =
 		(kidName && String(kidName).trim()) || getStoredKidName() || 'Explorer';
@@ -126,6 +141,32 @@ const QuestionCard = memo(function QuestionCard({
 					<span className='bg-black/40 text-amber-300 text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full shadow-inner border border-amber-400/50 flex-shrink-0'>
 						🔥 2X XP REWARD
 					</span>
+				</div>
+			)}
+
+			{/* Hands-Free Voice Listening Status Banner */}
+			{isListening && (
+				<div
+					role='status'
+					aria-live='polite'
+					className='bg-gradient-to-r from-pink-600 to-rose-600 text-white text-xs sm:text-sm font-bold px-3.5 py-2 rounded-xl mb-2 flex items-center justify-between shadow-lg animate-in fade-in duration-200 border border-pink-300/40 flex-shrink-0'>
+					<div className='flex items-center gap-2'>
+						<span className='relative flex h-3 w-3'>
+							<span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75'></span>
+							<span className='relative inline-flex rounded-full h-3 w-3 bg-pink-200'></span>
+						</span>
+						<span>
+							{transcript ?
+								`🎙️ Heard: "${transcript}"`
+							:	'🎙️ Listening... Say "Option B" or your answer!'}
+						</span>
+					</div>
+					<button
+						type='button'
+						onClick={toggleListening}
+						className='bg-white/20 hover:bg-white/30 text-white text-[11px] font-black px-2.5 py-0.5 rounded-lg transition-colors cursor-pointer'>
+						Stop
+					</button>
 				</div>
 			)}
 
@@ -240,28 +281,69 @@ const QuestionCard = memo(function QuestionCard({
 						:	question.question || question.questionText}
 					</h2>
 
-					{/* Read-Aloud Speaker Button */}
-					<button
-						type='button'
-						onClick={handleListenQuestion}
-						aria-label={
-							isSpeaking ? 'Stop reading question aloud' : 'Read question aloud'
-						}
-						aria-pressed={isSpeaking}
-						className={`p-1.5 rounded-full transition-all shadow-sm flex-shrink-0 mt-0.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none ${
-							isSpeaking ?
-								'bg-purple-300 text-purple-900 ring-2 ring-purple-500 scale-110 animate-pulse'
-							:	'bg-purple-100 text-purple-700 hover:bg-purple-200 hover:scale-110 active:scale-95'
-						}`}
-						title='Listen to question'>
-						<Volume2
-							className={`w-4 h-4 sm:w-5 sm:h-5 ${isSpeaking ? 'animate-bounce text-purple-950' : ''}`}
-						/>
-					</button>
+					{/* Action Buttons: Voice Input & Speaker */}
+					<div className='flex items-center gap-1.5 flex-shrink-0 mt-0.5'>
+						{/* Speech-to-Text Microphone Button (for voice answers) */}
+						{!isSubmitted && isSpeechSupported && (
+							<button
+								type='button'
+								onClick={() => {
+									playButtonPop(soundEnabled);
+									toggleListening();
+								}}
+								aria-label={
+									isListening ?
+										'Stop listening for voice answer'
+									:	'Speak your answer aloud'
+								}
+								aria-pressed={isListening}
+								className={`p-1.5 rounded-full transition-all shadow-sm flex-shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-pink-500 focus-visible:outline-none ${
+									isListening ?
+										'bg-rose-500 text-white ring-4 ring-rose-300 animate-pulse scale-110'
+									:	'bg-pink-100 text-pink-700 hover:bg-pink-200 hover:scale-110 active:scale-95'
+								}`}
+								title='Speak your answer (e.g. "Option A" or answer text)'>
+								{isListening ?
+									<Mic className='w-4 h-4 sm:w-5 sm:h-5 text-white animate-bounce' />
+								:	<MicOff className='w-4 h-4 sm:w-5 sm:h-5' />}
+							</button>
+						)}
+
+						{/* Read-Aloud Speaker Button */}
+						<button
+							type='button'
+							onClick={handleListenQuestion}
+							aria-label={
+								isSpeaking ?
+									'Stop reading question aloud'
+								:	'Read question aloud'
+							}
+							aria-pressed={isSpeaking}
+							className={`p-1.5 rounded-full transition-all shadow-sm flex-shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none ${
+								isSpeaking ?
+									'bg-purple-300 text-purple-900 ring-2 ring-purple-500 scale-110 animate-pulse'
+								:	'bg-purple-100 text-purple-700 hover:bg-purple-200 hover:scale-110 active:scale-95'
+							}`}
+							title='Listen to question'>
+							<Volume2
+								className={`w-4 h-4 sm:w-5 sm:h-5 ${isSpeaking ? 'animate-bounce text-purple-950' : ''}`}
+							/>
+						</button>
+					</div>
 				</div>
 
-				{/* Visual Diagram (only if question has a valid, appropriate diagram) */}
-				{hasAppropriateDiagram && (
+				{/* Interactive Manipulative (balance scale, clock hands, rotatable blocks) OR Visual Diagram */}
+				{(
+					['balance-scale', 'analog-clock', 'block-tower'].includes(
+						question.diagramType,
+					)
+				) ?
+					<InteractiveManipulative
+						type={question.diagramType}
+						data={question.diagramData}
+						soundEnabled={soundEnabled}
+					/>
+				: hasAppropriateDiagram ?
 					<VisualDiagram
 						type={question.diagramType}
 						data={{
@@ -271,7 +353,7 @@ const QuestionCard = memo(function QuestionCard({
 								question.correctAnswerText || question.correctAnswer,
 						}}
 					/>
-				)}
+				:	null}
 			</div>
 
 			{/* Footer cue */}

@@ -17,6 +17,7 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 	isBlinking = false,
 	direction = 1, // 1: facing right, -1: facing left
 	size = 148,
+	aura = 'none', // 'none' | 'gold' | 'cosmic'
 }) {
 	// Active state booleans for styling
 	const isDrinking = livingState === 'drinking';
@@ -25,7 +26,10 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 	const isPlaying = livingState === 'playing';
 	const isCuddling = livingState === 'cuddling';
 	const isNapping = livingState === 'napping';
-	const isHappy = isDrinking || isEating || isCuddling || isPlaying;
+	const isThinking = livingState === 'thinking';
+	const isCelebrating = livingState === 'celebrating';
+	const isHappy =
+		isDrinking || isEating || isCuddling || isPlaying || isCelebrating;
 
 	return (
 		<div
@@ -38,10 +42,18 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 			className={`relative select-none pointer-events-none ${
 				isWalking ? 'animate-walk-trot'
 				: isDrinking || isEating ? 'animate-pet-lap'
-				: isPlaying ? 'animate-ball-bounce'
+				: isPlaying || isCelebrating ? 'animate-ball-bounce'
+				: isThinking ? 'animate-pulse'
 				: isNapping ? 'animate-pet-breathe'
 				: 'animate-pet-breathe'
 			}`}>
+			{/* Cosmic Aura Glow Halo */}
+			{aura === 'gold' && (
+				<div className='absolute inset-0 rounded-full bg-amber-400/25 blur-xl animate-pulse pointer-events-none' />
+			)}
+			{aura === 'cosmic' && (
+				<div className='absolute inset-0 rounded-full bg-gradient-to-tr from-pink-500/30 via-purple-500/30 to-cyan-400/30 blur-2xl animate-spin-slow pointer-events-none' />
+			)}
 			<svg
 				viewBox='0 0 160 160'
 				className='w-full h-full filter drop-shadow-[0_12px_22px_rgba(0,0,0,0.55)] overflow-visible'

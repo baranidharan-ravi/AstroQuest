@@ -1,16 +1,20 @@
 # 🚀 AstroQuest: Technical Architecture & Implementation Documentation
 
 **Document Version**: 2.0.0 (Production Edition)
+**Document Version**: 2.1.0 (Cosmic Evolution Edition)
 **Classification**: Engineering Design & Technical Implementation Specification
 **Target Platforms**: Modern Web Browsers (Chrome, Edge, Safari, Firefox), Desktop, Tablet, Mobile Responsive
+**Target Platforms**: Modern Web Browsers (Chrome, Edge, Safari, Firefox), Desktop, Tablet, Mobile Responsive, PWA Installable
 
 ---
 
 ## 1. Executive Summary & System Overview
 
 AstroQuest is an engaging, visual-first, cognitive learning web application engineered for early explorers and young students (Ages 2 to 14). Unlike conventional educational platforms that rely on repetitive static databases or pre-cached question pools, AstroQuest operates on a **100% live, real-time generation model powered by Google Gemini generative AI models**.
+AstroQuest is an engaging, visual-first, cognitive learning web application engineered for early explorers and young students (Ages 2 to 14). Operating on a **multi-provider generative AI model (Google Gemini, OpenAI ChatGPT, Anthropic Claude)** alongside a resilient **Offline Quest Vault**, AstroQuest provides adaptive cognitive challenges, an interactive Socratic AI tutor, hands-free speech-to-answer recognition, and tactile interactive manipulatives.
 
 The application synthesizes strictly dynamic mathematical diagrams, polygonal SVG vector geometry, 3x3 pattern matrix progressions, 3D isometric block pyramids, optics light refraction representations, and scientific cause-and-effect processes. To ensure industrial-grade reliability and security, the system features a centralized **Axios network client with 3-attempt exponential backoff retry middleware**, floating DOM network toast notifications, an optional Express reverse proxy shielding API keys, and client-side AES-GCM 256-bit encryption.
+The application synthesizes strictly dynamic mathematical diagrams, polygonal SVG vector geometry, 3x3 pattern matrix progressions, 3D isometric block pyramids, optics light refraction representations, and scientific cause-and-effect processes. To ensure industrial-grade reliability and security, the system features a centralized **Axios network client with 3-attempt exponential backoff retry middleware**, client-side AES-GCM 256-bit encryption, an offline question vault, an installable Progressive Web App (PWA) manifest, and automated Vitest regression testing.
 
 ---
 
@@ -20,13 +24,19 @@ The application synthesizes strictly dynamic mathematical diagrams, polygonal SV
 | :--- | :--- | :--- | :--- |
 | **Core UI Framework** | React.js | 18.3.1 | Declarative component model, React.memo, Suspense, and hook-based modular state architecture. |
 | **Bundler & Dev Server** | Vite | 6.0.7 (Rollup) | Sub-second Hot Module Replacement (HMR) and optimized Rollup code-splitting with manual chunking. |
+| **Bundler & Dev Server** | Vite | 6.4.3 (Rollup) | Sub-second Hot Module Replacement (HMR) and optimized Rollup code-splitting with manual chunking. |
 | **Styling & Responsive UI** | Tailwind CSS | 3.4.17 | Utility-first styling with custom space-theme palettes, dynamic fluid grids, and hardware-accelerated animations. |
+| **Automated Testing** | Vitest | 5.0.1 | Fast automated test runner for crypto encryption, speech recognition parsing, and question schema verification. |
+| **Progressive Web App** | Web App Manifest | W3C PWA Standard | Enables full-screen installation and offline caching on Chromebooks, iPads, and desktop platforms. |
 | **HTTP & Network Layer** | Axios | 1.20.0 | Centralized client with request/response interceptors, automatic retries with exponential backoff, and timeouts. |
 | **Generative AI Engine** | Google Gemini API | v1beta REST | Real-time multi-modal LLM content generation supporting gemini-3.5-flash-lite, flash, and flash-preview. |
+| **Generative AI Engine** | Google Gemini, OpenAI, Claude | Multi-Provider | Multi-model content generation with live key verification, adaptive difficulty, and Socratic tutoring. |
 | **AI Image Synthesis** | Google Imagen 3 / Pollinations | Multi-Provider | Multi-tier failover pipeline for visual puzzle image generation (Imagen 3 -> Flash Image -> Pollinations AI). |
 | **Audio Synthesis & TTS** | Web Speech API | Browser Native | Zero-asset text-to-speech narration with Chromium pause-queue workaround and single-voice guarantee. |
+| **Speech Recognition** | Web Speech API | Browser Native | Hands-free speech-to-answer input matching spoken letters, ordinals, and answer keywords. |
 | **Sound FX Synthesis** | Web Audio API | Browser Native | Pure procedural oscillator sound generation (sine/triangle waves) for pop, star, success, and fanfare effects. |
 | **PDF Report Generation** | jsPDF & html2canvas | 4.2.1 / 1.4.1 | Dynamically imported on-demand to create personalized, multi-page vector session summaries. |
+| **PDF Report Generation** | jsPDF & html2canvas | 4.2.1 / 1.4.1 | Dynamically imported on-demand to create personalized diplomas, progress reports, and printable puzzle worksheets. |
 | **Security & Reverse Proxy** | Express.js & CORS | 5.2.1 / 2.8.6 | Shields Google Gemini API keys from browser DevTools; converts binary image buffers to base64. |
 | **Data Encryption** | Web Crypto API (SubtleCrypto) | AES-GCM 256-bit | Hardware-backed browser encryption securing saved API keys in localStorage with unique IVs. |
 | **Iconography** | Lucide React | 1.16.0 | Lightweight, modern SVG icon set tree-shaken into an isolated vendor bundle. |

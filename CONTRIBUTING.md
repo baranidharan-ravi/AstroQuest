@@ -3,6 +3,7 @@
 <p>
   <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Overview-1f6feb?style=for-the-badge" alt="README tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Active-f78166?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
+  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.1.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
 </p>
 
@@ -252,14 +253,12 @@ Easily transfer your child's profile, settings, and custom skillsets between dev
 
 AstroQuest complies with **WCAG 2.1 Level AA** universal accessibility standards:
 
-| Key                                      | Action                                                                     |
-| :--------------------------------------- | :------------------------------------------------------------------------- |
-| `1`, `2`, `3`, `4` or `A`, `B`, `C`, `D` | Select answer option choice                                                |
-| `Enter` or `Space`                       | Submit answer / Advance to next question                                   |
-| `ArrowUp` / `ArrowDown`                  | Navigate between option choices                                            |
-| `ArrowLeft` / `ArrowRight`               | Step between planets in Pocket Planetarium                                 |
-| `Escape`                                 | Dismiss any open modal dialog (Hint, Zoom, Observatory, Planetarium, Exit) |
-| `Tab` / `Shift + Tab`                    | Accessible keyboard focus navigation with high-visibility 4px rings        |
+- **`1`, `2`, `3`, `4` or `A`, `B`, `C`, `D`**: Select answer option choice
+- **`Enter` or `Space`**: Submit answer / Advance to next question
+- **`ArrowUp` / `ArrowDown`**: Navigate between option choices
+- **`ArrowLeft` / `ArrowRight`**: Step between planets in Pocket Planetarium
+- **`Escape`**: Dismiss any open modal dialog (Hint, Zoom, Observatory, Planetarium, Galaxy Odyssey, Educator Portal, Exit)
+- **`Tab` / `Shift + Tab`**: Accessible keyboard focus navigation with high-visibility 4px rings
 
 ---
 
@@ -279,7 +278,7 @@ AstroQuest complies with **WCAG 2.1 Level AA** universal accessibility standards
 
 #### Q: Do I need to install any apps or browser extensions?
 
-**A:** No installation is needed. AstroQuest runs 100% inside any modern browser (Google Chrome, Microsoft Edge, Mozilla Firefox, Apple Safari) on Windows, Mac, Chromebooks, iPad, or Android tablets.
+**A:** No installation is needed. AstroQuest runs 100% inside any modern browser (Google Chrome, Microsoft Edge, Mozilla Firefox, Apple Safari) on Windows, Mac, Chromebooks, iPad, or Android tablets, and can also be installed as a standalone Progressive Web App (PWA)!
 
 ---
 
@@ -306,11 +305,15 @@ We welcome contributions from educators, parents, and software developers to exp
    - **Zero External Runtime Bloat**: Maintain zero third-party charting or audio dependencies (use pure SVG and browser Web Audio API).
    - **Performance**: Maintain 60fps performance and WCAG AA accessibility across all screen sizes.
    - **Code Splitting**: Code-split heavy modals and views using `React.lazy` and `Suspense`.
-3. Verify your changes compile cleanly:
+3. Run the automated test suite to ensure zero regressions:
+   ```bash
+   npm test
+   ```
+4. Verify your changes compile cleanly:
    ```bash
    npm run build
    ```
-4. Commit your changes with clear semantic messages and submit a Pull Request.
+5. Commit your changes with clear semantic messages and submit a Pull Request.
 
 ---
 

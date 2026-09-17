@@ -1,0 +1,25 @@
+{
+	"short_name": "AstroQuest",
+	"name": "AstroQuest: Cosmic Learning Adventure",
+	"description": "Visual-first adaptive learning quests for young cosmic explorers ages 2-14.",
+	"icons": [
+		{
+			"src": "/astroquest-icon.svg",
+			"type": "image/svg+xml",
+			"sizes": "any",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/favicon.svg",
+			"type": "image/svg+xml",
+			"sizes": "192x192 512x512",
+			"purpose": "any"
+		}
+	],
+	"start_url": "/",
+	"background_color": "#0B0C1E",
+	"theme_color": "#38419D",
+	"display": "standalone",
+	"orientation": "any",
+	"categories": ["education", "kids", "games"]
+}

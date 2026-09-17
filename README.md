@@ -3,10 +3,11 @@
 <p>
   <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Active-f78166?style=for-the-badge" alt="README tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Quick_Start-2ea44f?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
+  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.1.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
 </p>
 
-An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **100% real-time direct AI question generation via Multi-Provider AI (Google Gemini, OpenAI ChatGPT, and Anthropic Claude with Live Key Validation)**, configurable auto-advance question pacing, customizable per-question countdown timers, streamlined exit workflows, dynamic mathematical SVG shape generation, and strict age-calibrated difficulty with zero offline/cached questions.
+An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **Multi-Provider AI generation (Google Gemini, OpenAI ChatGPT, and Anthropic Claude)**, an **Interactive Socratic AI Doubt Tutor**, **Hands-free Speech-to-Answer Voice Input**, **Tactile Manipulatives (Balance Scales, Analog Clocks, 3D Rotatable Blocks)**, **Galaxy Odyssey Solar System Map**, **Educator Analytics Portal**, **Print-and-Play Cosmic Worksheets**, **Offline Quest Vault**, and an **Installable Progressive Web App (PWA)** with automated unit testing.
 
 ---
 
@@ -556,6 +557,75 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 
 </details>
 
+<details>
+<summary><h3 style="display: inline;">16. 🪐 Interactive Socratic AI Doubt Tutor & Hands-Free Speech-to-Answer</h3></summary>
+
+- **Interactive Conversational AI Tutor (`AskDoubtModal.jsx`)**:
+  - When an explorer clicks **"I'm Stuck / Ask Astro-Guide"**, the system launches an interactive multi-turn dialogue with their chosen pet companion.
+  - Unlike simple answer keys, the tutor is bound by strict Socratic pedagogical guardrails (`askSocraticTutor` in `aiGenerator.js`): it never gives away the direct answer or option letter, instead asking leading observation questions, suggesting simpler counting steps, and guiding attention toward visual clues.
+  - **Quick-Starter Guidance Pills**: One-click prompts include _💡 Secret Clue_, _🔍 Break it Down_, _🤔 Why not another choice?_, and _🚀 Explain simply_.
+  - **Integrated Speech Output**: Every tutor reply can be read aloud on-demand with animated character sync.
+- **Hands-Free Speech Recognition (`useSpeechRecognition.js`, `QuestionCard.jsx`)**:
+  - Integrated Web Speech API recognition allowing young pre-writers (Ages 2–6) to answer questions hands-free.
+  - Intelligently recognizes spoken option letters (_"Option B"_, _"Letter C"_), ordinals (_"first one"_, _"second"_), and descriptive keywords (_"Blue Square"_, _"Golden Star"_).
+  - Features real-time pulsing mic feedback, audio wave animation, and instant option card selection.
+- **Adaptive Dynamic Difficulty Engine (`adaptiveEngine.js`)**:
+  - Evaluates consecutive answer streaks, mistake patterns, and response velocities in real time.
+  - Promotes difficulty across 5 cognitive tiers (_Cadet_ to _Cosmic Legend_) and dynamically introduces supportive visual scaffolding and hints upon repeated errors.
+
+</details>
+
+<details>
+<summary><h3 style="display: inline;">17. ⚖️ Tactile Interactive Manipulatives & Print-and-Play Cosmic Worksheets</h3></summary>
+
+- **Interactive Balance Scale (`InteractiveManipulative.jsx`)**:
+  - Children can touch and drag weight tokens (+1kg, -1kg) onto left and right pans.
+  - The SVG balance beam physically tilts with real-time torque physics (-18° to +18°) and calculates dynamic equilibrium status pills.
+- **Interactive Analog Clock**:
+  - Touch-and-adjust hour and minute hands (+15m, -15m, +1hr) with synchronized digital time readout to master time-telling concepts interactively.
+- **Rotatable 3D Isometric Block Towers**:
+  - Perspective buttons (Left / Center / Right) rotate isometric 3D block projections, allowing children to look behind pillars and physically count hidden blocks in 3D space.
+- **Print-and-Play Cosmic Worksheets (`worksheetGenerator.js`)**:
+  - One-click export of black-and-white, ink-saving printable PDF puzzle worksheets for screen-free classroom learning, travel, or homework practice.
+  - Includes child name & astronaut avatar headers, large handwriting-friendly answer bubbles, and an upside-down Mission Control Answer Key on the final page.
+
+</details>
+
+<details>
+<summary><h3 style="display: inline;">18. 🚀 Galaxy Odyssey Solar System Map & Educator Analytics Portal</h3></summary>
+
+- **Galaxy Odyssey Expedition Map (`GalaxyOdysseyModal.jsx`)**:
+  - Interactive celestial journey spanning 10 destinations from Mercury to the Kuiper Belt.
+  - Cosmic star energy collected from completed missions fuels spacecraft warp jumps to unlock new planetary stations, astronomical lore, and mission badges.
+- **Educator & Parent Analytics Portal (`EducatorPortalModal.jsx`)**:
+  - Protected behind an arithmetic security gate to prevent accidental child access.
+  - Longitudinal performance tracking: 30-day cognitive domain mastery bars (Mental Arithmetic, Spatial Reasoning, Pattern Recognition, Language Reasoning, and Scientific Inquiry).
+  - Generates personalized curriculum recommendations with 1-click PDF progress report export.
+- **Living Pet Mood States & Radiant Cosmic Aura (`LivingPetCharacter.jsx`)**:
+  - Dynamic companion moods: `thinking` during hint requests and `celebrating` on correct answer streaks.
+  - Radiant golden and rainbow cosmic aura halos reflecting cumulative quest achievements.
+
+</details>
+
+<details>
+<summary><h3 style="display: inline;">19. 🛡️ Offline Quest Vault, PWA & Automated Testing Suite</h3></summary>
+
+- **Offline Quest Vault (`offlinePackService.js`, `questionService.js`)**:
+  - Curated, high-fidelity question bank across all 5 cognitive domains with full mathematical diagrams, hints, and solutions.
+  - When offline or without API keys, questions load immediately with zero network latency or token consumption.
+- **Progressive Web App (PWA) (`manifest.json`, `index.html`)**:
+  - Configured installable standalone PWA manifest for full-screen play on iPads, Android tablets, Chromebooks, and desktops.
+- **Modular State Hooks (`useQuestSession.js`, `useCosmicAudio.js`)**:
+  - Clean separation of concerns decoupling monolithic state from `App.jsx` into testable domain hooks.
+- **Vitest Automated Testing Suite (`package.json`, `tests/`)**:
+  - Complete automated test suite running with `npm test`:
+    - `tests/cryptoStorage.test.js`: AES-GCM / XOR key encryption & decryption integrity.
+    - `tests/speechRecognition.test.js`: Spoken natural language answer parser.
+    - `tests/adaptiveEngine.test.js`: Tier promotion & supportive scaffolding triggers.
+    - `tests/offlinePackService.test.js`: Curated question schema, distractor, and solution validation.
+
+</details>
+
 </details>
 
 ---
@@ -924,7 +994,9 @@ src/
 - **jsPDF 4 & html2canvas** (On-demand client-side multi-page PDF generation engine with color-coded options & headers)
 - **Lucide Icons** (Clean, child-friendly iconography in isolated vendor chunk)
 - **Canvas Confetti** (Celebratory particle effects)
-- **Web Audio API & Web Speech API** (Zero-asset sound synthesis, single-voice guarantee, and customizable browser voice selection)
+- **Vitest 5** (Fast automated unit and integration test runner)
+- **Progressive Web App (PWA)** (Installable standalone application manifest & offline caching)
+- **Web Audio API & Web Speech API** (Zero-asset sound synthesis, single-voice guarantee, hands-free voice answering, and companion voice selection)
 
 </details>
 
@@ -967,7 +1039,15 @@ Open `http://localhost:3000` in your browser. Calls Gemini API directly from the
 npm run server
 ```
 
-### 3. Build for Production
+### 3. Run Automated Tests
+
+```bash
+npm test
+```
+
+Executes all 4 Vitest test suites (encryption vault, speech matching, adaptive difficulty, and offline quest packs).
+
+### 4. Build for Production
 
 ```bash
 npm run build

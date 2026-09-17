@@ -35,6 +35,7 @@ import {
 	saveCustomSkillset,
 	SKILLSET_PRESETS,
 } from '../../utils/skillManager';
+import { generatePrintableWorksheet } from '../../utils/worksheetGenerator';
 
 const POPULAR_EMOJIS = [
 	'🚀',
@@ -70,6 +71,8 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	onStartTimeWarp,
 	onOpenObservatory,
 	onOpenPlanetarium,
+	onOpenOdyssey,
+	onOpenEducatorPortal,
 	onAnimationComplete,
 	timerConfig = {
 		enabled: false,
@@ -335,6 +338,22 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 		reader.readAsText(file);
 	};
 
+	const handleDownloadWorksheet = () => {
+		playButtonPop(soundEnabled);
+		try {
+			generatePrintableWorksheet({
+				title: 'AstroQuest Cosmic Mission',
+				skillName: 'Visual & Logic Explorations',
+				studentName: kidName,
+				studentAge: kidAge,
+			});
+			setToastMessage('🖨️ Printable Cosmic Worksheet downloaded!');
+			setTimeout(() => setToastMessage(null), 4000);
+		} catch (err) {
+			console.error('Print worksheet error:', err);
+		}
+	};
+
 	return (
 		<div className='min-h-screen space-background flex flex-col justify-between text-white font-sans overflow-x-hidden select-none p-4 sm:p-6'>
 			{/* Hidden file input for importing backup */}
@@ -589,8 +608,47 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 				</div>
 
 				{/* Cosmic Explorations & Special Modes Suite */}
-				<div className='w-full grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-6'>
-					{/* 1. Time Warp Lightning Survival */}
+				<div className='w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 mb-6'>
+					{/* 1. Galaxy Odyssey Expedition */}
+					<div
+						role='button'
+						tabIndex={0}
+						onClick={() => {
+							playButtonPop(soundEnabled);
+							if (onOpenOdyssey) onOpenOdyssey();
+						}}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								playButtonPop(soundEnabled);
+								if (onOpenOdyssey) onOpenOdyssey();
+							}
+						}}
+						className='group bg-gradient-to-br from-pink-500/20 via-purple-600/20 to-indigo-900/40 border-2 border-pink-400/50 hover:border-pink-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
+						<div>
+							<div className='flex items-center justify-between gap-2 mb-2'>
+								<div className='w-9 h-9 rounded-xl bg-pink-400/30 border border-pink-300/50 flex items-center justify-center text-lg shadow-inner'>
+									🚀
+								</div>
+								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-pink-400/30 text-pink-200 border border-pink-400/40'>
+									Odyssey Map
+								</span>
+							</div>
+							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-pink-300 transition-colors'>
+								Galaxy Odyssey Map
+							</h3>
+							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
+								Warp from Mercury to the Kuiper Belt! Fuel your ship with star
+								energy earned on quests.
+							</p>
+						</div>
+						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-pink-300'>
+							<span>Launch Odyssey</span>
+							<span>🪐 →</span>
+						</div>
+					</div>
+
+					{/* 2. Time Warp Lightning Survival */}
 					<div
 						role='button'
 						tabIndex={0}
@@ -629,7 +687,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 						</div>
 					</div>
 
-					{/* 2. Constellation Observatory */}
+					{/* 3. Constellation Observatory */}
 					<div
 						role='button'
 						tabIndex={0}
@@ -668,7 +726,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 						</div>
 					</div>
 
-					{/* 3. Pocket Planetarium */}
+					{/* 4. Pocket Planetarium */}
 					<div
 						role='button'
 						tabIndex={0}
@@ -704,6 +762,80 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-teal-300'>
 							<span>Explore Worlds</span>
 							<span>🌍 →</span>
+						</div>
+					</div>
+
+					{/* 5. Print-and-Play Cosmic Worksheets */}
+					<div
+						role='button'
+						tabIndex={0}
+						onClick={handleDownloadWorksheet}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								handleDownloadWorksheet();
+							}
+						}}
+						className='group bg-gradient-to-br from-emerald-500/20 via-teal-600/20 to-indigo-900/40 border-2 border-emerald-400/50 hover:border-emerald-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
+						<div>
+							<div className='flex items-center justify-between gap-2 mb-2'>
+								<div className='w-9 h-9 rounded-xl bg-emerald-400/30 border border-emerald-300/50 flex items-center justify-center text-lg shadow-inner'>
+									🖨️
+								</div>
+								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-400/30 text-emerald-200 border border-emerald-400/40'>
+									Screen-Free
+								</span>
+							</div>
+							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-emerald-300 transition-colors'>
+								Print-and-Play Worksheets
+							</h3>
+							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
+								Instant PDF puzzle worksheet for coloring and pencil practice
+								with parent answer keys.
+							</p>
+						</div>
+						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-emerald-300'>
+							<span>Download Worksheet</span>
+							<span>📄 →</span>
+						</div>
+					</div>
+
+					{/* 6. Educator & Parent Analytics */}
+					<div
+						role='button'
+						tabIndex={0}
+						onClick={() => {
+							playButtonPop(soundEnabled);
+							if (onOpenEducatorPortal) onOpenEducatorPortal();
+						}}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								playButtonPop(soundEnabled);
+								if (onOpenEducatorPortal) onOpenEducatorPortal();
+							}
+						}}
+						className='group bg-gradient-to-br from-blue-500/20 via-indigo-600/20 to-purple-900/40 border-2 border-blue-400/50 hover:border-blue-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
+						<div>
+							<div className='flex items-center justify-between gap-2 mb-2'>
+								<div className='w-9 h-9 rounded-xl bg-blue-400/30 border border-blue-300/50 flex items-center justify-center text-lg shadow-inner'>
+									📊
+								</div>
+								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-blue-400/30 text-blue-200 border border-blue-400/40'>
+									Parent & Teacher
+								</span>
+							</div>
+							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-blue-300 transition-colors'>
+								Educator Analytics
+							</h3>
+							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
+								Longitudinal mastery reports across all 5 cognitive domains with
+								downloadable PDF insights.
+							</p>
+						</div>
+						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-blue-300'>
+							<span>View Progress</span>
+							<span>📈 →</span>
 						</div>
 					</div>
 				</div>

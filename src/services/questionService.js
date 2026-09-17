@@ -1,7 +1,5 @@
-import { generateAIQuestions } from './aiGenerator';
-
-// Question Service: 100% Real-Time Live AI Generation (No In-Memory Caching)
-// Each session fetches completely fresh, non-repetitive questions directly from Gemini API
+import { generateAIQuestions, getStoredApiKey } from './aiGenerator';
+import { getOfflineQuestQuestions, isOnline } from './offlinePackService';
 
 export const CATEGORY_DESCRIPTIONS = {
 	Visual:
@@ -11,8 +9,8 @@ export const CATEGORY_DESCRIPTIONS = {
 };
 
 /**
- * Fetches exactly 10 fresh, unseen questions strictly calibrated to the kid's age and selected skill
- * Directly calls the Google Gemini API with zero in-memory caching.
+ * Fetches exactly 10 fresh, unseen questions strictly calibrated to the kid's age and selected skill.
+ * Automatically falls back to the high-fidelity Offline Quest Vault if internet or API key is unavailable.
  *
  * @param {'Visual' | 'Analytical Thinking'} selectedSkill
  * @param {number} sheetNumber
@@ -23,17 +21,35 @@ export async function getFreshThinksheetSession(
 	sheetNumber = 1,
 	kidAge = 5,
 ) {
-	const aiQuestions = await generateAIQuestions(
-		selectedSkill,
-		sheetNumber,
-		kidAge,
-	);
+	const apiKey = getStoredApiKey();
 
-	if (aiQuestions && Array.isArray(aiQuestions) && aiQuestions.length > 0) {
-		return aiQuestions.slice(0, 10);
+	// If offline or no API key, seamlessly use the curated offline pack
+	if (!isOnline() || !apiKey) {
+		console.info(
+			'🛰️ [Offline Vault] Seamlessly loading verified offline quest pack.',
+		);
+		return getOfflineQuestQuestions(10, selectedSkill);
 	}
 
-	throw new Error('API_ERROR: Unable to generate questions from Gemini API.');
+	try {
+		const aiQuestions = await generateAIQuestions(
+			selectedSkill,
+			sheetNumber,
+			kidAge,
+		);
+
+		if (aiQuestions && Array.isArray(aiQuestions) && aiQuestions.length > 0) {
+			return aiQuestions.slice(0, 10);
+		}
+	} catch (err) {
+		console.warn(
+			'🛰️ [Offline Vault Fallback] AI generation issue, falling back to verified offline pack:',
+			err?.message || err,
+		);
+		return getOfflineQuestQuestions(10, selectedSkill);
+	}
+
+	return getOfflineQuestQuestions(10, selectedSkill);
 }
 
 export const getFreshAstroQuestSession = getFreshThinksheetSession;
