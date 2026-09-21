@@ -4,6 +4,42 @@ All notable changes, new capabilities, architectural enhancements, and pedagogic
 
 ---
 
+## 🌟 Version 1.2.0 — "The Infinite Discovery & Random Skillset Engine" (September 2026)
+
+**AstroQuest v1.2.0** introduces a dynamic, non-repeating skillset discovery engine and curated offline catalog, enabling learners and educators to effortlessly explore limitless STEM and logic adventures with a single click.
+
+---
+
+### 1. Dynamic Non-Repeating Random Skillset Generator
+
+- **Dual "Surprise Me 🎲" Actions (`SkillSelectionDashboard.jsx`)**:
+  - Added a dedicated purple gradient **`Surprise Me 🎲`** action button in the Create Skillset modal header banner.
+  - Added an inline **`Surprise Me 🎲`** fast-tap button right beside the Skillset Name input label.
+  - Automatically activates when clicking *Auto-Fill with AI* with empty inputs, immediately generating an engaging, complete topic.
+- **Strict Non-Repetition Memory Engine (`SkillSelectionDashboard.jsx`, `aiGenerator.js`)**:
+  - Implemented session-level topic history buffer (`recentSuggestedTopics`) tracking up to 30 recently explored themes.
+  - Feeds negative prompt constraints (`CRITICAL NON-REPETITION REQUIREMENT`) to Gemini, OpenAI, and Claude, instructing them never to repeat recent themes or synonyms.
+  - Dynamically rotates across 24 multidisciplinary scientific domain seeds (Deep Sea, Kitchen Chemistry, Spy Ciphers, Dinosaur Paleontology, Robotics, Optical Illusions, Extreme Weather, Origami Geometry, and more).
+
+---
+
+### 2. Curated Offline Skillset Bank (30+ Themes) & Resilient Fallback
+
+- **Expanded Offline Catalog (`CURATED_RANDOM_SKILLSETS`)**:
+  - Built a curated catalog of 30+ complete, kid-calibrated skillsets with pedagogical descriptions, catchy taglines, custom emojis, and color themes.
+  - Includes `getCuratedRandomSkillset(excludedTopics)` which samples without replacement to guarantee fresh topics on consecutive clicks.
+  - Seamlessly activates when offline or when no AI API key is configured, so learners are never blocked by an error dialog when seeking inspiration.
+
+---
+
+### 3. Automated Verification & Quality Assurance
+
+- **Full Suite Vitest Coverage (`tests/suggestSkillset.test.js`)**:
+  - Added automated unit tests verifying schema integrity across all curated skillsets, non-repetition across multiple consecutive calls, and graceful offline fallback.
+  - Full test suite passing with 15/15 tests across 5 test files with 100% success rate.
+
+---
+
 ## 🌟 Version 1.1.0 — "The Cosmic Evolution Release" (September 2026)
 
 **AstroQuest v1.1.0** represents a comprehensive leap forward, delivering multi-sensory learning, tactile interactivity, offline resilience, and automated testing across four fundamental pillars.

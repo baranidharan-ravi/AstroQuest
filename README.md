@@ -3,7 +3,7 @@
 <p>
   <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Active-f78166?style=for-the-badge" alt="README tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Quick_Start-2ea44f?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
-  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.1.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
+  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.2.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
 </p>
 
@@ -195,7 +195,10 @@ flowchart TD
 - **Personalized Visual Identity**:
   - **Emoji Icon Picker**: Choose from popular educational emojis (🚀, 🪐, 🔬, 📐, 🌿, ⭐, 🧩, 🎨, 📚, 🐾, 🎯, 🔢, 🦖, 🤖) or input any custom character.
   - **Color Accent Themes**: Select between 6 cosmic palettes (`Cosmic Cyan`, `Nebula Purple`, `Emerald Aurora`, `Solar Amber`, `Supernova Rose`, `Deep Orbit Blue`).
-  - **Quick Inspiration Presets**: One-click preset pills (Science & Space, Math Word Problems, Nature & Animals, Word Power) instantly populate fields.
+- **Dynamic Non-Repeating Random Skillset Generator (`Surprise Me 🎲`)**:
+  - **One-Click Instant Topic Discovery**: Click the dedicated purple gradient **`Surprise Me 🎲`** button in the modal banner or inline beside the *Skillset Name* field to instantly generate an exciting, age-calibrated exploration topic.
+  - **Strict Non-Repetition Memory**: Tracks recently suggested topics in session memory and injects negative prompt constraints into AI synthesis, guaranteeing that consecutive clicks provide completely fresh, non-repeating topics.
+  - **Curated Offline Catalog (30+ Themes)**: Includes an offline catalog spanning deep-sea mysteries, kitchen chemistry, dinosaur fossils, spy cryptography, origami geometry, rainforest canopy ecology, and space rovers, guaranteeing immediate suggestions even when offline or without an API key.
 - **Cross-Device Migration & Dual Persistence Architecture (`backupManager.js`)**:
   - **Persistent LocalStorage**: Stored under `astroquest_custom_skillsets_v1` so custom skillsets appear on the home page automatically whenever returning.
   - **Complete Backup Export (`Export JSON 📤`)**: Available on both Settings and Dashboard screens. Generates a timestamped JSON file containing all custom skillsets and explorer configuration (profile, encrypted API key, model, timer, auto-advance, voice, visual diagrams) for effortless migration across computers.

@@ -388,6 +388,13 @@ AstroQuest 2.0 introduces an extensible learning domain architecture that remove
 ### 10.4 AI-Powered Skillset Auto-Fill & Synthesis Engine (`services/aiGenerator.js`)
 - **One-Click Intelligent Formulation**: Educators and parents can type rough topic keywords or partial notes in the Create Skillset dialog and click "Auto-Fill with AI". Gemini AI automatically analyzes the input and formulates a complete, age-calibrated skillset package: inspiring title, catchy subtitle, pedagogical prompt description, matching emoji icon, and color theme.
 - **Graceful Cold-Start & Age Calibration**: If triggered with empty inputs, Gemini crafts an age-appropriate STEM or logic exploration domain tailored to the child's configured age (e.g. 5 years old).
+- **Dynamic Non-Repeating Random Topic Generator (`Surprise Me 🎲`)**:
+  - A dedicated purple gradient action button in the modal header and an inline fast-tap button above the name field enable instant random topic generation.
+  - **Strict Non-Repetition Memory**: Tracks recently suggested topics in session storage (`astroquest_suggested_skillsets_v1`) and injects negative prompt constraints (`CRITICAL NON-REPETITION REQUIREMENT`) to prevent repeating recent topics or themes.
+  - **Diverse Domain Seed Rotation**: Dynamically cycles across 24 multidisciplinary scientific seeds (Deep Sea, Kitchen Chemistry, Spy Ciphers, Prehistoric Dinosaurs, Robotics, Optical Illusions, Extreme Weather, Origami Geometry, and more).
+- **Curated Offline Skillset Catalog (30+ Themes)**:
+  - Added `CURATED_RANDOM_SKILLSETS` with 30+ pre-built, child-calibrated skillsets complete with pedagogical descriptions, catchy subtitles, emoji icons, and color themes.
+  - `getCuratedRandomSkillset(excludedTopics)` samples without replacement to guarantee fresh topics on consecutive clicks even when offline or without an API key.
 - **Non-Destructive In-Place Customization**: Auto-filled attributes populate form fields in real-time with visual status confirmation, allowing parents to review, tweak, or expand the AI-generated curriculum before saving.
 
 ---
