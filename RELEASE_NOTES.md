@@ -15,7 +15,7 @@ All notable changes, new capabilities, architectural enhancements, and pedagogic
 - **Dual "Surprise Me 🎲" Actions (`SkillSelectionDashboard.jsx`)**:
   - Added a dedicated purple gradient **`Surprise Me 🎲`** action button in the Create Skillset modal header banner.
   - Added an inline **`Surprise Me 🎲`** fast-tap button right beside the Skillset Name input label.
-  - Automatically activates when clicking *Auto-Fill with AI* with empty inputs, immediately generating an engaging, complete topic.
+  - Automatically activates when clicking _Auto-Fill with AI_ with empty inputs, immediately generating an engaging, complete topic.
 - **Strict Non-Repetition Memory Engine (`SkillSelectionDashboard.jsx`, `aiGenerator.js`)**:
   - Implemented session-level topic history buffer (`recentSuggestedTopics`) tracking up to 30 recently explored themes.
   - Feeds negative prompt constraints (`CRITICAL NON-REPETITION REQUIREMENT`) to Gemini, OpenAI, and Claude, instructing them never to repeat recent themes or synonyms.

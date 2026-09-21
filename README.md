@@ -196,7 +196,7 @@ flowchart TD
   - **Emoji Icon Picker**: Choose from popular educational emojis (🚀, 🪐, 🔬, 📐, 🌿, ⭐, 🧩, 🎨, 📚, 🐾, 🎯, 🔢, 🦖, 🤖) or input any custom character.
   - **Color Accent Themes**: Select between 6 cosmic palettes (`Cosmic Cyan`, `Nebula Purple`, `Emerald Aurora`, `Solar Amber`, `Supernova Rose`, `Deep Orbit Blue`).
 - **Dynamic Non-Repeating Random Skillset Generator (`Surprise Me 🎲`)**:
-  - **One-Click Instant Topic Discovery**: Click the dedicated purple gradient **`Surprise Me 🎲`** button in the modal banner or inline beside the *Skillset Name* field to instantly generate an exciting, age-calibrated exploration topic.
+  - **One-Click Instant Topic Discovery**: Click the dedicated purple gradient **`Surprise Me 🎲`** button in the modal banner or inline beside the _Skillset Name_ field to instantly generate an exciting, age-calibrated exploration topic.
   - **Strict Non-Repetition Memory**: Tracks recently suggested topics in session memory and injects negative prompt constraints into AI synthesis, guaranteeing that consecutive clicks provide completely fresh, non-repeating topics.
   - **Curated Offline Catalog (30+ Themes)**: Includes an offline catalog spanning deep-sea mysteries, kitchen chemistry, dinosaur fossils, spy cryptography, origami geometry, rainforest canopy ecology, and space rovers, guaranteeing immediate suggestions even when offline or without an API key.
 - **Cross-Device Migration & Dual Persistence Architecture (`backupManager.js`)**:
