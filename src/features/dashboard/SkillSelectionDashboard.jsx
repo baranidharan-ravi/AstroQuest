@@ -110,6 +110,8 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 			return [];
 		}
 	});
+	const [lastSurpriseGeneratedName, setLastSurpriseGeneratedName] =
+		useState('');
 
 	const [hasApiKey, setHasApiKey] = useState(false);
 	const [animationPhase, setAnimationPhase] = useState('center'); // 'center' | 'shrinking' | 'docked'
@@ -195,6 +197,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 		setCreateError('');
 		setIsAiSuggesting(false);
 		setAiSuggestSuccess(false);
+		setLastSurpriseGeneratedName('');
 		setIsCreateModalOpen(true);
 	};
 
@@ -207,6 +210,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 		setNewSkillColor(preset.color);
 		setCreateError('');
 		setAiSuggestSuccess(false);
+		setLastSurpriseGeneratedName(preset.name);
 	};
 
 	const recordSuggestedTopic = (topicName) => {
@@ -235,12 +239,24 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 		const hasNoName = !newSkillName.trim();
 		const forceRandom = isRandomRequest || hasNoName;
 
-		// If user requested autofill but has no name typed, enforce validation
-		if (!isRandomRequest && hasNoName) {
-			setCreateError(
-				'Please type a topic or keyword in the Skillset Name field first to use Auto-Fill! ✏️',
-			);
-			return;
+		// If user requested autofill but name is empty or unchanged from surprise generation
+		if (!isRandomRequest) {
+			if (hasNoName) {
+				setCreateError(
+					'Please type a topic or keyword in the Skillset Name field first to use Auto-Fill! ✏️',
+				);
+				return;
+			}
+			if (
+				lastSurpriseGeneratedName &&
+				newSkillName.trim().toLowerCase() ===
+					lastSurpriseGeneratedName.toLowerCase()
+			) {
+				setCreateError(
+					'This topic was already formulated by Surprise Me! Edit or customize the skillset name to use Auto-Fill. ✏️',
+				);
+				return;
+			}
 		}
 
 		// If user typed a specific name without an API key, notify them they need an API key to complete their custom topic
@@ -275,6 +291,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 			}
 
 			recordSuggestedTopic(suggestion.name);
+			setLastSurpriseGeneratedName(suggestion.name.trim());
 
 			setAiSuggestSuccess(
 				forceRandom ?
@@ -405,6 +422,15 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 			console.error('Print worksheet error:', err);
 		}
 	};
+
+	const hasTypedName = Boolean(newSkillName && newSkillName.trim().length > 0);
+	const isGeneratedNameUnchanged = Boolean(
+		lastSurpriseGeneratedName &&
+		newSkillName.trim().toLowerCase() ===
+			lastSurpriseGeneratedName.toLowerCase(),
+	);
+	const canAutoFill =
+		hasTypedName && !isGeneratedNameUnchanged && !isAiSuggesting;
 
 	return (
 		<div className='min-h-screen space-background flex flex-col justify-between text-white font-sans overflow-x-hidden select-none p-4 sm:p-6'>
@@ -1174,21 +1200,24 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 
 								<button
 									type='button'
-									disabled={isAiSuggesting || !newSkillName.trim()}
+									disabled={!canAutoFill}
 									onClick={() => handleAiSuggestSkillset({ isRandom: false })}
 									className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all shadow-md ${
 										isAiSuggesting && suggestMode === 'autofill' ?
 											'bg-cyan-950/80 border border-cyan-400 text-cyan-300 cursor-not-allowed animate-pulse'
-										: !newSkillName.trim() ?
+										: !canAutoFill ?
 											'bg-slate-800/60 border border-slate-700/50 text-slate-500 cursor-not-allowed opacity-60'
 										: isAiSuggesting ?
 											'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
 										:	'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 hover:scale-[1.02] active:scale-[0.98] border border-amber-300 cursor-pointer'
 									}`}
 									title={
-										!newSkillName.trim() ?
+										!hasTypedName ?
 											'Type some words in the Skillset Name below to enable Auto-Fill'
+										: isGeneratedNameUnchanged ?
+											'Topic already filled by Surprise Me. Edit the name to re-enable Auto-Fill.'
 										:	'Auto-complete skillset tagline, description, and icon based on your topic'
+
 									}>
 									{isAiSuggesting && suggestMode === 'autofill' ?
 										<>
@@ -1255,18 +1284,20 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 										<span className='text-slate-600 text-xs'>•</span>
 										<button
 											type='button'
-											disabled={isAiSuggesting || !newSkillName.trim()}
+											disabled={!canAutoFill}
 											onClick={() =>
 												handleAiSuggestSkillset({ isRandom: false })
 											}
 											className={`text-[11px] font-bold flex items-center gap-1 transition-colors ${
-												!newSkillName.trim() ?
+												!canAutoFill ?
 													'text-slate-500 cursor-not-allowed opacity-50'
 												:	'text-cyan-300 hover:text-cyan-200 cursor-pointer'
 											}`}
 											title={
-												!newSkillName.trim() ?
+												!hasTypedName ?
 													'Type a skillset name first to use AI Suggest'
+												: isGeneratedNameUnchanged ?
+													'Topic already filled by Surprise Me. Edit name to use AI Suggest.'
 												:	'Ask AI to suggest or complete name and description'
 											}>
 											<Sparkles className='w-3 h-3 text-amber-300' />
