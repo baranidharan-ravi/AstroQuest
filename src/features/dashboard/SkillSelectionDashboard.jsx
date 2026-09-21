@@ -100,6 +100,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	const [newSkillColor, setNewSkillColor] = useState('emerald');
 	const [createError, setCreateError] = useState('');
 	const [isAiSuggesting, setIsAiSuggesting] = useState(false);
+	const [suggestMode, setSuggestMode] = useState(null); // 'random' | 'autofill' | null
 	const [aiSuggestSuccess, setAiSuggestSuccess] = useState(false);
 	const [recentSuggestedTopics, setRecentSuggestedTopics] = useState(() => {
 		try {
@@ -234,6 +235,14 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 		const hasNoName = !newSkillName.trim();
 		const forceRandom = isRandomRequest || hasNoName;
 
+		// If user requested autofill but has no name typed, enforce validation
+		if (!isRandomRequest && hasNoName) {
+			setCreateError(
+				'Please type a topic or keyword in the Skillset Name field first to use Auto-Fill! ✏️',
+			);
+			return;
+		}
+
 		// If user typed a specific name without an API key, notify them they need an API key to complete their custom topic
 		if (!apiKey && !forceRandom) {
 			setCreateError(
@@ -242,6 +251,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 			return;
 		}
 
+		setSuggestMode(forceRandom ? 'random' : 'autofill');
 		setIsAiSuggesting(true);
 		setCreateError('');
 		setAiSuggestSuccess(false);
@@ -287,6 +297,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 			}
 		} finally {
 			setIsAiSuggesting(false);
+			setSuggestMode(null);
 		}
 	};
 
@@ -1107,60 +1118,85 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 						</div>
 
 						{/* AI Smart Auto-Fill & Topic Idea Generator */}
-						<div className='mb-4 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/80 via-indigo-950/70 to-cyan-950/80 border border-cyan-400/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner'>
-							<div className='flex items-center gap-2.5'>
-								<div className='w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 flex-shrink-0'>
+						<div className='mb-4 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-950/80 via-indigo-950/70 to-cyan-950/80 border border-cyan-400/40 shadow-inner flex flex-col gap-3'>
+							<div className='flex items-start gap-3'>
+								<div className='w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 flex-shrink-0 mt-0.5'>
 									<Sparkles className='w-4 h-4' />
 								</div>
-								<div>
-									<h4 className='text-xs font-bold text-white flex items-center gap-1.5'>
-										<span>Smart Auto-Fill & Random Topics</span>
-										<span className='text-[9px] px-1.5 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase font-black'>
+								<div className='flex-1 min-w-0'>
+									<div className='flex items-center gap-2 flex-wrap'>
+										<h4 className='text-xs font-bold text-white'>
+											Smart Topic Generator & Auto-Fill
+										</h4>
+										<span className='text-[9px] px-1.5 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase font-black tracking-wide'>
 											AI Powered
 										</span>
-									</h4>
-									<p className='text-[11px] text-slate-300'>
-										Type a topic below or click{' '}
+									</div>
+									<p className='text-[11px] text-slate-300 mt-1 leading-relaxed'>
+										Click{' '}
 										<span className='text-purple-300 font-bold'>
 											Surprise Me 🎲
 										</span>{' '}
-										to explore exciting, non-repeating ideas!
+										for exciting random ideas, or type a topic name below to
+										unlock{' '}
+										<span className='text-amber-300 font-bold'>
+											Auto-Fill with AI
+										</span>
+										!
 									</p>
 								</div>
 							</div>
 
-							<div className='flex items-center gap-2 w-full sm:w-auto flex-shrink-0'>
+							<div className='grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-white/10'>
 								<button
 									type='button'
 									disabled={isAiSuggesting}
 									onClick={() => handleAiSuggestSkillset({ isRandom: true })}
-									className={`flex-1 sm:flex-initial px-3 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all shadow-md ${
-										isAiSuggesting ?
+									className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all shadow-md ${
+										isAiSuggesting && suggestMode === 'random' ?
+											'bg-purple-950/80 border border-purple-400 text-purple-200 cursor-not-allowed animate-pulse'
+										: isAiSuggesting ?
 											'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
-										:	'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white hover:scale-105 active:scale-95 border border-purple-400/50 cursor-pointer'
+										:	'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white hover:scale-[1.02] active:scale-[0.98] border border-purple-400/50 cursor-pointer'
 									}`}
 									title='Generate a completely different, fresh random topic every time'>
-									<Dices className='w-3.5 h-3.5 text-purple-200' />
-									<span>Surprise Me 🎲</span>
+									{isAiSuggesting && suggestMode === 'random' ?
+										<>
+											<RefreshCw className='w-3.5 h-3.5 animate-spin text-purple-200' />
+											<span>Generating Surprise...</span>
+										</>
+									:	<>
+											<Dices className='w-4 h-4 text-purple-200' />
+											<span>Surprise Me 🎲</span>
+										</>
+									}
 								</button>
 
 								<button
 									type='button'
-									disabled={isAiSuggesting}
+									disabled={isAiSuggesting || !newSkillName.trim()}
 									onClick={() => handleAiSuggestSkillset({ isRandom: false })}
-									className={`flex-1 sm:flex-initial px-3 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all shadow-md ${
-										isAiSuggesting ?
+									className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all shadow-md ${
+										isAiSuggesting && suggestMode === 'autofill' ?
 											'bg-cyan-950/80 border border-cyan-400 text-cyan-300 cursor-not-allowed animate-pulse'
-										:	'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 hover:scale-105 active:scale-95 border border-amber-300 cursor-pointer'
+										: !newSkillName.trim() ?
+											'bg-slate-800/60 border border-slate-700/50 text-slate-500 cursor-not-allowed opacity-60'
+										: isAiSuggesting ?
+											'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
+										:	'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 hover:scale-[1.02] active:scale-[0.98] border border-amber-300 cursor-pointer'
 									}`}
-									title='Auto-generate skillset name, tagline, and description based on your input'>
-									{isAiSuggesting ?
+									title={
+										!newSkillName.trim() ?
+											'Type some words in the Skillset Name below to enable Auto-Fill'
+										:	'Auto-complete skillset tagline, description, and icon based on your topic'
+									}>
+									{isAiSuggesting && suggestMode === 'autofill' ?
 										<>
 											<RefreshCw className='w-3.5 h-3.5 animate-spin text-cyan-300' />
-											<span>Generating...</span>
+											<span>Generating with AI...</span>
 										</>
 									:	<>
-											<Sparkles className='w-3.5 h-3.5' />
+											<Sparkles className='w-4 h-4' />
 											<span>Auto-Fill with AI</span>
 										</>
 									}
@@ -1219,15 +1255,25 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 										<span className='text-slate-600 text-xs'>•</span>
 										<button
 											type='button'
-											disabled={isAiSuggesting}
+											disabled={isAiSuggesting || !newSkillName.trim()}
 											onClick={() =>
 												handleAiSuggestSkillset({ isRandom: false })
 											}
-											className='text-[11px] font-bold text-cyan-300 hover:text-cyan-200 flex items-center gap-1 cursor-pointer transition-colors disabled:opacity-50'
-											title='Ask AI to suggest or complete name and description'>
+											className={`text-[11px] font-bold flex items-center gap-1 transition-colors ${
+												!newSkillName.trim() ?
+													'text-slate-500 cursor-not-allowed opacity-50'
+												:	'text-cyan-300 hover:text-cyan-200 cursor-pointer'
+											}`}
+											title={
+												!newSkillName.trim() ?
+													'Type a skillset name first to use AI Suggest'
+												:	'Ask AI to suggest or complete name and description'
+											}>
 											<Sparkles className='w-3 h-3 text-amber-300' />
 											<span>
-												{isAiSuggesting ? 'Thinking...' : 'AI Suggest'}
+												{isAiSuggesting && suggestMode === 'autofill' ?
+													'Thinking...'
+												:	'AI Suggest'}
 											</span>
 										</button>
 									</div>
