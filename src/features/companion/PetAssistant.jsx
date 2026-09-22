@@ -14,6 +14,16 @@ import {
 } from 'lucide-react';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
+	PET_PROFILES,
+	PET_SIZES,
+	STORAGE_MINIMIZED_KEY,
+	STORAGE_PET_KEY,
+	STORAGE_POS_KEY,
+	STORAGE_SIZE_KEY,
+	STORAGE_TOOLBAR_COLLAPSED_KEY,
+	STORAGE_TOOLBAR_POS_KEY,
+} from '../../constants';
+import {
 	playButtonPop,
 	playCatMeow,
 	playDogBark,
@@ -28,85 +38,16 @@ import {
 } from '../../utils/progressTracker';
 import { LivingPetCharacter } from './LivingPetCharacter';
 
-export const PET_PROFILES = {
-	robot: {
-		id: 'robot',
-		name: 'Beep the Bot',
-		species: '3D Cyber Companion',
-		emoji: '🤖',
-		badge: 'Logic Helper',
-		treatName: 'Energy Spark Battery',
-		treatEmoji: '⚡',
-		imageSrc: '/assets/pets/robot-3d.png',
-		themeColor: 'from-cyan-400 via-sky-400 to-blue-500',
-		borderColor: 'border-cyan-300',
-		glowColor: 'rgba(34, 211, 238, 0.65)',
-	},
-	cat: {
-		id: 'cat',
-		name: 'Luna the Cat',
-		species: '3D Astronaut Kitten',
-		emoji: '🐱',
-		badge: 'Star Navigator',
-		treatName: 'Tasty Tuna Snack',
-		treatEmoji: '🐟',
-		imageSrc: '/assets/pets/cat-3d.png',
-		themeColor: 'from-amber-400 via-orange-400 to-pink-500',
-		borderColor: 'border-amber-300',
-		glowColor: 'rgba(251, 146, 60, 0.65)',
-	},
-	dog: {
-		id: 'dog',
-		name: 'Rocket the Pup',
-		species: '3D Space Scout Pup',
-		emoji: '🐶',
-		badge: 'Loyal Scout',
-		treatName: 'Crunchy Kibble',
-		treatEmoji: '🍖',
-		imageSrc: '/assets/pets/dog-3d.png',
-		themeColor: 'from-amber-400 via-orange-400 to-amber-500',
-		borderColor: 'border-amber-300',
-		glowColor: 'rgba(251, 191, 36, 0.65)',
-	},
-	alien: {
-		id: 'alien',
-		name: 'Zog the Buddy',
-		species: '3D Cosmic Alien Pal',
-		emoji: '🛸',
-		badge: 'Friendly Pal',
-		treatName: 'Sweet Cosmic Gummy',
-		treatEmoji: '🍇',
-		imageSrc: '/assets/pets/alien-3d.png',
-		themeColor: 'from-emerald-400 via-teal-400 to-cyan-500',
-		borderColor: 'border-emerald-300',
-		glowColor: 'rgba(52, 211, 153, 0.65)',
-	},
+export {
+	PET_PROFILES,
+	PET_SIZES,
+	STORAGE_MINIMIZED_KEY,
+	STORAGE_PET_KEY,
+	STORAGE_POS_KEY,
+	STORAGE_SIZE_KEY,
+	STORAGE_TOOLBAR_COLLAPSED_KEY,
+	STORAGE_TOOLBAR_POS_KEY,
 };
-
-export const STORAGE_PET_KEY = 'astroquest_pet_type_v2';
-const STORAGE_MINIMIZED_KEY = 'astroquest_pet_minimized_v2';
-const STORAGE_POS_KEY = 'astroquest_pet_float_pos_v4';
-const STORAGE_TOOLBAR_POS_KEY = 'astroquest_pet_vertical_toolbar_pos_v6';
-const STORAGE_TOOLBAR_COLLAPSED_KEY = 'astroquest_pet_toolbar_collapsed_v6';
-
-export const PET_SIZES = {
-	small: {
-		id: 'small',
-		label: 'Small',
-		px: 104,
-		badge: 'Compact',
-		iconText: 'S',
-	},
-	medium: {
-		id: 'medium',
-		label: 'Medium',
-		px: 148,
-		badge: 'Standard',
-		iconText: 'M',
-	},
-	large: { id: 'large', label: 'Large', px: 192, badge: 'Hero', iconText: 'L' },
-};
-export const STORAGE_SIZE_KEY = 'astroquest_pet_size_v1';
 
 /**
  * Reusable Vertical Toolbar Button with floating hover tooltip

@@ -8,21 +8,9 @@ import {
 	X,
 } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
+import { QUICK_PROMPTS } from '../../constants';
 import { askSocraticTutor } from '../../services/aiGenerator';
 import { playButtonPop, speakText } from '../../utils/audioSynthesis';
-
-const QUICK_PROMPTS = [
-	{ label: '💡 Secret Clue', text: 'Can you give me a secret clue?' },
-	{ label: '🔍 Break it Down', text: 'Can we break down step 1 together?' },
-	{
-		label: '🤔 Why not another choice?',
-		text: 'Why might someone get confused by this question?',
-	},
-	{
-		label: '🚀 Explain simply',
-		text: 'Can you explain this simply like a fun cosmic puzzle?',
-	},
-];
 
 const AskDoubtModal = memo(function AskDoubtModal({
 	question,

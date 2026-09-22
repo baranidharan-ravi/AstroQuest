@@ -1,5 +1,6 @@
 import { Brain, Eye, Navigation } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
+import { PLANET_COLOR_CONFIGS } from '../constants';
 import { KidAvatar } from './avatarManager';
 import {
 	getStoredKidAge,
@@ -8,87 +9,6 @@ import {
 	getStoredSelectedSkill,
 } from './progressTracker';
 import { getSkillDefinition } from './skillManager';
-
-const PLANET_COLOR_CONFIGS = {
-	cyan: {
-		planetGradient: 'from-[#38BDF8] via-[#0284C7] to-[#082F49]',
-		surfaceLight: 'bg-cyan-300/30',
-		ringBorder: 'border-cyan-300/70',
-		ringGradient:
-			'linear-gradient(90deg, rgba(56,189,248,0.15) 0%, rgba(125,211,252,0.6) 50%, rgba(2,132,199,0.15) 100%)',
-		glowColor: 'rgba(34, 211, 238, 0.65)',
-		atmosphereGlow: 'shadow-[0_0_35px_rgba(34,211,238,0.5)]',
-		badgeBg: 'bg-cyan-950/70 border-cyan-400/40 text-cyan-300',
-		beaconColor: 'bg-cyan-400',
-		accentText: 'text-cyan-300',
-		pathColor: '#22D3EE',
-	},
-	purple: {
-		planetGradient: 'from-[#C084FC] via-[#7C3AED] to-[#2E1065]',
-		surfaceLight: 'bg-purple-300/30',
-		ringBorder: 'border-purple-300/70',
-		ringGradient:
-			'linear-gradient(90deg, rgba(192,132,252,0.15) 0%, rgba(216,180,254,0.6) 50%, rgba(124,58,237,0.15) 100%)',
-		glowColor: 'rgba(192, 132, 252, 0.65)',
-		atmosphereGlow: 'shadow-[0_0_35px_rgba(192,132,252,0.5)]',
-		badgeBg: 'bg-purple-950/70 border-purple-400/40 text-purple-300',
-		beaconColor: 'bg-purple-400',
-		accentText: 'text-purple-300',
-		pathColor: '#C084FC',
-	},
-	emerald: {
-		planetGradient: 'from-[#34D399] via-[#059669] to-[#022C22]',
-		surfaceLight: 'bg-emerald-300/30',
-		ringBorder: 'border-emerald-300/70',
-		ringGradient:
-			'linear-gradient(90deg, rgba(52,211,153,0.15) 0%, rgba(110,231,183,0.6) 50%, rgba(5,150,105,0.15) 100%)',
-		glowColor: 'rgba(52, 211, 153, 0.65)',
-		atmosphereGlow: 'shadow-[0_0_35px_rgba(52,211,153,0.5)]',
-		badgeBg: 'bg-emerald-950/70 border-emerald-400/40 text-emerald-300',
-		beaconColor: 'bg-emerald-400',
-		accentText: 'text-emerald-300',
-		pathColor: '#34D399',
-	},
-	amber: {
-		planetGradient: 'from-[#FBBF24] via-[#D97706] to-[#451A03]',
-		surfaceLight: 'bg-amber-300/30',
-		ringBorder: 'border-amber-300/70',
-		ringGradient:
-			'linear-gradient(90deg, rgba(251,191,36,0.15) 0%, rgba(252,211,77,0.6) 50%, rgba(217,119,6,0.15) 100%)',
-		glowColor: 'rgba(251, 191, 36, 0.65)',
-		atmosphereGlow: 'shadow-[0_0_35px_rgba(251,191,36,0.5)]',
-		badgeBg: 'bg-amber-950/70 border-amber-400/40 text-amber-300',
-		beaconColor: 'bg-amber-400',
-		accentText: 'text-amber-300',
-		pathColor: '#FBBF24',
-	},
-	blue: {
-		planetGradient: 'from-[#60A5FA] via-[#2563EB] to-[#172554]',
-		surfaceLight: 'bg-blue-300/30',
-		ringBorder: 'border-blue-300/70',
-		ringGradient:
-			'linear-gradient(90deg, rgba(96,165,250,0.15) 0%, rgba(147,197,253,0.6) 50%, rgba(37,99,235,0.15) 100%)',
-		glowColor: 'rgba(96, 165, 250, 0.65)',
-		atmosphereGlow: 'shadow-[0_0_35px_rgba(96,165,250,0.5)]',
-		badgeBg: 'bg-blue-950/70 border-blue-400/40 text-blue-300',
-		beaconColor: 'bg-blue-400',
-		accentText: 'text-blue-300',
-		pathColor: '#60A5FA',
-	},
-	rose: {
-		planetGradient: 'from-[#FB7185] via-[#E11D48] to-[#4C0519]',
-		surfaceLight: 'bg-rose-300/30',
-		ringBorder: 'border-rose-300/70',
-		ringGradient:
-			'linear-gradient(90deg, rgba(251,113,133,0.15) 0%, rgba(252,164,175,0.6) 50%, rgba(225,29,72,0.15) 100%)',
-		glowColor: 'rgba(251, 113, 133, 0.65)',
-		atmosphereGlow: 'shadow-[0_0_35px_rgba(251,113,133,0.5)]',
-		badgeBg: 'bg-rose-950/70 border-rose-400/40 text-rose-300',
-		beaconColor: 'bg-rose-400',
-		accentText: 'text-rose-300',
-		pathColor: '#FB7185',
-	},
-};
 
 const CosmicQuestLoader = memo(function CosmicQuestLoader({
 	selectedSkill,

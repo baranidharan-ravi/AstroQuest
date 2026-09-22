@@ -20,6 +20,10 @@ import {
 } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
 import {
+	POPULAR_EMOJIS,
+	SUGGESTED_SKILLSETS_STORAGE_KEY,
+} from '../../constants';
+import {
 	getStoredApiKey,
 	suggestSkillsetDetails,
 } from '../../services/aiGenerator';
@@ -37,29 +41,6 @@ import {
 	SKILLSET_PRESETS,
 } from '../../utils/skillManager';
 import { generatePrintableWorksheet } from '../../utils/worksheetGenerator';
-
-const POPULAR_EMOJIS = [
-	'🚀',
-	'🪐',
-	'🧠',
-	'👁️',
-	'🔬',
-	'📐',
-	'🌿',
-	'⭐',
-	'🧩',
-	'🎨',
-	'📚',
-	'⚡',
-	'💡',
-	'🐾',
-	'🎯',
-	'🔢',
-	'🦖',
-	'🤖',
-	'🌍',
-	'🧪',
-];
 
 const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	onSelectSkill,
@@ -104,7 +85,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	const [aiSuggestSuccess, setAiSuggestSuccess] = useState(false);
 	const [recentSuggestedTopics, setRecentSuggestedTopics] = useState(() => {
 		try {
-			const saved = sessionStorage.getItem('astroquest_suggested_skillsets_v1');
+			const saved = sessionStorage.getItem(SUGGESTED_SKILLSETS_STORAGE_KEY);
 			return saved ? JSON.parse(saved) : [];
 		} catch {
 			return [];
@@ -222,7 +203,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 			const updated = [...filtered, topicName].slice(-30);
 			try {
 				sessionStorage.setItem(
-					'astroquest_suggested_skillsets_v1',
+					SUGGESTED_SKILLSETS_STORAGE_KEY,
 					JSON.stringify(updated),
 				);
 			} catch {
