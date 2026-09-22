@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
 import {
-	POPULAR_EMOJIS,
+	POPULAR_ICONS,
 	SUGGESTED_SKILLSETS_STORAGE_KEY,
 } from '../../constants';
 import {
@@ -33,6 +33,7 @@ import {
 	exportFullBackupToJsonFile,
 	importFullBackupFromJson,
 } from '../../utils/backupManager';
+import { SkillIcon } from '../../utils/SkillIcon';
 import {
 	COLOR_THEMES,
 	deleteCustomSkillset,
@@ -77,7 +78,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	const [newSkillName, setNewSkillName] = useState('');
 	const [newSkillTagline, setNewSkillTagline] = useState('');
 	const [newSkillDesc, setNewSkillDesc] = useState('');
-	const [newSkillIcon, setNewSkillIcon] = useState('🚀');
+	const [newSkillIcon, setNewSkillIcon] = useState('Rocket');
 	const [newSkillColor, setNewSkillColor] = useState('emerald');
 	const [createError, setCreateError] = useState('');
 	const [isAiSuggesting, setIsAiSuggesting] = useState(false);
@@ -968,7 +969,10 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 											<div
 												aria-hidden='true'
 												className={`w-11 h-11 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner ${theme.badgeColor}`}>
-												{skill.icon || '🚀'}
+												<SkillIcon
+													icon={skill.icon || 'Rocket'}
+													className='w-6 h-6'
+												/>
 											</div>
 											<div>
 												<h3 className='text-lg sm:text-xl font-extrabold text-slate-900 group-hover:text-cyan-600 transition-colors leading-tight'>
@@ -1117,7 +1121,10 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 										disabled={isAiSuggesting}
 										onClick={() => handleSelectPreset(preset)}
 										className='px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-slate-200 hover:text-cyan-200 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50'>
-										<span>{preset.icon}</span>
+										<SkillIcon
+											icon={preset.icon}
+											className='w-4 h-4 text-cyan-300 shrink-0'
+										/>
 										<span>{preset.name}</span>
 									</button>
 								))}
@@ -1350,40 +1357,58 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 								/>
 							</div>
 
-							{/* Emoji Icon Picker */}
+							{/* Vector Font Icon Picker */}
 							<div>
-								<span className='block text-xs font-bold text-slate-300 mb-1.5'>
-									Choose Skill Icon:
-								</span>
-								<div className='flex items-center gap-1.5 flex-wrap mb-2'>
-									{POPULAR_EMOJIS.map((emoji) => (
+								<div className='flex items-center justify-between mb-1.5'>
+									<span className='block text-xs font-bold text-slate-300'>
+										Choose Skill Icon (Lucide Icon Pack):
+									</span>
+									<span className='text-[10px] text-cyan-300 font-semibold tracking-wide'>
+										24 Vector Icons
+									</span>
+								</div>
+								<div className='grid grid-cols-6 sm:grid-cols-8 md:grid-cols-12 gap-1.5 mb-2 max-h-40 overflow-y-auto p-2 bg-[#090B24]/90 border border-white/10 rounded-2xl'>
+									{POPULAR_ICONS.map((iconItem) => (
 										<button
-											key={emoji}
+											key={iconItem.id}
 											type='button'
+											title={iconItem.label}
+											aria-label={iconItem.label}
 											disabled={isAiSuggesting}
-											onClick={() => setNewSkillIcon(emoji)}
-											className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg transition-all cursor-pointer disabled:opacity-50 ${
-												newSkillIcon === emoji ?
-													'bg-cyan-500/30 border-2 border-cyan-400 scale-110 shadow-lg'
-												:	'bg-white/10 hover:bg-white/20 border border-white/10'
+											onClick={() => setNewSkillIcon(iconItem.id)}
+											className={`h-9 w-9 rounded-xl flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 ${
+												(
+													newSkillIcon === iconItem.id ||
+													newSkillIcon === iconItem.label
+												) ?
+													'bg-cyan-500/30 border-2 border-cyan-400 scale-110 shadow-lg text-cyan-300'
+												:	'bg-white/10 hover:bg-white/20 border border-white/10 text-slate-300 hover:text-white'
 											}`}>
-											{emoji}
+											<SkillIcon
+												icon={iconItem.id}
+												className='w-4 h-4'
+											/>
 										</button>
 									))}
 								</div>
-								<div className='flex items-center gap-2'>
-									<span className='text-[11px] text-slate-400'>
-										Selected Icon:
+								<div className='flex items-center gap-2.5 bg-white/5 p-2 rounded-xl border border-white/10'>
+									<span className='text-[11px] text-slate-400 font-semibold'>
+										Active Icon:
 									</span>
-									<span className='text-xl'>{newSkillIcon}</span>
+									<div className='w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shrink-0'>
+										<SkillIcon
+											icon={newSkillIcon}
+											className='w-4 h-4'
+										/>
+									</div>
 									<input
 										type='text'
-										maxLength={4}
+										maxLength={30}
 										disabled={isAiSuggesting}
 										value={newSkillIcon}
 										onChange={(e) => setNewSkillIcon(e.target.value)}
-										placeholder='Type emoji'
-										className='w-20 bg-[#090B24] border border-white/20 rounded-lg px-2 py-1 text-xs text-center text-white disabled:opacity-60'
+										placeholder='Icon name (e.g. Rocket, Brain, Atom)'
+										className='flex-1 bg-[#090B24] border border-white/20 focus:border-cyan-400 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none disabled:opacity-60'
 									/>
 								</div>
 							</div>
@@ -1497,7 +1522,12 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 						className='bg-[#16194E] border-2 border-cyan-400 rounded-3xl p-6 max-w-md w-full text-white shadow-2xl'
 						onClick={(e) => e.stopPropagation()}>
 						<div className='flex items-center gap-2.5 mb-2'>
-							<span className='text-2xl'>{infoModalSkill.icon || '🚀'}</span>
+							<div className='w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shrink-0'>
+								<SkillIcon
+									icon={infoModalSkill.icon || 'Rocket'}
+									className='w-6 h-6'
+								/>
+							</div>
 							<div>
 								<h3
 									id='skill-info-title'

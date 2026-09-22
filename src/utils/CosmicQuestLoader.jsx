@@ -1,4 +1,4 @@
-import { Brain, Eye, Navigation } from 'lucide-react';
+import { Navigation } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { PLANET_COLOR_CONFIGS } from '../constants';
 import { KidAvatar } from './avatarManager';
@@ -8,6 +8,7 @@ import {
 	getStoredKidName,
 	getStoredSelectedSkill,
 } from './progressTracker';
+import { SkillIcon } from './SkillIcon';
 import { getSkillDefinition } from './skillManager';
 
 const CosmicQuestLoader = memo(function CosmicQuestLoader({
@@ -445,14 +446,10 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 
 						{/* Skill Core / Emblem at Planet Center */}
 						<div className='relative z-20 flex flex-col items-center justify-center text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]'>
-							{skillDef.id === 'analytical_thinking' ?
-								<Brain className='w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow animate-pulse' />
-							: skillDef.id === 'visual' ?
-								<Eye className='w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow animate-pulse' />
-							:	<span className='text-2xl sm:text-3xl drop-shadow animate-pulse select-none'>
-									{skillIcon}
-								</span>
-							}
+							<SkillIcon
+								icon={skillIcon}
+								className='w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow animate-pulse'
+							/>
 						</div>
 					</div>
 				</div>
@@ -698,15 +695,22 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 				</span>
 			</div>
 
-			<h2 className='text-xl sm:text-2xl md:text-3xl font-black text-white mb-2 leading-tight tracking-tight'>
-				Traveling to Planet {skillName}... {skillIcon}
+			<h2 className='text-xl sm:text-2xl md:text-3xl font-black text-white mb-2 leading-tight tracking-tight flex items-center justify-center gap-2.5'>
+				<span>Traveling to Planet {skillName}...</span>
+				<SkillIcon
+					icon={skillIcon}
+					className='w-7 h-7 text-cyan-300'
+				/>
 			</h2>
 
 			{/* Dynamic Mission Telemetry Step */}
 			<div className='min-h-[40px] flex items-center justify-center px-4 py-1.5 rounded-xl bg-slate-900/70 border border-slate-700/60 mb-4 transition-all duration-300 w-full max-w-md'>
 				<p
 					className={`text-xs sm:text-sm font-extrabold flex items-center gap-2 ${planetTheme.accentText}`}>
-					<span className='text-base'>{currentStep.icon}</span>
+					<SkillIcon
+						icon={currentStep.icon}
+						className='w-4 h-4 shrink-0'
+					/>
 					<span>{currentStep.title}</span>
 				</p>
 			</div>

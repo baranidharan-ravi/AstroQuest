@@ -21,8 +21,35 @@ export const STORAGE_TOOLBAR_COLLAPSED_KEY =
 export const STORAGE_SIZE_KEY = 'astroquest_pet_size_v1';
 
 // ==========================================
-// Dashboard: Emoji Picker & Planetarium
+// Dashboard: Font Icons Picker & Planetarium
 // ==========================================
+
+export const POPULAR_ICONS = [
+	{ id: 'Rocket', label: 'Rocket & Space', category: 'Space' },
+	{ id: 'Orbit', label: 'Cosmic Orbit & Planets', category: 'Space' },
+	{ id: 'Brain', label: 'Brain & Reasoning', category: 'Mind' },
+	{ id: 'Eye', label: 'Observation & Vision', category: 'Mind' },
+	{ id: 'Microscope', label: 'Microscope & Science', category: 'Science' },
+	{ id: 'Atom', label: 'Atom & Physics', category: 'Science' },
+	{ id: 'FlaskConical', label: 'Chemistry Lab', category: 'Science' },
+	{ id: 'Telescope', label: 'Telescope & Stargazing', category: 'Space' },
+	{ id: 'Calculator', label: 'Math & Numbers', category: 'Math' },
+	{ id: 'Ruler', label: 'Geometry & Shapes', category: 'Math' },
+	{ id: 'Puzzle', label: 'Puzzle & Logic', category: 'Logic' },
+	{ id: 'Target', label: 'Target & Focus', category: 'Logic' },
+	{ id: 'Sprout', label: 'Nature & Botany', category: 'Nature' },
+	{ id: 'PawPrint', label: 'Animals & Habitats', category: 'Nature' },
+	{ id: 'Globe', label: 'Earth & Geography', category: 'World' },
+	{ id: 'Compass', label: 'Adventure Navigation', category: 'Adventure' },
+	{ id: 'Palette', label: 'Art & Creativity', category: 'Creative' },
+	{ id: 'BookOpen', label: 'Words & Literature', category: 'Language' },
+	{ id: 'Zap', label: 'Energy & Thrills', category: 'Energy' },
+	{ id: 'Lightbulb', label: 'Ideas & Innovation', category: 'Mind' },
+	{ id: 'Bot', label: 'Robotics & Coding', category: 'Tech' },
+	{ id: 'Star', label: 'Starlight & Constellations', category: 'Reward' },
+	{ id: 'Trophy', label: 'Championship & Mastery', category: 'Reward' },
+	{ id: 'Music', label: 'Music & Acoustics', category: 'Creative' },
+];
 
 export const POPULAR_EMOJIS = [
 	'🚀',

@@ -4,6 +4,43 @@ All notable changes, new capabilities, architectural enhancements, and pedagogic
 
 ---
 
+## 🌟 Version 1.2.1 — "Vector Font Icon Suite & Constants Centralization" (September 2026)
+
+**AstroQuest v1.2.1** upgrades the skillset iconography architecture across the platform, replacing legacy browser emojis with high-resolution, responsive vector font icons powered by `lucide-react`. It also centralizes all component-level constants and storage keys into a single source of truth.
+
+---
+
+### 1. Vector Font Icon Suite (`SkillIcon.jsx`)
+
+- **Crisp Vector SVG Font Icons**:
+  - Replaced browser-dependent popular emojis with scalable, responsive SVG vector font icons from the `lucide-react` package.
+  - Implemented the `SkillIcon` component (`src/utils/SkillIcon.jsx`) providing bidirectional mapping for both Lucide icon identifiers (`Rocket`, `Brain`, `Atom`, `Microscope`, etc.) and legacy emojis (`🚀`, `🧠`, `🔬`, etc.).
+  - Preserves 100% backward compatibility for existing user custom skillsets and preset configurations stored in `localStorage`.
+
+- **Modernized Icon Picker in Create Cosmic Skillset (`SkillSelectionDashboard.jsx`)**:
+  - Replaced the emoji button row with an interactive 24-icon vector font picker (`POPULAR_ICONS`).
+  - Added real-time active icon preview badge with clean text input supporting custom icon names or symbols.
+  - Upgraded skill cards, preset inspiration buttons, info modal headers, and the Cosmic Quest Loader animation with crisp vector emblems.
+
+---
+
+### 2. Centralized Project Constants (`src/constants.js`)
+
+- **Single Source of Truth**:
+  - Extracted and centralized local component constants and storage keys across the dashboard, companion, quest, and loader modules.
+  - Consolidated `POPULAR_ICONS`, `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, `PET_PROFILES`, `PET_SIZES`, `PLANET_COLOR_CONFIGS`, and 9 local storage keys.
+  - Implemented backwards-compatible re-exports across components to prevent circular imports or breakage.
+
+---
+
+### 3. Automated Test Verification (`tests/skillIcon.test.jsx`)
+
+- **Expanded Test Suite (18 Tests Across 6 Test Files)**:
+  - Added dedicated unit tests verifying the `POPULAR_ICONS` catalog, Lucide icon component mappings, and emoji-to-vector fallback resolution.
+  - 100% test pass rate across all test suites in Vitest.
+
+---
+
 ## 🌟 Version 1.2.0 — "The Infinite Discovery & Random Skillset Engine" (September 2026)
 
 **AstroQuest v1.2.0** introduces a dynamic, non-repeating skillset discovery engine and curated offline catalog, enabling learners and educators to effortlessly explore limitless STEM and logic adventures with a single click.

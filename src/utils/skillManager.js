@@ -13,7 +13,7 @@ export const DEFAULT_SKILLSETS = [
 		name: 'Visual',
 		title: 'Visual Observation & Spatial Reasoning',
 		tagline: 'Observation & Patterns',
-		icon: '👁️',
+		icon: 'Eye',
 		color: 'cyan',
 		badgeColor: 'bg-cyan-100 text-cyan-700 border-cyan-300',
 		cardBorder: 'border-cyan-400 hover:border-cyan-300',
@@ -33,7 +33,7 @@ export const DEFAULT_SKILLSETS = [
 		name: 'Analytical Thinking',
 		title: 'Analytical Thinking & Logical Deduction',
 		tagline: 'Logic & Relationships',
-		icon: '🧠',
+		icon: 'Brain',
 		color: 'purple',
 		badgeColor: 'bg-purple-100 text-purple-700 border-purple-300',
 		cardBorder: 'border-purple-400 hover:border-purple-300',
@@ -57,7 +57,7 @@ export const SKILLSET_PRESETS = [
 	{
 		name: 'Science & Space Exploration',
 		tagline: 'Planets, Physics & Wonders',
-		icon: '🚀',
+		icon: 'Rocket',
 		color: 'emerald',
 		description:
 			'Planets, gravity, solar system facts, stars, telescopes, rocket launches, and space phenomena tailored for young explorers.',
@@ -65,7 +65,7 @@ export const SKILLSET_PRESETS = [
 	{
 		name: 'Math Word Puzzles & Operations',
 		tagline: 'Numbers, Logic & Math Fun',
-		icon: '🔢',
+		icon: 'Calculator',
 		color: 'amber',
 		description:
 			'Engaging arithmetic word problems, number sequences, real-world shopping math, time calculations, and friendly math riddles.',
@@ -73,7 +73,7 @@ export const SKILLSET_PRESETS = [
 	{
 		name: 'Nature & Animal Kingdom',
 		tagline: 'Ecology, Habitats & Wildlife',
-		icon: '🐾',
+		icon: 'PawPrint',
 		color: 'emerald',
 		description:
 			'Animal habitats, life cycles, food chains, weather patterns, plant growth, and curious nature science puzzles.',
@@ -81,7 +81,7 @@ export const SKILLSET_PRESETS = [
 	{
 		name: 'Word Power & Language Riddles',
 		tagline: 'Vocabulary, Rhymes & Words',
-		icon: '📚',
+		icon: 'BookOpen',
 		color: 'blue',
 		description:
 			'Synonyms, antonyms, compound words, rhyming clues, figurative expressions, and word-building challenges.',
