@@ -95,7 +95,6 @@ const EducatorPortalModal = lazy(
 const CosmicHabitatModal = lazy(
 	() => import('./features/dashboard/CosmicHabitatModal'),
 );
-const PetAssistant = lazy(() => import('./features/companion/PetAssistant'));
 
 function ScreenLoadingFallback() {
 	return (
@@ -1380,14 +1379,6 @@ export default function App() {
 							}}
 						/>
 					)}
-
-					{/* 3D Living Companion Pet Assistant */}
-					<PetAssistant
-						currentScreen='dashboard'
-						kidName={kidName}
-						soundEnabled={soundEnabled}
-						speechEnabled={speechEnabled}
-					/>
 				</Suspense>
 			</>
 		);
@@ -1985,20 +1976,6 @@ export default function App() {
 						kidName={kidName}
 					/>
 				)}
-
-				{/* 3D Living Companion Pet Assistant */}
-				<PetAssistant
-					currentScreen={currentScreen}
-					currentQuestion={currentQuestion}
-					isSubmitted={isSubmitted}
-					isCorrect={selectedOptionId === currentQuestion?.correctAnswerId}
-					isReviewMode={isReviewMode}
-					wasSkippedOnRevisit={wasSkippedOnRevisit}
-					kidName={kidName}
-					soundEnabled={soundEnabled}
-					speechEnabled={speechEnabled}
-					onTriggerHint={() => setIsHintOpen(true)}
-				/>
 			</Suspense>
 		</div>
 	);

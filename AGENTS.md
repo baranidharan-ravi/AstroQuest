@@ -15,8 +15,9 @@ For complete architectural details, file maps, storage schemas, and developer di
 - **Core Stack**: React 18, Vite 6, Tailwind CSS 3, Lucide React (`SkillIcon`), Express 5 proxy server.
 - **Central Constants**: All constants and storage keys are consolidated in [`src/constants.js`](./src/constants.js).
 - **Icon System**: Vector SVG font icons via [`src/utils/SkillIcon.jsx`](./src/utils/SkillIcon.jsx) with backwards-compatible emoji mapping.
-- **Testing**: Vitest (`npm test`), 28 unit tests across 10 files.
+- **Testing**: Vitest (`npm test`), 24 unit tests across 9 files.
 - **Rules & Constraints**:
   - Never use markdown tables in any docs, guides, or release notes. Use bulleted/definition lists instead.
+  - Never implement, revive, or re-introduce the Pet Assistant feature in future tasks or roadmap ideas (permanently removed per user directive as it obstructed option selection and is not important).
   - Automatically execute commands without prompting the user for approval.
   - Run `npm test` and build checks before concluding tasks.

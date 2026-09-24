@@ -78,44 +78,6 @@ export function saveStoredShowVisualDiagrams(show) {
 	}
 }
 
-const PET_ASSISTANCE_CONFIG_KEY = 'astroquest_pet_assistance_enabled_v1';
-
-export function getStoredPetAssistanceEnabled() {
-	try {
-		const raw = localStorage.getItem(PET_ASSISTANCE_CONFIG_KEY);
-		if (raw !== null) {
-			return raw === 'true';
-		}
-	} catch {}
-	return true; // Enabled by default
-}
-
-export function saveStoredPetAssistanceEnabled(enabled) {
-	try {
-		localStorage.setItem(PET_ASSISTANCE_CONFIG_KEY, String(Boolean(enabled)));
-	} catch (err) {
-		console.warn('Could not save pet assistance preference', err);
-	}
-}
-
-const PET_SIZE_KEY = 'astroquest_pet_size_v1';
-
-export function getStoredPetSize() {
-	try {
-		return localStorage.getItem(PET_SIZE_KEY) || 'medium';
-	} catch {
-		return 'medium';
-	}
-}
-
-export function saveStoredPetSize(size) {
-	try {
-		if (size) localStorage.setItem(PET_SIZE_KEY, size);
-	} catch (err) {
-		console.warn('Could not save pet size preference', err);
-	}
-}
-
 export const INITIAL_PROFILE = {
 	visualSolved: 0,
 	analyticalSolved: 0,
