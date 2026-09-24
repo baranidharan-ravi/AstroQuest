@@ -1,7 +1,8 @@
 # 🚀 AstroQuest: User Guide & Contributing Hub
 
 <p>
-  <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Overview-1f6feb?style=for-the-badge" alt="README tab"/></a>
+  <a href="README.md"><img src="https://img.shields.io/badge/⚡_Quick_Overview-README.md-blue?style=for-the-badge" alt="Quick Overview tab"/></a>
+  <a href="README_DETAILED.md"><img src="https://img.shields.io/badge/📖_Detailed_Docs-README__DETAILED.md-ffd33d?style=for-the-badge&logoColor=000" alt="Detailed Docs tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Active-f78166?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
   <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.4.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
