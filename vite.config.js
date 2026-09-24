@@ -43,7 +43,9 @@ function checkServerListening(port = 5001, timeout = 250) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	base: './',
+	// GitHub Pages serves from https://baranidharan-ravi.github.io/AstroQuest/
+	// Must use absolute subpath — relative './' breaks dynamic import() chunk resolution on GH Pages.
+	base: '/AstroQuest/',
 	plugins: [react()],
 	server: {
 		port: 3000,

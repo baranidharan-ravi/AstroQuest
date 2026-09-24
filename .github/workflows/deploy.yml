@@ -1,4 +1,4 @@
-name: Deploy Thinksheet to GitHub Pages
+name: Deploy AstroQuest to GitHub Pages
 
 on:
   push:
