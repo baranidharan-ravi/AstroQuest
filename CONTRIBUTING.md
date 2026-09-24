@@ -3,7 +3,7 @@
 <p>
   <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Overview-1f6feb?style=for-the-badge" alt="README tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Active-f78166?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
-  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.1.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
+  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.4.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
 </p>
 
@@ -25,6 +25,7 @@ Welcome to **AstroQuest**, an AI-powered cosmic learning adventure designed for 
    - [🌌 Stellar Sky Observatory & Daily Star Habits](#62-stellar-sky-observatory--daily-star-habits)
    - [🪐 Solar System Pocket Planetarium](#63-solar-system-pocket-planetarium)
    - [👾 Mission Control Boss Question #10](#64-mission-control-boss-question-10)
+   - [🛰️ Cosmic Space Habitat Modular Space Base](#65-cosmic-space-habitat-modular-space-base)
 7. [Learning Diagnostics & Printable Galactic Diplomas](#7-learning-diagnostics--printable-galactic-diplomas)
 8. [Cross-Device Portability & Backups](#8-cross-device-portability--backups)
 9. [Keyboard Shortcuts & Accessibility](#9-keyboard-shortcuts--accessibility)
@@ -210,6 +211,13 @@ In addition to regular quests, AstroQuest includes 4 specialized game modes:
 - Question #10 in standard quests elevates into a thrilling **Super Challenge Boss Encounter**!
 - The HUD transforms with a pulsing crimson and gold alert (`⚠️ BOSS ENCOUNTER ALERT`).
 - Conquering the boss awards **Double XP ($+30\text{ XP}$)** and unlocks the collectible _Boss Encounter Victor 👾_ badge!
+
+### 6.5. 🛰️ Cosmic Space Habitat Modular Space Base
+
+- **Modular Colony Construction**: Spend cumulative stars earned across quests to construct and expand a high-tech modular space base.
+- **8 Expandable Modules**: Solar Array Wings, Hydroponic Greenhouse Dome, Oxygen Scrubbing Life Support, Deep Space Radio Telescope, Bio-Dome Crew Quarters, Fusion Core Reactor, Planetary Rover Garage, and Quantum Supercomputer Lab.
+- **Live Base Telemetry**: Monitor real-time Oxygen production ($\text{O}_2\text{/day}$), Power Grid energy ($\text{kW}$), and Scientific Research telemetry ($\text{TB}$).
+- **Interactive 2.5D Simulation**: Tactile audio-visual feedback, glowing status lights, and animated orbital machinery.
 
 ---
 

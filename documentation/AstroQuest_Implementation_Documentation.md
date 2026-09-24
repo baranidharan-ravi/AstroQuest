@@ -1,46 +1,53 @@
 # 🚀 AstroQuest: Technical Architecture & Implementation Documentation
 
-**Document Version**: 2.0.0 (Production Edition)
-**Document Version**: 2.1.0 (Cosmic Evolution Edition)
-**Classification**: Engineering Design & Technical Implementation Specification
-**Target Platforms**: Modern Web Browsers (Chrome, Edge, Safari, Firefox), Desktop, Tablet, Mobile Responsive
-**Target Platforms**: Modern Web Browsers (Chrome, Edge, Safari, Firefox), Desktop, Tablet, Mobile Responsive, PWA Installable
+**Document Version**: 2.2.0 (AstroQuest v1.4.0 Cosmic Habitat Edition)  
+**Classification**: Engineering Design & Technical Implementation Specification  
+**Target Platforms**: Modern Web Browsers (Chrome, Edge, Safari, Firefox), Desktop, Tablet, Mobile Responsive, PWA Installable  
 
 ---
 
 ## 1. Executive Summary & System Overview
 
-AstroQuest is an engaging, visual-first, cognitive learning web application engineered for early explorers and young students (Ages 2 to 14). Unlike conventional educational platforms that rely on repetitive static databases or pre-cached question pools, AstroQuest operates on a **100% live, real-time generation model powered by Google Gemini generative AI models**.
-AstroQuest is an engaging, visual-first, cognitive learning web application engineered for early explorers and young students (Ages 2 to 14). Operating on a **multi-provider generative AI model (Google Gemini, OpenAI ChatGPT, Anthropic Claude)** alongside a resilient **Offline Quest Vault**, AstroQuest provides adaptive cognitive challenges, an interactive Socratic AI tutor, hands-free speech-to-answer recognition, and tactile interactive manipulatives.
+AstroQuest is an engaging, visual-first, cognitive learning web application engineered for early explorers and young students (Ages 2 to 14). Operating on a **multi-provider generative AI model (Google Gemini, OpenAI ChatGPT, Anthropic Claude)** alongside a resilient **Offline Quest Vault**, AstroQuest provides adaptive cognitive challenges, an interactive Socratic AI tutor, hands-free speech-to-answer recognition, tactile interactive manipulatives, and the modular **Cosmic Space Habitat** base builder.
 
-The application synthesizes strictly dynamic mathematical diagrams, polygonal SVG vector geometry, 3x3 pattern matrix progressions, 3D isometric block pyramids, optics light refraction representations, and scientific cause-and-effect processes. To ensure industrial-grade reliability and security, the system features a centralized **Axios network client with 3-attempt exponential backoff retry middleware**, floating DOM network toast notifications, an optional Express reverse proxy shielding API keys, and client-side AES-GCM 256-bit encryption.
 The application synthesizes strictly dynamic mathematical diagrams, polygonal SVG vector geometry, 3x3 pattern matrix progressions, 3D isometric block pyramids, optics light refraction representations, and scientific cause-and-effect processes. To ensure industrial-grade reliability and security, the system features a centralized **Axios network client with 3-attempt exponential backoff retry middleware**, client-side AES-GCM 256-bit encryption, an offline question vault, an installable Progressive Web App (PWA) manifest, and automated Vitest regression testing.
 
 ---
 
 ## 2. Technology Stack Mapping: Requirements vs. Technologies
 
-| Requirement Category         | Technology / Library           | Version / Specs  | Architectural Rationale & Benefit                                                                                  |
-| :--------------------------- | :----------------------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------- |
-| **Core UI Framework**        | React.js                       | 18.3.1           | Declarative component model, React.memo, Suspense, and hook-based modular state architecture.                      |
-| **Bundler & Dev Server**     | Vite                           | 6.0.7 (Rollup)   | Sub-second Hot Module Replacement (HMR) and optimized Rollup code-splitting with manual chunking.                  |
-| **Bundler & Dev Server**     | Vite                           | 6.4.3 (Rollup)   | Sub-second Hot Module Replacement (HMR) and optimized Rollup code-splitting with manual chunking.                  |
-| **Styling & Responsive UI**  | Tailwind CSS                   | 3.4.17           | Utility-first styling with custom space-theme palettes, dynamic fluid grids, and hardware-accelerated animations.  |
-| **Automated Testing**        | Vitest                         | 5.0.1            | Fast automated test runner for crypto encryption, speech recognition parsing, and question schema verification.    |
-| **Progressive Web App**      | Web App Manifest               | W3C PWA Standard | Enables full-screen installation and offline caching on Chromebooks, iPads, and desktop platforms.                 |
-| **HTTP & Network Layer**     | Axios                          | 1.20.0           | Centralized client with request/response interceptors, automatic retries with exponential backoff, and timeouts.   |
-| **Generative AI Engine**     | Google Gemini API              | v1beta REST      | Real-time multi-modal LLM content generation supporting gemini-3.5-flash-lite, flash, and flash-preview.           |
-| **Generative AI Engine**     | Google Gemini, OpenAI, Claude  | Multi-Provider   | Multi-model content generation with live key verification, adaptive difficulty, and Socratic tutoring.             |
-| **AI Image Synthesis**       | Google Imagen 3 / Pollinations | Multi-Provider   | Multi-tier failover pipeline for visual puzzle image generation (Imagen 3 -> Flash Image -> Pollinations AI).      |
-| **Audio Synthesis & TTS**    | Web Speech API                 | Browser Native   | Zero-asset text-to-speech narration with Chromium pause-queue workaround and single-voice guarantee.               |
-| **Speech Recognition**       | Web Speech API                 | Browser Native   | Hands-free speech-to-answer input matching spoken letters, ordinals, and answer keywords.                          |
-| **Sound FX Synthesis**       | Web Audio API                  | Browser Native   | Pure procedural oscillator sound generation (sine/triangle waves) for pop, star, success, and fanfare effects.     |
-| **PDF Report Generation**    | jsPDF & html2canvas            | 4.2.1 / 1.4.1    | Dynamically imported on-demand to create personalized, multi-page vector session summaries.                        |
-| **PDF Report Generation**    | jsPDF & html2canvas            | 4.2.1 / 1.4.1    | Dynamically imported on-demand to create personalized diplomas, progress reports, and printable puzzle worksheets. |
-| **Security & Reverse Proxy** | Express.js & CORS              | 5.2.1 / 2.8.6    | Shields Google Gemini API keys from browser DevTools; converts binary image buffers to base64.                     |
-| **Data Encryption**          | Web Crypto API (SubtleCrypto)  | AES-GCM 256-bit  | Hardware-backed browser encryption securing saved API keys in localStorage with unique IVs.                        |
-| **Iconography**              | Lucide React                   | 1.16.0           | Lightweight, modern SVG icon set tree-shaken into an isolated vendor bundle.                                       |
-| **Interactive Confetti**     | Canvas Confetti                | 1.9.4            | Hardware-accelerated particle animation engine for celebrating quiz completions.                                   |
+- **Core UI Framework**: React.js (v18.3.1)
+  - Declarative component model, React.memo, Suspense, and hook-based modular state architecture.
+- **Bundler & Dev Server**: Vite (v6.0.7 / Rollup)
+  - Sub-second Hot Module Replacement (HMR) and optimized Rollup code-splitting with manual chunking.
+- **Styling & Responsive UI**: Tailwind CSS (v3.4.17)
+  - Utility-first styling with custom space-theme palettes, dynamic fluid grids, and hardware-accelerated animations.
+- **Automated Testing**: Vitest (v3.x / 24 unit tests across 9 test files)
+  - Fast automated test runner for crypto encryption, speech recognition parsing, question schema verification, and habitat modules.
+- **Progressive Web App**: Web App Manifest (W3C PWA Standard)
+  - Enables full-screen installation and offline caching on Chromebooks, iPads, and desktop platforms.
+- **HTTP & Network Layer**: Axios (v1.20.0)
+  - Centralized client with request/response interceptors, automatic retries with exponential backoff, and timeouts.
+- **Generative AI Engine**: Multi-Provider (Google Gemini `@google/genai`, OpenAI ChatGPT, Anthropic Claude)
+  - Multi-model content generation with live key verification, adaptive difficulty, and Socratic tutoring.
+- **AI Image Synthesis**: Multi-Provider (Google Imagen 3 / Flash Image / Pollinations AI)
+  - Multi-tier failover pipeline for visual puzzle image generation.
+- **Audio Synthesis & TTS**: Web Speech API (Browser Native)
+  - Zero-asset text-to-speech narration with Chromium pause-queue workaround and single-voice guarantee.
+- **Speech Recognition**: Web Speech API (Browser Native)
+  - Hands-free speech-to-answer input matching spoken letters, ordinals, and answer keywords.
+- **Sound FX Synthesis**: Web Audio API (Browser Native)
+  - Pure procedural oscillator sound generation (sine/triangle waves) for pop, star, success, and fanfare effects.
+- **PDF Report Generation**: jsPDF & html2canvas (v4.2.1 / 1.4.1)
+  - Dynamically imported on-demand to create personalized diplomas, progress reports, and printable puzzle worksheets.
+- **Security & Reverse Proxy**: Express.js & CORS (v5.2.1 / 2.8.6)
+  - Optional proxy shielding API keys from browser DevTools; converts binary image buffers to base64.
+- **Data Encryption**: Web Crypto API (SubtleCrypto AES-GCM 256-bit)
+  - Hardware-backed browser encryption securing saved API keys in localStorage with unique IVs.
+- **Iconography**: Lucide React & Vector SVG (`SkillIcon.jsx`)
+  - Lightweight, modern vector SVG icons with bidirectional emoji mapping.
+- **Interactive Confetti**: Canvas Confetti (v1.9.4)
+  - Hardware-accelerated particle animation engine for celebrating quiz completions.
 
 ---
 
@@ -242,14 +249,30 @@ The application synthesizes strictly dynamic mathematical diagrams, polygonal SV
 
 ## 5. Security Architecture & Data Protection Features
 
-| Security Vector                | Implementation Mechanism                                                 | Threat Mitigated                                                      | Verification Standard                                     |
-| :----------------------------- | :----------------------------------------------------------------------- | :-------------------------------------------------------------------- | :-------------------------------------------------------- |
-| **API Key Shielding**          | Express Proxy (`/server/index.js`) routes all calls server-side.         | Prevents API key exposure in browser DevTools Network tab.            | Network inspection shows zero Google credentials.         |
-| **Client Storage Encryption**  | Web Crypto API (SubtleCrypto) AES-GCM 256-bit with random IV.            | Protects keys from XSS attacks reading plaintext localStorage.        | Stored value is encrypted ciphertext with enc:v1: prefix. |
-| **Ciphertext Leak Prevention** | Proxy and client reject keys starting with enc:v1:.                      | Prevents accidentally forwarding encrypted ciphertext to Google.      | Regex validation on key before network dispatch.          |
-| **Prompt Injection Defense**   | Input sanitization regex strips control characters and restricts length. | Prevents prompt hijacking and malicious instruction injection.        | sanitizePromptForImage caps length to 160 chars.          |
-| **Fail-Fast Auth Control**     | HTTP 400 (Invalid Key) and 401/403 (Forbidden) bypass retries.           | Prevents exhausting user quota or hammering API with bad credentials. | apiClient interceptor aborts retry on auth error.         |
-| **HTML Sanitization**          | DOMPurify sanitization in result overview and explanations.              | Prevents cross-site scripting (XSS) in AI-generated text.             | All formatted HTML passes through DOMPurify.sanitize().   |
+- **API Key Shielding**:
+  - Implementation Mechanism: Express Proxy (`/server/index.js`) routes all calls server-side.
+  - Threat Mitigated: Prevents API key exposure in browser DevTools Network tab.
+  - Verification Standard: Network inspection shows zero Google credentials.
+- **Client Storage Encryption**:
+  - Implementation Mechanism: Web Crypto API (SubtleCrypto) AES-GCM 256-bit with random IV.
+  - Threat Mitigated: Protects keys from XSS attacks reading plaintext localStorage.
+  - Verification Standard: Stored value is encrypted ciphertext with `enc:v1:` prefix.
+- **Ciphertext Leak Prevention**:
+  - Implementation Mechanism: Proxy and client reject keys starting with `enc:v1:`.
+  - Threat Mitigated: Prevents accidentally forwarding encrypted ciphertext to Google.
+  - Verification Standard: Regex validation on key before network dispatch.
+- **Prompt Injection Defense**:
+  - Implementation Mechanism: Input sanitization regex strips control characters and restricts length.
+  - Threat Mitigated: Prevents prompt hijacking and malicious instruction injection.
+  - Verification Standard: `sanitizePromptForImage` caps length to 160 chars.
+- **Fail-Fast Auth Control**:
+  - Implementation Mechanism: HTTP 400 (Invalid Key) and 401/403 (Forbidden) bypass retries.
+  - Threat Mitigated: Prevents exhausting user quota or hammering API with bad credentials.
+  - Verification Standard: `apiClient` interceptor aborts retry on auth error.
+- **HTML Sanitization**:
+  - Implementation Mechanism: DOMPurify sanitization in result overview and explanations.
+  - Threat Mitigated: Prevents cross-site scripting (XSS) in AI-generated text.
+  - Verification Standard: All formatted HTML passes through `DOMPurify.sanitize()`.
 
 ---
 
@@ -288,26 +311,78 @@ The active 1-second countdown timer runs continuously during gameplay. If not pr
 
 ## 7. Comprehensive Application Feature Matrix
 
-| Feature Area                       | User Capability & Description                                                                          | Configurable Controls                                                   | Underlying Module                        |
-| :--------------------------------- | :----------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------- | :--------------------------------------- |
-| **100% Live AI Synthesis**         | Synthesizes fresh questions live from Google Gemini API with zero offline/cached static questions.     | Select Gemini Model: Flash-Lite, Flash, Flash-Preview, Flash-Image.     | services/aiGenerator.js                  |
-| **4-Tier Age Pedagogy**            | Calibrates vocabulary, cognitive depth, and question complexity across Ages 2-4, 5-7, 8-10, and 11-14. | Age Selector Pills (3-8) + Custom Age Stepper (2-14).                   | services/aiGenerator.js                  |
-| **Voice Narrator & Audition**      | Reads question text aloud using Web Speech API with single-voice guarantee and emoji sanitization.     | Voice selector dropdown with all browser/OS voices + Live preview.      | utils/audioSynthesis.js                  |
-| **Mathematical SVG Shapes**        | Draws procedural regular polygons (triangles to decagons), diagonal hatches, dots, and outlines.       | Visual Diagrams toggle: Shown or Hidden.                                | utils/shapeGenerator.jsx                 |
-| **Spatial & Physics Diagrams**     | Renders 3x3 matrices, 3D isometric cube towers, optics light dispersion prisms, and rotation turns.    | Automatic activation based on question topic domain.                    | utils/VisualDiagrams.jsx                 |
-| **Per-Question Countdown Timer**   | Challenges student with per-question time limits and dynamic urgency color badges.                     | Toggle ON/OFF, Presets (45s, 60s, 90s, 2m, 3m) or Custom (15s-300s).    | features/quest/QuestionCard.jsx          |
-| **Auto-Advance Pacing**            | Displays solution explanation for configured duration with live countdown, then advances.              | Toggle ON/OFF, Presets (3s, 5s, 7s, 10s, 15s) or Custom (2s-30s).       | features/quest/SolutionPanel.jsx         |
-| **Skip Question Option**           | Allows explorer to skip unfamiliar questions; records skips in score report without penalty.           | SkipForward (⏭️) button in bottom action bar.                           | features/quest/QuestionCard.jsx          |
-| **Cognitive Hint Modal**           | Opens age-appropriate hints to guide the explorer without giving away the direct answer.               | Zap (⚡) hint button in bottom action bar.                              | features/quest/HintModal.jsx             |
-| **AI Tutor Doubt Explainer**       | Explains confusing concepts interactively using friendly space-tutor persona prompts.                  | Ask Space Tutor (🤖) button on solution reveal.                         | features/quest/AskDoubtModal.jsx         |
-| **Streamlined Exit Workflow**      | Confirms mid-quiz exits safely without generating incomplete or premature PDF reports.                 | Exit button in top navigation bar.                                      | features/quest/ExitConfirmationModal.jsx |
-| **Cosmic Quest Loader**            | Interactive space mission theater with orbiting vector rocket, plasma flame, and real-time telemetry.  | Adaptive theming: Visual (Eye) vs Analytical (Brain); dynamic name/age. | utils/CosmicQuestLoader.jsx              |
-| **Settings Dirty-State Guard**     | Intercepts navigation with unsaved changes; offers to save or safely discard edits.                    | Confirmation modal on navigating back with uncommitted changes.         | features/settings/SettingsScreen.jsx     |
-| **Question Review Accordion**      | Expand or collapse all 10 question reviews simultaneously for rapid parent/educator evaluation.        | "Expand All" and "Collapse All" toggle buttons.                         | features/results/QuestionSummary.jsx     |
-| **Vector Moon & Celestial Shapes** | Mathematical SVG crescent curve, emoji recognition, and deduplicated card label display.               | Automatic via dynamic shape parser and SVG renderer.                    | utils/shapeGenerator.jsx                 |
-| **Multi-Page PDF Report**          | Generates personalized multi-page PDF session summary with integrated header score & options.          | Download PDF Report (📄) button on Results page.                        | utils/pdfGenerator.js                    |
-| **Cosmic Error Boundary**          | Shields application from runtime crashes with kid-friendly recovery and clipboard error copying.       | Refresh & Continue, Reset Cache, Copy Error Details.                    | utils/ErrorBoundary.jsx                  |
-| **Network Retry Middleware**       | Automatically retries dropped connections 3 times with exponential backoff and toast notification.     | Automatic via Axios interceptors + floating DOM toast.                  | services/apiClient.js                    |
+- **100% Live AI Synthesis**:
+  - **Description**: Synthesizes fresh questions live from Google Gemini, OpenAI, or Claude API with zero offline/cached static questions.
+  - **Configurable Controls**: Select AI provider & model (Gemini Flash-Lite, Flash, Flash-Preview, GPT-4o-mini, Claude 3.5 Haiku).
+  - **Underlying Module**: `src/services/aiGenerator.js`
+- **4-Tier Age Pedagogy**:
+  - **Description**: Calibrates vocabulary, cognitive depth, and question complexity across Ages 2-4, 5-7, 8-10, and 11-14.
+  - **Configurable Controls**: Age Selector Pills (3-8) + Custom Age Stepper (2-14).
+  - **Underlying Module**: `src/services/aiGenerator.js`
+- **Voice Narrator & Audition**:
+  - **Description**: Reads question text aloud using Web Speech API with single-voice guarantee and emoji sanitization.
+  - **Configurable Controls**: Voice selector dropdown with all browser/OS voices + Live preview audition.
+  - **Underlying Module**: `src/utils/audioSynthesis.js`
+- **Mathematical SVG Shapes**:
+  - **Description**: Draws procedural regular polygons (triangles to decagons), diagonal hatches, dots, and outlines.
+  - **Configurable Controls**: Visual Diagrams toggle: Shown or Hidden.
+  - **Underlying Module**: `src/utils/shapeGenerator.jsx`
+- **Spatial & Physics Diagrams**:
+  - **Description**: Renders 3x3 matrices, 3D isometric cube towers, optics light dispersion prisms, and rotation turns.
+  - **Configurable Controls**: Automatic activation based on question topic domain.
+  - **Underlying Module**: `src/utils/VisualDiagrams.jsx`
+- **Per-Question Countdown Timer**:
+  - **Description**: Challenges student with per-question time limits and dynamic urgency color badges.
+  - **Configurable Controls**: Toggle ON/OFF, Presets (45s, 60s, 90s, 2m, 3m) or Custom (15s-300s).
+  - **Underlying Module**: `src/features/quest/QuestionCard.jsx`
+- **Auto-Advance Pacing**:
+  - **Description**: Displays solution explanation for configured duration with live countdown, then advances.
+  - **Configurable Controls**: Toggle ON/OFF, Presets (3s, 5s, 7s, 10s, 15s) or Custom (2s-30s).
+  - **Underlying Module**: `src/features/quest/SolutionPanel.jsx`
+- **Skip Question Option**:
+  - **Description**: Allows explorer to skip unfamiliar questions; records skips in score report without penalty.
+  - **Configurable Controls**: SkipForward button in bottom action bar.
+  - **Underlying Module**: `src/features/quest/QuestionCard.jsx`
+- **Cognitive Hint Modal**:
+  - **Description**: Opens age-appropriate hints to guide the explorer without giving away the direct answer.
+  - **Configurable Controls**: Zap (⚡) hint button in bottom action bar.
+  - **Underlying Module**: `src/features/quest/HintModal.jsx`
+- **AI Tutor Doubt Explainer**:
+  - **Description**: Explains confusing concepts interactively using friendly space-tutor persona prompts.
+  - **Configurable Controls**: Ask Space Tutor (🤖) button on solution reveal.
+  - **Underlying Module**: `src/features/quest/AskDoubtModal.jsx`
+- **Streamlined Exit Workflow**:
+  - **Description**: Confirms mid-quiz exits safely without generating incomplete or premature PDF reports.
+  - **Configurable Controls**: Exit button in top navigation bar.
+  - **Underlying Module**: `src/features/quest/ExitConfirmationModal.jsx`
+- **Cosmic Quest Loader**:
+  - **Description**: Interactive space mission theater with orbiting vector rocket, plasma flame, and real-time telemetry.
+  - **Configurable Controls**: Adaptive theming: Visual vs Analytical; dynamic name/age.
+  - **Underlying Module**: `src/utils/CosmicQuestLoader.jsx`
+- **Settings Dirty-State Guard**:
+  - **Description**: Intercepts navigation with unsaved changes; offers to save or safely discard edits.
+  - **Configurable Controls**: Confirmation modal on navigating back with uncommitted changes.
+  - **Underlying Module**: `src/features/settings/SettingsScreen.jsx`
+- **Question Review Accordion**:
+  - **Description**: Expand or collapse all 10 question reviews simultaneously for rapid parent/educator evaluation.
+  - **Configurable Controls**: "Expand All" and "Collapse All" toggle buttons.
+  - **Underlying Module**: `src/features/results/QuestionSummary.jsx`
+- **Vector Moon & Celestial Shapes**:
+  - **Description**: Mathematical SVG crescent curve, emoji recognition, and deduplicated card label display.
+  - **Configurable Controls**: Automatic via dynamic shape parser and SVG renderer.
+  - **Underlying Module**: `src/utils/shapeGenerator.jsx`
+- **Multi-Page PDF Report**:
+  - **Description**: Generates personalized multi-page PDF session summary with integrated header score & options.
+  - **Configurable Controls**: Download PDF Report button on Results page.
+  - **Underlying Module**: `src/utils/pdfGenerator.js`
+- **Cosmic Error Boundary**:
+  - **Description**: Shields application from runtime crashes with kid-friendly recovery and clipboard error copying.
+  - **Configurable Controls**: Refresh & Continue, Reset Cache, Copy Error Details.
+  - **Underlying Module**: `src/utils/ErrorBoundary.jsx`
+- **Network Retry Middleware**:
+  - **Description**: Automatically retries dropped connections 3 times with exponential backoff and toast notification.
+  - **Configurable Controls**: Automatic via Axios interceptors + floating DOM toast.
+  - **Underlying Module**: `src/services/apiClient.js`
 
 ---
 
@@ -342,28 +417,63 @@ AstroQuest is architected from the ground up to achieve full **Web Content Acces
 
 ### 8.2 Semantic Structure & ARIA Role Mapping
 
-| Component / Feature                          | Semantic HTML / ARIA Role         | State / Behavior Attributes                          | WCAG Success Criterion              |
-| :------------------------------------------- | :-------------------------------- | :--------------------------------------------------- | :---------------------------------- |
-| **Bypass Link (App.jsx)**                    | `<a href="#main-content">`        | `sr-only focus:not-sr-only`                          | SC 2.4.1 Bypass Blocks (A)          |
-| **Main Workspace (App.jsx)**                 | `<main id="main-content">`        | `role="main" tabIndex={-1}`                          | SC 1.3.1 Info and Relationships (A) |
-| **Live Announcements (App.jsx)**             | `<div role="status">`             | `aria-live="polite" aria-atomic="true"`              | SC 4.1.3 Status Messages (AA)       |
-| **Progress Bar (Header.jsx)**                | `<div role="progressbar">`        | `aria-valuenow`, `valuemin`, `valuemax`, `valuetext` | SC 4.1.2 Name, Role, Value (A)      |
-| **Question Card (QuestionCard.jsx)**         | `<section aria-labelledby="...">` | Heading `<h2 id="question-prompt-heading">`          | SC 1.3.1 Info and Relationships (A) |
-| **Answer Options (OptionsGrid.jsx)**         | `<div role="radiogroup">`         | `<button role="radio" aria-checked="...">`           | SC 4.1.2 Name, Role, Value (A)      |
-| **Dialog Modals (All Modals)**               | `<div role="dialog">`             | `aria-modal="true"`, Focus trap, Escape key          | SC 2.4.3 Focus Order (A)            |
-| **Results Tabs (ResultOverview.jsx)**        | `<div role="tablist">`            | `<button role="tab">` + `<div role="tabpanel">`      | SC 4.1.2 Name, Role, Value (A)      |
-| **Question Accordion (QuestionSummary.jsx)** | `<button aria-expanded="...">`    | `aria-controls` paired with `<div role="region">`    | SC 4.1.2 Name, Role, Value (A)      |
+- **Bypass Link (`src/App.jsx`)**:
+  - Semantic HTML / ARIA Role: `<a href="#main-content">`
+  - State & Behavior: `sr-only focus:not-sr-only`
+  - WCAG Criterion: SC 2.4.1 Bypass Blocks (Level A)
+- **Main Workspace (`src/App.jsx`)**:
+  - Semantic HTML / ARIA Role: `<main id="main-content">`
+  - State & Behavior: `role="main" tabIndex={-1}`
+  - WCAG Criterion: SC 1.3.1 Info and Relationships (Level A)
+- **Live Announcements (`src/App.jsx`)**:
+  - Semantic HTML / ARIA Role: `<div role="status">`
+  - State & Behavior: `aria-live="polite" aria-atomic="true"`
+  - WCAG Criterion: SC 4.1.3 Status Messages (Level AA)
+- **Progress Bar (`src/utils/Header.jsx`)**:
+  - Semantic HTML / ARIA Role: `<div role="progressbar">`
+  - State & Behavior: `aria-valuenow`, `valuemin`, `valuemax`, `valuetext`
+  - WCAG Criterion: SC 4.1.2 Name, Role, Value (Level A)
+- **Question Card (`src/features/quest/QuestionCard.jsx`)**:
+  - Semantic HTML / ARIA Role: `<section aria-labelledby="...">`
+  - State & Behavior: Heading `<h2 id="question-prompt-heading">`
+  - WCAG Criterion: SC 1.3.1 Info and Relationships (Level A)
+- **Answer Options (`src/features/quest/OptionsGrid.jsx`)**:
+  - Semantic HTML / ARIA Role: `<div role="radiogroup">`
+  - State & Behavior: `<button role="radio" aria-checked="...">`
+  - WCAG Criterion: SC 4.1.2 Name, Role, Value (Level A)
+- **Dialog Modals (All Modals)**:
+  - Semantic HTML / ARIA Role: `<div role="dialog">`
+  - State & Behavior: `aria-modal="true"`, Focus trap, Escape key
+  - WCAG Criterion: SC 2.4.3 Focus Order (Level A)
+- **Results Tabs (`src/features/results/ResultOverview.jsx`)**:
+  - Semantic HTML / ARIA Role: `<div role="tablist">`
+  - State & Behavior: `<button role="tab">` + `<div role="tabpanel">`
+  - WCAG Criterion: SC 4.1.2 Name, Role, Value (Level A)
+- **Question Accordion (`src/features/results/QuestionSummary.jsx`)**:
+  - Semantic HTML / ARIA Role: `<button aria-expanded="...">`
+  - State & Behavior: `aria-controls` paired with `<div role="region">`
+  - WCAG Criterion: SC 4.1.2 Name, Role, Value (Level A)
 
 ### 8.3 Keyboard Shortcut & Interaction Matrix
 
-| Key / Combination                        | Function / Target Action                                    | Scope / Viewport Context |
-| :--------------------------------------- | :---------------------------------------------------------- | :----------------------- |
-| `Tab` / `Shift + Tab`                    | Sequential focus navigation with visible 4px focus rings    | Entire Application       |
-| `1`, `2`, `3`, `4` or `A`, `B`, `C`, `D` | Directly select answer option 1, 2, 3, or 4                 | Active Learning Quest    |
-| `ArrowUp` / `ArrowLeft`                  | Navigate and select previous radio option in group          | Answer Options Grid      |
-| `ArrowDown` / `ArrowRight`               | Navigate and select next radio option in group              | Answer Options Grid      |
-| `Enter` / `Space`                        | Submit answer / Advance to next question / Activate control | Quest & Solution Views   |
-| `Escape`                                 | Dismiss active modal (Hint, Tutor, Zoom, Exit, Unsaved)     | Any Active Modal Dialog  |
+- **`Tab` / `Shift + Tab`**:
+  - Function: Sequential focus navigation with visible 4px focus rings
+  - Scope: Entire Application
+- **`1`, `2`, `3`, `4` or `A`, `B`, `C`, `D`**:
+  - Function: Directly select answer option 1, 2, 3, or 4
+  - Scope: Active Learning Quest
+- **`ArrowUp` / `ArrowLeft`**:
+  - Function: Navigate and select previous radio option in group
+  - Scope: Answer Options Grid
+- **`ArrowDown` / `ArrowRight`**:
+  - Function: Navigate and select next radio option in group
+  - Scope: Answer Options Grid
+- **`Enter` / `Space`**:
+  - Function: Submit answer / Advance to next question / Activate control
+  - Scope: Quest & Solution Views
+- **`Escape`**:
+  - Function: Dismiss active modal (Hint, Tutor, Zoom, Exit, Unsaved)
+  - Scope: Any Active Modal Dialog
 
 ---
 
@@ -695,3 +805,57 @@ Expands learning into gamified survival challenges, habit-building astronomy, an
 ### 26.4 Mission Control "Super Challenge" Boss Question #10
 
 - **Climactic Boss Encounter**: Question #10 elevates into a dramatic crimson/gold HUD alert ("⚠️ BOSS ENCOUNTER ALERT") awarding double XP (+30 XP) and the collectible Boss Encounter Victor badge.
+
+---
+
+## 27. Cosmic Space Habitat: Modular Planetary Colony Builder (`CosmicHabitatModal.jsx`)
+
+To provide meaningful extrinsic motivation and connect quest accomplishments to tangible construction gameplay, AstroQuest introduces the **Cosmic Space Habitat Modular Space Base Builder**.
+
+### 27.1 Core Progression Loop
+
+- **Star-Powered Construction**: Cosmic stars earned from completing thinksheets, high-accuracy quests, and boss challenges directly fuel the unlocking of 8 modular habitat pods.
+- **Persistent Colony State**: Habitat modules are persisted in `localStorage` under `astroquest_habitat_modules_v1` and included in cross-device JSON backup manifests.
+- **Tactile 2.5D Construction View**: Interactive visual colony layout featuring glowing active connections, animated radar rotation, and real-time status telemetry.
+
+### 27.2 The 8 Modular Habitat Pods
+
+- **Solar Array Wing** (Tier 1, 3 Stars Required):
+  - Category: Energy & Power Grid
+  - Outputs: $+25\text{ kW}$ Clean Power
+  - Role: Foundational photovoltaic power generation for base systems.
+- **Hydroponic Greenhouse Dome** (Tier 1, 5 Stars Required):
+  - Category: Life Support & Sustenance
+  - Outputs: $+30\text{ O}_2\text{/day}$
+  - Role: Pressurized aeroponic greenhouse cultivating spirulina and fresh vegetables.
+- **Oxygen Scrubbing Life Support** (Tier 2, 8 Stars Required):
+  - Category: Atmospheric Engineering
+  - Outputs: $+45\text{ O}_2\text{/day}$
+  - Role: Closed-loop molecular sieves recycling breathable air for the habitat crew.
+- **Deep Space Radio Telescope** (Tier 2, 12 Stars Required):
+  - Category: Astronomy & Communications
+  - Outputs: $+35\text{ TB}$ Telemetry
+  - Role: Parabolic antenna tracking deep-space radio signals and exoplanetary data.
+- **Bio-Dome Crew Quarters** (Tier 3, 16 Stars Required):
+  - Category: Habitation & Recreation
+  - Outputs: $+20\text{ O}_2\text{/day}$, $+15\text{ kW}$ Power
+  - Role: Quarters with artificial gravity exercise rings and sleep pods.
+- **Fusion Core Reactor** (Tier 3, 20 Stars Required):
+  - Category: Advanced Power Generation
+  - Outputs: $+60\text{ kW}$ High-Density Energy
+  - Role: Magnetic containment fusion cell supplying immense energy surplus.
+- **Planetary Rover Garage** (Tier 4, 25 Stars Required):
+  - Category: Surface Exploration
+  - Outputs: $+40\text{ TB}$ Surface Research
+  - Role: Autonomous rover deployment bay and sample collection laboratory.
+- **Quantum Supercomputer Lab** (Tier 4, 30 Stars Required):
+  - Category: Deep Computation
+  - Outputs: $+80\text{ TB}$ Scientific Research
+  - Role: Cryogenic sub-kelvin quantum computer calculating warp jump vectors.
+
+### 27.3 Real-Time Base Telemetry Metrics
+
+- **Oxygen Generation ($\text{O}_2\text{/day}$)**: Summed output across all unlocked atmospheric modules.
+- **Power Grid Capacity ($\text{kW}$)**: Total electrical energy surplus generated for colony expansion.
+- **Scientific Research Telemetry ($\text{TB}$)**: Cumulative data packages beamed back to Earth Mission Control.
+- **Colony Status Badges**: Displays dynamic operational state (e.g. "Operational - Self-Sustaining", "Expanding Research Base").

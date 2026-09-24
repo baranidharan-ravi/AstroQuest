@@ -53,7 +53,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 - `QuestScratchpad.jsx`: Interactive touch/canvas drawing scratchpad with High-DPI support, 5 space colors, eraser, undo, and translucent glass mode.
 - `OptionsGrid.jsx`: 4 option cards with tactile feedback, correct/incorrect sound effects, and keyboard navigation.
 - `InteractiveManipulative.jsx`: Tactile manipulatives (Balance Scales, Analog Clocks, 3D Rotatable Block Towers, Fraction Energy Crystals).
-- `AskDoubtModal.jsx`: Socratic voice/text AI doubt tutor guided by Cosmo companion pet.
+- `AskDoubtModal.jsx`: Socratic voice/text AI doubt tutor guided by Cosmo the cosmic guide.
 - `TimeWarpMode.jsx`: Fast-paced 60-second lightning round challenge with local high-score tracking.
 - `SolutionPanel.jsx`: Child-friendly step-by-step reasoning explanation panel.
 - `HintModal.jsx`: Progressive hint dispenser with gentle guidance.

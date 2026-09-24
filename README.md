@@ -3,11 +3,11 @@
 <p>
   <a href="README.md"><img src="https://img.shields.io/badge/📖_README-Active-f78166?style=for-the-badge" alt="README tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Quick_Start-2ea44f?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
-  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.3.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
+  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.4.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
 </p>
 
-An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **Multi-Provider AI generation (Google Gemini, OpenAI ChatGPT, and Anthropic Claude)**, an **Interactive Socratic AI Doubt Tutor**, **Hands-free Speech-to-Answer Voice Input**, **Tactile Manipulatives (Balance Scales, Analog Clocks, 3D Rotatable Blocks)**, **Galaxy Odyssey Solar System Map**, **Educator Analytics Portal**, **Print-and-Play Cosmic Worksheets**, **Offline Quest Vault**, and an **Installable Progressive Web App (PWA)** with automated unit testing.
+An engaging, visual-first React.js educational platform designed for early childhood and young learners (Ages 2–14), featuring cosmic space-themed AstroQuest challenges, interactive animations, sound effects, on-demand voice narration, **Multi-Provider AI generation (Google Gemini, OpenAI ChatGPT, and Anthropic Claude)**, an **Interactive Socratic AI Doubt Tutor**, **Hands-free Speech-to-Answer Voice Input**, **Tactile Manipulatives (Balance Scales, Analog Clocks, 3D Rotatable Blocks, Fraction Crystals)**, **Cosmic Space Habitat Modular Space Base Builder**, **Galaxy Odyssey Solar System Map**, **Educator Analytics Portal**, **Print-and-Play Cosmic Worksheets**, **Offline Quest Vault**, and an **Installable Progressive Web App (PWA)** with automated unit testing.
 
 ---
 
@@ -233,12 +233,22 @@ flowchart TD
 
 The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity based on the child's exact age:
 
-| Age Tier                              | Cognitive Level                     | Visual Skill Examples                                                                            | Analytical Thinking Examples                                                                                  |
-| :------------------------------------ | :---------------------------------- | :----------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------ |
-| **Ages 2–4** (Preschool)              | Foundational recognition & counting | Counting 1–5 objects (apples 🍎, stars ⭐), simple AB color patterns (🔴 🔵 🔴 🔵)               | Parent/baby animals (_Puppy : Dog :: Kitten : Cat_), animal sounds & basic colors                             |
-| **Ages 5–7** (Early Elementary)       | Early reasoning & arithmetic        | Counting 4–12 items, AAB / ABC patterns, grid tile gaps, balance scales                          | Functional analogies (_Bird : Nest :: Bee : Hive_), everyday cause-and-effect (_Ice in sun -> melts_)         |
-| **Ages 8–10** (Upper Elementary)      | Multi-step logic & STEM deduction   | Number sequences (`3, 6, 12, 24, ?`), 3D block projections, grid area matrices                   | Higher-order analogies (_Author : Book :: Sculptor : Statue_), scientific states of matter                    |
-| **Ages 11–14** (Middle School / Teen) | Advanced analytical problem-solving | Algebraic & non-linear sequences (`2, 5, 10, 17, 26, ?`), rotational symmetry, isometric volumes | Abstract analogies (_Microscope : Cell :: Telescope : Galaxy_), deductive syllogisms, physics & circuit logic |
+- **Ages 2–4 (Preschool)**:
+  - **Cognitive Level**: Foundational recognition & counting
+  - **Visual Skill Examples**: Counting 1–5 objects (apples, stars), simple AB color patterns (Red, Blue, Red, Blue)
+  - **Analytical Thinking Examples**: Parent/baby animals (_Puppy : Dog :: Kitten : Cat_), animal sounds & basic colors
+- **Ages 5–7 (Early Elementary)**:
+  - **Cognitive Level**: Early reasoning & arithmetic
+  - **Visual Skill Examples**: Counting 4–12 items, AAB / ABC patterns, grid tile gaps, balance scales
+  - **Analytical Thinking Examples**: Functional analogies (_Bird : Nest :: Bee : Hive_), everyday cause-and-effect (_Ice in sun -> melts_)
+- **Ages 8–10 (Upper Elementary)**:
+  - **Cognitive Level**: Multi-step logic & STEM deduction
+  - **Visual Skill Examples**: Number sequences (`3, 6, 12, 24, ?`), 3D block projections, grid area matrices
+  - **Analytical Thinking Examples**: Higher-order analogies (_Author : Book :: Sculptor : Statue_), scientific states of matter
+- **Ages 11–14 (Middle School / Teen)**:
+  - **Cognitive Level**: Advanced analytical problem-solving
+  - **Visual Skill Examples**: Algebraic & non-linear sequences (`2, 5, 10, 17, 26, ?`), rotational symmetry, isometric volumes
+  - **Analytical Thinking Examples**: Abstract analogies (_Microscope : Cell :: Telescope : Galaxy_), deductive syllogisms, physics & circuit logic
 
 </details>
 
@@ -533,30 +543,28 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 ---
 
 <details>
-<summary><h3 style="display: inline;">15. 🐾 Interactive Cosmic Pet Assistant, Articulated Living Companions & Resizing</h3></summary>
+<summary><h3 style="display: inline;">15. 🛰️ Cosmic Space Habitat Modular Space Colony Builder</h3></summary>
 
-- **Articulated Living Vector Animals (`LivingPetCharacter.jsx`)**:
-  - High-fidelity SVG living companions (Rocket the Space Scout Pup, Luna the Cat, Beep the Bot, Zog the Alien) engineered with zero space helmets or obstructive glass bubbles for an authentic, friendly pet experience.
-  - Multi-state articulated animations:
-    - **Walking & Strolling**: Trotting body bobbing, four-paw alternating strides, and physical horizontal traversal across the screen.
-    - **Drinking Fresh Water & Milk**: Head lowering, lapping pink tongue physics, dipping into a water bowl with animated concentric ripple waves and splashing water droplets.
-    - **Eating Crunchy Treats**: Chewing jaw movement, crunching kibble bowl, and flying treat crumbs.
-    - **Playing Star Ball**: Dynamic squash-and-stretch bouncy ball chasing.
-    - **Affection & Cuddle**: Heart bursts, happy tail wags, eye blinks, ear flops, and synthesized sound effects (meows, barks, slurps, cheerful pops).
-    - **Sleeping & Nap Time**: Closed gentle eyes, rhythmic breathing chest expansion, and floating `Zzz` bubbles.
-- **Independent Floating Vertical Control Toolbar**:
-  - Detached from the pet character, draggable anywhere on screen without covering questions or options.
-  - Collapsible into a minimalist floating bubble or expandable into full action buttons.
-- **Smart Floating Hover Tooltips (`ToolbarButton`)**:
-  - Every button on the vertical control strip displays a high-contrast floating tooltip on hover and focus.
-  - Explains the action title, category badge, and a friendly description of what the button does.
-  - Dynamically calculates screen edge proximity (`isToolbarNearRight`) to flip tooltip projection left or right, preventing viewport overflow.
-- **Pet Assistant Resizing Engine (`PET_SIZES`)**:
-  - Scalable across 3 calibrated presets: **Small** (`104px`), **Medium** (`148px`), and **Large** (`192px`).
-  - **In-Toolbar Sizing**: Click the `Resize Pet` button to cycle instantly through `S`, `M`, and `L` with immediate visual scaling and speech bubble feedback.
-  - **Settings Screen Integration**: Section 7 in Settings includes a 3-button segmented selector with persistent `localStorage` storage and cross-device backup export.
-- **Full Enable / Disable Control**:
-  - Dedicated toggle in Settings allows turning off the pet assistant, cleanly unmounting it from the DOM for zero performance overhead.
+- **Modular Planetary Base Construction (`CosmicHabitatModal.jsx`)**:
+  - Explorers use cumulative cosmic stars earned across learning quests to construct and expand their very own modular space habitat colony.
+  - Interactive tactile colony builder with 8 unlockable life-support and scientific research modules:
+    - **Solar Array Wing** (Tier 1, 3 Stars): High-efficiency photovoltaic panels generating $+25\text{ kW}$ clean power.
+    - **Hydroponic Greenhouse Dome** (Tier 1, 5 Stars): Aeroponic plant cultivation pod producing $+30\text{ O}_2$ and fresh nutrition.
+    - **Oxygen Scrubbing Life Support** (Tier 2, 8 Stars): Molecular atmospheric recycler providing $+45\text{ O}_2$ for the crew.
+    - **Deep Space Radio Telescope** (Tier 2, 12 Stars): Parabolic dish array transmitting interstellar telemetry ($+35\text{ TB}$ research).
+    - **Bio-Dome Crew Quarters** (Tier 3, 16 Stars): Pressurized living module with sleeping quarters and microgravity recreation ($+20\text{ O}_2$, $+15\text{ kW}$).
+    - **Fusion Core Reactor** (Tier 3, 20 Stars): Magnetic plasma confinement generator supplying $+60\text{ kW}$ high-density energy.
+    - **Planetary Rover Garage** (Tier 4, 25 Stars): Pressurized maintenance hangar for surface exploration rovers ($+40\text{ TB}$ research).
+    - **Quantum Supercomputer Lab** (Tier 4, 30 Stars): Cryogenic quantum computation matrix processing complex cosmic equations ($+80\text{ TB}$ research).
+- **Real-Time Base Telemetry Dashboard**:
+  - Visual status meters calculate and display real-time colony health metrics:
+    - **Oxygen Generation**: Total atmospheric life-support production ($\text{O}_2\text{/day}$).
+    - **Power Grid**: Total electrical energy surplus generated ($\text{kW}$).
+    - **Research Output**: Scientific discovery data transmitted back to Mission Control ($\text{TB/mission}$).
+- **Tactile 2.5D Isometric Simulation & Visual Assembly**:
+  - Unlocked modules come to life with glowing neon status indicators, rotating dish animations, and tactile click interactions.
+  - Locked modules display required star thresholds and inspiring mission briefings.
+  - Fully responsive, touch-friendly grid engineered for tablets, Chromebooks, and desktop monitors.
 
 </details>
 
@@ -564,7 +572,7 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 <summary><h3 style="display: inline;">16. 🪐 Interactive Socratic AI Doubt Tutor & Hands-Free Speech-to-Answer</h3></summary>
 
 - **Interactive Conversational AI Tutor (`AskDoubtModal.jsx`)**:
-  - When an explorer clicks **"I'm Stuck / Ask Astro-Guide"**, the system launches an interactive multi-turn dialogue with their chosen pet companion.
+  - When an explorer clicks **"I'm Stuck / Ask Astro-Guide"**, the system launches an interactive multi-turn dialogue with Cosmo the Socratic guide.
   - Unlike simple answer keys, the tutor is bound by strict Socratic pedagogical guardrails (`askSocraticTutor` in `aiGenerator.js`): it never gives away the direct answer or option letter, instead asking leading observation questions, suggesting simpler counting steps, and guiding attention toward visual clues.
   - **Quick-Starter Guidance Pills**: One-click prompts include _💡 Secret Clue_, _🔍 Break it Down_, _🤔 Why not another choice?_, and _🚀 Explain simply_.
   - **Integrated Speech Output**: Every tutor reply can be read aloud on-demand with animated character sync.
@@ -604,9 +612,9 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
   - Protected behind an arithmetic security gate to prevent accidental child access.
   - Longitudinal performance tracking: 30-day cognitive domain mastery bars (Mental Arithmetic, Spatial Reasoning, Pattern Recognition, Language Reasoning, and Scientific Inquiry).
   - Generates personalized curriculum recommendations with 1-click PDF progress report export.
-- **Living Pet Mood States & Radiant Cosmic Aura (`LivingPetCharacter.jsx`)**:
-  - Dynamic companion moods: `thinking` during hint requests and `celebrating` on correct answer streaks.
-  - Radiant golden and rainbow cosmic aura halos reflecting cumulative quest achievements.
+- **Interactive Stargazing & Observatory Sky Map (`ConstellationObservatory.jsx`)**:
+  - Interactive stargazing dome allowing children to connect celestial stars into famous constellations.
+  - Educational astronomical trivia, mythological folklore, and star coordinate discovery.
 
 </details>
 
@@ -621,11 +629,16 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 - **Modular State Hooks (`useQuestSession.js`, `useCosmicAudio.js`)**:
   - Clean separation of concerns decoupling monolithic state from `App.jsx` into testable domain hooks.
 - **Vitest Automated Testing Suite (`package.json`, `tests/`)**:
-  - Complete automated test suite running with `npm test`:
+  - Complete automated test suite with 24 tests across 9 test suites running via `npm test`:
     - `tests/cryptoStorage.test.js`: AES-GCM / XOR key encryption & decryption integrity.
     - `tests/speechRecognition.test.js`: Spoken natural language answer parser.
     - `tests/adaptiveEngine.test.js`: Tier promotion & supportive scaffolding triggers.
     - `tests/offlinePackService.test.js`: Curated question schema, distractor, and solution validation.
+    - `tests/cosmicHabitat.test.jsx`: Cosmic space habitat modules, unlock logic, and telemetry metrics.
+    - `tests/fractionCrystals.test.jsx`: Fraction energy crystal interactive manipulative mechanics.
+    - `tests/questScratchpad.test.jsx`: Interactive canvas scratchpad drawing tools.
+    - `tests/skillIcon.test.jsx`: Lucide SVG vector icon rendering and emoji fallback.
+    - `tests/suggestSkillset.test.js`: Non-repeating AI skillset synthesis and offline fallback.
 
 </details>
 
@@ -744,14 +757,12 @@ AstroQuest is engineered from the ground up to comply with **Web Content Accessi
   - A hidden skip link (`<a href="#main-content" className="sr-only focus:not-sr-only ...">Skip to main content</a>`) appears at the very top of the DOM upon pressing `Tab`, allowing keyboard and screen reader users to jump straight past header controls directly to the active question prompt (`<main id="main-content">`).
 - **Full Keyboard Navigation & Shortcuts (SC 2.1.1 - Keyboard & SC 2.1.4 - Character Key Shortcuts)**:
   - Users can complete entire learning quests without touching a mouse or trackpad:
-    | Key Combination | Action Executed | Context |
-    | :--- | :--- | :--- |
-    | `Tab` / `Shift + Tab` | Move focus forward / backward across interactive elements | Application-wide |
-    | `1`, `2`, `3`, `4` or `A`, `B`, `C`, `D` | Directly select answer option A, B, C, or D | Active Question |
-    | `ArrowUp` / `ArrowLeft` | Select previous answer option in radio group | Answer Options |
-    | `ArrowDown` / `ArrowRight` | Select next answer option in radio group | Answer Options |
-    | `Enter` / `Space` | Submit selected answer / Advance to next question | Active Question / Solution |
-    | `Escape` | Dismiss any open modal dialog (Hint, Tutor, Zoom, Exit, Unsaved) | Active Modal |
+    - **`Tab` / `Shift + Tab`**: Move focus forward / backward across interactive elements (Application-wide).
+    - **`1`, `2`, `3`, `4` or `A`, `B`, `C`, `D`**: Directly select answer option A, B, C, or D (Active Question).
+    - **`ArrowUp` / `ArrowLeft`**: Select previous answer option in radio group (Answer Options).
+    - **`ArrowDown` / `ArrowRight`**: Select next answer option in radio group (Answer Options).
+    - **`Enter` / `Space`**: Submit selected answer / Advance to next question (Active Question / Solution).
+    - **`Escape`**: Dismiss any open modal dialog: Hint, Tutor, Zoom, Exit, Unsaved (Active Modal).
 - **Focus Trapping & Dialog Management (SC 2.4.3 - Focus Order & SC 3.2.1 - On Focus)**:
   - All modal dialogs (`HintModal`, `AskDoubtModal`, `ZoomModal`, `ExitConfirmationModal`, `SettingsScreen` Unsaved Modal, `SkillSelectionDashboard` Info Modal) implement strict keyboard focus traps.
   - On open, focus automatically targets the dialog container or first interactive element. Pressing `Tab` cycles strictly inside the dialog boundaries without escaping into background DOM.
