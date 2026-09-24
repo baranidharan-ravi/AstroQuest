@@ -1,13 +1,4 @@
-import {
-	Check,
-	Lock,
-	RotateCcw,
-	Shirt,
-	Sparkles,
-	Star,
-	X,
-	Zap,
-} from 'lucide-react';
+import { Check, Lock, Sparkles, Star, X } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	PET_ACCESSORIES,
@@ -37,8 +28,9 @@ export function getStoredWardrobeState() {
 						trail: parsed?.equipped?.trail || 'none',
 					},
 					unlocked:
-						Array.isArray(parsed?.unlocked) ? parsed.unlocked
-						: ['none', 'standard'],
+						Array.isArray(parsed?.unlocked) ?
+							parsed.unlocked
+						:	['none', 'standard'],
 				};
 			}
 		}

@@ -738,7 +738,8 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 								Cosmic Space Habitat
 							</h3>
 							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
-								Construct off-world Bio-Domes, Solar Arrays & Warp Gantries using your quest stars!
+								Construct off-world Bio-Domes, Solar Arrays & Warp Gantries
+								using your quest stars!
 							</p>
 						</div>
 						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-emerald-300'>

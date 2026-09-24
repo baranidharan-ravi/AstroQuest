@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import {
-	PET_ACCESSORIES,
-	PET_WARDROBE_STORAGE_KEY,
-} from '../src/constants';
+import { PET_ACCESSORIES } from '../src/constants';
 import PetWardrobeModal, {
 	getStoredWardrobeState,
 	saveStoredWardrobeState,

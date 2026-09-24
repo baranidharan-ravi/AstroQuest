@@ -63,9 +63,15 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 			{/* Equippable Companion Jetpack Trails */}
 			{trailId === 'starlight_sparkles' && (
 				<div className='absolute -left-6 bottom-4 w-12 h-12 pointer-events-none z-0'>
-					<span className='absolute top-0 left-0 text-cyan-300 text-sm animate-ping'>✦</span>
-					<span className='absolute bottom-1 left-3 text-sky-200 text-xs animate-pulse'>✨</span>
-					<span className='absolute top-3 left-6 text-amber-200 text-[10px] animate-bounce'>⭐</span>
+					<span className='absolute top-0 left-0 text-cyan-300 text-sm animate-ping'>
+						✦
+					</span>
+					<span className='absolute bottom-1 left-3 text-sky-200 text-xs animate-pulse'>
+						✨
+					</span>
+					<span className='absolute top-3 left-6 text-amber-200 text-[10px] animate-bounce'>
+						⭐
+					</span>
 				</div>
 			)}
 			{trailId === 'plasma_exhaust' && (
@@ -93,9 +99,18 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 						y1='0%'
 						x2='100%'
 						y2='100%'>
-						<stop offset='0%' stopColor='#FEF08A' />
-						<stop offset='50%' stopColor='#F59E0B' />
-						<stop offset='100%' stopColor='#B45309' />
+						<stop
+							offset='0%'
+							stopColor='#FEF08A'
+						/>
+						<stop
+							offset='50%'
+							stopColor='#F59E0B'
+						/>
+						<stop
+							offset='100%'
+							stopColor='#B45309'
+						/>
 					</linearGradient>
 
 					<linearGradient
@@ -104,9 +119,18 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 						y1='0%'
 						x2='100%'
 						y2='100%'>
-						<stop offset='0%' stopColor='#F8FAFC' />
-						<stop offset='50%' stopColor='#CBD5E1' />
-						<stop offset='100%' stopColor='#64748B' />
+						<stop
+							offset='0%'
+							stopColor='#F8FAFC'
+						/>
+						<stop
+							offset='50%'
+							stopColor='#CBD5E1'
+						/>
+						<stop
+							offset='100%'
+							stopColor='#64748B'
+						/>
 					</linearGradient>
 
 					<linearGradient
@@ -115,9 +139,18 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 						y1='0%'
 						x2='100%'
 						y2='100%'>
-						<stop offset='0%' stopColor='#FDA4AF' />
-						<stop offset='50%' stopColor='#F43F5E' />
-						<stop offset='100%' stopColor='#881337' />
+						<stop
+							offset='0%'
+							stopColor='#FDA4AF'
+						/>
+						<stop
+							offset='50%'
+							stopColor='#F43F5E'
+						/>
+						<stop
+							offset='100%'
+							stopColor='#881337'
+						/>
 					</linearGradient>
 
 					<linearGradient
@@ -126,9 +159,18 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 						y1='0%'
 						x2='100%'
 						y2='100%'>
-						<stop offset='0%' stopColor='#FEF9C3' />
-						<stop offset='50%' stopColor='#EAB308' />
-						<stop offset='100%' stopColor='#854D0E' />
+						<stop
+							offset='0%'
+							stopColor='#FEF9C3'
+						/>
+						<stop
+							offset='50%'
+							stopColor='#EAB308'
+						/>
+						<stop
+							offset='100%'
+							stopColor='#854D0E'
+						/>
 					</linearGradient>
 					{/* ─── Puppy Gradients & Filters ─── */}
 					<radialGradient
@@ -1740,8 +1782,18 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 							strokeWidth='1.5'
 							filter='drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
 						/>
-						<circle cx='80' cy='102' r='3.5' fill='#38BDF8' />
-						<circle cx='80' cy='102' r='1.5' fill='#FFFFFF' />
+						<circle
+							cx='80'
+							cy='102'
+							r='3.5'
+							fill='#38BDF8'
+						/>
+						<circle
+							cx='80'
+							cy='102'
+							r='1.5'
+							fill='#FFFFFF'
+						/>
 					</g>
 				)}
 				{suitId === 'nebula_blaze' && (
@@ -1753,7 +1805,13 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 							strokeWidth='1.5'
 							filter='drop-shadow(0 0 6px #F43F5E)'
 						/>
-						<circle cx='80' cy='102' r='4' fill='#FFE4E6' className='animate-pulse' />
+						<circle
+							cx='80'
+							cy='102'
+							r='4'
+							fill='#FFE4E6'
+							className='animate-pulse'
+						/>
 					</g>
 				)}
 				{suitId === 'supernova_gold' && (
@@ -1797,8 +1855,18 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 							strokeDasharray='4 2'
 							className='animate-pulse'
 						/>
-						<circle cx='58' cy='43' r='1.5' fill='#A5F3FC' />
-						<circle cx='102' cy='43' r='1.5' fill='#A5F3FC' />
+						<circle
+							cx='58'
+							cy='43'
+							r='1.5'
+							fill='#A5F3FC'
+						/>
+						<circle
+							cx='102'
+							cy='43'
+							r='1.5'
+							fill='#A5F3FC'
+						/>
 					</g>
 				)}
 				{visorId === 'solar_gold_shade' && (

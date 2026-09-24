@@ -1,17 +1,13 @@
 import {
 	Activity,
 	CheckCircle2,
-	Compass,
 	Cpu,
 	Globe,
 	Hammer,
 	Layers,
 	Lock,
-	Rocket,
-	ShieldAlert,
 	Sparkles,
 	Star,
-	Wrench,
 	X,
 	Zap,
 } from 'lucide-react';
@@ -84,8 +80,7 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 	const [unlockedModules, setUnlockedModules] = useState(
 		getStoredHabitatModules,
 	);
-	const [selectedModuleId, setSelectedModuleId] =
-		useState('hydroponic_dome');
+	const [selectedModuleId, setSelectedModuleId] = useState('hydroponic_dome');
 	const [totalStars, setTotalStars] = useState(getTotalOdysseyStars);
 	const [actionMessage, setActionMessage] = useState(null);
 
@@ -157,10 +152,7 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 			}
 		});
 
-		const colonyLevel = Math.max(
-			1,
-			Math.floor(unlockedModules.length * 1.25),
-		);
+		const colonyLevel = Math.max(1, Math.floor(unlockedModules.length * 1.25));
 		return {
 			oxygen: totalOxygen,
 			power: totalPower,
@@ -195,16 +187,21 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 		(mod) => {
 			playButtonPop(soundEnabled);
 			const actions = {
-				hydroponic_dome: '🌿 Oxygen vents refreshed! Cosmic berries flourishing!',
+				hydroponic_dome:
+					'🌿 Oxygen vents refreshed! Cosmic berries flourishing!',
 				solar_matrix: '⚡ Photovoltaic tracking aligned with solar corona!',
 				comm_dish: '📡 Deep space beacon pinged! Telemetry sent to Earth!',
-				rover_hangar: '🚜 All-Terrain Rover diagnostics green! Samples analyzed!',
+				rover_hangar:
+					'🚜 All-Terrain Rover diagnostics green! Samples analyzed!',
 				crystal_vault: '💎 Crystal resonance stable! Starlight fuel at 100%!',
-				fusion_core: '⚛️ Magnetic confinement nominal! Colony shield at maximum!',
+				fusion_core:
+					'⚛️ Magnetic confinement nominal! Colony shield at maximum!',
 				ai_command_lab: '🧠 Cosmo AI calculated new stellar flight paths!',
 				launch_pad: '🚀 Warp ignition sequence tested! Ready for blastoff!',
 			};
-			setActionMessage(actions[mod.id] || '✨ Module systems functioning smoothly!');
+			setActionMessage(
+				actions[mod.id] || '✨ Module systems functioning smoothly!',
+			);
 			setTimeout(() => setActionMessage(null), 3000);
 		},
 		[soundEnabled],
@@ -297,9 +294,7 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 							<div className='text-[10px] text-blue-400 uppercase tracking-wider font-black'>
 								Science Uplink
 							</div>
-							<div className='font-black'>
-								{colonyStats.research} Bandwidth
-							</div>
+							<div className='font-black'>{colonyStats.research} Bandwidth</div>
 						</div>
 					</div>
 
@@ -524,7 +519,9 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 											style={{
 												width: `${Math.min(
 													100,
-													Math.round((totalStars / activeModule.starsCost) * 100),
+													Math.round(
+														(totalStars / activeModule.starsCost) * 100,
+													),
 												)}%`,
 											}}
 										/>

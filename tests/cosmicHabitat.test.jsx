@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import {
-	HABITAT_MODULES,
-	HABITAT_STORAGE_KEY,
-} from '../src/constants';
+import { HABITAT_MODULES } from '../src/constants';
 import CosmicHabitatModal, {
 	getStoredHabitatModules,
 	saveStoredHabitatModules,
