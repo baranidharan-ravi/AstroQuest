@@ -146,10 +146,14 @@ During an active quest, children solve 10 interactive questions:
 - **Pedagogical Solution Reveal**: After submitting, the correct answer and a step-by-step cosmic explanation are revealed.
 - **Auto-Advance**: The question advances automatically after your configured delay (e.g., 7 seconds), or click **"Next Question ➔"** to proceed immediately.
 
-### Cognitive Assistance Tools
+### Cognitive Assistance Tools & Lifelines
 
 - **🔊 Read Aloud**: Tap the speaker icon next to any question to have it read aloud with glowing real-time word highlighting.
-- **⚡ 50/50 Cosmic Ray**: Stuck on a tricky question? Tap the pink lightning button to blast away two incorrect choices with stardust particles!
+- **🆘 4 Strategic Cosmic Lifelines (`HintModal.jsx`)**: Tap the Lifeline beacon in the action bar to activate mission support:
+  - **💡 Cosmic Clue**: Gentle pedagogical guidance and observational stepping stones without revealing the answer.
+  - **⚡ 50/50 Cosmic Ray**: Blasts away two incorrect choices with stardust particles.
+  - **🛸 Starfleet Telemetry Scan**: Deep-space radar sweep calculating Mission Control probability confidence percentages (`🛸 XX%`) on option cards.
+  - **⏱️ Chrono Freeze (+30s Boost)**: Freezes time pressure and injects +30 seconds into the countdown timer (or +20 XP Cosmic Focus Shield).
 - **🔍 Diagram Zoom**: Tap "Zoom" to view detailed geometric diagrams, prisms, or isometric block pyramids in close-up view.
 - **⏭️ Skip Question**: Tap Skip if an unfamiliar challenge appears. Skipped questions can be revisited at the end of the quest without penalty!
 - **⏸️ Timer Pause & Anti-Screenshot Shield**: Tap the timer to pause. The question and choices blur out to prevent screenshot cheating. Tap **"Resume Challenge"** when ready.

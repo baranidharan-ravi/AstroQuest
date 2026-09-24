@@ -27,7 +27,7 @@ This document is automatically loaded by Antigravity to provide instant context,
   - Web Speech API TTS (`speechSynthesis`) with pitch/rate adaptation for young children.
   - Web Speech API STT (`webkitSpeechRecognition` / `SpeechRecognition`) with phonetic matching for hands-free voice answers.
 - **Utilities**: `canvas-confetti` (celebrations), `jspdf` (printables), `clsx`, `tailwind-merge`.
-- **Testing & Tooling**: Vitest (`npm test` running 24 tests across 9 test files).
+- **Testing & Tooling**: Vitest (`npm test` running 29 tests across 10 test files).
 
 ---
 
@@ -56,7 +56,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 - `AskDoubtModal.jsx`: Socratic voice/text AI doubt tutor guided by Cosmo the cosmic guide.
 - `TimeWarpMode.jsx`: Fast-paced 60-second lightning round challenge with local high-score tracking.
 - `SolutionPanel.jsx`: Child-friendly step-by-step reasoning explanation panel.
-- `HintModal.jsx`: Progressive hint dispenser with gentle guidance.
+- `HintModal.jsx`: 4 strategic in-quest lifelines (Cosmic Clue, 50/50 Blast, Starfleet Telemetry Scan radar, Chrono Freeze +30s boost).
 - `ExitConfirmationModal.jsx`: Safe exit confirmation modal.
 - `SkippedReviewModal.jsx`: Review modal for skipped questions before final evaluation.
 
@@ -107,5 +107,5 @@ This document is automatically loaded by Antigravity to provide instant context,
 - **Surprise Me Button Logic**: When a user fills the skillset name by clicking "Surprise Me 🎲", the "Autofill with AI" button must be disabled until the user edits the skillset name text.
 - **Iconography Usage**: Use `SkillIcon` component (`src/utils/SkillIcon.jsx`) and `POPULAR_ICONS` from `src/constants.js` rather than raw browser emojis for UI elements.
 - **Auto-Execution of Commands**: Proactively propose and run commands on behalf of the user without prompting for approval or asking what command to run.
-- **Verification Routine**: Always run `npm test` (vitest) to ensure all 24 tests across 9 test files pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
+- **Verification Routine**: Always run `npm test` (vitest) to ensure all 29 tests across 10 test files pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
 - **Git Push Protocol**: After completing requested tasks and verification, stage relevant files, commit with clear semantic conventional commit messages, and push to `origin/main`.

@@ -826,3 +826,64 @@ export function playPetSound(petType = 'dog', enabled = true) {
 		playDogBark(enabled);
 	}
 }
+
+/**
+ * Play a futuristic ascending radar sonar sweep for Starfleet Telemetry Scan
+ */
+export function playTelemetryScanSound(enabled = true) {
+	if (!enabled) return;
+	const ctx = getAudioContext();
+	if (!ctx) return;
+
+	try {
+		const now = ctx.currentTime;
+		[0, 0.12, 0.24].forEach((delay, idx) => {
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime(440 * (1 + idx * 0.5), now + delay);
+			osc.frequency.exponentialRampToValueAtTime(880 * (1 + idx * 0.5), now + delay + 0.1);
+
+			gain.gain.setValueAtTime(0.18, now + delay);
+			gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.11);
+
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now + delay);
+			osc.stop(now + delay + 0.12);
+		});
+	} catch (e) {
+		console.warn('Telemetry scan sound failed', e);
+	}
+}
+
+/**
+ * Play a crystalline time-dilation harmonic chime for Chrono Freeze
+ */
+export function playChronoFreezeSound(enabled = true) {
+	if (!enabled) return;
+	const ctx = getAudioContext();
+	if (!ctx) return;
+
+	try {
+		const now = ctx.currentTime;
+		const freqs = [1046.5, 880, 783.99, 659.25, 523.25];
+		freqs.forEach((freq, idx) => {
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+			osc.type = 'triangle';
+			osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+
+			gain.gain.setValueAtTime(0.15, now + idx * 0.06);
+			gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.25);
+
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.start(now + idx * 0.06);
+			osc.stop(now + idx * 0.06 + 0.26);
+		});
+	} catch (e) {
+		console.warn('Chrono freeze sound failed', e);
+	}
+}
+

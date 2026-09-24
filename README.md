@@ -27,6 +27,9 @@ An engaging, visual-first educational web application engineered for early child
   - 8 unlockable modules: Solar Array, Hydroponic Greenhouse, Oxygen Scrubber, Deep Space Telescope, Bio-Dome Crew Quarters, Fusion Reactor, Rover Garage, and Quantum Supercomputer.
   - Live base telemetry tracking Oxygen production ($\text{O}_2\text{/day}$), Power Grid energy ($\text{kW}$), and Scientific Research ($\text{TB}$).
 
+- **🆘 4 Strategic In-Quest Lifelines (`HintModal.jsx`, `OptionsGrid.jsx`)**:
+  - Multi-tier in-quest support power-ups: **💡 Cosmic Clue** (pedagogical hint), **⚡ 50/50 Cosmic Ray** (vaporizes two wrong choices), **🛸 Starfleet Telemetry Scan** (deep-space probability radar scanning with option confidence badges), and **⏱️ Chrono Freeze** (+30s countdown boost and time-dilation shield).
+
 - **⚖️ Tactile Interactive Manipulatives (`InteractiveManipulative.jsx`)**:
   - **Balance Scale**: Real-time torque physics ($-18^\circ$ to $+18^\circ$) with draggable weights and equilibrium indicators.
   - **Analog Clock**: Interactive hour/minute hand controls with synchronized digital readouts.
@@ -80,7 +83,7 @@ An engaging, visual-first educational web application engineered for early child
 - **AI Synthesis**: Google Gemini (`@google/genai`), OpenAI ChatGPT, Anthropic Claude (`src/services/aiGenerator.js`)
 - **Audio & Speech**: Web Audio API procedural oscillator synthesis, Web Speech API TTS & STT
 - **Security & Privacy**: Client-side AES-GCM 256-bit encryption with salted XOR fallback, DOM inspection defense, and optional Express 5 proxy server (`server/index.js`)
-- **Testing**: Vitest (`npm test` — 24 unit tests across 9 test files, 100% pass rate)
+- **Testing**: Vitest (`npm test` — 29 unit tests across 10 test files, 100% pass rate)
 
 ---
 

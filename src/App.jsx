@@ -33,10 +33,13 @@ import {
 	getStoredAmbientEnabled,
 	startAmbientSound,
 } from './utils/ambientAudio';
+import { CHRONO_FREEZE_SECONDS } from './constants';
 import {
 	playButtonPop,
 	playCorrectSound,
 	playIncorrectSound,
+	playTelemetryScanSound,
+	playChronoFreezeSound,
 	speakText,
 } from './utils/audioSynthesis';
 import {
@@ -251,10 +254,14 @@ export default function App() {
 		getRandomCosmicFact(),
 	);
 
-	// Multi-Tier Hints & 50/50 Cosmic Ray State
+	// Multi-Tier Hints & Strategic Lifelines State
 	const [eliminatedOptionIds, setEliminatedOptionIds] = useState([]);
 	const [cosmicRayUsedForQuestion, setCosmicRayUsedForQuestion] =
 		useState(false);
+	const [telemetryScan, setTelemetryScan] = useState(null);
+	const [telemetryScanUsed, setTelemetryScanUsed] = useState(false);
+	const [chronoFreezeUsed, setChronoFreezeUsed] = useState(false);
+	const [chronoFreezeActive, setChronoFreezeActive] = useState(false);
 
 	// Astronaut Achievements & XP State
 	const [achievements, setAchievements] = useState(getStoredAchievements);
@@ -530,6 +537,12 @@ export default function App() {
 		setIsSubmitted(false);
 		setIsTimedOut(false);
 		setAutoAdvanceCountdown(null);
+		setEliminatedOptionIds([]);
+		setCosmicRayUsedForQuestion(false);
+		setTelemetryScan(null);
+		setTelemetryScanUsed(false);
+		setChronoFreezeUsed(false);
+		setChronoFreezeActive(false);
 		setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
 		setHistory([]);
 		setTimerSeconds(0);
@@ -717,6 +730,88 @@ export default function App() {
 		soundEnabled,
 		selectedOptionId,
 	]);
+
+	// Starfleet Telemetry Scan Handler
+	const handleActivateTelemetryScan = useCallback(() => {
+		if (telemetryScanUsed || isSubmitted || isTimedOut || !currentQuestion) return;
+		playTelemetryScanSound(soundEnabled);
+
+		const options = currentQuestion?.options || [];
+		const correctId = currentQuestion?.correctAnswerId;
+		const activeWrong = options.filter(
+			(o) => o.id !== correctId && !eliminatedOptionIds.includes(o.id),
+		);
+
+		// Mission Control confidence: 70% to 82% on correct
+		const correctPct = Math.floor(Math.random() * 13) + 70;
+		const remainingPct = 100 - correctPct;
+
+		const scan = {};
+		scan[correctId] = correctPct;
+
+		// Distribute remaining among active wrong options
+		if (activeWrong.length === 1) {
+			scan[activeWrong[0].id] = remainingPct;
+		} else if (activeWrong.length > 1) {
+			const firstShare = Math.floor(remainingPct * 0.65);
+			const secondShare = remainingPct - firstShare;
+			scan[activeWrong[0].id] = firstShare;
+			scan[activeWrong[1].id] = secondShare;
+			for (let i = 2; i < activeWrong.length; i++) {
+				scan[activeWrong[i].id] = 0;
+			}
+		}
+
+		// 0% for blasted options
+		eliminatedOptionIds.forEach((id) => {
+			scan[id] = 0;
+		});
+
+		setTelemetryScan(scan);
+		setTelemetryScanUsed(true);
+		setLiveAnnouncement(
+			`Starfleet Telemetry Scan complete! Deep-space radar calculated ${correctPct}% probability for the top signature.`,
+		);
+
+		// Award Telemetry Specialist badge
+		awardBadge('telemetry_master');
+		awardXP(10);
+		setAchievements(getStoredAchievements());
+	}, [
+		telemetryScanUsed,
+		isSubmitted,
+		isTimedOut,
+		currentQuestion,
+		soundEnabled,
+		eliminatedOptionIds,
+	]);
+
+	// Chrono Freeze (+30s Boost) Handler
+	const handleActivateChronoFreeze = useCallback(() => {
+		if (chronoFreezeUsed || isSubmitted || isTimedOut) return;
+		playChronoFreezeSound(soundEnabled);
+
+		setChronoFreezeUsed(true);
+		setChronoFreezeActive(true);
+
+		if (timerConfig?.enabled) {
+			setQuestionTimeRemaining((prev) => prev + CHRONO_FREEZE_SECONDS);
+			setLiveAnnouncement(
+				`Chrono Freeze engaged! Added +${CHRONO_FREEZE_SECONDS} bonus seconds to your clock.`,
+			);
+		} else {
+			awardXP(20);
+			setLiveAnnouncement(
+				'Chrono Shield activated! Cosmic Focus Shield granted +20 bonus XP.',
+			);
+		}
+
+		// Award Chrono Guardian badge
+		awardBadge('chrono_master');
+		awardXP(10);
+		setAchievements(getStoredAchievements());
+	}, [chronoFreezeUsed, isSubmitted, isTimedOut, timerConfig?.enabled, soundEnabled]);
+
 
 	// Handle Submit
 	const handleSubmit = () => {
@@ -924,6 +1019,10 @@ export default function App() {
 			setAutoAdvanceCountdown(null);
 			setEliminatedOptionIds([]);
 			setCosmicRayUsedForQuestion(false);
+			setTelemetryScan(null);
+			setTelemetryScanUsed(false);
+			setChronoFreezeUsed(false);
+			setChronoFreezeActive(false);
 			setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
 			setIsLoadingNextQuestion(false);
 			setIsTimerPaused(false); // Resumed when next question is loaded!
@@ -1590,6 +1689,7 @@ export default function App() {
 											showVisualDiagrams={showVisualDiagrams}
 											question={currentQuestion}
 											eliminatedOptionIds={eliminatedOptionIds}
+											telemetryScan={telemetryScan}
 										/>
 									</div>
 								</div>
@@ -1633,17 +1733,20 @@ export default function App() {
 									className='flex-shrink-0 sticky bottom-0 sm:bottom-1 z-30 w-full flex items-center justify-between gap-2 sm:gap-4 py-2.5 sm:py-3 px-3.5 sm:px-6 select-none border-t border-white/15 bg-[#0C1033]/95 backdrop-blur-md rounded-2xl shadow-[0_-8px_25px_rgba(0,0,0,0.5)]'>
 									{/* Left: Hint & Skip Buttons */}
 									<div className='flex items-center gap-2 sm:gap-3 flex-shrink-0'>
-										{/* Power-up Hint Button */}
+										{/* Power-up Hint / Lifelines Button */}
 										<button
 											onClick={() => {
 												playButtonPop(soundEnabled);
 												resumeTimerIfPaused();
 												setIsHintOpen(true);
 											}}
-											className='w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 hover:scale-110 active:scale-95 text-white flex items-center justify-center shadow-lg transition-all border-2 border-white/40 flex-shrink-0 cursor-pointer focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:outline-none'
-											title='Hint Clue & 50/50 Ray'
-											aria-label='Get a hint clue or activate 50/50 ray'>
+											className='relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 hover:scale-110 active:scale-95 text-white flex items-center justify-center shadow-lg transition-all border-2 border-white/40 flex-shrink-0 cursor-pointer focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:outline-none'
+											title='Cosmic Lifelines: Clue, 50/50, Radar & Chrono Freeze'
+											aria-label='Open cosmic lifelines modal'>
 											<Zap className='w-5 h-5 fill-white' />
+											{(telemetryScanUsed || chronoFreezeUsed || cosmicRayUsedForQuestion) && (
+												<span className='absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-cyan-400 border-2 border-slate-900 shadow animate-pulse' />
+											)}
 										</button>
 
 										{/* Skip Question Button */}
@@ -1684,6 +1787,8 @@ export default function App() {
 												className={`flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-2xl border font-mono font-black text-sm sm:text-base md:text-lg tracking-wider shadow-inner transition-all cursor-pointer select-none group ${
 													isTimerPaused ?
 														'bg-amber-950/90 border-amber-400 text-amber-300 ring-2 ring-amber-400/50 animate-pulse'
+													: chronoFreezeActive ?
+														'bg-emerald-950/90 border-emerald-400 text-emerald-300 ring-2 ring-emerald-400/50 shadow-[0_0_15px_rgba(16,185,129,0.35)]'
 													: questionTimeRemaining <= 5 ?
 														'bg-rose-950/80 border-rose-500 text-rose-300 ring-2 ring-rose-400/40 animate-bounce'
 													: questionTimeRemaining <= 15 ?
@@ -1718,6 +1823,10 @@ export default function App() {
 												{isTimerPaused ?
 													<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/30'>
 														Paused
+													</span>
+												: chronoFreezeActive ?
+													<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-emerald-400/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-400/40 animate-pulse ml-0.5'>
+														⏱️ +30s
 													</span>
 												:	<span className='text-[10px] sm:text-xs uppercase font-extrabold tracking-widest opacity-80 ml-0.5 hidden xs:inline'>
 														Left
@@ -1889,6 +1998,16 @@ export default function App() {
 						onActivateCosmicRay={handleActivateCosmicRay}
 						cosmicRayUsed={cosmicRayUsedForQuestion}
 						canUseCosmicRay={!isSubmitted && !isTimedOut}
+						onActivateTelemetryScan={handleActivateTelemetryScan}
+						telemetryScan={telemetryScan}
+						telemetryScanUsed={telemetryScanUsed}
+						canUseTelemetryScan={!isSubmitted && !isTimedOut}
+						onActivateChronoFreeze={handleActivateChronoFreeze}
+						chronoFreezeUsed={chronoFreezeUsed}
+						canUseChronoFreeze={!isSubmitted && !isTimedOut}
+						currentQuestion={currentQuestion}
+						eliminatedOptionIds={eliminatedOptionIds}
+						timerEnabled={timerConfig?.enabled}
 					/>
 				)}
 

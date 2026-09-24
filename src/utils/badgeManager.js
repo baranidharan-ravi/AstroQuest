@@ -119,6 +119,20 @@ export const BADGE_DEFINITIONS = [
 		icon: '🪐',
 		color: 'border-amber-400/60 bg-amber-950/40 text-amber-300',
 	},
+	{
+		id: 'telemetry_master',
+		title: 'Telemetry Specialist',
+		description: 'Deploy the Starfleet Telemetry Scan radar sweep.',
+		icon: '🛸',
+		color: 'border-cyan-400/60 bg-cyan-950/40 text-cyan-300',
+	},
+	{
+		id: 'chrono_master',
+		title: 'Chrono Guardian',
+		description: 'Activate the Chrono Freeze time warp boost.',
+		icon: '⏱️',
+		color: 'border-emerald-400/60 bg-emerald-950/40 text-emerald-300',
+	},
 ];
 
 export function getStoredAchievements() {

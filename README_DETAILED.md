@@ -632,7 +632,7 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 - **Modular State Hooks (`useQuestSession.js`, `useCosmicAudio.js`)**:
   - Clean separation of concerns decoupling monolithic state from `App.jsx` into testable domain hooks.
 - **Vitest Automated Testing Suite (`package.json`, `tests/`)**:
-  - Complete automated test suite with 24 tests across 9 test suites running via `npm test`:
+  - Complete automated test suite with 29 tests across 10 test suites running via `npm test`:
     - `tests/cryptoStorage.test.js`: AES-GCM / XOR key encryption & decryption integrity.
     - `tests/speechRecognition.test.js`: Spoken natural language answer parser.
     - `tests/adaptiveEngine.test.js`: Tier promotion & supportive scaffolding triggers.
@@ -642,6 +642,7 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
     - `tests/questScratchpad.test.jsx`: Interactive canvas scratchpad drawing tools.
     - `tests/skillIcon.test.jsx`: Lucide SVG vector icon rendering and emoji fallback.
     - `tests/suggestSkillset.test.js`: Non-repeating AI skillset synthesis and offline fallback.
+    - `tests/lifelines.test.jsx`: Cosmic lifelines suite (Clue, 50/50, Starfleet Telemetry Scan, Chrono Freeze boost) and badge logic.
 
 </details>
 
@@ -911,13 +912,16 @@ AstroQuest is engineered from the ground up to comply with **Web Content Accessi
 
 ### 9. Cosmic Feature Innovations (`src/features/quest/`, `src/utils/badgeManager.js`)
 
-- **50/50 Cosmic Ray Power-Up (`HintModal.jsx`, `OptionsGrid.jsx`)**:
-  - Multi-tier hints with a 50/50 Cosmic Ray power-up that disintegrates two incorrect options from the grid with cosmic stardust animations, leaving only the correct answer and one distractor.
+- **4 Strategic In-Quest Lifelines Suite (`HintModal.jsx`, `OptionsGrid.jsx`, `App.jsx`)**:
+  - **💡 Cosmic Clue**: Gentle pedagogical guidance and observational stepping stones without revealing the direct solution.
+  - **⚡ 50/50 Cosmic Ray**: Disintegrates two incorrect options from the grid with cosmic stardust animations, leaving only the correct answer and one distractor.
+  - **🛸 Starfleet Telemetry Scan**: Deep-space radar sweep calculating Mission Control probability confidence percentages for each option, displaying live radar bars in the modal and glowing confidence pills (`🛸 XX%`) on option cards.
+  - **⏱️ Chrono Freeze (+30s Time Warp Boost)**: Extends countdown timer by +30 seconds with an animated Chrono Shield badge (or grants a +20 XP Cosmic Focus Shield if the timer is disabled), pausing countdown urgency and easing time anxiety.
 - **Cosmic Space Factoids Library (`src/data/cosmicFacts.js`)**:
   - Displays child-friendly NASA and planetary science facts during the question-loading pause, turning transition intervals into mini learning discoveries.
 - **Astronaut Rank & Mission Badges Progression (`badgeManager.js`, `ResultOverview.jsx`, `Header.jsx`)**:
   - Tracks child XP and unlocks progressive Astronaut Ranks (_Stargazer_ $\rightarrow$ _Space Cadet_ $\rightarrow$ _Lunar Explorer_ $\rightarrow$ _Cosmic Navigator_ $\rightarrow$ _Galactic Commander_).
-  - Rewards collectible mission badges (_First Launch_, _Speed of Light_, _Nebula Scholar_, _Stellar Streak_, _Supernova Perfect_, _Cosmic Ray Master_) with full persistence in `localStorage` and JSON backups.
+  - Rewards collectible mission badges (_First Launch_, _Speed of Light_, _Nebula Scholar_, _Stellar Streak_, _Supernova Perfect_, _Cosmic Ray Master_, _Telemetry Specialist_, _Chrono Guardian_) with full persistence in `localStorage` and JSON backups.
 
 ### 10. 🌌 Cosmic Innovations Suite: Multi-Crew, Voice Personalities, Cognitive Radar & 4 Exploration Modes
 
@@ -1062,7 +1066,7 @@ npm run server
 npm test
 ```
 
-Executes all 4 Vitest test suites (encryption vault, speech matching, adaptive difficulty, and offline quest packs).
+Executes all 10 Vitest test suites (encryption vault, speech matching, adaptive difficulty, offline quest packs, cosmic habitat, manipulatives, scratchpad, lifelines, etc.).
 
 ### 4. Build for Production
 

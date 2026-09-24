@@ -697,3 +697,44 @@ export const PLANET_COLOR_CONFIGS = {
 		pathColor: '#FB7185',
 	},
 };
+
+// ==========================================
+// Quest: Strategic Lifelines & Boosts
+// ==========================================
+
+export const CHRONO_FREEZE_SECONDS = 30;
+
+export const LIFELINE_TABS = {
+	CLUE: 'clue',
+	RAY: 'ray',
+	SCAN: 'scan',
+	FREEZE: 'freeze',
+};
+
+export const LIFELINE_DEFINITIONS = {
+	clue: {
+		id: 'clue',
+		label: 'Cosmic Clue',
+		icon: 'Lightbulb',
+		description: 'Pedagogical guidance and observational clues',
+	},
+	ray: {
+		id: 'ray',
+		label: '50/50 Cosmic Ray',
+		icon: 'Zap',
+		description: 'Vaporizes two incorrect choices',
+	},
+	scan: {
+		id: 'scan',
+		label: 'Starfleet Radar',
+		icon: 'Radio',
+		description: 'Deep-space sensor sweep calculating probability match',
+	},
+	freeze: {
+		id: 'freeze',
+		label: 'Chrono Freeze',
+		icon: 'Clock',
+		description: 'Adds +30s time warp dilation to the countdown timer',
+	},
+};
+
