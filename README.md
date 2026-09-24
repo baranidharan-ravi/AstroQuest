@@ -10,7 +10,7 @@
 
 An engaging, visual-first educational web application engineered for early childhood and young learners (Ages 2 to 14). AstroQuest turns STEM, logic, and cognitive problem-solving into a space-themed cosmic exploration powered by live generative AI, hands-free voice answering, and tactile physical manipulatives.
 
-> 📖 **Need the full comprehensive documentation?**  
+> 📖 **Need the full comprehensive documentation?**
 > For in-depth architectural specifications, mathematical formulas, SVG polygon rendering algorithms, and exhaustive feature breakdowns, see the **[Detailed AstroQuest Reference Guide (README_DETAILED.md)](./README_DETAILED.md)**.
 
 ---
