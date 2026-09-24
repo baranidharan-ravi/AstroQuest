@@ -13,9 +13,14 @@ For complete architectural details, file maps, storage schemas, and developer di
 - **App Name & Version**: AstroQuest v1.4.0
 - **Domain**: Space-themed early childhood STEM & cognitive challenge platform (Ages 2–14).
 - **Core Stack**: React 18, Vite 6, Tailwind CSS 3, Lucide React (`SkillIcon`), Express 5 proxy server.
-- **Central Constants**: All constants and storage keys are consolidated in [`src/constants.js`](./src/constants.js).
-- **Icon System**: Vector SVG font icons via [`src/utils/SkillIcon.jsx`](./src/utils/SkillIcon.jsx) with backwards-compatible emoji mapping.
-- **Testing**: Vitest (`npm test`), 24 unit tests across 9 files.
+- **Central Constants**: All constants, configs, and storage keys are consolidated in [`src/constants.js`](./src/constants.js). Component-local constants are forbidden.
+- **Icon System**: Vector SVG font icons via [`src/utils/SkillIcon.jsx`](./src/utils/SkillIcon.jsx) and `POPULAR_ICONS` with backwards-compatible emoji mapping.
+- **Key Modules**:
+  - Cosmic Space Habitat modular colony builder with 8 pods and live telemetry (`src/features/dashboard/CosmicHabitatModal.jsx`).
+  - Tactile manipulatives: Balance scales, Analog clocks, 3D block towers, and Fraction crystals (`src/features/quest/InteractiveManipulative.jsx`).
+  - Interactive canvas scratchpad with 5 space colors, eraser, undo, and glass mode (`src/features/quest/QuestScratchpad.jsx`).
+- **Dashboard Logic**: When a user clicks "Surprise Me 🎲", the "Autofill with AI" button is automatically disabled until the skillset name is manually edited.
+- **Testing**: Vitest (`npm test`), 24 unit tests across 9 files (100% pass rate).
 - **Rules & Constraints**:
   - Never use markdown tables in any docs, guides, or release notes. Use bulleted/definition lists instead.
   - Never implement, revive, or re-introduce the Pet Assistant feature in future tasks or roadmap ideas (permanently removed per user directive as it obstructed option selection and is not important).

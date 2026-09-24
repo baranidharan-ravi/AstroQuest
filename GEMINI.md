@@ -35,12 +35,12 @@ This document is automatically loaded by Antigravity to provide instant context,
 
 ### Central Constants
 
-- `src/constants.js`: Centralized single source of truth for all storage keys, `POPULAR_ICONS` (24 curated Lucide icons), `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `HABITAT_MODULES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, and `PLANET_COLOR_CONFIGS`.
+- `src/constants.js`: Centralized single source of truth for all storage keys, `POPULAR_ICONS` (24 curated Lucide icons), `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `HABITAT_MODULES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, and `PLANET_COLOR_CONFIGS`. All component-local constants must be placed here.
 
 ### Dashboard Feature (`src/features/dashboard/`)
 
-- `SkillSelectionDashboard.jsx`: Primary launchpad, custom skillset creator with AI auto-fill and "Surprise Me 🎲" non-repeating topic generator, preset inspiration chips, and Lucide vector icon picker.
-- `CosmicHabitatModal.jsx`: Interactive 2.5D modular space base colony builder with life-support, power grid, and research telemetry.
+- `SkillSelectionDashboard.jsx`: Primary launchpad, custom skillset creator with AI auto-fill and "Surprise Me 🎲" non-repeating topic generator (disables "Autofill with AI" button upon clicking "Surprise Me" until text is manually edited), preset inspiration chips, and Lucide vector icon picker.
+- `CosmicHabitatModal.jsx`: Interactive 2.5D modular space base colony builder with 8 unlockable pods (Solar Array, Greenhouse, Oxygen Scrubber, Radio Telescope, Crew Quarters, Fusion Reactor, Rover Garage, Quantum Supercomputer) tracking life-support ($\text{O}_2$), power grid ($\text{kW}$), and research ($\text{TB}$) telemetry.
 - `GalaxyOdysseyModal.jsx`: 10-world solar system exploration map tracking cumulative stars collected.
 - `PocketPlanetariumModal.jsx`: Audio-narrated encyclopedia of Solar System celestial worlds.
 - `ConstellationObservatory.jsx`: Stargazing observatory with constellation star-matching game.
@@ -52,7 +52,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 - `QuestionCard.jsx`: Main question viewer with text-to-speech narration, large touch targets, visual diagrams, and embedded scratchpad launcher.
 - `QuestScratchpad.jsx`: Interactive touch/canvas drawing scratchpad with High-DPI support, 5 space colors, eraser, undo, and translucent glass mode.
 - `OptionsGrid.jsx`: 4 option cards with tactile feedback, correct/incorrect sound effects, and keyboard navigation.
-- `InteractiveManipulative.jsx`: Tactile manipulatives (Balance Scales, Analog Clocks, 3D Rotatable Block Towers, Fraction Energy Crystals).
+- `InteractiveManipulative.jsx`: Tactile manipulatives (Balance Scales, Analog Clocks, 3D Rotatable Block Towers, Fraction Energy Crystals via `FractionCrystalManipulative.jsx`).
 - `AskDoubtModal.jsx`: Socratic voice/text AI doubt tutor guided by Cosmo the cosmic guide.
 - `TimeWarpMode.jsx`: Fast-paced 60-second lightning round challenge with local high-score tracking.
 - `SolutionPanel.jsx`: Child-friendly step-by-step reasoning explanation panel.
@@ -103,7 +103,9 @@ This document is automatically loaded by Antigravity to provide instant context,
 
 - **No Markdown Tables**: NEVER use markdown tables in any documentation, release notes, or responses. Always format structured information using bullet lists, definition lists, or code blocks.
 - **Pet Assistant Deprecated**: NEVER implement, revive, or re-introduce the Pet Assistant, companion pet wardrobe, or draggable pet assistant features in future tasks or ideas (permanently removed per user directive as it obstructed options selection and is not important).
-- **Auto-Execution of Commands**: Proactively propose and run commands on behalf of the user without prompting for approval or asking what command to run.
-- **Verification Routine**: Always run `npm test` (vitest) to ensure all tests pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
+- **Centralized Constants Single Source of Truth**: NEVER declare local configuration constants or storage keys inside components; always import or define them in `src/constants.js`.
+- **Surprise Me Button Logic**: When a user fills the skillset name by clicking "Surprise Me 🎲", the "Autofill with AI" button must be disabled until the user edits the skillset name text.
 - **Iconography Usage**: Use `SkillIcon` component (`src/utils/SkillIcon.jsx`) and `POPULAR_ICONS` from `src/constants.js` rather than raw browser emojis for UI elements.
+- **Auto-Execution of Commands**: Proactively propose and run commands on behalf of the user without prompting for approval or asking what command to run.
+- **Verification Routine**: Always run `npm test` (vitest) to ensure all 24 tests across 9 test files pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
 - **Git Push Protocol**: After completing requested tasks and verification, stage relevant files, commit with clear semantic conventional commit messages, and push to `origin/main`.
