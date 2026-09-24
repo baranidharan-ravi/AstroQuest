@@ -8,7 +8,6 @@ import {
 	Rotate3D,
 	Scale,
 	Sparkles,
-	Zap,
 } from 'lucide-react';
 import { memo, useState } from 'react';
 import { playButtonPop } from '../../utils/audioSynthesis';
@@ -703,7 +702,8 @@ function InteractiveFractionCrystals({ data = {}, soundEnabled = true }) {
 						/>
 					</div>
 					<span className='text-[10px] font-semibold text-slate-300'>
-						Fuel Output: <strong className='text-cyan-300'>{percentage}%</strong>
+						Fuel Output:{' '}
+						<strong className='text-cyan-300'>{percentage}%</strong>
 					</span>
 
 					{/* Target Match Banner */}

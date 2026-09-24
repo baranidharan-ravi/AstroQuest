@@ -18,7 +18,12 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 	direction = 1, // 1: facing right, -1: facing left
 	size = 148,
 	aura = 'none', // 'none' | 'gold' | 'cosmic'
+	accessories = {},
 }) {
+	const visorId = accessories?.visor || 'none';
+	const suitId = accessories?.suit || 'standard';
+	const trailId = accessories?.trail || 'none';
+
 	// Active state booleans for styling
 	const isDrinking = livingState === 'drinking';
 	const isEating = livingState === 'eating';
@@ -54,11 +59,77 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 			{aura === 'cosmic' && (
 				<div className='absolute inset-0 rounded-full bg-gradient-to-tr from-pink-500/30 via-purple-500/30 to-cyan-400/30 blur-2xl animate-spin-slow pointer-events-none' />
 			)}
+
+			{/* Equippable Companion Jetpack Trails */}
+			{trailId === 'starlight_sparkles' && (
+				<div className='absolute -left-6 bottom-4 w-12 h-12 pointer-events-none z-0'>
+					<span className='absolute top-0 left-0 text-cyan-300 text-sm animate-ping'>✦</span>
+					<span className='absolute bottom-1 left-3 text-sky-200 text-xs animate-pulse'>✨</span>
+					<span className='absolute top-3 left-6 text-amber-200 text-[10px] animate-bounce'>⭐</span>
+				</div>
+			)}
+			{trailId === 'plasma_exhaust' && (
+				<div className='absolute -left-7 bottom-3 w-10 h-7 pointer-events-none z-0'>
+					<div className='w-full h-full rounded-full bg-gradient-to-l from-pink-500 via-rose-500 to-transparent blur-md opacity-90 animate-pulse' />
+					<div className='absolute inset-1 rounded-full bg-magenta-400 blur-sm opacity-80 animate-ping' />
+				</div>
+			)}
+			{trailId === 'rainbow_comet' && (
+				<div className='absolute -left-10 bottom-2 w-16 h-8 pointer-events-none z-0'>
+					<div className='w-full h-full rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-500 blur-md opacity-80 animate-pulse' />
+					<span className='absolute top-1 left-2 text-xs'>🌈</span>
+				</div>
+			)}
+
 			<svg
 				viewBox='0 0 160 160'
-				className='w-full h-full filter drop-shadow-[0_12px_22px_rgba(0,0,0,0.55)] overflow-visible'
+				className='w-full h-full filter drop-shadow-[0_12px_22px_rgba(0,0,0,0.55)] overflow-visible relative z-10'
 				xmlns='http://www.w3.org/2000/svg'>
 				<defs>
+					{/* ─── Pet Wardrobe Gradients ─── */}
+					<linearGradient
+						id='goldVisorGrad'
+						x1='0%'
+						y1='0%'
+						x2='100%'
+						y2='100%'>
+						<stop offset='0%' stopColor='#FEF08A' />
+						<stop offset='50%' stopColor='#F59E0B' />
+						<stop offset='100%' stopColor='#B45309' />
+					</linearGradient>
+
+					<linearGradient
+						id='lunarSilverGrad'
+						x1='0%'
+						y1='0%'
+						x2='100%'
+						y2='100%'>
+						<stop offset='0%' stopColor='#F8FAFC' />
+						<stop offset='50%' stopColor='#CBD5E1' />
+						<stop offset='100%' stopColor='#64748B' />
+					</linearGradient>
+
+					<linearGradient
+						id='nebulaBlazeGrad'
+						x1='0%'
+						y1='0%'
+						x2='100%'
+						y2='100%'>
+						<stop offset='0%' stopColor='#FDA4AF' />
+						<stop offset='50%' stopColor='#F43F5E' />
+						<stop offset='100%' stopColor='#881337' />
+					</linearGradient>
+
+					<linearGradient
+						id='supernovaGoldGrad'
+						x1='0%'
+						y1='0%'
+						x2='100%'
+						y2='100%'>
+						<stop offset='0%' stopColor='#FEF9C3' />
+						<stop offset='50%' stopColor='#EAB308' />
+						<stop offset='100%' stopColor='#854D0E' />
+					</linearGradient>
 					{/* ─── Puppy Gradients & Filters ─── */}
 					<radialGradient
 						id='puppyFur'
@@ -1655,6 +1726,121 @@ export const LivingPetCharacter = memo(function LivingPetCharacter({
 								/>
 							</g>
 						)}
+					</g>
+				)}
+
+				{/* ─── Equipped Pet Wardrobe Accessories ─── */}
+				{/* Spacesuit Overlay */}
+				{suitId === 'lunar_silver' && (
+					<g className='suit-lunar-silver'>
+						<path
+							d='M60 88 Q80 96 100 88 L96 118 Q80 124 64 118 Z'
+							fill='url(#lunarSilverGrad)'
+							stroke='#94A3B8'
+							strokeWidth='1.5'
+							filter='drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
+						/>
+						<circle cx='80' cy='102' r='3.5' fill='#38BDF8' />
+						<circle cx='80' cy='102' r='1.5' fill='#FFFFFF' />
+					</g>
+				)}
+				{suitId === 'nebula_blaze' && (
+					<g className='suit-nebula-blaze'>
+						<path
+							d='M60 88 Q80 96 100 88 L96 118 Q80 124 64 118 Z'
+							fill='url(#nebulaBlazeGrad)'
+							stroke='#FB7185'
+							strokeWidth='1.5'
+							filter='drop-shadow(0 0 6px #F43F5E)'
+						/>
+						<circle cx='80' cy='102' r='4' fill='#FFE4E6' className='animate-pulse' />
+					</g>
+				)}
+				{suitId === 'supernova_gold' && (
+					<g className='suit-supernova-gold'>
+						<path
+							d='M58 86 Q80 96 102 86 L98 120 Q80 128 62 120 Z'
+							fill='url(#supernovaGoldGrad)'
+							stroke='#FDE047'
+							strokeWidth='2'
+							filter='drop-shadow(0 0 8px #EAB308)'
+						/>
+						<polygon
+							points='80,94 82,99 87,100 83,104 84,109 80,106 76,109 77,104 73,100 78,99'
+							fill='#FEF9C3'
+							stroke='#CA8A04'
+							strokeWidth='0.8'
+						/>
+					</g>
+				)}
+
+				{/* Visor Overlay */}
+				{visorId === 'cyber_goggles' && (
+					<g className='visor-cyber-goggles'>
+						<rect
+							x='52'
+							y='38'
+							width='56'
+							height='22'
+							rx='6'
+							fill='rgba(6, 182, 212, 0.45)'
+							stroke='#22D3EE'
+							strokeWidth='2'
+						/>
+						<line
+							x1='56'
+							y1='49'
+							x2='104'
+							y2='49'
+							stroke='#67E8F9'
+							strokeWidth='1.2'
+							strokeDasharray='4 2'
+							className='animate-pulse'
+						/>
+						<circle cx='58' cy='43' r='1.5' fill='#A5F3FC' />
+						<circle cx='102' cy='43' r='1.5' fill='#A5F3FC' />
+					</g>
+				)}
+				{visorId === 'solar_gold_shade' && (
+					<g className='visor-solar-gold'>
+						<path
+							d='M52 44 Q80 38 108 44 L104 56 Q80 60 56 56 Z'
+							fill='url(#goldVisorGrad)'
+							stroke='#FBBF24'
+							strokeWidth='2'
+							filter='drop-shadow(0 0 6px #F59E0B)'
+						/>
+						<path
+							d='M56 46 L76 43'
+							stroke='rgba(255,255,255,0.7)'
+							strokeWidth='1.5'
+							strokeLinecap='round'
+						/>
+					</g>
+				)}
+				{visorId === 'quantum_matrix' && (
+					<g className='visor-quantum-matrix'>
+						<ellipse
+							cx='80'
+							cy='48'
+							rx='28'
+							ry='12'
+							fill='rgba(168, 85, 247, 0.5)'
+							stroke='#C084FC'
+							strokeWidth='2'
+							filter='drop-shadow(0 0 8px #9333EA)'
+						/>
+						<ellipse
+							cx='80'
+							cy='48'
+							rx='18'
+							ry='7'
+							fill='none'
+							stroke='#E9D5FF'
+							strokeWidth='1.2'
+							strokeDasharray='3 2'
+							className='animate-spin-slow'
+						/>
 					</g>
 				)}
 			</svg>

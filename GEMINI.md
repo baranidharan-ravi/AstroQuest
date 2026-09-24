@@ -6,7 +6,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 
 ## 1. Application Overview & Pedagogical Domain
 
-- **Application Name**: AstroQuest (Version 1.3.0)
+- **Application Name**: AstroQuest (Version 1.4.0)
 - **Domain**: Visual-first, age-adaptive STEM, logic, and cognitive learning platform designed for early childhood explorers (Ages 2 to 14).
 - **Core Experience**: Space-themed learning quests with real-time AI question synthesis, hands-free voice answering, interactive tactile manipulatives, 3D animated companion pet, Socratic doubt tutor, Galaxy Odyssey exploration, and printable worksheets.
 - **Repository Location**: `H:/Shraddha_Project` (NTFS Junction to `H:/AstroQuest`). Remote: `https://github.com/baranidharan-ravi/AstroQuest.git` (branch: `main`).
@@ -27,7 +27,7 @@ This document is automatically loaded by Antigravity to provide instant context,
   - Web Speech API TTS (`speechSynthesis`) with pitch/rate adaptation for young children.
   - Web Speech API STT (`webkitSpeechRecognition` / `SpeechRecognition`) with phonetic matching for hands-free voice answers.
 - **Utilities**: `canvas-confetti` (celebrations), `jspdf` (printables), `clsx`, `tailwind-merge`.
-- **Testing & Tooling**: Vitest (`npm test` running 20 tests across 8 test files).
+- **Testing & Tooling**: Vitest (`npm test` running 28 tests across 10 test files).
 
 ---
 
@@ -35,11 +35,12 @@ This document is automatically loaded by Antigravity to provide instant context,
 
 ### Central Constants
 
-- `src/constants.js`: Centralized single source of truth for all storage keys, `POPULAR_ICONS` (24 curated Lucide icons), `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, `PET_PROFILES`, `PET_SIZES`, and `PLANET_COLOR_CONFIGS`.
+- `src/constants.js`: Centralized single source of truth for all storage keys, `POPULAR_ICONS` (24 curated Lucide icons), `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `HABITAT_MODULES`, `PET_ACCESSORIES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, `PET_PROFILES`, `PET_SIZES`, and `PLANET_COLOR_CONFIGS`.
 
 ### Dashboard Feature (`src/features/dashboard/`)
 
 - `SkillSelectionDashboard.jsx`: Primary launchpad, custom skillset creator with AI auto-fill and "Surprise Me 🎲" non-repeating topic generator, preset inspiration chips, and Lucide vector icon picker.
+- `CosmicHabitatModal.jsx`: Interactive 2.5D modular space base colony builder with life-support, power grid, and research telemetry.
 - `GalaxyOdysseyModal.jsx`: 10-world solar system exploration map tracking cumulative stars collected.
 - `PocketPlanetariumModal.jsx`: Audio-narrated encyclopedia of Solar System celestial worlds.
 - `ConstellationObservatory.jsx`: Stargazing observatory with constellation star-matching game.
@@ -62,7 +63,8 @@ This document is automatically loaded by Antigravity to provide instant context,
 ### Companion Feature (`src/features/companion/`)
 
 - `PetAssistant.jsx`: Draggable, expandable 3D companion pet (Robot, Cat, Dog, Alien) with floating vertical quick-action toolbar.
-- `LivingPetCharacter.jsx`: Interactive SVG/CSS pet with feeding, petting, treats, and audio reactions.
+- `PetWardrobeModal.jsx`: Interactive fashion & gear studio for equipping visors, spacesuits, and sparkling jetpack trails.
+- `LivingPetCharacter.jsx`: Interactive SVG/CSS pet with articulated walking, drinking, eating, cuddles, napping, audio reactions, and custom accessories overlay.
 
 ### Results Feature (`src/features/results/`)
 
@@ -105,6 +107,8 @@ This document is automatically loaded by Antigravity to provide instant context,
 - `astroquest_pet_vertical_toolbar_pos_v6`: JSON object `{ x, y }` coordinates for vertical toolbar position (`localStorage`).
 - `astroquest_pet_toolbar_collapsed_v6`: Boolean state for vertical toolbar collapsed state (`localStorage`).
 - `astroquest_pet_size_v1`: Pet size string: `small`, `medium`, `large` (`localStorage`).
+- `astroquest_habitat_modules_v1`: JSON array of unlocked space base module IDs (`localStorage`).
+- `astroquest_pet_accessories_v1`: JSON object `{ equipped, unlocked }` storing equipped cosmetics and unlocked items (`localStorage`).
 
 ---
 

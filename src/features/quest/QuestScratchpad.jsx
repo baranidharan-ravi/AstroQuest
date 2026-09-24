@@ -3,12 +3,11 @@ import {
 	Eye,
 	EyeOff,
 	Paintbrush,
-	RotateCcw,
 	Trash2,
 	Undo2,
 	X,
 } from 'lucide-react';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { playButtonPop } from '../../utils/audioSynthesis';
 
 const PALETTE_COLORS = [
@@ -221,9 +220,9 @@ export const QuestScratchpad = memo(function QuestScratchpad({
 							setIsTranslucent((v) => !v);
 						}}
 						title={
-							isTranslucent ?
-								'Make canvas solid'
-							:	'See question through canvas'
+							isTranslucent ? 'Make canvas solid' : (
+								'See question through canvas'
+							)
 						}
 						className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
 							isTranslucent ?

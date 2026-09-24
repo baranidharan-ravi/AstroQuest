@@ -11,23 +11,23 @@ This rule is unconditionally active (`always_on`) to ensure immediate, zero-late
 
 ## Technical Architecture Overview
 
-- **App**: AstroQuest v1.3.0
+- **App**: AstroQuest v1.4.0
 - **Domain**: Space-themed early childhood cognitive & STEM learning platform (Ages 2 to 14).
 - **Frontend**: React 18, Vite 6, Tailwind CSS 3, Lucide React (vector font icons via `SkillIcon.jsx`).
 - **AI Engines**: Google Gemini (`@google/genai`), OpenAI ChatGPT, Anthropic Claude (`src/services/aiGenerator.js`).
 - **Audio & Speech**: Web Audio API oscillator synthesis, Web Speech API speech synthesis & voice recognition.
-- **Testing**: Vitest (`npm test`), 20 tests across 8 suites with 100% pass rate.
+- **Testing**: Vitest (`npm test`), 28 tests across 10 suites with 100% pass rate.
 
 ---
 
 ## Key Modules & Single Source of Truth
 
-- **Constants & Configs**: Centralized in `src/constants.js`. Holds `POPULAR_ICONS`, `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, `PET_PROFILES`, `PET_SIZES`, `PLANET_COLOR_CONFIGS`, and all local storage keys.
+- **Constants & Configs**: Centralized in `src/constants.js`. Holds `POPULAR_ICONS`, `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `HABITAT_MODULES`, `PET_ACCESSORIES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, `PET_PROFILES`, `PET_SIZES`, `PLANET_COLOR_CONFIGS`, and all local storage keys.
 - **Icon Component**: `src/utils/SkillIcon.jsx` provides Lucide React SVG font icons with bidirectional mapping for educational emojis.
 - **Skillset Engine**: `src/utils/skillManager.js` handles custom skillset persistence, defaults, and presets.
-- **Dashboard & Modals**: `src/features/dashboard/` contains `SkillSelectionDashboard.jsx`, `GalaxyOdysseyModal.jsx`, `PocketPlanetariumModal.jsx`, `ConstellationObservatory.jsx`, and `EducatorPortalModal.jsx`.
+- **Dashboard & Modals**: `src/features/dashboard/` contains `SkillSelectionDashboard.jsx`, `CosmicHabitatModal.jsx`, `GalaxyOdysseyModal.jsx`, `PocketPlanetariumModal.jsx`, `ConstellationObservatory.jsx`, and `EducatorPortalModal.jsx`.
 - **Quest & Tutor**: `src/features/quest/` contains `QuestionCard.jsx`, `OptionsGrid.jsx`, `InteractiveManipulative.jsx`, `AskDoubtModal.jsx` (Socratic tutor), and `TimeWarpMode.jsx`.
-- **Companion**: `src/features/companion/` contains `PetAssistant.jsx` and `LivingPetCharacter.jsx`.
+- **Companion**: `src/features/companion/` contains `PetAssistant.jsx`, `PetWardrobeModal.jsx`, and `LivingPetCharacter.jsx`.
 
 ---
 

@@ -37,6 +37,7 @@ import {
 	saveStoredPetSize,
 } from '../../utils/progressTracker';
 import { LivingPetCharacter } from './LivingPetCharacter';
+import PetWardrobeModal, { getStoredWardrobeState } from './PetWardrobeModal';
 
 export {
 	PET_PROFILES,
@@ -157,6 +158,24 @@ const PetAssistant = memo(function PetAssistant({
 			return false;
 		}
 	});
+
+	// Pet Wardrobe & Accessories State
+	const [wardrobeState, setWardrobeState] = useState(getStoredWardrobeState);
+	const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
+
+	useEffect(() => {
+		const handleWardrobeUpdate = (e) => {
+			if (e?.detail) {
+				setWardrobeState(e.detail);
+			}
+		};
+		window.addEventListener('astroquest_wardrobe_update', handleWardrobeUpdate);
+		return () =>
+			window.removeEventListener(
+				'astroquest_wardrobe_update',
+				handleWardrobeUpdate,
+			);
+	}, []);
 
 	// Floating Position (Default placed at center seam between Question card and Options grid)
 	const getDefaultPosition = useCallback(() => {
@@ -820,6 +839,7 @@ const PetAssistant = memo(function PetAssistant({
 								isBlinking={isBlinking}
 								direction={direction}
 								size={PET_SIZES[petSize]?.px || 148}
+								accessories={wardrobeState.equipped}
 							/>
 						</div>
 					</div>
@@ -1090,7 +1110,25 @@ const PetAssistant = memo(function PetAssistant({
 									</div>
 								</ToolbarButton>
 
-								{/* 10. Change Companion */}
+								{/* 10. Pet Wardrobe & Outfits */}
+								<ToolbarButton
+									onClick={() => {
+										playButtonPop(soundEnabled);
+										setIsWardrobeOpen(true);
+									}}
+									label='Pet Wardrobe'
+									badge='Outfits'
+									description='Equip futuristic visors, spacesuits, and sparkling jetpack trails!'
+									isNearRight={
+										typeof window !== 'undefined' ?
+											toolbarPos.x > window.innerWidth / 2
+										:	true
+									}
+									className='bg-purple-500/20 hover:bg-purple-500/40 border-purple-400/40 text-purple-300'>
+									<Sparkles className='w-4 h-4 text-purple-300' />
+								</ToolbarButton>
+
+								{/* 11. Change Companion */}
 								<ToolbarButton
 									onClick={() => setIsPickerOpen((p) => !p)}
 									label='Switch Companion'
@@ -1232,6 +1270,16 @@ const PetAssistant = memo(function PetAssistant({
 					</span>
 				</button>
 			}
+
+			{/* Companion Wardrobe & Accessories Fitting Studio */}
+			<PetWardrobeModal
+				isOpen={isWardrobeOpen}
+				onClose={() => setIsWardrobeOpen(false)}
+				activePet={petType}
+				onSelectPet={handleSelectPet}
+				soundEnabled={soundEnabled}
+				kidName={kidName}
+			/>
 		</>
 	);
 });

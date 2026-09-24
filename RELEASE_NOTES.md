@@ -4,6 +4,56 @@ All notable changes, new capabilities, architectural enhancements, and pedagogic
 
 ---
 
+## 🌟 Version 1.4.0 — "Cosmic Space Habitat & Cosmo Pet Wardrobe" (September 2026)
+
+**AstroQuest v1.4.0** delivers Phase 2 of the master roadmap, introducing the modular **Cosmic Space Habitat Base Builder** and the interactive **Cosmo Pet Wardrobe & Accessories Studio**. Children can now spend their quest stars to construct bustling off-world colony modules and dress their companion pets in futuristic gear.
+
+---
+
+### 1. Cosmic Space Habitat Base (`CosmicHabitatModal.jsx`)
+
+- **Modular Off-World Colony Construction**:
+  - Interactive 2.5D modular base builder accessible directly from the dashboard modes grid.
+  - 8 distinct space modules: Bio-Hydroponic Dome, Helios Solar Matrix, Deep Space Comm Dish, Astro-Rover Hangar, Starlight Crystal Vault, Quantum Fusion Core, Cosmo AI Command Lab, and Interstellar Launch Pad.
+  - Dynamic colony telemetry tracking life-support oxygen generation, solar/fusion energy grid output, pulsar science bandwidth, and surface explorer rovers.
+  - Star milestone unlocking system where accumulated quest stars unlock blueprints and activate new sectors.
+  - Interactive diagnostic tool allowing children to irrigate crops, align solar trackers, ping communication antennas, and test warp drive ignition with procedural audio and visual telemetry.
+  - Full local persistence via `astroquest_habitat_modules_v1` with multi-component event sync.
+
+---
+
+### 2. Cosmo Companion Pet Wardrobe Studio (`PetWardrobeModal.jsx` & `PetAssistant.jsx`)
+
+- **Interactive Fashion & Gear Studio**:
+  - Complete wardrobe fitting room accessible via the floating pet toolbar and live character switcher.
+  - 3 customizable equipment slots:
+    - Visors & Helmets: Standard Visor, Cyber Neon HUD, Solar Flare Gold Visor, Quantum Void Goggles.
+    - Spacesuits & Armor: Cadet Flight Suit, Lunar Titanium Armour, Nebula Blaze Weave, Supernova Golden Aegis.
+    - Jetpack Trails: Silent Thrusters, Stardust Sparkle Wake, Hyper Magenta Burn, Rainbow Comet Streak.
+  - Real-time SVG rendering on articulated pets (Robot, Cat, Dog, Alien) with animated HUD overlays, glowing titanium chestplates, golden royal sigils, and particle wakes.
+  - Milestone unlock progression powered by accumulated quest stars with persistent storage in `astroquest_pet_accessories_v1`.
+  - Celebratory animations and audio chimes whenever an outfit is equipped.
+
+---
+
+### 3. Centralized Constants & Architecture
+
+- **Centralized Constants (`src/constants.js`)**:
+  - Added `HABITAT_STORAGE_KEY` and `PET_WARDROBE_STORAGE_KEY`.
+  - Added `HABITAT_MODULES` with comprehensive telemetry specs and thematic visual styles.
+  - Added `PET_ACCESSORIES` defining 12 unique equippable cosmetics across 3 slots.
+
+---
+
+### 4. Automated Testing & Verification
+
+- **Expanded Test Suite (28 Tests Across 10 Test Files)**:
+  - Added `tests/cosmicHabitat.test.jsx` testing habitat module specs, starter cost-free deployment, and storage persistence.
+  - Added `tests/petWardrobe.test.jsx` testing wardrobe slots, default free equipment, and state persistence.
+  - 100% test pass rate in Vitest (28 passed) and verified zero-error production build.
+
+---
+
 ## 🌟 Version 1.3.0 — "Hands-On Tactile Learning & Cosmic Scratchpad" (September 2026)
 
 **AstroQuest v1.3.0** introduces hands-on tactile problem-solving features, including a freehand calculation scratchpad directly on question cards and an interactive Fraction Energy Crystal manipulative.

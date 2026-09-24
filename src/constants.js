@@ -19,6 +19,8 @@ export const STORAGE_TOOLBAR_POS_KEY = 'astroquest_pet_vertical_toolbar_pos_v6';
 export const STORAGE_TOOLBAR_COLLAPSED_KEY =
 	'astroquest_pet_toolbar_collapsed_v6';
 export const STORAGE_SIZE_KEY = 'astroquest_pet_size_v1';
+export const HABITAT_STORAGE_KEY = 'astroquest_habitat_modules_v1';
+export const PET_WARDROBE_STORAGE_KEY = 'astroquest_pet_accessories_v1';
 
 // ==========================================
 // Dashboard: Font Icons Picker & Planetarium
@@ -559,6 +561,298 @@ export const PET_SIZES = {
 		iconText: 'M',
 	},
 	large: { id: 'large', label: 'Large', px: 192, badge: 'Hero', iconText: 'L' },
+};
+
+// ==========================================
+// Cosmic Space Habitat Base Modules
+// ==========================================
+
+export const HABITAT_MODULES = [
+	{
+		id: 'hydroponic_dome',
+		name: 'Bio-Hydroponic Dome',
+		tagline: 'Fresh Oxygen & Cosmic Berries',
+		category: 'Life Support',
+		starsCost: 0,
+		icon: 'Sprout',
+		perk: '+20 Oxygen / Sol',
+		description:
+			'A lush bio-regenerative greenhouse producing crisp air, cosmic strawberries, and soothing green flora.',
+		color: 'from-emerald-600 via-teal-700 to-slate-900',
+		borderColor: 'border-emerald-400',
+		badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
+		statType: 'oxygen',
+		statValue: 20,
+	},
+	{
+		id: 'solar_matrix',
+		name: 'Helios Solar Matrix',
+		tagline: 'Photovoltaic Array Wings',
+		category: 'Energy',
+		starsCost: 5,
+		icon: 'Zap',
+		perk: '+35 kW Solar Power',
+		description:
+			'Dual tracking crystalline solar panels converting pure starlight into clean, sustainable colony electricity.',
+		color: 'from-amber-600 via-yellow-700 to-slate-900',
+		borderColor: 'border-amber-400',
+		badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-400/40',
+		statType: 'power',
+		statValue: 35,
+	},
+	{
+		id: 'comm_dish',
+		name: 'Deep Space Comm Dish',
+		tagline: 'Pulsar Telemetry & Earth Uplink',
+		category: 'Science',
+		starsCost: 15,
+		icon: 'Telescope',
+		perk: '+50 Signal Bandwidth',
+		description:
+			'High-gain parabolic antenna receiving stellar communications and transmitting discovery data to Earth.',
+		color: 'from-blue-600 via-indigo-700 to-slate-900',
+		borderColor: 'border-blue-400',
+		badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-400/40',
+		statType: 'research',
+		statValue: 50,
+	},
+	{
+		id: 'rover_hangar',
+		name: 'Astro-Rover Hangar',
+		tagline: 'All-Terrain Planetary Exploration',
+		category: 'Exploration',
+		starsCost: 25,
+		icon: 'Compass',
+		perk: '+2 Surface Explorers',
+		description:
+			'Pressurized bay maintaining multi-wheel exploration rovers equipped with sample drills and panoramic cameras.',
+		color: 'from-orange-600 via-red-700 to-slate-900',
+		borderColor: 'border-orange-400',
+		badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-400/40',
+		statType: 'exploration',
+		statValue: 2,
+	},
+	{
+		id: 'crystal_vault',
+		name: 'Starlight Crystal Vault',
+		tagline: 'Exotic Mineral Storage & Synthesis',
+		category: 'Storage',
+		starsCost: 40,
+		icon: 'Star',
+		perk: '+100 Star Fuel Reserves',
+		description:
+			'Reinforced subterranean containment chamber housing glowing starlight crystals and rare space minerals.',
+		color: 'from-purple-600 via-fuchsia-700 to-slate-900',
+		borderColor: 'border-purple-400',
+		badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-400/40',
+		statType: 'storage',
+		statValue: 100,
+	},
+	{
+		id: 'fusion_core',
+		name: 'Quantum Fusion Core',
+		tagline: 'Micro-Star Energy Reactor',
+		category: 'Energy',
+		starsCost: 60,
+		icon: 'Atom',
+		perk: '+150 kW Infinite Power',
+		description:
+			'Magnetic confinement chamber generating virtually unlimited clean fusion energy to shield the whole outpost.',
+		color: 'from-cyan-600 via-blue-700 to-slate-900',
+		borderColor: 'border-cyan-400',
+		badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40',
+		statType: 'power',
+		statValue: 150,
+	},
+	{
+		id: 'ai_command_lab',
+		name: 'Cosmo AI Command Lab',
+		tagline: 'Mission Control & Hologram Hub',
+		category: 'Science',
+		starsCost: 85,
+		icon: 'Brain',
+		perk: '+2x Research Multiplier',
+		description:
+			'Advanced computational nerve center with real-time celestial trajectory simulations and AI mission planning.',
+		color: 'from-pink-600 via-rose-700 to-slate-900',
+		borderColor: 'border-pink-400',
+		badgeColor: 'bg-pink-500/20 text-pink-300 border-pink-400/40',
+		statType: 'research',
+		statValue: 200,
+	},
+	{
+		id: 'launch_pad',
+		name: 'Interstellar Launch Pad',
+		tagline: 'Heavy Warp Rocket Gantry',
+		category: 'Exploration',
+		starsCost: 120,
+		icon: 'Rocket',
+		perk: 'Deep Space Warp Access',
+		description:
+			'Massive launch platform with cryogenic fueling towers designed for deep space missions beyond our solar system.',
+		color: 'from-violet-600 via-indigo-900 to-slate-950',
+		borderColor: 'border-violet-400',
+		badgeColor: 'bg-violet-500/20 text-violet-300 border-violet-400/40',
+		statType: 'exploration',
+		statValue: 5,
+	},
+];
+
+// ==========================================
+// Cosmo Companion Pet Wardrobe & Accessories
+// ==========================================
+
+export const PET_ACCESSORIES = {
+	visor: [
+		{
+			id: 'none',
+			name: 'Standard Visor',
+			tagline: 'Crystal Clear Helmet',
+			category: 'visor',
+			starsCost: 0,
+			icon: 'Eye',
+			badge: 'Default',
+			glowColor: 'rgba(56, 189, 248, 0.4)',
+			description:
+				'Clear ultra-durable polycarbonate visor for everyday space exploration.',
+		},
+		{
+			id: 'cyber_goggles',
+			name: 'Cyber Neon HUD',
+			tagline: 'Digital Scanning Overlay',
+			category: 'visor',
+			starsCost: 8,
+			icon: 'Eye',
+			badge: 'Tech',
+			glowColor: '#06B6D4',
+			description:
+				'Luminous cyan holographic scanner with target lock telemetry.',
+		},
+		{
+			id: 'solar_gold_shade',
+			name: 'Solar Flare Gold Visor',
+			tagline: '100% Star Flare Filter',
+			category: 'visor',
+			starsCost: 20,
+			icon: 'Sparkles',
+			badge: 'Solar',
+			glowColor: '#F59E0B',
+			description:
+				'Gleaming 24-karat gold tinted visor reflecting harsh cosmic radiation.',
+		},
+		{
+			id: 'quantum_matrix',
+			name: 'Quantum Void Goggles',
+			tagline: 'Subatomic Nebula Vision',
+			category: 'visor',
+			starsCost: 45,
+			icon: 'Atom',
+			badge: 'Cosmic',
+			glowColor: '#A855F7',
+			description:
+				'Swirling purple rift goggles that peer directly into spatial dimensions.',
+		},
+	],
+	suit: [
+		{
+			id: 'standard',
+			name: 'Cadet Flight Suit',
+			tagline: 'Official Academy Uniform',
+			category: 'suit',
+			starsCost: 0,
+			icon: 'Shirt',
+			badge: 'Cadet',
+			glowColor: 'rgba(255, 255, 255, 0.3)',
+			description:
+				'Official AstroQuest pressurized exploration suit with heat-sealed seams.',
+		},
+		{
+			id: 'lunar_silver',
+			name: 'Lunar Titanium Armour',
+			tagline: 'Reinforced Meteorite Plating',
+			category: 'suit',
+			starsCost: 15,
+			icon: 'Shield',
+			badge: 'Armour',
+			glowColor: '#E2E8F0',
+			description:
+				'Sleek silver chestplate with micro-meteorite deflection weave and blue status LEDs.',
+		},
+		{
+			id: 'nebula_blaze',
+			name: 'Nebula Blaze Weave',
+			tagline: 'Infused with Ionized Plasma',
+			category: 'suit',
+			starsCost: 35,
+			icon: 'Flame',
+			badge: 'Plasma',
+			glowColor: '#F43F5E',
+			description:
+				'Radiant crimson and coral energy mesh woven from ionized stellar filaments.',
+		},
+		{
+			id: 'supernova_gold',
+			name: 'Supernova Golden Aegis',
+			tagline: 'Master Navigator Regalia',
+			category: 'suit',
+			starsCost: 75,
+			icon: 'Crown',
+			badge: 'Legendary',
+			glowColor: '#EAB308',
+			description:
+				'Gilded ceremonial armor with glowing solar sigils awarded to top space champions.',
+		},
+	],
+	trail: [
+		{
+			id: 'none',
+			name: 'Silent Thruster',
+			tagline: 'Quiet Micro-Propulsion',
+			category: 'trail',
+			starsCost: 0,
+			icon: 'Minus',
+			badge: 'Stealth',
+			glowColor: 'transparent',
+			description:
+				'Whisper-quiet maneuvering thrusters with minimal visual signature.',
+		},
+		{
+			id: 'starlight_sparkles',
+			name: 'Stardust Sparkle Wake',
+			tagline: 'Glittering Cosmic Dust',
+			category: 'trail',
+			starsCost: 12,
+			icon: 'Star',
+			badge: 'Glitter',
+			glowColor: '#38BDF8',
+			description:
+				'Leaves a sparkling stream of starlight crystals wherever your companion jumps.',
+		},
+		{
+			id: 'plasma_exhaust',
+			name: 'Hyper Magenta Burn',
+			tagline: 'High-Output Ion Jet',
+			category: 'trail',
+			starsCost: 30,
+			icon: 'Zap',
+			badge: 'Hyper',
+			glowColor: '#EC4899',
+			description:
+				'Intense pulsing magenta plasma plume boosting pet speed and zero-G acrobatics.',
+		},
+		{
+			id: 'rainbow_comet',
+			name: 'Rainbow Comet Streak',
+			tagline: 'Multispectral Celestial Wave',
+			category: 'trail',
+			starsCost: 55,
+			icon: 'Palette',
+			badge: 'Spectrum',
+			glowColor: '#10B981',
+			description:
+				'Dazzling rainbow particle cascade inspired by celestial comets traversing the galaxy.',
+		},
+	],
 };
 
 // ==========================================

@@ -92,6 +92,10 @@ const GalaxyOdysseyModal = lazy(
 const EducatorPortalModal = lazy(
 	() => import('./features/dashboard/EducatorPortalModal'),
 );
+const CosmicHabitatModal = lazy(
+	() => import('./features/dashboard/CosmicHabitatModal'),
+);
+const PetAssistant = lazy(() => import('./features/companion/PetAssistant'));
 
 function ScreenLoadingFallback() {
 	return (
@@ -137,6 +141,7 @@ export default function App() {
 	const [isPlanetariumOpen, setIsPlanetariumOpen] = useState(false);
 	const [isObservatoryOpen, setIsObservatoryOpen] = useState(false);
 	const [isOdysseyOpen, setIsOdysseyOpen] = useState(false);
+	const [isHabitatOpen, setIsHabitatOpen] = useState(false);
 	const [isEducatorPortalOpen, setIsEducatorPortalOpen] = useState(false);
 	const nextQuestionTimeoutRef = useRef(null);
 	const pendingNextActionRef = useRef(null);
@@ -1302,6 +1307,7 @@ export default function App() {
 					onOpenObservatory={() => setIsObservatoryOpen(true)}
 					onOpenPlanetarium={() => setIsPlanetariumOpen(true)}
 					onOpenOdyssey={() => setIsOdysseyOpen(true)}
+					onOpenHabitat={() => setIsHabitatOpen(true)}
 					onOpenEducatorPortal={() => setIsEducatorPortalOpen(true)}
 					onAnimationComplete={() => {
 						if (!getStoredKidName() || !getStoredApiKey()) {
@@ -1339,6 +1345,14 @@ export default function App() {
 							kidName={kidName}
 						/>
 					)}
+					{isHabitatOpen && (
+						<CosmicHabitatModal
+							isOpen={isHabitatOpen}
+							onClose={() => setIsHabitatOpen(false)}
+							soundEnabled={soundEnabled}
+							kidName={kidName}
+						/>
+					)}
 					{isEducatorPortalOpen && (
 						<EducatorPortalModal
 							isOpen={isEducatorPortalOpen}
@@ -1366,6 +1380,14 @@ export default function App() {
 							}}
 						/>
 					)}
+
+					{/* 3D Living Companion Pet Assistant */}
+					<PetAssistant
+						currentScreen='dashboard'
+						kidName={kidName}
+						soundEnabled={soundEnabled}
+						speechEnabled={speechEnabled}
+					/>
 				</Suspense>
 			</>
 		);
@@ -1954,6 +1976,29 @@ export default function App() {
 						soundEnabled={soundEnabled}
 					/>
 				)}
+
+				{isHabitatOpen && (
+					<CosmicHabitatModal
+						isOpen={isHabitatOpen}
+						onClose={() => setIsHabitatOpen(false)}
+						soundEnabled={soundEnabled}
+						kidName={kidName}
+					/>
+				)}
+
+				{/* 3D Living Companion Pet Assistant */}
+				<PetAssistant
+					currentScreen={currentScreen}
+					currentQuestion={currentQuestion}
+					isSubmitted={isSubmitted}
+					isCorrect={selectedOptionId === currentQuestion?.correctAnswerId}
+					isReviewMode={isReviewMode}
+					wasSkippedOnRevisit={wasSkippedOnRevisit}
+					kidName={kidName}
+					soundEnabled={soundEnabled}
+					speechEnabled={speechEnabled}
+					onTriggerHint={() => setIsHintOpen(true)}
+				/>
 			</Suspense>
 		</div>
 	);

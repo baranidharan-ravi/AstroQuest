@@ -55,6 +55,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	onOpenObservatory,
 	onOpenPlanetarium,
 	onOpenOdyssey,
+	onOpenHabitat,
 	onOpenEducatorPortal,
 	onAnimationComplete,
 	timerConfig = {
@@ -708,7 +709,45 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 						</div>
 					</div>
 
-					{/* 2. Time Warp Lightning Survival */}
+					{/* 2. Cosmic Space Colony Habitat Base */}
+					<div
+						role='button'
+						tabIndex={0}
+						onClick={() => {
+							playButtonPop(soundEnabled);
+							if (onOpenHabitat) onOpenHabitat();
+						}}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								playButtonPop(soundEnabled);
+								if (onOpenHabitat) onOpenHabitat();
+							}
+						}}
+						className='group bg-gradient-to-br from-teal-500/20 via-emerald-600/20 to-slate-900/50 border-2 border-emerald-400/50 hover:border-emerald-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
+						<div>
+							<div className='flex items-center justify-between gap-2 mb-2'>
+								<div className='w-9 h-9 rounded-xl bg-emerald-400/30 border border-emerald-300/50 flex items-center justify-center text-lg shadow-inner'>
+									🏰
+								</div>
+								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-400/30 text-emerald-200 border border-emerald-400/40'>
+									Colony Builder
+								</span>
+							</div>
+							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-emerald-300 transition-colors'>
+								Cosmic Space Habitat
+							</h3>
+							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
+								Construct off-world Bio-Domes, Solar Arrays & Warp Gantries using your quest stars!
+							</p>
+						</div>
+						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-emerald-300'>
+							<span>Enter Habitat Base</span>
+							<span>🪐 →</span>
+						</div>
+					</div>
+
+					{/* 3. Time Warp Lightning Survival */}
 					<div
 						role='button'
 						tabIndex={0}
