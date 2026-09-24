@@ -842,7 +842,10 @@ export function playTelemetryScanSound(enabled = true) {
 			const gain = ctx.createGain();
 			osc.type = 'sine';
 			osc.frequency.setValueAtTime(440 * (1 + idx * 0.5), now + delay);
-			osc.frequency.exponentialRampToValueAtTime(880 * (1 + idx * 0.5), now + delay + 0.1);
+			osc.frequency.exponentialRampToValueAtTime(
+				880 * (1 + idx * 0.5),
+				now + delay + 0.1,
+			);
 
 			gain.gain.setValueAtTime(0.18, now + delay);
 			gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.11);
@@ -886,4 +889,3 @@ export function playChronoFreezeSound(enabled = true) {
 		console.warn('Chrono freeze sound failed', e);
 	}
 }
-

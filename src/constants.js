@@ -737,4 +737,3 @@ export const LIFELINE_DEFINITIONS = {
 		description: 'Adds +30s time warp dilation to the countdown timer',
 	},
 };
-

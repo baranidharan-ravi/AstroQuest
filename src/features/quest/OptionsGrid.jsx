@@ -206,18 +206,20 @@ const OptionsGrid = memo(function OptionsGrid({
 						)}
 
 						{/* Starfleet Telemetry Scan Confidence Pill */}
-						{!isEliminated && telemetryScan && telemetryScan[opt.id] !== undefined && (
-							<span
-								aria-hidden='true'
-								className={`ml-auto text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border flex-shrink-0 flex items-center gap-1 ${
-									telemetryScan[opt.id] >= 50 ?
-										'bg-cyan-500/20 text-cyan-300 border-cyan-400/50 shadow-[0_0_8px_rgba(6,182,212,0.4)]'
-									:	'bg-slate-500/20 text-slate-400 border-slate-400/30'
-								}`}>
-								<span>🛸</span>
-								<span>{telemetryScan[opt.id]}%</span>
-							</span>
-						)}
+						{!isEliminated &&
+							telemetryScan &&
+							telemetryScan[opt.id] !== undefined && (
+								<span
+									aria-hidden='true'
+									className={`ml-auto text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border flex-shrink-0 flex items-center gap-1 ${
+										telemetryScan[opt.id] >= 50 ?
+											'bg-cyan-500/20 text-cyan-300 border-cyan-400/50 shadow-[0_0_8px_rgba(6,182,212,0.4)]'
+										:	'bg-slate-500/20 text-slate-400 border-slate-400/30'
+									}`}>
+									<span>🛸</span>
+									<span>{telemetryScan[opt.id]}%</span>
+								</span>
+							)}
 					</button>
 				);
 			})}

@@ -18,6 +18,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import { CHRONO_FREEZE_SECONDS } from './constants';
 import { getRandomCosmicFact } from './data/cosmicFacts';
 import SkillSelectionDashboard from './features/dashboard/SkillSelectionDashboard';
 import OptionsGrid from './features/quest/OptionsGrid';
@@ -33,13 +34,12 @@ import {
 	getStoredAmbientEnabled,
 	startAmbientSound,
 } from './utils/ambientAudio';
-import { CHRONO_FREEZE_SECONDS } from './constants';
 import {
 	playButtonPop,
+	playChronoFreezeSound,
 	playCorrectSound,
 	playIncorrectSound,
 	playTelemetryScanSound,
-	playChronoFreezeSound,
 	speakText,
 } from './utils/audioSynthesis';
 import {
@@ -733,7 +733,8 @@ export default function App() {
 
 	// Starfleet Telemetry Scan Handler
 	const handleActivateTelemetryScan = useCallback(() => {
-		if (telemetryScanUsed || isSubmitted || isTimedOut || !currentQuestion) return;
+		if (telemetryScanUsed || isSubmitted || isTimedOut || !currentQuestion)
+			return;
 		playTelemetryScanSound(soundEnabled);
 
 		const options = currentQuestion?.options || [];
@@ -810,8 +811,13 @@ export default function App() {
 		awardBadge('chrono_master');
 		awardXP(10);
 		setAchievements(getStoredAchievements());
-	}, [chronoFreezeUsed, isSubmitted, isTimedOut, timerConfig?.enabled, soundEnabled]);
-
+	}, [
+		chronoFreezeUsed,
+		isSubmitted,
+		isTimedOut,
+		timerConfig?.enabled,
+		soundEnabled,
+	]);
 
 	// Handle Submit
 	const handleSubmit = () => {
@@ -1744,7 +1750,9 @@ export default function App() {
 											title='Cosmic Lifelines: Clue, 50/50, Radar & Chrono Freeze'
 											aria-label='Open cosmic lifelines modal'>
 											<Zap className='w-5 h-5 fill-white' />
-											{(telemetryScanUsed || chronoFreezeUsed || cosmicRayUsedForQuestion) && (
+											{(telemetryScanUsed ||
+												chronoFreezeUsed ||
+												cosmicRayUsedForQuestion) && (
 												<span className='absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-cyan-400 border-2 border-slate-900 shadow animate-pulse' />
 											)}
 										</button>
