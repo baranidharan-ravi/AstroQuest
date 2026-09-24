@@ -1,18 +1,21 @@
 import {
+	CheckCircle2,
 	Clock,
+	Gem,
 	Minus,
 	Plus,
 	RefreshCw,
 	Rotate3D,
 	Scale,
 	Sparkles,
+	Zap,
 } from 'lucide-react';
 import { memo, useState } from 'react';
 import { playButtonPop } from '../../utils/audioSynthesis';
 
 /**
  * Interactive Tactile Manipulative Component.
- * Allows children to physically manipulate balance scales, clock hands, and rotatable 3D blocks.
+ * Allows children to physically manipulate balance scales, clock hands, rotatable 3D blocks, and fraction crystals.
  */
 const InteractiveManipulative = memo(function InteractiveManipulative({
 	type,
@@ -42,6 +45,15 @@ const InteractiveManipulative = memo(function InteractiveManipulative({
 	if (type === 'block-tower') {
 		return (
 			<InteractiveRotatableBlockTower
+				data={data}
+				soundEnabled={soundEnabled}
+			/>
+		);
+	}
+
+	if (type === 'fraction-crystals') {
+		return (
+			<InteractiveFractionCrystals
 				data={data}
 				soundEnabled={soundEnabled}
 			/>
@@ -497,6 +509,235 @@ function InteractiveRotatableBlockTower({ data = {}, soundEnabled = true }) {
 					}`}>
 					Right View
 				</button>
+			</div>
+		</div>
+	);
+}
+
+/**
+ * 4. Interactive Fraction Energy Crystal with sliceable glowing sectors
+ */
+function InteractiveFractionCrystals({ data = {}, soundEnabled = true }) {
+	const initialDenominator = Number(data.denominator || 4);
+	const initialActiveCount = Number(data.activeCount || 1);
+	const targetFraction = data.targetFraction || '3/4';
+
+	const [denominator, setDenominator] = useState(initialDenominator);
+	const [activeSlices, setActiveSlices] = useState(() => {
+		const set = new Set();
+		for (let i = 0; i < Math.min(initialActiveCount, initialDenominator); i++) {
+			set.add(i);
+		}
+		return set;
+	});
+
+	const activeCount = activeSlices.size;
+	const percentage = Math.round((activeCount / denominator) * 100);
+
+	// Parse target
+	const [targetNum, targetDen] = targetFraction
+		.split('/')
+		.map((n) => parseInt(n.trim(), 10));
+	const isTargetMatched =
+		targetNum !== undefined &&
+		targetDen !== undefined &&
+		activeCount === targetNum &&
+		denominator === targetDen;
+
+	const handleToggleSlice = (index) => {
+		playButtonPop(soundEnabled);
+		setActiveSlices((prev) => {
+			const next = new Set(prev);
+			if (next.has(index)) {
+				next.delete(index);
+			} else {
+				next.add(index);
+			}
+			return next;
+		});
+	};
+
+	const handleChangeDenominator = (newDen) => {
+		playButtonPop(soundEnabled);
+		setDenominator(newDen);
+		setActiveSlices(new Set());
+	};
+
+	const handleReset = () => {
+		playButtonPop(soundEnabled);
+		setActiveSlices(new Set());
+	};
+
+	const handleFillAll = () => {
+		playButtonPop(soundEnabled);
+		const all = new Set();
+		for (let i = 0; i < denominator; i++) all.add(i);
+		setActiveSlices(all);
+	};
+
+	// SVG Pie Slice generator helper
+	const radius = 64;
+	const cx = 80;
+	const cy = 80;
+
+	const renderSlices = () => {
+		const anglePerSlice = 360 / denominator;
+		const slices = [];
+
+		for (let i = 0; i < denominator; i++) {
+			const startAngle = i * anglePerSlice - 90;
+			const endAngle = (i + 1) * anglePerSlice - 90;
+			const rad = Math.PI / 180;
+
+			const x1 = cx + radius * Math.cos(startAngle * rad);
+			const y1 = cy + radius * Math.sin(startAngle * rad);
+			const x2 = cx + radius * Math.cos(endAngle * rad);
+			const y2 = cy + radius * Math.sin(endAngle * rad);
+
+			const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
+			const pathData = `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+			const isActive = activeSlices.has(i);
+
+			slices.push(
+				<path
+					key={i}
+					d={pathData}
+					onClick={() => handleToggleSlice(i)}
+					aria-label={`Crystal sector ${i + 1} of ${denominator}, ${isActive ? 'Active' : 'Empty'}`}
+					className={`cursor-pointer transition-all duration-200 ${
+						isActive ?
+							'fill-cyan-400 hover:fill-cyan-300 stroke-cyan-100 filter drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]'
+						:	'fill-slate-700/60 hover:fill-slate-600/80 stroke-slate-500'
+					}`}
+					strokeWidth='1.5'
+				/>,
+			);
+		}
+		return slices;
+	};
+
+	return (
+		<div className='bg-slate-900/90 text-white border-2 border-cyan-500/40 rounded-2xl p-3 flex flex-col items-center gap-2.5 w-full my-2 shadow-xl'>
+			{/* Top Header */}
+			<div className='flex items-center justify-between w-full px-1'>
+				<div className='flex items-center gap-1.5 text-xs font-black text-cyan-300'>
+					<Gem className='w-4 h-4 text-cyan-400' />
+					<span>Fraction Energy Crystal</span>
+				</div>
+				<div className='flex items-center gap-1.5'>
+					<button
+						type='button'
+						onClick={handleReset}
+						className='text-[10px] font-bold text-slate-400 hover:text-white px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 transition-all cursor-pointer flex items-center gap-1'>
+						<RefreshCw className='w-2.5 h-2.5' />
+						<span>Clear</span>
+					</button>
+					<button
+						type='button'
+						onClick={handleFillAll}
+						className='text-[10px] font-bold text-cyan-300 hover:text-white px-2 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/30 transition-all cursor-pointer flex items-center gap-1'>
+						<Sparkles className='w-2.5 h-2.5' />
+						<span>Full</span>
+					</button>
+				</div>
+			</div>
+
+			{/* Main Interactive Stage: SVG Pie + Telemetry */}
+			<div className='flex items-center justify-center gap-4 sm:gap-6 w-full py-1'>
+				{/* SVG Interactive Crystal */}
+				<div className='relative w-[160px] h-[160px] shrink-0 flex items-center justify-center'>
+					<svg
+						viewBox='0 0 160 160'
+						className='w-full h-full overflow-visible select-none'>
+						{/* Background glow ring */}
+						<circle
+							cx={cx}
+							cy={cy}
+							r={radius + 4}
+							fill='none'
+							stroke='rgba(6,182,212,0.3)'
+							strokeWidth='2'
+							strokeDasharray='4 3'
+						/>
+						{/* Render interactive slices */}
+						{renderSlices()}
+						{/* Center reactor core */}
+						<circle
+							cx={cx}
+							cy={cy}
+							r='16'
+							fill='#0f172a'
+							stroke='#38bdf8'
+							strokeWidth='2'
+						/>
+						<circle
+							cx={cx}
+							cy={cy}
+							r='7'
+							fill='#38bdf8'
+							className='animate-pulse'
+						/>
+					</svg>
+				</div>
+
+				{/* Telemetry Readout & Fuel Gauge */}
+				<div className='flex flex-col gap-1.5 min-w-[130px]'>
+					<span className='text-[10px] font-bold uppercase tracking-wider text-slate-400'>
+						Active Fraction:
+					</span>
+					<div className='flex items-baseline gap-1'>
+						<span className='text-3xl font-black text-cyan-300'>
+							{activeCount}
+						</span>
+						<span className='text-xl font-bold text-slate-400'>/</span>
+						<span className='text-2xl font-black text-white'>
+							{denominator}
+						</span>
+					</div>
+
+					{/* Fuel Progress Bar */}
+					<div className='w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700 mt-0.5'>
+						<div
+							className='h-full bg-gradient-to-r from-cyan-500 to-emerald-400 transition-all duration-300'
+							style={{ width: `${percentage}%` }}
+						/>
+					</div>
+					<span className='text-[10px] font-semibold text-slate-300'>
+						Fuel Output: <strong className='text-cyan-300'>{percentage}%</strong>
+					</span>
+
+					{/* Target Match Banner */}
+					{isTargetMatched ?
+						<div className='flex items-center gap-1 text-[11px] font-black text-emerald-300 bg-emerald-950/70 border border-emerald-400/50 px-2 py-0.5 rounded-lg animate-pulse mt-1'>
+							<CheckCircle2 className='w-3.5 h-3.5 shrink-0' />
+							<span>Target Reached!</span>
+						</div>
+					: targetFraction ?
+						<div className='text-[10px] font-semibold text-amber-300 bg-amber-950/40 border border-amber-400/30 px-2 py-0.5 rounded mt-1'>
+							Goal: <strong>{targetFraction}</strong>
+						</div>
+					:	null}
+				</div>
+			</div>
+
+			{/* Denominator Selector Chips */}
+			<div className='flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10'>
+				<span className='text-[10px] font-bold text-slate-400 px-1'>
+					Divide:
+				</span>
+				{[2, 3, 4, 6, 8].map((d) => (
+					<button
+						key={d}
+						type='button'
+						onClick={() => handleChangeDenominator(d)}
+						className={`px-2 py-0.5 rounded-lg text-xs font-black transition-all cursor-pointer ${
+							denominator === d ?
+								'bg-cyan-500 text-slate-950 shadow-md'
+							:	'text-slate-300 hover:text-white hover:bg-white/10'
+						}`}>
+						1/{d}
+					</button>
+				))}
 			</div>
 		</div>
 	);

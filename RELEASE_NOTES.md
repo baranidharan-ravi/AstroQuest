@@ -4,6 +4,40 @@ All notable changes, new capabilities, architectural enhancements, and pedagogic
 
 ---
 
+## 🌟 Version 1.3.0 — "Hands-On Tactile Learning & Cosmic Scratchpad" (September 2026)
+
+**AstroQuest v1.3.0** introduces hands-on tactile problem-solving features, including a freehand calculation scratchpad directly on question cards and an interactive Fraction Energy Crystal manipulative.
+
+---
+
+### 1. Cosmic Drawing Scratchpad (`QuestScratchpad.jsx`)
+
+- **Interactive Problem-Solving Canvas**:
+  - Integrated high-performance HTML5/touch canvas directly on the question card for working out math steps, diagram annotations, and doodling.
+  - Supports Retina and high-DPI screens via dynamic device pixel ratio scaling.
+  - Features 5 space-themed colors (Laser Cyan, Star Gold, Nebula Pink, Aurora Green, Cosmic White) plus an active eraser tool.
+  - Includes fine, medium, and bold stroke widths, 20-step undo history, clear button, and translucent glass mode so children can view the underlying question while sketching.
+
+---
+
+### 2. Fraction Energy Crystals Tactile Manipulative (`InteractiveManipulative.jsx`)
+
+- **Tactile Fraction Learning**:
+  - Added the `InteractiveFractionCrystals` manipulative (`diagramType: 'fraction-crystals'`).
+  - Interactive SVG radial energy crystal with sliceable sectors (1/2, 1/3, 1/4, 1/6, 1/8).
+  - Tappable glowing pie wedges that dynamically calculate active fraction and percentage telemetry.
+  - Real-time spaceship fuel output meter with celebratory target detection and instant visual/sound feedback.
+
+---
+
+### 3. Automated Quality Assurance
+
+- **Expanded Test Suite (20 Tests Across 8 Test Files)**:
+  - Added dedicated unit tests for `QuestScratchpad` (`tests/questScratchpad.test.jsx`) and `FractionCrystals` (`tests/fractionCrystals.test.jsx`).
+  - 100% test pass rate in Vitest and clean production build with Vite.
+
+---
+
 ## 🌟 Version 1.2.1 — "Vector Font Icon Suite & Constants Centralization" (September 2026)
 
 **AstroQuest v1.2.1** upgrades the skillset iconography architecture across the platform, replacing legacy browser emojis with high-resolution, responsive vector font icons powered by `lucide-react`. It also centralizes all component-level constants and storage keys into a single source of truth.

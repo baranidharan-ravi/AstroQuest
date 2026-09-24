@@ -11,12 +11,12 @@ This rule is unconditionally active (`always_on`) to ensure immediate, zero-late
 
 ## Technical Architecture Overview
 
-- **App**: AstroQuest v1.2.1
+- **App**: AstroQuest v1.3.0
 - **Domain**: Space-themed early childhood cognitive & STEM learning platform (Ages 2 to 14).
 - **Frontend**: React 18, Vite 6, Tailwind CSS 3, Lucide React (vector font icons via `SkillIcon.jsx`).
 - **AI Engines**: Google Gemini (`@google/genai`), OpenAI ChatGPT, Anthropic Claude (`src/services/aiGenerator.js`).
 - **Audio & Speech**: Web Audio API oscillator synthesis, Web Speech API speech synthesis & voice recognition.
-- **Testing**: Vitest (`npm test`), 18 tests across 6 suites with 100% pass rate.
+- **Testing**: Vitest (`npm test`), 20 tests across 8 suites with 100% pass rate.
 
 ---
 

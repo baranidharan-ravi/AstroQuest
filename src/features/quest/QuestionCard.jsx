@@ -1,4 +1,4 @@
-import { Brain, Eye, Mic, MicOff, Volume2, ZoomIn } from 'lucide-react';
+import { Brain, Eye, Mic, MicOff, Pencil, Volume2, ZoomIn } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import {
@@ -11,6 +11,7 @@ import VisualDiagram, {
 	isDiagramAppropriateForQuestion,
 } from '../../utils/VisualDiagrams';
 import InteractiveManipulative from './InteractiveManipulative';
+import QuestScratchpad from './QuestScratchpad';
 
 const QuestionCard = memo(function QuestionCard({
 	question,
@@ -27,6 +28,7 @@ const QuestionCard = memo(function QuestionCard({
 }) {
 	const [isSpeaking, setIsSpeaking] = useState(false);
 	const [activeCharIndex, setActiveCharIndex] = useState(-1);
+	const [isScratchpadOpen, setIsScratchpadOpen] = useState(false);
 
 	// Hands-free Speech-to-Text Answer Input
 	const {
@@ -44,10 +46,11 @@ const QuestionCard = memo(function QuestionCard({
 		(kidName && String(kidName).trim()) || getStoredKidName() || 'Explorer';
 	const resolvedKidAge = kidAge || getStoredKidAge() || 5;
 
-	// Reset speech on question transition
+	// Reset speech and scratchpad on question transition
 	useEffect(() => {
 		setIsSpeaking(false);
 		setActiveCharIndex(-1);
+		setIsScratchpadOpen(false);
 		return () => {
 			stopSpeaking();
 		};
@@ -329,14 +332,39 @@ const QuestionCard = memo(function QuestionCard({
 								className={`w-4 h-4 sm:w-5 sm:h-5 ${isSpeaking ? 'animate-bounce text-purple-950' : ''}`}
 							/>
 						</button>
+
+						{/* Scratchpad Doodle / Math Workspace Button */}
+						<button
+							type='button'
+							onClick={() => {
+								playButtonPop(soundEnabled);
+								setIsScratchpadOpen((v) => !v);
+							}}
+							aria-label={
+								isScratchpadOpen ?
+									'Close scratchpad workspace'
+								:	'Open drawing scratchpad'
+							}
+							aria-pressed={isScratchpadOpen}
+							className={`p-1.5 rounded-full transition-all shadow-sm flex-shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none ${
+								isScratchpadOpen ?
+									'bg-cyan-500 text-slate-950 ring-2 ring-cyan-300 scale-110 shadow-md'
+								:	'bg-cyan-100 text-cyan-800 hover:bg-cyan-200 hover:scale-110 active:scale-95'
+							}`}
+							title='Open cosmic scratchpad (sketch, work out math, or doodle)'>
+							<Pencil className='w-4 h-4 sm:w-5 sm:h-5' />
+						</button>
 					</div>
 				</div>
 
-				{/* Interactive Manipulative (balance scale, clock hands, rotatable blocks) OR Visual Diagram */}
+				{/* Interactive Manipulative (balance scale, clock hands, rotatable blocks, fraction crystals) OR Visual Diagram */}
 				{(
-					['balance-scale', 'analog-clock', 'block-tower'].includes(
-						question.diagramType,
-					)
+					[
+						'balance-scale',
+						'analog-clock',
+						'block-tower',
+						'fraction-crystals',
+					].includes(question.diagramType)
 				) ?
 					<InteractiveManipulative
 						type={question.diagramType}
@@ -362,6 +390,13 @@ const QuestionCard = memo(function QuestionCard({
 				className='mt-auto pt-2 text-center text-xs font-semibold text-slate-400 border-t border-slate-50 flex-shrink-0'>
 				✨ Tap an answer choice on the right
 			</div>
+
+			{/* Cosmic Scratchpad Overlay */}
+			<QuestScratchpad
+				isOpen={isScratchpadOpen}
+				onClose={() => setIsScratchpadOpen(false)}
+				soundEnabled={soundEnabled}
+			/>
 		</section>
 	);
 });

@@ -6,7 +6,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 
 ## 1. Application Overview & Pedagogical Domain
 
-- **Application Name**: AstroQuest (Version 1.2.1)
+- **Application Name**: AstroQuest (Version 1.3.0)
 - **Domain**: Visual-first, age-adaptive STEM, logic, and cognitive learning platform designed for early childhood explorers (Ages 2 to 14).
 - **Core Experience**: Space-themed learning quests with real-time AI question synthesis, hands-free voice answering, interactive tactile manipulatives, 3D animated companion pet, Socratic doubt tutor, Galaxy Odyssey exploration, and printable worksheets.
 - **Repository Location**: `H:/Shraddha_Project` (NTFS Junction to `H:/AstroQuest`). Remote: `https://github.com/baranidharan-ravi/AstroQuest.git` (branch: `main`).
@@ -27,7 +27,7 @@ This document is automatically loaded by Antigravity to provide instant context,
   - Web Speech API TTS (`speechSynthesis`) with pitch/rate adaptation for young children.
   - Web Speech API STT (`webkitSpeechRecognition` / `SpeechRecognition`) with phonetic matching for hands-free voice answers.
 - **Utilities**: `canvas-confetti` (celebrations), `jspdf` (printables), `clsx`, `tailwind-merge`.
-- **Testing & Tooling**: Vitest (`npm test` running 18 tests across 6 test files).
+- **Testing & Tooling**: Vitest (`npm test` running 20 tests across 8 test files).
 
 ---
 
@@ -48,9 +48,10 @@ This document is automatically loaded by Antigravity to provide instant context,
 
 ### Quest Feature (`src/features/quest/`)
 
-- `QuestionCard.jsx`: Main question viewer with text-to-speech narration, large touch targets, and visual diagrams.
+- `QuestionCard.jsx`: Main question viewer with text-to-speech narration, large touch targets, visual diagrams, and embedded scratchpad launcher.
+- `QuestScratchpad.jsx`: Interactive touch/canvas drawing scratchpad with High-DPI support, 5 space colors, eraser, undo, and translucent glass mode.
 - `OptionsGrid.jsx`: 4 option cards with tactile feedback, correct/incorrect sound effects, and keyboard navigation.
-- `InteractiveManipulative.jsx`: Tactile manipulatives (Balance Scales, Analog Clocks, 3D Rotatable Block Towers, Number Lines).
+- `InteractiveManipulative.jsx`: Tactile manipulatives (Balance Scales, Analog Clocks, 3D Rotatable Block Towers, Fraction Energy Crystals).
 - `AskDoubtModal.jsx`: Socratic voice/text AI doubt tutor guided by Cosmo companion pet.
 - `TimeWarpMode.jsx`: Fast-paced 60-second lightning round challenge with local high-score tracking.
 - `SolutionPanel.jsx`: Child-friendly step-by-step reasoning explanation panel.
