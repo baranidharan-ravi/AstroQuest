@@ -30,8 +30,7 @@ export const COSMIC_FEATURE_MODES = [
 		bgGradient:
 			'bg-gradient-to-br from-pink-500/20 via-purple-600/20 to-indigo-900/40 border-2 border-pink-400/50 hover:border-pink-400',
 		iconBg: 'bg-pink-400/30 border border-pink-300/50',
-		badgeStyle:
-			'bg-pink-400/30 text-pink-200 border border-pink-400/40',
+		badgeStyle: 'bg-pink-400/30 text-pink-200 border border-pink-400/40',
 		hoverText: 'group-hover:text-pink-300',
 		accentText: 'text-pink-300',
 		actionKey: 'onOpenOdyssey',
@@ -70,8 +69,7 @@ export const COSMIC_FEATURE_MODES = [
 		bgGradient:
 			'bg-gradient-to-br from-amber-500/20 via-orange-600/20 to-purple-900/40 border-2 border-amber-400/50 hover:border-amber-400',
 		iconBg: 'bg-amber-400/30 border border-amber-300/50',
-		badgeStyle:
-			'bg-amber-400/30 text-amber-200 border border-amber-400/40',
+		badgeStyle: 'bg-amber-400/30 text-amber-200 border border-amber-400/40',
 		hoverText: 'group-hover:text-amber-300',
 		accentText: 'text-amber-300',
 		actionKey: 'onStartTimeWarp',
@@ -90,8 +88,7 @@ export const COSMIC_FEATURE_MODES = [
 		bgGradient:
 			'bg-gradient-to-br from-indigo-500/20 via-sky-600/20 to-purple-900/40 border-2 border-indigo-400/50 hover:border-indigo-400',
 		iconBg: 'bg-indigo-400/30 border border-indigo-300/50',
-		badgeStyle:
-			'bg-indigo-400/30 text-indigo-200 border border-indigo-400/40',
+		badgeStyle: 'bg-indigo-400/30 text-indigo-200 border border-indigo-400/40',
 		hoverText: 'group-hover:text-cyan-300',
 		accentText: 'text-cyan-300',
 		actionKey: 'onOpenObservatory',
@@ -110,8 +107,7 @@ export const COSMIC_FEATURE_MODES = [
 		bgGradient:
 			'bg-gradient-to-br from-cyan-500/20 via-teal-600/20 to-indigo-900/40 border-2 border-cyan-400/50 hover:border-cyan-400',
 		iconBg: 'bg-cyan-400/30 border border-cyan-300/50',
-		badgeStyle:
-			'bg-cyan-400/30 text-cyan-200 border border-cyan-400/40',
+		badgeStyle: 'bg-cyan-400/30 text-cyan-200 border border-cyan-400/40',
 		hoverText: 'group-hover:text-teal-300',
 		accentText: 'text-teal-300',
 		actionKey: 'onOpenPlanetarium',
@@ -150,8 +146,7 @@ export const COSMIC_FEATURE_MODES = [
 		bgGradient:
 			'bg-gradient-to-br from-blue-500/20 via-indigo-600/20 to-purple-900/40 border-2 border-blue-400/50 hover:border-blue-400',
 		iconBg: 'bg-blue-400/30 border border-blue-300/50',
-		badgeStyle:
-			'bg-blue-400/30 text-blue-200 border border-blue-400/40',
+		badgeStyle: 'bg-blue-400/30 text-blue-200 border border-blue-400/40',
 		hoverText: 'group-hover:text-blue-300',
 		accentText: 'text-blue-300',
 		actionKey: 'onOpenEducatorPortal',
