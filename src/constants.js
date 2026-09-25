@@ -737,3 +737,13 @@ export const LIFELINE_DEFINITIONS = {
 		description: 'Adds +30s time warp dilation to the countdown timer',
 	},
 };
+
+// ==========================================
+// Quest: Pure Quest Navigator Reward
+// ==========================================
+
+// XP bonus awarded for completing a full quest without using any lifeline
+export const PURE_QUEST_XP_BONUS = 50;
+
+// Badge ID for Pure Quest — must match BADGE_DEFINITIONS entry in badgeManager.js
+export const PURE_QUEST_BADGE_ID = 'pure_quest';
