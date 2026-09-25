@@ -27,7 +27,7 @@ This document is automatically loaded by Antigravity to provide instant context,
   - Web Speech API TTS (`speechSynthesis`) with pitch/rate adaptation for young children.
   - Web Speech API STT (`webkitSpeechRecognition` / `SpeechRecognition`) with phonetic matching for hands-free voice answers.
 - **Utilities**: `canvas-confetti` (celebrations), `jspdf` (printables), `clsx`, `tailwind-merge`.
-- **Testing & Tooling**: Vitest (`npm test` running 42 tests across 11 test files).
+- **Testing & Tooling**: Vitest (`npm test` running 43 tests across 11 test files).
 
 ---
 
@@ -39,7 +39,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 
 ### Dashboard Feature (`src/features/dashboard/`)
 
-- `SkillSelectionDashboard.jsx`: Primary launchpad, custom skillset creator with AI auto-fill and "Surprise Me 🎲" non-repeating topic generator (disables "Autofill with AI" button upon clicking "Surprise Me" until text is manually edited), preset inspiration chips, and Lucide vector icon picker.
+- `SkillSelectionDashboard.jsx`: Primary launchpad with consolidated "Mission Parameters & Quest Controls" card (AI Question Engine status, Visual Diagrams 1-click toggle, question countdown challenge timer, and auto-advance pacing), custom skillset creator with AI auto-fill and "Surprise Me 🎲" non-repeating topic generator (disables "Autofill with AI" button upon clicking "Surprise Me" until text is manually edited), preset inspiration chips, and Lucide vector icon picker.
 - `CosmicHabitatModal.jsx`: Interactive 2.5D modular space base colony builder with 8 unlockable pods (Solar Array, Greenhouse, Oxygen Scrubber, Radio Telescope, Crew Quarters, Fusion Reactor, Rover Garage, Quantum Supercomputer) tracking life-support ($\text{O}_2$), power grid ($\text{kW}$), and research ($\text{TB}$) telemetry.
 - `GalaxyOdysseyModal.jsx`: 10-world solar system exploration map tracking cumulative stars collected.
 - `PocketPlanetariumModal.jsx`: Audio-narrated encyclopedia of Solar System celestial worlds.
@@ -109,5 +109,5 @@ This document is automatically loaded by Antigravity to provide instant context,
 - **Iconography Usage**: Use `SkillIcon` component (`src/utils/SkillIcon.jsx`) and `POPULAR_ICONS` from `src/constants.js` rather than raw browser emojis for UI elements.
 - **Mandatory Question Timer for Ages 8–14**: Question countdown timer is mandatory for Upper Elementary (ages 8–10) and Middle School (ages 11–14) to maintain cognitive challenge. For these ages, the timer cannot be disabled (unlimited time locked), though explorers can adjust the duration (presets: 30s, 45s, 60s default, 90s, 2m, 3m, or custom stepper). Explorers aged 2–7 retain optional/toggleable timers. Default timer across the app is 60 seconds.
 - **Auto-Execution of Commands**: Proactively propose and run commands on behalf of the user without prompting for approval or asking what command to run.
-- **Verification Routine**: Always run `npm test` (vitest) to ensure all 42 tests across 11 test files pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
+- **Verification Routine**: Always run `npm test` (vitest) to ensure all 43 tests across 11 test files pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
 - **Git Push Protocol**: After completing requested tasks and verification, stage relevant files, commit with clear semantic conventional commit messages, and push to `origin/main`.

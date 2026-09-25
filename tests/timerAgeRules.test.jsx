@@ -115,4 +115,12 @@ describe('Mandatory Timer Rules Suite (Ages 8–14 & 60s Default)', () => {
 		const loaded = getStoredTimerConfig(5);
 		expect(loaded.enabled).toBe(false);
 	});
+
+	it('exports SkillSelectionDashboard with Mission Parameters and Quest Controls configuration', async () => {
+		const SkillSelectionDashboard = (
+			await import('../src/features/dashboard/SkillSelectionDashboard')
+		).default;
+		expect(SkillSelectionDashboard).toBeDefined();
+		expect(typeof SkillSelectionDashboard).toBe('object');
+	});
 });

@@ -22,9 +22,9 @@ export const DEFAULT_TIMER_CONFIG = {
 export function getStoredTimerConfig(kidAge) {
 	try {
 		const raw =
-			typeof localStorage !== 'undefined'
-				? localStorage.getItem(TIMER_CONFIG_KEY)
-				: null;
+			typeof localStorage !== 'undefined' ?
+				localStorage.getItem(TIMER_CONFIG_KEY)
+			:	null;
 		const resolvedAge =
 			kidAge !== undefined ? Number(kidAge) : Number(getStoredKidAge() || 5);
 		const isMandatory = isTimerMandatoryForAge(resolvedAge);
@@ -75,8 +75,7 @@ export function saveStoredTimerConfig(config, kidAge) {
 				15,
 				Math.min(
 					600,
-					Number(config.secondsPerQuestion) ||
-						DEFAULT_QUESTION_TIMER_SECONDS,
+					Number(config.secondsPerQuestion) || DEFAULT_QUESTION_TIMER_SECONDS,
 				),
 			),
 			autoAdvanceEnabled:

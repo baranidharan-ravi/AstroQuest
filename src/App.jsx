@@ -66,6 +66,7 @@ import {
 	recordCompletedSheet,
 	saveStoredKidProfile,
 	saveStoredSelectedSkill,
+	saveStoredShowVisualDiagrams,
 } from './utils/progressTracker';
 import { clearSessionState, saveSessionState } from './utils/storage';
 
@@ -663,6 +664,16 @@ export default function App() {
 		document.body.scrollTop = 0;
 	};
 
+	// 1-Click Toggle for Visual Diagrams directly from Dashboard
+	const handleToggleVisualDiagrams = useCallback(() => {
+		setShowVisualDiagrams((prev) => {
+			const next = !prev;
+			saveStoredShowVisualDiagrams(next);
+			return next;
+		});
+		playButtonPop(soundEnabled);
+	}, [soundEnabled]);
+
 	// Handle Question Timeout (when timer runs out)
 	const handleQuestionTimeout = () => {
 		setIsSubmitted(true);
@@ -1031,7 +1042,9 @@ export default function App() {
 
 		setIsTimedOut(false);
 		setAutoAdvanceCountdown(null);
-		setQuestionTimeRemaining(timerConfig.secondsPerQuestion || DEFAULT_QUESTION_TIMER_SECONDS);
+		setQuestionTimeRemaining(
+			timerConfig.secondsPerQuestion || DEFAULT_QUESTION_TIMER_SECONDS,
+		);
 
 		// Record in history as skipped
 		const newHistory = [...history];
@@ -1499,6 +1512,7 @@ export default function App() {
 					}}
 					timerConfig={timerConfig}
 					showVisualDiagrams={showVisualDiagrams}
+					onToggleVisualDiagrams={handleToggleVisualDiagrams}
 					dashboardToast={dashboardToast}
 					onClearDashboardToast={() => setDashboardToast(null)}
 					onUpdateSettings={handleRefreshSettingsFromStorage}

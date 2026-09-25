@@ -27,6 +27,10 @@ import {
 } from 'lucide-react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
+	DEFAULT_QUESTION_TIMER_SECONDS,
+	isTimerMandatoryForAge,
+} from '../../constants';
+import {
 	AI_PROVIDER_INFO,
 	AI_PROVIDERS,
 	decryptApiKey,
@@ -91,10 +95,6 @@ import {
 	saveStoredShowVisualDiagrams,
 	saveStoredTimerConfig,
 } from '../../utils/progressTracker';
-import {
-	DEFAULT_QUESTION_TIMER_SECONDS,
-	isTimerMandatoryForAge,
-} from '../../constants';
 import CrewSwitcherModal from '../dashboard/CrewSwitcherModal';
 
 const SettingsScreen = memo(function SettingsScreen({
@@ -867,7 +867,9 @@ const SettingsScreen = memo(function SettingsScreen({
 			setTimerEnabled(initialValues.timerEnabled);
 			setTimerSeconds(initialValues.timerSeconds);
 			setIsCustomTimer(
-				![30, 45, 60, 90, 120, 180].includes(Number(initialValues.timerSeconds)),
+				![30, 45, 60, 90, 120, 180].includes(
+					Number(initialValues.timerSeconds),
+				),
 			);
 			setAutoAdvanceEnabled(initialValues.autoAdvanceEnabled);
 			setAutoAdvanceSeconds(initialValues.autoAdvanceSeconds);
@@ -1034,10 +1036,7 @@ const SettingsScreen = memo(function SettingsScreen({
 			enabled: effectiveTimerEnabled,
 			secondsPerQuestion: Math.max(
 				15,
-				Math.min(
-					600,
-					Number(timerSeconds) || DEFAULT_QUESTION_TIMER_SECONDS,
-				),
+				Math.min(600, Number(timerSeconds) || DEFAULT_QUESTION_TIMER_SECONDS),
 			),
 			autoAdvanceEnabled,
 			autoAdvanceSeconds,
@@ -1959,11 +1958,9 @@ const SettingsScreen = memo(function SettingsScreen({
 								</span>
 								<span
 									className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
-										isMandatoryTimer ?
-											'bg-amber-400 text-slate-950 shadow'
-										: timerEnabled ?
-											'bg-emerald-400 text-slate-950 shadow'
-										:	'bg-slate-800 text-slate-400'
+										isMandatoryTimer ? 'bg-amber-400 text-slate-950 shadow'
+										: timerEnabled ? 'bg-emerald-400 text-slate-950 shadow'
+										: 'bg-slate-800 text-slate-400'
 									}`}>
 									{isMandatoryTimer ?
 										'Mandatory (Ages 8–14)'
@@ -1975,7 +1972,8 @@ const SettingsScreen = memo(function SettingsScreen({
 							<p className='text-[11px] sm:text-xs text-slate-400 mt-0.5'>
 								{isMandatoryTimer ?
 									'Sets an active countdown challenge for each question. Mandatory for Upper Elementary (8–10) & Middle School (11–14). Customize challenge duration below!'
-								:	'Sets a countdown challenge for each individual question. Optional for younger explorers.'}
+								:	'Sets a countdown challenge for each individual question. Optional for younger explorers.'
+								}
 							</p>
 						</div>
 

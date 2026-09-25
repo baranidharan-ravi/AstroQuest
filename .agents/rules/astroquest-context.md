@@ -16,7 +16,7 @@ This rule is unconditionally active (`always_on`) to ensure immediate, zero-late
 - **Frontend**: React 18, Vite 6, Tailwind CSS 3, Lucide React (vector font icons via `SkillIcon.jsx`).
 - **AI Engines**: Google Gemini (`@google/genai`), OpenAI ChatGPT, Anthropic Claude (`src/services/aiGenerator.js`).
 - **Audio & Speech**: Web Audio API oscillator synthesis, Web Speech API speech synthesis & voice recognition.
-- **Testing**: Vitest (`npm test`), 42 tests across 11 suites with 100% pass rate.
+- **Testing**: Vitest (`npm test`), 43 tests across 11 suites with 100% pass rate.
 
 ---
 
@@ -25,7 +25,7 @@ This rule is unconditionally active (`always_on`) to ensure immediate, zero-late
 - **Constants & Configs**: Centralized in `src/constants.js`. Holds `POPULAR_ICONS`, `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `HABITAT_MODULES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, `PLANET_COLOR_CONFIGS`, `DEFAULT_QUESTION_TIMER_SECONDS` (60s), and `isTimerMandatoryForAge` helper. All component-local constants must live here.
 - **Icon Component**: `src/utils/SkillIcon.jsx` provides Lucide React SVG font icons with bidirectional mapping for educational emojis.
 - **Skillset Engine**: `src/utils/skillManager.js` handles custom skillset persistence, defaults, and presets.
-- **Dashboard & Modals**: `src/features/dashboard/` contains `SkillSelectionDashboard.jsx` (Surprise Me topic generator disables "Autofill with AI" button until input changes), `CosmicHabitatModal.jsx` (8-module space base colony builder with $\text{O}_2$, $\text{kW}$, $\text{TB}$ telemetry), `GalaxyOdysseyModal.jsx`, `PocketPlanetariumModal.jsx`, `ConstellationObservatory.jsx`, and `EducatorPortalModal.jsx`.
+- **Dashboard & Modals**: `src/features/dashboard/` contains `SkillSelectionDashboard.jsx` (consolidated "Mission Parameters & Quest Controls" card uniting AI question engine status, visual diagrams 1-click toggle, question timer, and auto-advance pacing; Surprise Me topic generator disables "Autofill with AI" button until input changes), `CosmicHabitatModal.jsx` (8-module space base colony builder with $\text{O}_2$, $\text{kW}$, $\text{TB}$ telemetry), `GalaxyOdysseyModal.jsx`, `PocketPlanetariumModal.jsx`, `ConstellationObservatory.jsx`, and `EducatorPortalModal.jsx`.
 - **Quest & Tutor**: `src/features/quest/` contains `QuestionCard.jsx`, `OptionsGrid.jsx`, `CosmicLifelinesBar.jsx` (direct 1-click console for all 4 lifelines with 1-time per quest persistence and Pure Quest tracking), `InteractiveManipulative.jsx` (Balance scales, Analog clocks, 3D block towers, Fraction crystals), `QuestScratchpad.jsx` (5 space colors, eraser, undo, glass mode), `HintModal.jsx` (4 lifelines: Cosmic Clue, 50/50 Blast, Telemetry Scan radar, Chrono Freeze boost), `AskDoubtModal.jsx` (Socratic tutor guided by Cosmo), and `TimeWarpMode.jsx`.
 
 ---
