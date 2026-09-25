@@ -123,4 +123,19 @@ describe('Mandatory Timer Rules Suite (Ages 8–14 & 60s Default)', () => {
 		expect(SkillSelectionDashboard).toBeDefined();
 		expect(typeof SkillSelectionDashboard).toBe('object');
 	});
+
+	it('defines CARD_DENSITY_STORAGE_KEY and all 7 curated COSMIC_FEATURE_MODES', async () => {
+		const { CARD_DENSITY_STORAGE_KEY, COSMIC_FEATURE_MODES } = await import(
+			'../src/constants'
+		);
+		expect(CARD_DENSITY_STORAGE_KEY).toBe('astroquest_card_density_v1');
+		expect(COSMIC_FEATURE_MODES).toHaveLength(7);
+		COSMIC_FEATURE_MODES.forEach((mode) => {
+			expect(mode.id).toBeTruthy();
+			expect(mode.title).toBeTruthy();
+			expect(mode.shortTitle).toBeTruthy();
+			expect(mode.badge).toBeTruthy();
+			expect(mode.icon).toBeTruthy();
+		});
+	});
 });

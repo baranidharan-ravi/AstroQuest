@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
 import {
+	CARD_DENSITY_STORAGE_KEY,
+	COSMIC_FEATURE_MODES,
 	DEFAULT_QUESTION_TIMER_SECONDS,
 	POPULAR_ICONS,
 	SUGGESTED_SKILLSETS_STORAGE_KEY,
@@ -101,6 +103,28 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 		useState('');
 
 	const [hasApiKey, setHasApiKey] = useState(false);
+	const [cardSize, setCardSize] = useState(() => {
+		try {
+			if (typeof localStorage !== 'undefined') {
+				return (
+					localStorage.getItem(CARD_DENSITY_STORAGE_KEY) || 'standard'
+				);
+			}
+			return 'standard';
+		} catch {
+			return 'standard';
+		}
+	});
+
+	const handleSetCardSize = (size) => {
+		setCardSize(size);
+		try {
+			if (typeof localStorage !== 'undefined') {
+				localStorage.setItem(CARD_DENSITY_STORAGE_KEY, size);
+			}
+		} catch {}
+	};
+
 	const [animationPhase, setAnimationPhase] = useState('center'); // 'center' | 'shrinking' | 'docked'
 
 	const fileInputRef = useRef(null);
@@ -166,6 +190,25 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	const handleCardClick = (skillName) => {
 		playButtonPop(soundEnabled);
 		onSelectSkill(skillName);
+	};
+
+	const handleModeClick = (mode) => {
+		playButtonPop(soundEnabled);
+		if (mode.id === 'worksheets') {
+			handleDownloadWorksheet();
+		} else if (mode.id === 'odyssey' && onOpenOdyssey) {
+			onOpenOdyssey();
+		} else if (mode.id === 'habitat' && onOpenHabitat) {
+			onOpenHabitat();
+		} else if (mode.id === 'timewarp' && onStartTimeWarp) {
+			onStartTimeWarp();
+		} else if (mode.id === 'observatory' && onOpenObservatory) {
+			onOpenObservatory();
+		} else if (mode.id === 'planetarium' && onOpenPlanetarium) {
+			onOpenPlanetarium();
+		} else if (mode.id === 'educator' && onOpenEducatorPortal) {
+			onOpenEducatorPortal();
+		}
 	};
 
 	const handleInfoClick = (e, skill) => {
@@ -594,23 +637,46 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 									</span>
 								</div>
 								<p className='text-[11px] sm:text-xs text-slate-300 font-medium'>
-									Countdown challenge timer, AI synthesis engine, and visual clue parameters
+									Countdown challenge timer, AI synthesis engine, and visual
+									clue parameters
 								</p>
 							</div>
 						</div>
 
-						{/* Configure Settings button */}
-						<button
-							type='button'
-							onClick={() => {
-								playButtonPop(soundEnabled);
-								onOpenSettings();
-							}}
-							className='w-full sm:w-auto px-3.5 py-1.5 sm:py-2 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/40 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer flex-shrink-0'
-							title='Customize mission timer, AI provider, and explorer profile'>
-							<Timer className='w-3.5 h-3.5 text-amber-300' />
-							<span>Configure Settings</span>
-						</button>
+						{/* Card Size Density Toggle (Single Settings entry point kept in top header) */}
+						<div className='flex items-center gap-1 bg-white/10 border border-white/15 p-1 rounded-xl text-xs flex-shrink-0'>
+							<span className='text-[10px] uppercase font-bold text-slate-300 px-1 hidden sm:inline'>
+								Card Size:
+							</span>
+							<button
+								type='button'
+								onClick={() => {
+									playButtonPop(soundEnabled);
+									handleSetCardSize('standard');
+								}}
+								className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1 ${
+									cardSize === 'standard' ?
+										'bg-amber-400 text-slate-950 shadow-sm'
+									:	'text-slate-300 hover:text-white hover:bg-white/10'
+								}`}
+								title='Standard card view (a little smaller)'>
+								<span>Standard</span>
+							</button>
+							<button
+								type='button'
+								onClick={() => {
+									playButtonPop(soundEnabled);
+									handleSetCardSize('compact');
+								}}
+								className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1 ${
+									cardSize === 'compact' ?
+										'bg-amber-400 text-slate-950 shadow-sm'
+									:	'text-slate-300 hover:text-white hover:bg-white/10'
+								}`}
+								title='Compact card view (space-saving)'>
+								<span>Compact ⊞</span>
+							</button>
+						</div>
 					</div>
 
 					{/* Parameters & Options Row: AI Engine, Visual Diagrams, Timer, Pacing */}
@@ -631,7 +697,8 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 							<Sparkles className='w-3.5 h-3.5 text-amber-300' />
 							<span>
 								AI Engine:{' '}
-								<strong className={hasApiKey ? 'text-cyan-200' : 'text-amber-200'}>
+								<strong
+									className={hasApiKey ? 'text-cyan-200' : 'text-amber-200'}>
 									{hasApiKey ? 'Active ✨' : 'Offline Vault 📦'}
 								</strong>
 							</span>
@@ -706,275 +773,88 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 				</div>
 
 				{/* Cosmic Explorations & Special Modes Suite */}
-				<div className='w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 mb-6'>
-					{/* 1. Galaxy Odyssey Expedition */}
-					<div
-						role='button'
-						tabIndex={0}
-						onClick={() => {
-							playButtonPop(soundEnabled);
-							if (onOpenOdyssey) onOpenOdyssey();
-						}}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								playButtonPop(soundEnabled);
-								if (onOpenOdyssey) onOpenOdyssey();
-							}
-						}}
-						className='group bg-gradient-to-br from-pink-500/20 via-purple-600/20 to-indigo-900/40 border-2 border-pink-400/50 hover:border-pink-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
-						<div>
-							<div className='flex items-center justify-between gap-2 mb-2'>
-								<div className='w-9 h-9 rounded-xl bg-pink-400/30 border border-pink-300/50 flex items-center justify-center text-lg shadow-inner'>
-									🚀
-								</div>
-								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-pink-400/30 text-pink-200 border border-pink-400/40'>
-									Odyssey Map
-								</span>
+				<div
+					className={`w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${
+						cardSize === 'compact' ? 'gap-2.5 mb-4' : 'gap-3 sm:gap-3.5 mb-5'
+					}`}>
+					{COSMIC_FEATURE_MODES.map((mode) => {
+						const isCompact = cardSize === 'compact';
+						return (
+							<div
+								key={mode.id}
+								role='button'
+								tabIndex={0}
+								onClick={() => handleModeClick(mode)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										handleModeClick(mode);
+									}
+								}}
+								className={`group ${mode.bgGradient} ${
+									isCompact ?
+										'rounded-xl p-2.5 shadow-md flex items-center justify-between gap-2.5'
+									:	'rounded-2xl p-3 sm:p-3.5 shadow-lg flex flex-col justify-between'
+								} transition-all hover:scale-[1.02] active:scale-95 cursor-pointer`}>
+								{isCompact ?
+									<>
+										<div className='flex items-center gap-2.5 min-w-0'>
+											<div
+												className={`w-8 h-8 rounded-lg ${mode.iconBg} flex items-center justify-center text-base shadow-inner flex-shrink-0`}>
+												{mode.icon}
+											</div>
+											<div className='min-w-0'>
+												<div className='flex items-center gap-1.5'>
+													<h3
+														className={`text-xs font-black text-white ${mode.hoverText} transition-colors truncate`}>
+														{mode.shortTitle}
+													</h3>
+													<span
+														className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full ${mode.badgeStyle} hidden sm:inline`}>
+														{mode.badge}
+													</span>
+												</div>
+												<p className='text-[10px] text-slate-300 font-medium truncate'>
+													{mode.shortDesc}
+												</p>
+											</div>
+										</div>
+										<div
+											className={`text-[11px] font-black ${mode.accentText} flex items-center gap-0.5 flex-shrink-0 group-hover:translate-x-0.5 transition-transform`}>
+											<span>{mode.shortAction}</span>
+											<span>→</span>
+										</div>
+									</>
+								:	<>
+										<div>
+											<div className='flex items-center justify-between gap-2 mb-1.5'>
+												<div
+													className={`w-8 h-8 rounded-xl ${mode.iconBg} flex items-center justify-center text-base shadow-inner`}>
+													{mode.icon}
+												</div>
+												<span
+													className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${mode.badgeStyle}`}>
+													{mode.badge}
+												</span>
+											</div>
+											<h3
+												className={`text-xs sm:text-sm font-black text-white ${mode.hoverText} transition-colors`}>
+												{mode.title}
+											</h3>
+											<p className='text-[10px] sm:text-[11px] text-slate-300 font-semibold mt-0.5 line-clamp-2 leading-snug'>
+												{mode.desc}
+											</p>
+										</div>
+										<div
+											className={`mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-black ${mode.accentText}`}>
+											<span>{mode.actionText}</span>
+											<span>{mode.actionIcon}</span>
+										</div>
+									</>
+								}
 							</div>
-							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-pink-300 transition-colors'>
-								Galaxy Odyssey Map
-							</h3>
-							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
-								Warp from Mercury to the Kuiper Belt! Fuel your ship with star
-								energy earned on quests.
-							</p>
-						</div>
-						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-pink-300'>
-							<span>Launch Odyssey</span>
-							<span>🪐 →</span>
-						</div>
-					</div>
-
-					{/* 2. Cosmic Space Colony Habitat Base */}
-					<div
-						role='button'
-						tabIndex={0}
-						onClick={() => {
-							playButtonPop(soundEnabled);
-							if (onOpenHabitat) onOpenHabitat();
-						}}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								playButtonPop(soundEnabled);
-								if (onOpenHabitat) onOpenHabitat();
-							}
-						}}
-						className='group bg-gradient-to-br from-teal-500/20 via-emerald-600/20 to-slate-900/50 border-2 border-emerald-400/50 hover:border-emerald-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
-						<div>
-							<div className='flex items-center justify-between gap-2 mb-2'>
-								<div className='w-9 h-9 rounded-xl bg-emerald-400/30 border border-emerald-300/50 flex items-center justify-center text-lg shadow-inner'>
-									🏰
-								</div>
-								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-400/30 text-emerald-200 border border-emerald-400/40'>
-									Colony Builder
-								</span>
-							</div>
-							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-emerald-300 transition-colors'>
-								Cosmic Space Habitat
-							</h3>
-							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
-								Construct off-world Bio-Domes, Solar Arrays & Warp Gantries
-								using your quest stars!
-							</p>
-						</div>
-						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-emerald-300'>
-							<span>Enter Habitat Base</span>
-							<span>🪐 →</span>
-						</div>
-					</div>
-
-					{/* 3. Time Warp Lightning Survival */}
-					<div
-						role='button'
-						tabIndex={0}
-						onClick={() => {
-							playButtonPop(soundEnabled);
-							if (onStartTimeWarp) onStartTimeWarp();
-						}}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								playButtonPop(soundEnabled);
-								if (onStartTimeWarp) onStartTimeWarp();
-							}
-						}}
-						className='group bg-gradient-to-br from-amber-500/20 via-orange-600/20 to-purple-900/40 border-2 border-amber-400/50 hover:border-amber-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
-						<div>
-							<div className='flex items-center justify-between gap-2 mb-2'>
-								<div className='w-9 h-9 rounded-xl bg-amber-400/30 border border-amber-300/50 flex items-center justify-center text-lg shadow-inner'>
-									⚡
-								</div>
-								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400/30 text-amber-200 border border-amber-400/40'>
-									Survival Mode
-								</span>
-							</div>
-							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-amber-300 transition-colors'>
-								Time Warp Lightning
-							</h3>
-							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
-								60s master timer! +5s bonus for correct, -3s for wrong. How long
-								can you survive?
-							</p>
-						</div>
-						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-amber-300'>
-							<span>Launch Warp Speed</span>
-							<span>⚡ →</span>
-						</div>
-					</div>
-
-					{/* 3. Constellation Observatory */}
-					<div
-						role='button'
-						tabIndex={0}
-						onClick={() => {
-							playButtonPop(soundEnabled);
-							if (onOpenObservatory) onOpenObservatory();
-						}}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								playButtonPop(soundEnabled);
-								if (onOpenObservatory) onOpenObservatory();
-							}
-						}}
-						className='group bg-gradient-to-br from-indigo-500/20 via-sky-600/20 to-purple-900/40 border-2 border-indigo-400/50 hover:border-indigo-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
-						<div>
-							<div className='flex items-center justify-between gap-2 mb-2'>
-								<div className='w-9 h-9 rounded-xl bg-indigo-400/30 border border-indigo-300/50 flex items-center justify-center text-lg shadow-inner'>
-									🌌
-								</div>
-								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-400/30 text-indigo-200 border border-indigo-400/40'>
-									Daily Stargazer
-								</span>
-							</div>
-							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-cyan-300 transition-colors'>
-								Stellar Sky Observatory
-							</h3>
-							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
-								Map Orion, Big Dipper & real celestial constellations
-								star-by-star every day!
-							</p>
-						</div>
-						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-cyan-300'>
-							<span>View Night Sky</span>
-							<span>🔭 →</span>
-						</div>
-					</div>
-
-					{/* 4. Pocket Planetarium */}
-					<div
-						role='button'
-						tabIndex={0}
-						onClick={() => {
-							playButtonPop(soundEnabled);
-							if (onOpenPlanetarium) onOpenPlanetarium();
-						}}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								playButtonPop(soundEnabled);
-								if (onOpenPlanetarium) onOpenPlanetarium();
-							}
-						}}
-						className='group bg-gradient-to-br from-cyan-500/20 via-teal-600/20 to-indigo-900/40 border-2 border-cyan-400/50 hover:border-cyan-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
-						<div>
-							<div className='flex items-center justify-between gap-2 mb-2'>
-								<div className='w-9 h-9 rounded-xl bg-cyan-400/30 border border-cyan-300/50 flex items-center justify-center text-lg shadow-inner'>
-									🪐
-								</div>
-								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-cyan-400/30 text-cyan-200 border border-cyan-400/40'>
-									3D Exploration
-								</span>
-							</div>
-							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-teal-300 transition-colors'>
-								Pocket Planetarium
-							</h3>
-							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
-								Tour 10 celestial worlds with interactive 3D spheres, moon
-								counts & audio guides.
-							</p>
-						</div>
-						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-teal-300'>
-							<span>Explore Worlds</span>
-							<span>🌍 →</span>
-						</div>
-					</div>
-
-					{/* 5. Print-and-Play Cosmic Worksheets */}
-					<div
-						role='button'
-						tabIndex={0}
-						onClick={handleDownloadWorksheet}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								handleDownloadWorksheet();
-							}
-						}}
-						className='group bg-gradient-to-br from-emerald-500/20 via-teal-600/20 to-indigo-900/40 border-2 border-emerald-400/50 hover:border-emerald-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
-						<div>
-							<div className='flex items-center justify-between gap-2 mb-2'>
-								<div className='w-9 h-9 rounded-xl bg-emerald-400/30 border border-emerald-300/50 flex items-center justify-center text-lg shadow-inner'>
-									🖨️
-								</div>
-								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-400/30 text-emerald-200 border border-emerald-400/40'>
-									Screen-Free
-								</span>
-							</div>
-							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-emerald-300 transition-colors'>
-								Print-and-Play Worksheets
-							</h3>
-							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
-								Instant PDF puzzle worksheet for coloring and pencil practice
-								with parent answer keys.
-							</p>
-						</div>
-						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-emerald-300'>
-							<span>Download Worksheet</span>
-							<span>📄 →</span>
-						</div>
-					</div>
-
-					{/* 6. Educator & Parent Analytics */}
-					<div
-						role='button'
-						tabIndex={0}
-						onClick={() => {
-							playButtonPop(soundEnabled);
-							if (onOpenEducatorPortal) onOpenEducatorPortal();
-						}}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								playButtonPop(soundEnabled);
-								if (onOpenEducatorPortal) onOpenEducatorPortal();
-							}
-						}}
-						className='group bg-gradient-to-br from-blue-500/20 via-indigo-600/20 to-purple-900/40 border-2 border-blue-400/50 hover:border-blue-400 rounded-2xl sm:rounded-3xl p-4 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-95 cursor-pointer'>
-						<div>
-							<div className='flex items-center justify-between gap-2 mb-2'>
-								<div className='w-9 h-9 rounded-xl bg-blue-400/30 border border-blue-300/50 flex items-center justify-center text-lg shadow-inner'>
-									📊
-								</div>
-								<span className='text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-blue-400/30 text-blue-200 border border-blue-400/40'>
-									Parent & Teacher
-								</span>
-							</div>
-							<h3 className='text-sm sm:text-base font-black text-white group-hover:text-blue-300 transition-colors'>
-								Educator Analytics
-							</h3>
-							<p className='text-[11px] text-slate-300 font-semibold mt-1 leading-snug'>
-								Longitudinal mastery reports across all 5 cognitive domains with
-								downloadable PDF insights.
-							</p>
-						</div>
-						<div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-black text-blue-300'>
-							<span>View Progress</span>
-							<span>📈 →</span>
-						</div>
-					</div>
+						);
+					})}
 				</div>
 
 				{/* Section Header with Action Buttons */}
@@ -1020,7 +900,10 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 				</div>
 
 				{/* Responsive Skill Cards Grid */}
-				<div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+				<div
+					className={`w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${
+						cardSize === 'compact' ? 'gap-3.5 sm:gap-4' : 'gap-4 sm:gap-5'
+					}`}>
 					{skillsets.map((skill) => {
 						const theme = COLOR_THEMES[skill.color] || COLOR_THEMES.cyan;
 						const isCustom = !skill.isDefault;
@@ -1038,24 +921,41 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 										handleCardClick(skill.name);
 									}
 								}}
-								className={`group bg-white text-slate-800 rounded-3xl p-5 shadow-2xl border-4 ${theme.cardBorder} cursor-pointer transform hover:-translate-y-1.5 active:translate-y-0 transition-all duration-200 flex flex-col justify-between min-h-[230px] focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none relative`}>
+								className={`group bg-white text-slate-800 ${
+									cardSize === 'compact' ?
+										'rounded-2xl p-3.5 shadow-lg min-h-[175px]'
+									:	'rounded-2xl sm:rounded-3xl p-4 sm:p-4.5 shadow-xl min-h-[195px]'
+								} border-4 ${theme.cardBorder} cursor-pointer transform hover:-translate-y-1.5 active:translate-y-0 transition-all duration-200 flex flex-col justify-between focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none relative`}>
 								<div>
 									{/* Top Bar: Icon, Name, Tagline & Actions */}
-									<div className='flex items-start justify-between gap-2 mb-3'>
-										<div className='flex items-center gap-2.5'>
+									<div className='flex items-start justify-between gap-2 mb-2 sm:mb-2.5'>
+										<div className='flex items-center gap-2.5 min-w-0'>
 											<div
 												aria-hidden='true'
-												className={`w-11 h-11 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner ${theme.badgeColor}`}>
+												className={`${
+													cardSize === 'compact' ?
+														'w-9 h-9 rounded-xl text-lg'
+													:	'w-10 h-10 rounded-xl text-xl'
+												} flex items-center justify-center font-black shadow-inner flex-shrink-0 ${theme.badgeColor}`}>
 												<SkillIcon
 													icon={skill.icon || 'Rocket'}
-													className='w-6 h-6'
+													className={
+														cardSize === 'compact' ?
+															'w-5 h-5'
+														:	'w-5 sm:w-6 h-5 sm:h-6'
+													}
 												/>
 											</div>
-											<div>
-												<h3 className='text-lg sm:text-xl font-extrabold text-slate-900 group-hover:text-cyan-600 transition-colors leading-tight'>
+											<div className='min-w-0'>
+												<h3
+													className={`${
+														cardSize === 'compact' ?
+															'text-base font-extrabold truncate'
+														:	'text-base sm:text-lg font-extrabold truncate'
+													} text-slate-900 group-hover:text-cyan-600 transition-colors leading-tight`}>
 													{skill.name}
 												</h3>
-												<span className='text-[11px] font-bold text-slate-500 uppercase tracking-wider block mt-0.5'>
+												<span className='text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider block mt-0.5 truncate'>
 													{skill.tagline || 'Cognitive Challenge'}
 												</span>
 											</div>

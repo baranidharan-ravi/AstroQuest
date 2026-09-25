@@ -13,6 +13,150 @@ export const HIGH_SCORE_KEY = 'astroquest_timewarp_highscore';
 export const ODYSSEY_STORAGE_KEY = 'astroquest_total_stars_collected_v1';
 
 export const HABITAT_STORAGE_KEY = 'astroquest_habitat_modules_v1';
+export const CARD_DENSITY_STORAGE_KEY = 'astroquest_card_density_v1';
+
+export const COSMIC_FEATURE_MODES = [
+	{
+		id: 'odyssey',
+		title: 'Galaxy Odyssey Map',
+		shortTitle: 'Galaxy Odyssey',
+		badge: 'Odyssey Map',
+		icon: '🚀',
+		desc: 'Warp from Mercury to the Kuiper Belt! Fuel your ship with star energy earned on quests.',
+		shortDesc: 'Warp across solar system worlds with star energy',
+		actionText: 'Launch Odyssey',
+		shortAction: 'Launch',
+		actionIcon: '🪐 →',
+		bgGradient:
+			'bg-gradient-to-br from-pink-500/20 via-purple-600/20 to-indigo-900/40 border-2 border-pink-400/50 hover:border-pink-400',
+		iconBg: 'bg-pink-400/30 border border-pink-300/50',
+		badgeStyle:
+			'bg-pink-400/30 text-pink-200 border border-pink-400/40',
+		hoverText: 'group-hover:text-pink-300',
+		accentText: 'text-pink-300',
+		actionKey: 'onOpenOdyssey',
+	},
+	{
+		id: 'habitat',
+		title: 'Cosmic Space Habitat',
+		shortTitle: 'Space Habitat',
+		badge: 'Colony Builder',
+		icon: '🏰',
+		desc: 'Construct off-world Bio-Domes, Solar Arrays & Warp Gantries using your quest stars!',
+		shortDesc: 'Construct Bio-Domes & Solar Arrays with stars',
+		actionText: 'Enter Habitat Base',
+		shortAction: 'Enter',
+		actionIcon: '🪐 →',
+		bgGradient:
+			'bg-gradient-to-br from-teal-500/20 via-emerald-600/20 to-slate-900/50 border-2 border-emerald-400/50 hover:border-emerald-400',
+		iconBg: 'bg-emerald-400/30 border border-emerald-300/50',
+		badgeStyle:
+			'bg-emerald-400/30 text-emerald-200 border border-emerald-400/40',
+		hoverText: 'group-hover:text-emerald-300',
+		accentText: 'text-emerald-300',
+		actionKey: 'onOpenHabitat',
+	},
+	{
+		id: 'timewarp',
+		title: 'Time Warp Lightning',
+		shortTitle: 'Time Warp',
+		badge: 'Survival Mode',
+		icon: '⚡',
+		desc: '60s master timer! +5s bonus for correct, -3s for wrong. How long can you survive?',
+		shortDesc: '60s lightning speed survival challenge',
+		actionText: 'Launch Warp Speed',
+		shortAction: 'Play',
+		actionIcon: '⚡ →',
+		bgGradient:
+			'bg-gradient-to-br from-amber-500/20 via-orange-600/20 to-purple-900/40 border-2 border-amber-400/50 hover:border-amber-400',
+		iconBg: 'bg-amber-400/30 border border-amber-300/50',
+		badgeStyle:
+			'bg-amber-400/30 text-amber-200 border border-amber-400/40',
+		hoverText: 'group-hover:text-amber-300',
+		accentText: 'text-amber-300',
+		actionKey: 'onStartTimeWarp',
+	},
+	{
+		id: 'observatory',
+		title: 'Stellar Sky Observatory',
+		shortTitle: 'Observatory',
+		badge: 'Daily Stargazer',
+		icon: '🌌',
+		desc: 'Map Orion, Big Dipper & real celestial constellations star-by-star every day!',
+		shortDesc: 'Map real constellations star-by-star',
+		actionText: 'View Night Sky',
+		shortAction: 'Observe',
+		actionIcon: '🔭 →',
+		bgGradient:
+			'bg-gradient-to-br from-indigo-500/20 via-sky-600/20 to-purple-900/40 border-2 border-indigo-400/50 hover:border-indigo-400',
+		iconBg: 'bg-indigo-400/30 border border-indigo-300/50',
+		badgeStyle:
+			'bg-indigo-400/30 text-indigo-200 border border-indigo-400/40',
+		hoverText: 'group-hover:text-cyan-300',
+		accentText: 'text-cyan-300',
+		actionKey: 'onOpenObservatory',
+	},
+	{
+		id: 'planetarium',
+		title: 'Pocket Planetarium',
+		shortTitle: 'Planetarium',
+		badge: '3D Exploration',
+		icon: '🪐',
+		desc: 'Tour 10 celestial worlds with interactive 3D spheres, moon counts & audio guides.',
+		shortDesc: 'Tour 10 celestial worlds with audio guides',
+		actionText: 'Explore Worlds',
+		shortAction: 'Tour',
+		actionIcon: '🌍 →',
+		bgGradient:
+			'bg-gradient-to-br from-cyan-500/20 via-teal-600/20 to-indigo-900/40 border-2 border-cyan-400/50 hover:border-cyan-400',
+		iconBg: 'bg-cyan-400/30 border border-cyan-300/50',
+		badgeStyle:
+			'bg-cyan-400/30 text-cyan-200 border border-cyan-400/40',
+		hoverText: 'group-hover:text-teal-300',
+		accentText: 'text-teal-300',
+		actionKey: 'onOpenPlanetarium',
+	},
+	{
+		id: 'worksheets',
+		title: 'Print-and-Play Worksheets',
+		shortTitle: 'Worksheets',
+		badge: 'Screen-Free',
+		icon: '🖨️',
+		desc: 'Instant PDF puzzle worksheet for coloring and pencil practice with parent answer keys.',
+		shortDesc: 'Instant printable PDF puzzle worksheets',
+		actionText: 'Download Worksheet',
+		shortAction: 'Print',
+		actionIcon: '📄 →',
+		bgGradient:
+			'bg-gradient-to-br from-emerald-500/20 via-teal-600/20 to-indigo-900/40 border-2 border-emerald-400/50 hover:border-emerald-400',
+		iconBg: 'bg-emerald-400/30 border border-emerald-300/50',
+		badgeStyle:
+			'bg-emerald-400/30 text-emerald-200 border border-emerald-400/40',
+		hoverText: 'group-hover:text-emerald-300',
+		accentText: 'text-emerald-300',
+		actionKey: 'handleDownloadWorksheet',
+	},
+	{
+		id: 'educator',
+		title: 'Educator Analytics',
+		shortTitle: 'Analytics',
+		badge: 'Parent & Teacher',
+		icon: '📊',
+		desc: 'Longitudinal mastery reports across all 5 cognitive domains with downloadable PDF insights.',
+		shortDesc: 'Mastery reports across 5 cognitive domains',
+		actionText: 'View Progress',
+		shortAction: 'Reports',
+		actionIcon: '📈 →',
+		bgGradient:
+			'bg-gradient-to-br from-blue-500/20 via-indigo-600/20 to-purple-900/40 border-2 border-blue-400/50 hover:border-blue-400',
+		iconBg: 'bg-blue-400/30 border border-blue-300/50',
+		badgeStyle:
+			'bg-blue-400/30 text-blue-200 border border-blue-400/40',
+		hoverText: 'group-hover:text-blue-300',
+		accentText: 'text-blue-300',
+		actionKey: 'onOpenEducatorPortal',
+	},
+];
 
 // ==========================================
 // Dashboard: Font Icons Picker & Planetarium
