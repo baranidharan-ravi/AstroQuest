@@ -133,6 +133,13 @@ export const BADGE_DEFINITIONS = [
 		icon: '⏱️',
 		color: 'border-emerald-400/60 bg-emerald-950/40 text-emerald-300',
 	},
+	{
+		id: 'pure_quest',
+		title: 'Pure Quest Navigator',
+		description: 'Completed a full quest without using any lifelines — true cosmic mastery!',
+		icon: '🌟',
+		color: 'border-yellow-400/60 bg-yellow-950/40 text-yellow-300',
+	},
 ];
 
 export function getStoredAchievements() {

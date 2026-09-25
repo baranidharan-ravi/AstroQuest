@@ -8,6 +8,8 @@ const HintModal = memo(function HintModal({
 	isOpen,
 	onClose,
 	soundEnabled,
+	cosmicClueUsed = false,
+	onCosmicClueViewed,
 	onActivateCosmicRay,
 	cosmicRayUsed = false,
 	canUseCosmicRay = true,
@@ -25,6 +27,13 @@ const HintModal = memo(function HintModal({
 	const modalRef = useRef(null);
 	const closeBtnRef = useRef(null);
 	const [activeTab, setActiveTab] = useState(LIFELINE_TABS.CLUE);
+
+	// Mark Cosmic Clue as used the first time user views the clue tab
+	useEffect(() => {
+		if (isOpen && activeTab === LIFELINE_TABS.CLUE && !cosmicClueUsed && onCosmicClueViewed) {
+			onCosmicClueViewed();
+		}
+	}, [isOpen, activeTab, cosmicClueUsed, onCosmicClueViewed]);
 
 	// WCAG AA: Escape key and focus trapping
 	useEffect(() => {
@@ -70,6 +79,26 @@ const HintModal = memo(function HintModal({
 
 	if (!isOpen) return null;
 
+	// Helper: tab button classes based on active + used state
+	const tabClass = (tab, activeColor, isUsed) => {
+		if (isUsed && activeTab !== tab) {
+			return 'py-2 px-2 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1 opacity-40 cursor-not-allowed text-slate-500 select-none';
+		}
+		if (activeTab === tab) {
+			return `py-2 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1 ${activeColor}`;
+		}
+		return 'py-2 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1 text-slate-400 hover:text-white';
+	};
+
+	// Lifeline status dots — coloured = available, grey = used
+	const lifelines = [
+		{ label: 'Clue', icon: '💡', used: cosmicClueUsed, color: 'bg-pink-400' },
+		{ label: '50/50', icon: '⚡', used: cosmicRayUsed, color: 'bg-amber-400' },
+		{ label: 'Scan', icon: '🛸', used: telemetryScanUsed, color: 'bg-cyan-400' },
+		{ label: '+30s', icon: '⏱️', used: chronoFreezeUsed, color: 'bg-emerald-400' },
+	];
+	const usedCount = lifelines.filter((l) => l.used).length;
+
 	return (
 		<div
 			className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200'
@@ -92,8 +121,8 @@ const HintModal = memo(function HintModal({
 					<X className='w-4 h-4' />
 				</button>
 
-				{/* Header with Zap */}
-				<div className='flex items-center gap-3 mb-4 pr-10'>
+				{/* Header */}
+				<div className='flex items-center gap-3 mb-3 pr-10'>
 					<div
 						aria-hidden='true'
 						className='w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-amber-400 via-pink-500 to-cyan-400 flex items-center justify-center shadow-lg flex-shrink-0'>
@@ -106,9 +135,24 @@ const HintModal = memo(function HintModal({
 							Cosmic Lifelines & Power-Ups 🛸
 						</h3>
 						<span className='text-xs font-semibold text-pink-300'>
-							Choose a hint, blast wrong answers, scan telemetry, or add time!
+							Each lifeline is available once per quest
 						</span>
 					</div>
+				</div>
+
+				{/* Lifeline Status Bar */}
+				<div className='flex items-center gap-2 mb-3 bg-[#0E1238] rounded-2xl px-3 py-2 border border-white/10'>
+					<span className='text-xs font-bold text-slate-400 mr-1'>
+						{usedCount === 4 ? '🔒 All used' : `${4 - usedCount} remaining:`}
+					</span>
+					{lifelines.map((l) => (
+						<div key={l.label} className='flex flex-col items-center gap-0.5' title={`${l.label}: ${l.used ? 'Used' : 'Available'}`}>
+							<span className={`w-2.5 h-2.5 rounded-full ${l.used ? 'bg-slate-600' : l.color}`} />
+							<span className={`text-[9px] font-bold ${l.used ? 'text-slate-600 line-through' : 'text-slate-400'}`}>
+								{l.icon}
+							</span>
+						</div>
+					))}
 				</div>
 
 				{/* 4-Tier Lifeline Navigation Tabs */}
@@ -120,81 +164,93 @@ const HintModal = memo(function HintModal({
 							playButtonPop(soundEnabled);
 							setActiveTab(LIFELINE_TABS.CLUE);
 						}}
-						className={`py-2 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1 ${
-							activeTab === LIFELINE_TABS.CLUE ?
-								'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
-							:	'text-slate-400 hover:text-white'
-						}`}>
+						className={tabClass(
+							LIFELINE_TABS.CLUE,
+							'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md',
+							false, // Clue tab always clickable (shows content even if used)
+						)}>
 						<span>💡</span>
 						<span>Clue</span>
+						{cosmicClueUsed && (
+							<span className='w-1.5 h-1.5 rounded-full bg-slate-500 ml-0.5' />
+						)}
 					</button>
 
 					{/* Tab 2: 50/50 Blast */}
 					<button
 						type='button'
+						disabled={cosmicRayUsed && activeTab !== LIFELINE_TABS.RAY}
 						onClick={() => {
-							playButtonPop(soundEnabled);
-							setActiveTab(LIFELINE_TABS.RAY);
+							if (!cosmicRayUsed || activeTab === LIFELINE_TABS.RAY) {
+								playButtonPop(soundEnabled);
+								setActiveTab(LIFELINE_TABS.RAY);
+							}
 						}}
-						className={`py-2 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1 ${
-							activeTab === LIFELINE_TABS.RAY ?
-								'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md'
-							:	'text-slate-400 hover:text-white'
-						}`}>
+						className={tabClass(
+							LIFELINE_TABS.RAY,
+							'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md',
+							cosmicRayUsed,
+						)}>
 						<span>⚡</span>
 						<span>50/50</span>
 						{cosmicRayUsed && (
-							<span className='w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5' />
+							<span className='text-[9px] font-black text-slate-500 ml-0.5'>✓</span>
 						)}
 					</button>
 
 					{/* Tab 3: Telemetry Scan */}
 					<button
 						type='button'
+						disabled={telemetryScanUsed && activeTab !== LIFELINE_TABS.SCAN}
 						onClick={() => {
-							playButtonPop(soundEnabled);
-							setActiveTab(LIFELINE_TABS.SCAN);
+							if (!telemetryScanUsed || activeTab === LIFELINE_TABS.SCAN) {
+								playButtonPop(soundEnabled);
+								setActiveTab(LIFELINE_TABS.SCAN);
+							}
 						}}
-						className={`py-2 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1 ${
-							activeTab === LIFELINE_TABS.SCAN ?
-								'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-							:	'text-slate-400 hover:text-white'
-						}`}>
+						className={tabClass(
+							LIFELINE_TABS.SCAN,
+							'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md',
+							telemetryScanUsed,
+						)}>
 						<span>🛸</span>
 						<span>Scan</span>
 						{telemetryScanUsed && (
-							<span className='w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse ml-0.5' />
+							<span className='text-[9px] font-black text-slate-500 ml-0.5'>✓</span>
 						)}
 					</button>
 
 					{/* Tab 4: Chrono Freeze */}
 					<button
 						type='button'
+						disabled={chronoFreezeUsed && activeTab !== LIFELINE_TABS.FREEZE}
 						onClick={() => {
-							playButtonPop(soundEnabled);
-							setActiveTab(LIFELINE_TABS.FREEZE);
+							if (!chronoFreezeUsed || activeTab === LIFELINE_TABS.FREEZE) {
+								playButtonPop(soundEnabled);
+								setActiveTab(LIFELINE_TABS.FREEZE);
+							}
 						}}
-						className={`py-2 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1 ${
-							activeTab === LIFELINE_TABS.FREEZE ?
-								'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md'
-							:	'text-slate-400 hover:text-white'
-						}`}>
+						className={tabClass(
+							LIFELINE_TABS.FREEZE,
+							'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md',
+							chronoFreezeUsed,
+						)}>
 						<span>⏱️</span>
 						<span>+30s</span>
 						{chronoFreezeUsed && (
-							<span className='w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5' />
+							<span className='text-[9px] font-black text-slate-500 ml-0.5'>✓</span>
 						)}
 					</button>
 				</div>
 
 				{/* Tab 1: Cosmic Clue */}
 				{activeTab === LIFELINE_TABS.CLUE && (
-					<div className='bg-white text-slate-800 rounded-2xl p-4 sm:p-5 font-bold text-sm sm:text-base leading-relaxed shadow-inner my-3 animate-in fade-in duration-150 border-2 border-pink-200'>
-						<div className='flex items-center gap-2 mb-2 text-pink-600 text-xs font-black uppercase tracking-wider'>
-							<span>✨ Mission Control Guidance</span>
+					<div className={`rounded-2xl p-4 sm:p-5 font-bold text-sm sm:text-base leading-relaxed shadow-inner my-3 animate-in fade-in duration-150 border-2 ${cosmicClueUsed ? 'bg-slate-900 text-slate-400 border-slate-700' : 'bg-white text-slate-800 border-pink-200'}`}>
+						<div className={`flex items-center gap-2 mb-2 text-xs font-black uppercase tracking-wider ${cosmicClueUsed ? 'text-slate-500' : 'text-pink-600'}`}>
+							<span>{cosmicClueUsed ? '🔒 Used This Quest · Mission Control Guidance' : '✨ Mission Control Guidance'}</span>
 						</div>
 						{hintText ||
-							'Look closely at the shapes, numbers, and relationships. Eliminate options that don’t fit!'}
+							'Look closely at the shapes, numbers, and relationships. Eliminate options that don\'t fit!'}
 					</div>
 				)}
 
@@ -209,9 +265,8 @@ const HintModal = memo(function HintModal({
 						</h4>
 						<p className='text-xs sm:text-sm text-slate-300 mb-4 leading-relaxed'>
 							{cosmicRayUsed ?
-								'The Cosmic Ray has already disintegrated 2 incorrect options from this question!'
-							:	'Fire a cosmic beam to vaporize 2 incorrect options, leaving only the right answer and 1 distractor!'
-							}
+								'⚡ Cosmic Ray already fired this quest — 2 wrong options were disintegrated!'
+							:	'Fire a cosmic beam to vaporize 2 incorrect options, leaving only the right answer and 1 distractor!'}
 						</p>
 
 						<button
@@ -225,13 +280,13 @@ const HintModal = memo(function HintModal({
 							}}
 							className={`w-full py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 ${
 								cosmicRayUsed ?
-									'bg-emerald-950/80 border-2 border-emerald-500 text-emerald-300 opacity-80 cursor-not-allowed'
+									'bg-slate-900/80 border-2 border-slate-700 text-slate-500 opacity-70 cursor-not-allowed'
 								:	'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-amber-400/50'
 							}`}>
 							<Zap className='w-4 h-4 fill-current' />
 							<span>
 								{cosmicRayUsed ?
-									'✓ 2 Options Blasted!'
+									'✓ Used This Quest'
 								:	'Fire 50/50 Cosmic Ray ⚡'}
 							</span>
 						</button>
@@ -249,9 +304,8 @@ const HintModal = memo(function HintModal({
 						</h4>
 						<p className='text-xs sm:text-sm text-slate-300 text-center mb-3 leading-relaxed'>
 							{telemetryScanUsed ?
-								'Deep-space sensors have analyzed electromagnetic signatures for all options!'
-							:	'Deploy satellite radar sweep to detect the option with the highest probability match!'
-							}
+								'🛸 Telemetry radar already deployed this quest — probability readings are live on the options!'
+							:	'Deploy satellite radar sweep to detect the option with the highest probability match!'}
 						</p>
 
 						{/* Telemetry Progress Bars If Scanned */}
@@ -301,13 +355,13 @@ const HintModal = memo(function HintModal({
 							}}
 							className={`w-full py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 ${
 								telemetryScanUsed ?
-									'bg-cyan-950/80 border-2 border-cyan-500 text-cyan-300 cursor-default'
+									'bg-slate-900/80 border-2 border-slate-700 text-slate-500 cursor-not-allowed opacity-70'
 								:	'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-cyan-400/50'
 							}`}>
 							<Radio className='w-4 h-4' />
 							<span>
 								{telemetryScanUsed ?
-									'✓ Telemetry Radar Active!'
+									'✓ Used This Quest'
 								:	'Deploy Telemetry Scan 🛸'}
 							</span>
 						</button>
@@ -325,11 +379,10 @@ const HintModal = memo(function HintModal({
 						</h4>
 						<p className='text-xs sm:text-sm text-slate-300 mb-4 leading-relaxed'>
 							{chronoFreezeUsed ?
-								`+${CHRONO_FREEZE_SECONDS} bonus seconds were added to your challenge clock!`
+								`⏱️ Chrono Freeze already used this quest — +${CHRONO_FREEZE_SECONDS}s were added to your clock!`
 							: timerEnabled ?
 								`Summon a cosmic time distortion to add +${CHRONO_FREEZE_SECONDS} bonus seconds and freeze urgency colors!`
-							:	'Activate the Cosmic Focus Shield for starlight protection and bonus XP!'
-							}
+							:	'Activate the Cosmic Focus Shield for starlight protection and bonus XP!'}
 						</p>
 
 						<button
@@ -343,13 +396,13 @@ const HintModal = memo(function HintModal({
 							}}
 							className={`w-full py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 ${
 								chronoFreezeUsed ?
-									'bg-emerald-950/80 border-2 border-emerald-500 text-emerald-300 opacity-80 cursor-not-allowed'
+									'bg-slate-900/80 border-2 border-slate-700 text-slate-500 opacity-70 cursor-not-allowed'
 								:	'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-emerald-400/50'
 							}`}>
 							<Clock className='w-4 h-4' />
 							<span>
 								{chronoFreezeUsed ?
-									`✓ +${CHRONO_FREEZE_SECONDS}s Added!`
+									'✓ Used This Quest'
 								:	`Activate Chrono Freeze (+${CHRONO_FREEZE_SECONDS}s) ⏱️`}
 							</span>
 						</button>

@@ -40,6 +40,7 @@ const ResultOverview = memo(function ResultOverview({
 	kidAvatar,
 	timerSeconds = 0,
 	history = [],
+	pureQuestBonus = 0,
 }) {
 	// Determine star count based on score
 	const starCount =
@@ -318,7 +319,23 @@ const ResultOverview = memo(function ResultOverview({
 							</div>
 						</div>
 
-						{/* Astronaut Rank & Mission Badges Showcase */}
+						
+						{/* 🌟 Pure Quest Navigator Bonus */}
+						{pureQuestBonus > 0 && (
+							<div className='bg-gradient-to-r from-yellow-950/80 via-amber-900/60 to-yellow-950/80 border-2 border-yellow-400/60 rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-[0_0_20px_rgba(250,204,21,0.25)] animate-in fade-in zoom-in-95 duration-500'>
+								<div className='w-14 h-14 flex-shrink-0 rounded-2xl bg-yellow-400/20 border-2 border-yellow-400/50 flex items-center justify-center text-3xl shadow-lg'>🌟</div>
+								<div className='flex-1 text-left'>
+									<div className='text-xs font-black uppercase tracking-wider text-yellow-400 mb-0.5'>Pure Quest Achievement Unlocked</div>
+									<div className='text-base sm:text-lg font-black text-white'>Pure Quest Navigator</div>
+									<div className='text-xs sm:text-sm text-yellow-200/80 font-semibold leading-snug mt-0.5'>No lifelines used — pure cosmic mastery!</div>
+								</div>
+								<div className='flex-shrink-0 text-right'>
+									<div className='text-2xl sm:text-3xl font-black text-yellow-300'>+{pureQuestBonus}</div>
+									<div className='text-[10px] font-black text-yellow-400 uppercase tracking-widest'>Bonus XP</div>
+								</div>
+							</div>
+						)}
+{/* Astronaut Rank & Mission Badges Showcase */}
 						<div className='bg-gradient-to-b from-[#181C54] to-[#0F133D] border-2 border-cyan-400/40 rounded-2xl p-4 text-left shadow-lg'>
 							<div className='flex items-center justify-between gap-2 mb-2.5'>
 								<div className='flex items-center gap-2.5'>

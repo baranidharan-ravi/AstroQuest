@@ -79,4 +79,18 @@ describe('Cosmic Lifelines Suite', () => {
 		expect(scanDist[1]).toBe(0);
 		expect(scanDist[0] + scanDist[1] + scanDist[2] + scanDist[3]).toBe(100);
 	});
+
+	it('exports PURE_QUEST_XP_BONUS and PURE_QUEST_BADGE_ID constants with correct values', () => {
+		const { PURE_QUEST_XP_BONUS, PURE_QUEST_BADGE_ID } = require('../src/constants');
+		expect(PURE_QUEST_XP_BONUS).toBe(50);
+		expect(PURE_QUEST_BADGE_ID).toBe('pure_quest');
+	});
+
+	it('includes Pure Quest Navigator badge in BADGE_DEFINITIONS', () => {
+		const pureQuestBadge = BADGE_DEFINITIONS.find((b) => b.id === 'pure_quest');
+		expect(pureQuestBadge).toBeDefined();
+		expect(pureQuestBadge?.title).toBe('Pure Quest Navigator');
+		expect(pureQuestBadge?.icon).toBe('🌟');
+	});
 });
+

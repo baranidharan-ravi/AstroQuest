@@ -18,7 +18,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import { CHRONO_FREEZE_SECONDS } from './constants';
+import { CHRONO_FREEZE_SECONDS, PURE_QUEST_BADGE_ID, PURE_QUEST_XP_BONUS } from './constants';
 import { getRandomCosmicFact } from './data/cosmicFacts';
 import SkillSelectionDashboard from './features/dashboard/SkillSelectionDashboard';
 import OptionsGrid from './features/quest/OptionsGrid';
@@ -254,10 +254,10 @@ export default function App() {
 		getRandomCosmicFact(),
 	);
 
-	// Multi-Tier Hints & Strategic Lifelines State
+	// Multi-Tier Hints & Strategic Lifelines State (Quest-Level — persist across questions)
+	const [cosmicClueUsed, setCosmicClueUsed] = useState(false);
 	const [eliminatedOptionIds, setEliminatedOptionIds] = useState([]);
-	const [cosmicRayUsedForQuestion, setCosmicRayUsedForQuestion] =
-		useState(false);
+	const [cosmicRayUsed, setCosmicRayUsed] = useState(false);
 	const [telemetryScan, setTelemetryScan] = useState(null);
 	const [telemetryScanUsed, setTelemetryScanUsed] = useState(false);
 	const [chronoFreezeUsed, setChronoFreezeUsed] = useState(false);
@@ -538,7 +538,8 @@ export default function App() {
 		setIsTimedOut(false);
 		setAutoAdvanceCountdown(null);
 		setEliminatedOptionIds([]);
-		setCosmicRayUsedForQuestion(false);
+		setCosmicClueUsed(false);
+		setCosmicRayUsed(false);
 		setTelemetryScan(null);
 		setTelemetryScanUsed(false);
 		setChronoFreezeUsed(false);
@@ -695,7 +696,7 @@ export default function App() {
 
 	// 50/50 Cosmic Ray Power-Up Handler
 	const handleActivateCosmicRay = useCallback(() => {
-		if (cosmicRayUsedForQuestion || isSubmitted || isTimedOut) return;
+		if (cosmicRayUsed || isSubmitted || isTimedOut) return;
 		playCorrectSound(soundEnabled);
 		const options = currentQuestion?.options || [];
 		const wrongOptions = options.filter(
@@ -708,7 +709,7 @@ export default function App() {
 		const toEliminate = shuffled.slice(0, 2).map((o) => o.id);
 
 		setEliminatedOptionIds(toEliminate);
-		setCosmicRayUsedForQuestion(true);
+		setCosmicRayUsed(true);
 		setLiveAnnouncement(
 			'50/50 Cosmic Ray fired! Two incorrect options were blasted away.',
 		);
@@ -723,7 +724,7 @@ export default function App() {
 			setSelectedOptionId(null);
 		}
 	}, [
-		cosmicRayUsedForQuestion,
+		cosmicRayUsed,
 		isSubmitted,
 		isTimedOut,
 		currentQuestion,
@@ -897,6 +898,15 @@ export default function App() {
 			awardBadge('stellar_streak');
 		}
 		awardXP(score);
+
+		// Pure Quest Navigator: bonus for completing without any lifeline
+		const usedNoLifelines =
+			!cosmicClueUsed && !cosmicRayUsed && !telemetryScanUsed && !chronoFreezeUsed;
+		if (usedNoLifelines) {
+			awardBadge(PURE_QUEST_BADGE_ID);
+			awardXP(PURE_QUEST_XP_BONUS);
+		}
+
 		setAchievements(getStoredAchievements());
 
 		setIsCompleted(true);
@@ -1023,12 +1033,9 @@ export default function App() {
 			setWasSkippedOnRevisit(false);
 			setIsTimedOut(false);
 			setAutoAdvanceCountdown(null);
+			// Reset question-specific UI data only — lifeline used-states persist for the full quest
 			setEliminatedOptionIds([]);
-			setCosmicRayUsedForQuestion(false);
 			setTelemetryScan(null);
-			setTelemetryScanUsed(false);
-			setChronoFreezeUsed(false);
-			setChronoFreezeActive(false);
 			setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
 			setIsLoadingNextQuestion(false);
 			setIsTimerPaused(false); // Resumed when next question is loaded!
@@ -1752,7 +1759,8 @@ export default function App() {
 											<Zap className='w-5 h-5 fill-white' />
 											{(telemetryScanUsed ||
 												chronoFreezeUsed ||
-												cosmicRayUsedForQuestion) && (
+												cosmicClueUsed ||
+												cosmicRayUsed) && (
 												<span className='absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-cyan-400 border-2 border-slate-900 shadow animate-pulse' />
 											)}
 										</button>
@@ -1977,6 +1985,11 @@ export default function App() {
 									kidAge={kidAge}
 									kidAvatar={kidAvatar}
 									timerSeconds={timerSeconds}
+									pureQuestBonus={
+										!cosmicClueUsed && !cosmicRayUsed && !telemetryScanUsed && !chronoFreezeUsed ?
+											PURE_QUEST_XP_BONUS
+									:	0
+									}
 								/>
 							:	<QuestionSummary
 									questions={questions}
@@ -2004,7 +2017,7 @@ export default function App() {
 						onClose={() => setIsHintOpen(false)}
 						soundEnabled={soundEnabled}
 						onActivateCosmicRay={handleActivateCosmicRay}
-						cosmicRayUsed={cosmicRayUsedForQuestion}
+						cosmicRayUsed={cosmicRayUsed}
 						canUseCosmicRay={!isSubmitted && !isTimedOut}
 						onActivateTelemetryScan={handleActivateTelemetryScan}
 						telemetryScan={telemetryScan}
