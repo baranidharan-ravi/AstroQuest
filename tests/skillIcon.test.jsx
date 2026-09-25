@@ -48,20 +48,47 @@ describe('SkillIcon Component & Constants', () => {
 		const VisualDiagram = (await import('../src/utils/VisualDiagrams')).default;
 		const ReactDOMServer = (await import('react-dom/server')).default;
 		const React = (await import('react')).default;
-		
+
 		const html = ReactDOMServer.renderToStaticMarkup(
 			React.createElement(VisualDiagram, {
 				type: 'pattern-shapes',
 				data: {
 					sequence: ['🌙', '⭐', '🌙', '⭐'],
 					nextItem: '🌙',
-					questionText: 'What shape comes next in the pattern? ⭐\n🌙 ⭐ 🌙 ⭐ ?',
-				}
-			})
+					questionText:
+						'What shape comes next in the pattern? ⭐\n🌙 ⭐ 🌙 ⭐ ?',
+				},
+			}),
 		);
 		expect(html).toContain('Moon');
 		expect(html).toContain('Star');
 		// Ensure crescent SVG arc path is rendered
 		expect(html).toMatch(/M\s*[\d.]+\s+[\d.]+\s+A/i);
+	});
+
+	it('renders ZoomModal with responsive max-w-4xl width, fit controls, and zero scrollbars', async () => {
+		const ZoomModal = (await import('../src/utils/ZoomModal')).default;
+		const ReactDOMServer = (await import('react-dom/server')).default;
+		const React = (await import('react')).default;
+
+		const html = ReactDOMServer.renderToStaticMarkup(
+			React.createElement(ZoomModal, {
+				isOpen: true,
+				diagramType: 'pattern-shapes',
+				diagramData: {
+					sequence: ['🌙', '⭐', '🌙', '⭐'],
+					nextItem: '🌙',
+					questionText: 'What shape comes next in the pattern? ⭐\n🌙 ⭐ 🌙 ⭐ ?',
+				},
+				onClose: () => {},
+				soundEnabled: false,
+			})
+		);
+
+		expect(html).toContain('Close-up Diagram View');
+		expect(html).toContain('max-w-4xl');
+		expect(html).toContain('overflow-hidden');
+		expect(html).toContain('Fit');
+		expect(html).toContain('Done Looking ✨');
 	});
 });

@@ -1099,8 +1099,10 @@ export function DynamicSvgShape({
 
 	// Only show overlay text if there is an explicit numeric progression value (e.g. [Blue Circle, 3])
 	const overlayText =
-		typeof number === 'number' ||
-		(typeof number === 'string' && number.trim() !== '') ?
+		(
+			typeof number === 'number' ||
+			(typeof number === 'string' && number.trim() !== '')
+		) ?
 			number
 		:	null;
 
@@ -1386,7 +1388,8 @@ export function extractShapeSequenceTerms(questionText, defaultTerms = []) {
 		const colonSplit = questionText.split(/:\s*/);
 		if (
 			colonSplit.length > 1 &&
-			(colonSplit[colonSplit.length - 1].match(SHAPE_EMOJI_REGEX) || []).length >= 2
+			(colonSplit[colonSplit.length - 1].match(SHAPE_EMOJI_REGEX) || [])
+				.length >= 2
 		) {
 			emojiSearchText = colonSplit.pop();
 		} else {
