@@ -116,17 +116,13 @@ describe('Mandatory Timer Rules Suite (Ages 8–14 & 60s Default)', () => {
 		expect(loaded.enabled).toBe(false);
 	});
 
-	it(
-		'exports SkillSelectionDashboard with Mission Parameters and Quest Controls configuration',
-		async () => {
-			const SkillSelectionDashboard = (
-				await import('../src/features/dashboard/SkillSelectionDashboard')
-			).default;
-			expect(SkillSelectionDashboard).toBeDefined();
-			expect(typeof SkillSelectionDashboard).toBe('object');
-		},
-		15000
-	);
+	it('exports SkillSelectionDashboard with Mission Parameters and Quest Controls configuration', async () => {
+		const SkillSelectionDashboard = (
+			await import('../src/features/dashboard/SkillSelectionDashboard')
+		).default;
+		expect(SkillSelectionDashboard).toBeDefined();
+		expect(typeof SkillSelectionDashboard).toBe('object');
+	}, 15000);
 
 	it('defines CARD_DENSITY_STORAGE_KEY and all 7 curated COSMIC_FEATURE_MODES', async () => {
 		const { CARD_DENSITY_STORAGE_KEY, COSMIC_FEATURE_MODES } =
