@@ -91,6 +91,10 @@ import {
 	saveStoredShowVisualDiagrams,
 	saveStoredTimerConfig,
 } from '../../utils/progressTracker';
+import {
+	DEFAULT_QUESTION_TIMER_SECONDS,
+	isTimerMandatoryForAge,
+} from '../../constants';
 import CrewSwitcherModal from '../dashboard/CrewSwitcherModal';
 
 const SettingsScreen = memo(function SettingsScreen({
@@ -606,16 +610,19 @@ const SettingsScreen = memo(function SettingsScreen({
 	}, [selectedProvider]);
 
 	useEffect(() => {
-		const existingTimer = getStoredTimerConfig();
-		const initTimerEnabled = Boolean(existingTimer.enabled);
-		const initTimerSec = Number(existingTimer.secondsPerQuestion) || 90;
+		const initAge = Number(getStoredKidAge() || 5);
+		const existingTimer = getStoredTimerConfig(initAge);
+		const initTimerEnabled =
+			isTimerMandatoryForAge(initAge) ? true : Boolean(existingTimer.enabled);
+		const initTimerSec =
+			Number(existingTimer.secondsPerQuestion) ||
+			DEFAULT_QUESTION_TIMER_SECONDS;
 		const initAutoAdvanceEnabled =
 			existingTimer.autoAdvanceEnabled !== undefined ?
 				Boolean(existingTimer.autoAdvanceEnabled)
 			:	true;
 		const initAutoAdvanceSec = Number(existingTimer.autoAdvanceSeconds) || 7;
 		const initName = getStoredKidName() || '';
-		const initAge = Number(getStoredKidAge() || 5);
 		const initGender = getStoredKidGender() || 'boy';
 		const initAvatar =
 			getStoredKidAvatar() || getDefaultAvatarForGender(initGender);
@@ -676,7 +683,7 @@ const SettingsScreen = memo(function SettingsScreen({
 		setModelsList(getAvailableModels(initProvider));
 		setTimerEnabled(initTimerEnabled);
 		setTimerSeconds(initTimerSec);
-		setIsCustomTimer(![45, 60, 90, 120, 180].includes(initTimerSec));
+		setIsCustomTimer(![30, 45, 60, 90, 120, 180].includes(initTimerSec));
 
 		setAutoAdvanceEnabled(initAutoAdvanceEnabled);
 		setAutoAdvanceSeconds(initAutoAdvanceSec);
@@ -860,7 +867,7 @@ const SettingsScreen = memo(function SettingsScreen({
 			setTimerEnabled(initialValues.timerEnabled);
 			setTimerSeconds(initialValues.timerSeconds);
 			setIsCustomTimer(
-				![45, 60, 90, 120, 180].includes(Number(initialValues.timerSeconds)),
+				![30, 45, 60, 90, 120, 180].includes(Number(initialValues.timerSeconds)),
 			);
 			setAutoAdvanceEnabled(initialValues.autoAdvanceEnabled);
 			setAutoAdvanceSeconds(initialValues.autoAdvanceSeconds);
@@ -883,10 +890,25 @@ const SettingsScreen = memo(function SettingsScreen({
 		await handleSave();
 	};
 
+	const isMandatoryTimer = isTimerMandatoryForAge(ageInput);
+
+	useEffect(() => {
+		if (isMandatoryTimer && !timerEnabled) {
+			setTimerEnabled(true);
+			if (!timerSeconds) {
+				setTimerSeconds(DEFAULT_QUESTION_TIMER_SECONDS);
+			}
+		}
+	}, [isMandatoryTimer, timerEnabled, timerSeconds]);
+
 	const handleQuickAgeSelect = (age) => {
 		playButtonPop(soundEnabled);
 		setAgeInput(age);
 		setIsCustomAge(false);
+		if (isTimerMandatoryForAge(age)) {
+			setTimerEnabled(true);
+			if (!timerSeconds) setTimerSeconds(DEFAULT_QUESTION_TIMER_SECONDS);
+		}
 		if (error) setError('');
 	};
 
@@ -898,11 +920,15 @@ const SettingsScreen = memo(function SettingsScreen({
 		if (!quickAges.includes(nextAge)) {
 			setIsCustomAge(true);
 		}
+		if (isTimerMandatoryForAge(nextAge)) {
+			setTimerEnabled(true);
+			if (!timerSeconds) setTimerSeconds(DEFAULT_QUESTION_TIMER_SECONDS);
+		}
 	};
 
 	const handleStepTimer = (delta) => {
 		playButtonPop(soundEnabled);
-		const curr = timerSeconds || 90;
+		const curr = timerSeconds || DEFAULT_QUESTION_TIMER_SECONDS;
 		const nextSec = Math.min(300, Math.max(15, curr + delta));
 		setTimerSeconds(nextSec);
 	};
@@ -1001,14 +1027,22 @@ const SettingsScreen = memo(function SettingsScreen({
 		// 5. Save Kid Profile
 		saveStoredKidProfile(trimmedName, numAge, genderInput, avatarInput);
 
-		// 6. Save Settings, Timer Config, Visual Diagrams & Pet Assistance
+		// 6. Save Settings, Timer Config, Visual Diagrams & Audio Preferences
+		const effectiveTimerEnabled =
+			isTimerMandatoryForAge(numAge) ? true : Boolean(timerEnabled);
 		const updatedConfig = {
-			enabled: timerEnabled,
-			secondsPerQuestion: timerSeconds,
+			enabled: effectiveTimerEnabled,
+			secondsPerQuestion: Math.max(
+				15,
+				Math.min(
+					600,
+					Number(timerSeconds) || DEFAULT_QUESTION_TIMER_SECONDS,
+				),
+			),
 			autoAdvanceEnabled,
 			autoAdvanceSeconds,
 		};
-		saveStoredTimerConfig(updatedConfig);
+		saveStoredTimerConfig(updatedConfig, numAge);
 		saveStoredShowVisualDiagrams(showVisualDiagrams);
 		setStoredVoiceURI(selectedVoiceURI || null);
 		setStoredVoicePersonality(selectedPersonality);
@@ -1032,8 +1066,8 @@ const SettingsScreen = memo(function SettingsScreen({
 			providerKeys: updatedSavedKeys,
 			providerModels: updatedSavedModels,
 			selectedModel,
-			timerEnabled,
-			timerSeconds,
+			timerEnabled: effectiveTimerEnabled,
+			timerSeconds: updatedConfig.secondsPerQuestion,
 			autoAdvanceEnabled,
 			autoAdvanceSeconds,
 			showVisualDiagrams,
@@ -1925,31 +1959,56 @@ const SettingsScreen = memo(function SettingsScreen({
 								</span>
 								<span
 									className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
-										timerEnabled ?
+										isMandatoryTimer ?
 											'bg-amber-400 text-slate-950 shadow'
+										: timerEnabled ?
+											'bg-emerald-400 text-slate-950 shadow'
 										:	'bg-slate-800 text-slate-400'
 									}`}>
-									{timerEnabled ? 'Enabled' : 'Optional'}
+									{isMandatoryTimer ?
+										'Mandatory (Ages 8–14)'
+									: timerEnabled ?
+										'Enabled'
+									:	'Optional'}
 								</span>
 							</div>
 							<p className='text-[11px] sm:text-xs text-slate-400 mt-0.5'>
-								Sets a countdown challenge for each individual question.
+								{isMandatoryTimer ?
+									'Sets an active countdown challenge for each question. Mandatory for Upper Elementary (8–10) & Middle School (11–14). Customize challenge duration below!'
+								:	'Sets a countdown challenge for each individual question. Optional for younger explorers.'}
 							</p>
 						</div>
 
 						<button
 							type='button'
-							disabled={isValidating}
+							disabled={isValidating || isMandatoryTimer}
 							onClick={() => {
+								if (isMandatoryTimer) return;
 								playButtonPop(soundEnabled);
 								setTimerEnabled((prev) => !prev);
 							}}
-							className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
-								timerEnabled ?
-									'bg-amber-400 text-slate-950 border-amber-300 shadow'
-								:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+							title={
+								isMandatoryTimer ?
+									'Countdown timer is mandatory for Ages 8–14 to ensure active challenge. You can change the question duration below.'
+								: timerEnabled ?
+									'Turn timer off (unlimited time)'
+								:	'Turn timer on'
+							}
+							className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border flex items-center gap-1 ${
+								isMandatoryTimer ?
+									'bg-amber-400 text-slate-950 border-amber-300 shadow cursor-not-allowed opacity-95'
+								: timerEnabled ?
+									'bg-emerald-400 text-slate-950 border-emerald-300 shadow cursor-pointer'
+								:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white cursor-pointer'
 							}`}>
-							{timerEnabled ? '⏱️ ON' : 'Timer OFF'}
+							{isMandatoryTimer ?
+								<>
+									<Lock className='w-3 h-3 text-slate-950 inline' />
+									<span>⏱️ ON</span>
+								</>
+							: timerEnabled ?
+								'⏱️ ON'
+							:	'Timer OFF'}
 						</button>
 					</div>
 
@@ -1957,9 +2016,10 @@ const SettingsScreen = memo(function SettingsScreen({
 						<div className='space-y-2.5 pt-2.5 animate-in fade-in duration-200 border-t border-white/10'>
 							<div className='grid grid-cols-3 sm:flex sm:flex-wrap gap-1.5'>
 								{[
+									{ label: '30s', sec: 30 },
 									{ label: '45s', sec: 45 },
-									{ label: '60s', sec: 60 },
-									{ label: '90s (Def)', sec: 90 },
+									{ label: '60s (Def)', sec: 60 },
+									{ label: '90s', sec: 90 },
 									{ label: '2m', sec: 120 },
 									{ label: '3m', sec: 180 },
 								].map((preset) => (

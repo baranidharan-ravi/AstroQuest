@@ -19,6 +19,8 @@ import {
 } from 'react';
 import {
 	CHRONO_FREEZE_SECONDS,
+	DEFAULT_QUESTION_TIMER_SECONDS,
+	isTimerMandatoryForAge,
 	PURE_QUEST_BADGE_ID,
 	PURE_QUEST_XP_BONUS,
 } from './constants';
@@ -216,9 +218,13 @@ export default function App() {
 	const [profileStats, setProfileStats] = useState(loadProfileStats);
 
 	// Timer Settings & Per-Question Limit State
-	const [timerConfig, setTimerConfig] = useState(getStoredTimerConfig);
+	const [timerConfig, setTimerConfig] = useState(() =>
+		getStoredTimerConfig(getStoredKidAge()),
+	);
 	const [questionTimeRemaining, setQuestionTimeRemaining] = useState(
-		() => getStoredTimerConfig().secondsPerQuestion || 90,
+		() =>
+			getStoredTimerConfig(getStoredKidAge()).secondsPerQuestion ||
+			DEFAULT_QUESTION_TIMER_SECONDS,
 	);
 	const [isTimedOut, setIsTimedOut] = useState(false);
 	const [autoAdvanceCountdown, setAutoAdvanceCountdown] = useState(null);
@@ -375,7 +381,12 @@ export default function App() {
 				setKidGender(member.gender);
 				setKidAvatar(member.avatar);
 				if (member.timerConfig) {
-					setTimerConfig(member.timerConfig);
+					const isMandatory = isTimerMandatoryForAge(member.age);
+					setTimerConfig(
+						isMandatory ?
+							{ ...member.timerConfig, enabled: true }
+						:	member.timerConfig,
+					);
 				}
 				if (typeof member.showVisualDiagrams === 'boolean') {
 					setShowVisualDiagrams(member.showVisualDiagrams);
@@ -395,6 +406,25 @@ export default function App() {
 			);
 		};
 	}, [currentScreen]);
+
+	// Enforce mandatory timer challenge for Ages 8–14 (Upper Elementary & Middle School)
+	useEffect(() => {
+		if (isTimerMandatoryForAge(kidAge)) {
+			setTimerConfig((prev) => {
+				if (!prev?.enabled) {
+					const updated = {
+						...prev,
+						enabled: true,
+						secondsPerQuestion:
+							prev?.secondsPerQuestion || DEFAULT_QUESTION_TIMER_SECONDS,
+					};
+					saveStoredTimerConfig(updated, kidAge);
+					return updated;
+				}
+				return prev;
+			});
+		}
+	}, [kidAge]);
 
 	// 1. Session Stopwatch (tracks total quest duration across all modes)
 	useEffect(() => {
@@ -550,7 +580,9 @@ export default function App() {
 		setTelemetryScanUsed(false);
 		setChronoFreezeUsed(false);
 		setChronoFreezeActive(false);
-		setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
+		setQuestionTimeRemaining(
+			timerConfig.secondsPerQuestion || DEFAULT_QUESTION_TIMER_SECONDS,
+		);
 		setHistory([]);
 		setTimerSeconds(0);
 		setIsCompleted(false);
@@ -590,8 +622,13 @@ export default function App() {
 		if (newGender) setKidGender(newGender);
 		if (newAvatar) setKidAvatar(newAvatar);
 		if (newTimerConfig) {
-			setTimerConfig(newTimerConfig);
-			setQuestionTimeRemaining(newTimerConfig.secondsPerQuestion || 90);
+			const isMandatory = isTimerMandatoryForAge(age);
+			const effectiveConfig =
+				isMandatory ? { ...newTimerConfig, enabled: true } : newTimerConfig;
+			setTimerConfig(effectiveConfig);
+			setQuestionTimeRemaining(
+				effectiveConfig.secondsPerQuestion || DEFAULT_QUESTION_TIMER_SECONDS,
+			);
 		}
 		if (newShowVisualDiagrams !== undefined) {
 			setShowVisualDiagrams(newShowVisualDiagrams);
@@ -994,7 +1031,7 @@ export default function App() {
 
 		setIsTimedOut(false);
 		setAutoAdvanceCountdown(null);
-		setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
+		setQuestionTimeRemaining(timerConfig.secondsPerQuestion || DEFAULT_QUESTION_TIMER_SECONDS);
 
 		// Record in history as skipped
 		const newHistory = [...history];
@@ -1065,7 +1102,9 @@ export default function App() {
 			// Reset question-specific UI data only — lifeline used-states persist for the full quest
 			setEliminatedOptionIds([]);
 			setTelemetryScan(null);
-			setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
+			setQuestionTimeRemaining(
+				timerConfig.secondsPerQuestion || DEFAULT_QUESTION_TIMER_SECONDS,
+			);
 			setIsLoadingNextQuestion(false);
 			setIsTimerPaused(false); // Resumed when next question is loaded!
 		},
@@ -1166,7 +1205,9 @@ export default function App() {
 		setIsSubmitted(false);
 		setIsTimedOut(false);
 		setAutoAdvanceCountdown(null);
-		setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
+		setQuestionTimeRemaining(
+			timerConfig.secondsPerQuestion || DEFAULT_QUESTION_TIMER_SECONDS,
+		);
 		setLiveAnnouncement(
 			`Revisiting question ${skippedIndices[0] + 1} of skipped questions.`,
 		);
@@ -1277,7 +1318,9 @@ export default function App() {
 		setAiError(null);
 		setIsTimedOut(false);
 		setAutoAdvanceCountdown(null);
-		setQuestionTimeRemaining(timerConfig.secondsPerQuestion || 90);
+		setQuestionTimeRemaining(
+			timerConfig.secondsPerQuestion || DEFAULT_QUESTION_TIMER_SECONDS,
+		);
 
 		const nextSheetNum = sheetNumber + 1;
 		try {

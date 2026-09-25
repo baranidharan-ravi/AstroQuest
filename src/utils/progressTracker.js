@@ -1,5 +1,10 @@
 // Progress Tracker & Profile Manager for Skill Thinksheets
 
+import {
+	DEFAULT_QUESTION_TIMER_SECONDS,
+	isTimerMandatoryForAge,
+} from '../constants';
+
 const PROFILE_KEY = 'thinksheet_kid_profile_v4';
 const KID_NAME_KEY = 'thinksheet_custom_kid_name_v2';
 const KID_AGE_KEY = 'thinksheet_custom_kid_age_v2';
@@ -9,19 +14,27 @@ const TIMER_CONFIG_KEY = 'thinksheet_timer_config_v1';
 
 export const DEFAULT_TIMER_CONFIG = {
 	enabled: false,
-	secondsPerQuestion: 90,
+	secondsPerQuestion: DEFAULT_QUESTION_TIMER_SECONDS,
 	autoAdvanceEnabled: true,
 	autoAdvanceSeconds: 7,
 };
 
-export function getStoredTimerConfig() {
+export function getStoredTimerConfig(kidAge) {
 	try {
-		const raw = localStorage.getItem(TIMER_CONFIG_KEY);
+		const raw =
+			typeof localStorage !== 'undefined'
+				? localStorage.getItem(TIMER_CONFIG_KEY)
+				: null;
+		const resolvedAge =
+			kidAge !== undefined ? Number(kidAge) : Number(getStoredKidAge() || 5);
+		const isMandatory = isTimerMandatoryForAge(resolvedAge);
+
 		if (raw) {
 			const parsed = JSON.parse(raw);
 			return {
-				enabled: Boolean(parsed.enabled),
-				secondsPerQuestion: Number(parsed.secondsPerQuestion) || 90,
+				enabled: isMandatory ? true : Boolean(parsed.enabled),
+				secondsPerQuestion:
+					Number(parsed.secondsPerQuestion) || DEFAULT_QUESTION_TIMER_SECONDS,
 				autoAdvanceEnabled:
 					parsed.autoAdvanceEnabled !== undefined ?
 						Boolean(parsed.autoAdvanceEnabled)
@@ -29,30 +42,57 @@ export function getStoredTimerConfig() {
 				autoAdvanceSeconds: Number(parsed.autoAdvanceSeconds) || 7,
 			};
 		}
+
+		if (isMandatory) {
+			return {
+				...DEFAULT_TIMER_CONFIG,
+				enabled: true,
+				secondsPerQuestion: DEFAULT_QUESTION_TIMER_SECONDS,
+			};
+		}
 	} catch {}
-	return DEFAULT_TIMER_CONFIG;
+
+	const resolvedAge =
+		kidAge !== undefined ? Number(kidAge) : Number(getStoredKidAge() || 5);
+	return isTimerMandatoryForAge(resolvedAge) ?
+			{
+				...DEFAULT_TIMER_CONFIG,
+				enabled: true,
+				secondsPerQuestion: DEFAULT_QUESTION_TIMER_SECONDS,
+			}
+		:	DEFAULT_TIMER_CONFIG;
 }
 
-export function saveStoredTimerConfig(config) {
+export function saveStoredTimerConfig(config, kidAge) {
 	try {
-		localStorage.setItem(
-			TIMER_CONFIG_KEY,
-			JSON.stringify({
-				enabled: Boolean(config.enabled),
-				secondsPerQuestion: Math.max(
-					15,
-					Math.min(600, Number(config.secondsPerQuestion) || 90),
+		const resolvedAge =
+			kidAge !== undefined ? Number(kidAge) : Number(getStoredKidAge() || 5);
+		const isMandatory = isTimerMandatoryForAge(resolvedAge);
+
+		const normalized = {
+			enabled: isMandatory ? true : Boolean(config.enabled),
+			secondsPerQuestion: Math.max(
+				15,
+				Math.min(
+					600,
+					Number(config.secondsPerQuestion) ||
+						DEFAULT_QUESTION_TIMER_SECONDS,
 				),
-				autoAdvanceEnabled:
-					config.autoAdvanceEnabled !== undefined ?
-						Boolean(config.autoAdvanceEnabled)
-					:	true,
-				autoAdvanceSeconds: Math.max(
-					2,
-					Math.min(60, Number(config.autoAdvanceSeconds) || 7),
-				),
-			}),
-		);
+			),
+			autoAdvanceEnabled:
+				config.autoAdvanceEnabled !== undefined ?
+					Boolean(config.autoAdvanceEnabled)
+				:	true,
+			autoAdvanceSeconds: Math.max(
+				2,
+				Math.min(60, Number(config.autoAdvanceSeconds) || 7),
+			),
+		};
+
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem(TIMER_CONFIG_KEY, JSON.stringify(normalized));
+		}
+		return normalized;
 	} catch (err) {
 		console.warn('Could not save timer config', err);
 	}

@@ -747,3 +747,23 @@ export const PURE_QUEST_XP_BONUS = 50;
 
 // Badge ID for Pure Quest — must match BADGE_DEFINITIONS entry in badgeManager.js
 export const PURE_QUEST_BADGE_ID = 'pure_quest';
+
+// ==========================================
+// Quest: Timer Configuration & Age Rules
+// ==========================================
+
+export const DEFAULT_QUESTION_TIMER_SECONDS = 60;
+export const MANDATORY_TIMER_MIN_AGE = 8;
+export const MANDATORY_TIMER_MAX_AGE = 14;
+
+/**
+ * Checks if question countdown timer is mandatory for a given explorer age.
+ * Mandatory for Ages 8–14:
+ * - Upper Elementary (Ages 8–10, Grades 3–5)
+ * - Middle School (Ages 11–14, Grades 6–9)
+ * Provides active cognitive challenge by preventing unlimited time.
+ */
+export const isTimerMandatoryForAge = (age) => {
+	const num = Number(age);
+	return !isNaN(num) && num >= MANDATORY_TIMER_MIN_AGE;
+};
