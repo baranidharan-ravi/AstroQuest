@@ -16,7 +16,7 @@ This rule is unconditionally active (`always_on`) to ensure immediate, zero-late
 - **Frontend**: React 18, Vite 6, Tailwind CSS 3, Lucide React (vector font icons via `SkillIcon.jsx`).
 - **AI Engines**: Google Gemini (`@google/genai`), OpenAI ChatGPT, Anthropic Claude (`src/services/aiGenerator.js`).
 - **Audio & Speech**: Web Audio API oscillator synthesis, Web Speech API speech synthesis & voice recognition.
-- **Testing**: Vitest (`npm test`), 29 tests across 10 suites with 100% pass rate.
+- **Testing**: Vitest (`npm test`), 33 tests across 10 suites with 100% pass rate.
 
 ---
 
@@ -26,7 +26,7 @@ This rule is unconditionally active (`always_on`) to ensure immediate, zero-late
 - **Icon Component**: `src/utils/SkillIcon.jsx` provides Lucide React SVG font icons with bidirectional mapping for educational emojis.
 - **Skillset Engine**: `src/utils/skillManager.js` handles custom skillset persistence, defaults, and presets.
 - **Dashboard & Modals**: `src/features/dashboard/` contains `SkillSelectionDashboard.jsx` (Surprise Me topic generator disables "Autofill with AI" button until input changes), `CosmicHabitatModal.jsx` (8-module space base colony builder with $\text{O}_2$, $\text{kW}$, $\text{TB}$ telemetry), `GalaxyOdysseyModal.jsx`, `PocketPlanetariumModal.jsx`, `ConstellationObservatory.jsx`, and `EducatorPortalModal.jsx`.
-- **Quest & Tutor**: `src/features/quest/` contains `QuestionCard.jsx`, `OptionsGrid.jsx`, `InteractiveManipulative.jsx` (Balance scales, Analog clocks, 3D block towers, Fraction crystals), `QuestScratchpad.jsx` (5 space colors, eraser, undo, glass mode), `HintModal.jsx` (4 lifelines: Cosmic Clue, 50/50 Blast, Telemetry Scan radar, Chrono Freeze boost), `AskDoubtModal.jsx` (Socratic tutor guided by Cosmo), and `TimeWarpMode.jsx`.
+- **Quest & Tutor**: `src/features/quest/` contains `QuestionCard.jsx`, `OptionsGrid.jsx`, `CosmicLifelinesBar.jsx` (direct 1-click console for all 4 lifelines with 1-time per quest persistence and Pure Quest tracking), `InteractiveManipulative.jsx` (Balance scales, Analog clocks, 3D block towers, Fraction crystals), `QuestScratchpad.jsx` (5 space colors, eraser, undo, glass mode), `HintModal.jsx` (4 lifelines: Cosmic Clue, 50/50 Blast, Telemetry Scan radar, Chrono Freeze boost), `AskDoubtModal.jsx` (Socratic tutor guided by Cosmo), and `TimeWarpMode.jsx`.
 
 ---
 

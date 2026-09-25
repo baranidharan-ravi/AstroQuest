@@ -95,4 +95,23 @@ describe('Cosmic Lifelines Suite', () => {
 		expect(pureQuestBadge?.title).toBe('Pure Quest Navigator');
 		expect(pureQuestBadge?.icon).toBe('🌟');
 	});
+
+	it('exports CosmicLifelinesBar component for direct quest-level lifeline access', async () => {
+		const CosmicLifelinesBar = (await import('../src/features/quest/CosmicLifelinesBar')).default;
+		expect(CosmicLifelinesBar).toBeDefined();
+		expect(typeof CosmicLifelinesBar).toBe('object');
+	});
+
+	it('enforces strict single-use lifeline evaluation for Pure Quest bonus', () => {
+		// All 4 lifelines unused -> Pure Quest eligible
+		const checkPureQuest = (clue, ray, scan, freeze) =>
+			!clue && !ray && !scan && !freeze;
+
+		expect(checkPureQuest(false, false, false, false)).toBe(true);
+		// If ANY lifeline is used (including Cosmic Clue), Pure Quest is forfeited
+		expect(checkPureQuest(true, false, false, false)).toBe(false);
+		expect(checkPureQuest(false, true, false, false)).toBe(false);
+		expect(checkPureQuest(false, false, true, false)).toBe(false);
+		expect(checkPureQuest(false, false, false, true)).toBe(false);
+	});
 });

@@ -21,6 +21,7 @@ import {
 import { CHRONO_FREEZE_SECONDS, PURE_QUEST_BADGE_ID, PURE_QUEST_XP_BONUS } from './constants';
 import { getRandomCosmicFact } from './data/cosmicFacts';
 import SkillSelectionDashboard from './features/dashboard/SkillSelectionDashboard';
+import CosmicLifelinesBar from './features/quest/CosmicLifelinesBar';
 import OptionsGrid from './features/quest/OptionsGrid';
 import QuestionCard from './features/quest/QuestionCard';
 import SolutionPanel from './features/quest/SolutionPanel';
@@ -256,6 +257,7 @@ export default function App() {
 
 	// Multi-Tier Hints & Strategic Lifelines State (Quest-Level — persist across questions)
 	const [cosmicClueUsed, setCosmicClueUsed] = useState(false);
+	const [revealedClueIndex, setRevealedClueIndex] = useState(null);
 	const [eliminatedOptionIds, setEliminatedOptionIds] = useState([]);
 	const [cosmicRayUsed, setCosmicRayUsed] = useState(false);
 	const [telemetryScan, setTelemetryScan] = useState(null);
@@ -539,6 +541,7 @@ export default function App() {
 		setAutoAdvanceCountdown(null);
 		setEliminatedOptionIds([]);
 		setCosmicClueUsed(false);
+		setRevealedClueIndex(null);
 		setCosmicRayUsed(false);
 		setTelemetryScan(null);
 		setTelemetryScanUsed(false);
@@ -693,6 +696,26 @@ export default function App() {
 		},
 		[isSubmitted, isTimedOut, resumeTimerIfPaused],
 	);
+
+	// Cosmic Clue 1x Lifeline Handler (strictly 1 use per quest)
+	const handleUseCosmicClue = useCallback(() => {
+		if (cosmicClueUsed || isSubmitted || isTimedOut) return;
+		playCorrectSound(soundEnabled);
+		setCosmicClueUsed(true);
+		setRevealedClueIndex(currentIndex);
+		setLiveAnnouncement(
+			`Cosmic Clue activated: ${currentQuestion?.hint || 'Check relationships and eliminate options that do not fit.'}`,
+		);
+		awardXP(10);
+		setAchievements(getStoredAchievements());
+	}, [
+		cosmicClueUsed,
+		isSubmitted,
+		isTimedOut,
+		soundEnabled,
+		currentIndex,
+		currentQuestion,
+	]);
 
 	// 50/50 Cosmic Ray Power-Up Handler
 	const handleActivateCosmicRay = useCallback(() => {
@@ -1739,32 +1762,36 @@ export default function App() {
 									</div>
 								)}
 
-								{/* Full-Width Bottom Action Bar (Hint, Skip, Center Timer, and Submit) spanning the entire width */}
+								{/* Quick-Access Cosmic Lifelines Console (Outside question section) */}
+								<div className='flex-shrink-0 w-full'>
+									<CosmicLifelinesBar
+										cosmicClueUsed={cosmicClueUsed}
+										onUseClue={handleUseCosmicClue}
+										revealedClueIndex={revealedClueIndex}
+										currentIndex={currentIndex}
+										currentHint={currentQuestion?.hint}
+										cosmicRayUsed={cosmicRayUsed}
+										onUseCosmicRay={handleActivateCosmicRay}
+										canUseCosmicRay={!isSubmitted && !isTimedOut}
+										telemetryScanUsed={telemetryScanUsed}
+										onUseTelemetryScan={handleActivateTelemetryScan}
+										canUseTelemetryScan={!isSubmitted && !isTimedOut}
+										chronoFreezeUsed={chronoFreezeUsed}
+										onUseChronoFreeze={handleActivateChronoFreeze}
+										canUseChronoFreeze={!isSubmitted && !isTimedOut}
+										timerEnabled={timerConfig?.enabled}
+										isPaused={isTimerPaused}
+										soundEnabled={soundEnabled}
+									/>
+								</div>
+
+								{/* Full-Width Bottom Action Bar (Skip, Center Timer, and Submit) spanning the entire width */}
 								<div
 									id='bottom-action-bar'
 									data-no-auto-resume='true'
 									className='flex-shrink-0 sticky bottom-0 sm:bottom-1 z-30 w-full flex items-center justify-between gap-2 sm:gap-4 py-2.5 sm:py-3 px-3.5 sm:px-6 select-none border-t border-white/15 bg-[#0C1033]/95 backdrop-blur-md rounded-2xl shadow-[0_-8px_25px_rgba(0,0,0,0.5)]'>
-									{/* Left: Hint & Skip Buttons */}
+									{/* Left: Skip Button */}
 									<div className='flex items-center gap-2 sm:gap-3 flex-shrink-0'>
-										{/* Power-up Hint / Lifelines Button */}
-										<button
-											onClick={() => {
-												playButtonPop(soundEnabled);
-												resumeTimerIfPaused();
-												setIsHintOpen(true);
-											}}
-											className='relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 hover:scale-110 active:scale-95 text-white flex items-center justify-center shadow-lg transition-all border-2 border-white/40 flex-shrink-0 cursor-pointer focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:outline-none'
-											title='Cosmic Lifelines: Clue, 50/50, Radar & Chrono Freeze'
-											aria-label='Open cosmic lifelines modal'>
-											<Zap className='w-5 h-5 fill-white' />
-											{(telemetryScanUsed ||
-												chronoFreezeUsed ||
-												cosmicClueUsed ||
-												cosmicRayUsed) && (
-												<span className='absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-cyan-400 border-2 border-slate-900 shadow animate-pulse' />
-											)}
-										</button>
-
 										{/* Skip Question Button */}
 										<button
 											disabled={isTimerPaused}

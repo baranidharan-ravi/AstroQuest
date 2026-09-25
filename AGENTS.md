@@ -19,9 +19,9 @@ For complete architectural details, file maps, storage schemas, and developer di
   - Cosmic Space Habitat modular colony builder with 8 pods and live telemetry (`src/features/dashboard/CosmicHabitatModal.jsx`).
   - Tactile manipulatives: Balance scales, Analog clocks, 3D block towers, and Fraction crystals (`src/features/quest/InteractiveManipulative.jsx`).
   - Interactive canvas scratchpad with 5 space colors, eraser, undo, and glass mode (`src/features/quest/QuestScratchpad.jsx`).
-  - 4 Strategic In-Quest Lifelines: Cosmic Clue, 50/50 Cosmic Ray, Starfleet Telemetry Scan, and Chrono Freeze (+30s) (`src/features/quest/HintModal.jsx`, `src/features/quest/OptionsGrid.jsx`).
+  - 4 Strategic In-Quest Lifelines: Quick-access console (`src/features/quest/CosmicLifelinesBar.jsx`) and modal (`src/features/quest/HintModal.jsx`) providing Cosmic Clue, 50/50 Cosmic Ray, Starfleet Telemetry Scan, and Chrono Freeze (+30s). All 4 lifelines are strictly 1-time use per quest. Completing without lifelines awards the Pure Quest Navigator bonus (+50 XP).
 - **Dashboard Logic**: When a user clicks "Surprise Me 🎲", the "Autofill with AI" button is automatically disabled until the skillset name is manually edited.
-- **Testing**: Vitest (`npm test`), 29 unit tests across 10 files (100% pass rate).
+- **Testing**: Vitest (`npm test`), 33 unit tests across 10 files (100% pass rate).
 - **Rules & Constraints**:
   - Never use markdown tables in any docs, guides, or release notes. Use bulleted/definition lists instead.
   - Never implement, revive, or re-introduce the Pet Assistant feature in future tasks or roadmap ideas (permanently removed per user directive as it obstructed option selection and is not important).

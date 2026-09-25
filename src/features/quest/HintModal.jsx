@@ -178,22 +178,27 @@ const HintModal = memo(function HintModal({
 
 				{/* 4-Tier Lifeline Navigation Tabs */}
 				<div className='grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-4 bg-[#0E1238] p-1.5 rounded-2xl border border-white/10'>
-					{/* Tab 1: Cosmic Clue */}
+					{/* Tab 1: Cosmic Clue (1x usage per quest) */}
 					<button
 						type='button'
+						disabled={cosmicClueUsed && activeTab !== LIFELINE_TABS.CLUE}
 						onClick={() => {
-							playButtonPop(soundEnabled);
-							setActiveTab(LIFELINE_TABS.CLUE);
+							if (!cosmicClueUsed || activeTab === LIFELINE_TABS.CLUE) {
+								playButtonPop(soundEnabled);
+								setActiveTab(LIFELINE_TABS.CLUE);
+							}
 						}}
 						className={tabClass(
 							LIFELINE_TABS.CLUE,
 							'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md',
-							false, // Clue tab always clickable (shows content even if used)
+							cosmicClueUsed,
 						)}>
 						<span>💡</span>
 						<span>Clue</span>
 						{cosmicClueUsed && (
-							<span className='w-1.5 h-1.5 rounded-full bg-slate-500 ml-0.5' />
+							<span className='text-[9px] font-black text-slate-500 ml-0.5'>
+								✓
+							</span>
 						)}
 					</button>
 

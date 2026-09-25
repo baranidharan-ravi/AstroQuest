@@ -27,8 +27,8 @@ An engaging, visual-first educational web application engineered for early child
   - 8 unlockable modules: Solar Array, Hydroponic Greenhouse, Oxygen Scrubber, Deep Space Telescope, Bio-Dome Crew Quarters, Fusion Reactor, Rover Garage, and Quantum Supercomputer.
   - Live base telemetry tracking Oxygen production ($\text{O}_2\text{/day}$), Power Grid energy ($\text{kW}$), and Scientific Research ($\text{TB}$).
 
-- **🆘 4 Strategic In-Quest Lifelines (`HintModal.jsx`, `OptionsGrid.jsx`)**:
-  - Multi-tier in-quest support power-ups: **💡 Cosmic Clue** (pedagogical hint), **⚡ 50/50 Cosmic Ray** (vaporizes two wrong choices), **🛸 Starfleet Telemetry Scan** (deep-space probability radar scanning with option confidence badges), and **⏱️ Chrono Freeze** (+30s countdown boost and time-dilation shield).
+- **🆘 4 Strategic In-Quest Lifelines (`CosmicLifelinesBar.jsx`, `HintModal.jsx`, `OptionsGrid.jsx`)**:
+  - Direct-access on-screen console outside question sections for 1-click activation: **💡 Cosmic Clue** (pedagogical hint), **⚡ 50/50 Cosmic Ray** (vaporizes two wrong choices), **🛸 Starfleet Telemetry Scan** (deep-space probability radar scanning with option confidence badges), and **⏱️ Chrono Freeze** (+30s countdown boost and time-dilation shield). All 4 lifelines are strictly 1-time use per quest; completing a quest without any lifelines awards the **Pure Quest Navigator (🌟 +50 XP)** bonus.
 
 - **⚖️ Tactile Interactive Manipulatives (`InteractiveManipulative.jsx`)**:
   - **Balance Scale**: Real-time torque physics ($-18^\circ$ to $+18^\circ$) with draggable weights and equilibrium indicators.
