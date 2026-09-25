@@ -7,7 +7,9 @@ import {
 	Edit2,
 	Eye,
 	EyeOff,
+	Grid3X3,
 	Info,
+	LayoutGrid,
 	Plus,
 	RefreshCw,
 	Settings,
@@ -642,21 +644,19 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 
 						{/* Card Size Density Toggle (Single Settings entry point kept in top header) */}
 						<div className='flex items-center gap-1 bg-white/10 border border-white/15 p-1 rounded-xl text-xs flex-shrink-0'>
-							<span className='text-[10px] uppercase font-bold text-slate-300 px-1 hidden sm:inline'>
-								Card Size:
-							</span>
 							<button
 								type='button'
 								onClick={() => {
 									playButtonPop(soundEnabled);
 									handleSetCardSize('standard');
 								}}
-								className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1 ${
+								className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1.5 ${
 									cardSize === 'standard' ?
 										'bg-amber-400 text-slate-950 shadow-sm'
 									:	'text-slate-300 hover:text-white hover:bg-white/10'
 								}`}
-								title='Standard card view (a little smaller)'>
+								title='Standard card view'>
+								<LayoutGrid className='w-3.5 h-3.5' />
 								<span>Standard</span>
 							</button>
 							<button
@@ -665,13 +665,14 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 									playButtonPop(soundEnabled);
 									handleSetCardSize('compact');
 								}}
-								className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1 ${
+								className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1.5 ${
 									cardSize === 'compact' ?
 										'bg-amber-400 text-slate-950 shadow-sm'
 									:	'text-slate-300 hover:text-white hover:bg-white/10'
 								}`}
 								title='Compact card view (space-saving)'>
-								<span>Compact ⊞</span>
+								<Grid3X3 className='w-3.5 h-3.5' />
+								<span>Compact</span>
 							</button>
 						</div>
 					</div>
@@ -869,19 +870,20 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 					{/* Skillset Tools: Add, Import, Export */}
 					<div className='flex items-center gap-2 flex-wrap'>
 						{/* Cosmic Mission Card Size Toggle */}
-						<div className='flex items-center gap-0.5 bg-white/10 border border-white/15 p-0.5 rounded-xl text-xs'>
+						<div className='flex items-center gap-1 bg-white/10 border border-white/15 p-0.5 rounded-xl text-xs'>
 							<button
 								type='button'
 								onClick={() => {
 									playButtonPop(soundEnabled);
 									handleSetCardSize('standard');
 								}}
-								className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1 ${
+								className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1.5 ${
 									cardSize === 'standard' ?
 										'bg-amber-400 text-slate-950 shadow-sm'
 									:	'text-slate-300 hover:text-white hover:bg-white/10'
 								}`}
 								title='Standard card view'>
+								<LayoutGrid className='w-3.5 h-3.5' />
 								<span>Standard</span>
 							</button>
 							<button
@@ -890,13 +892,14 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 									playButtonPop(soundEnabled);
 									handleSetCardSize('compact');
 								}}
-								className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1 ${
+								className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1.5 ${
 									cardSize === 'compact' ?
 										'bg-amber-400 text-slate-950 shadow-sm'
 									:	'text-slate-300 hover:text-white hover:bg-white/10'
 								}`}
 								title='Compact card view'>
-								<span>Compact ⊞</span>
+								<Grid3X3 className='w-3.5 h-3.5' />
+								<span>Compact</span>
 							</button>
 						</div>
 
