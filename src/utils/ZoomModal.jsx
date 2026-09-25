@@ -46,7 +46,10 @@ const ZoomModal = React.memo(function ZoomModal({
 			const scaleY = availH / contentH;
 			// Fit completely within both width and height, capped at 1.0 (zoom out if needed to fit)
 			const fit = Math.min(1.0, scaleX, scaleY);
-			const safeFit = Math.max(0.35, Math.min(1.0, Math.round(fit * 100) / 100));
+			const safeFit = Math.max(
+				0.35,
+				Math.min(1.0, Math.round(fit * 100) / 100),
+			);
 			setFitScale(safeFit);
 			setScale(safeFit);
 		}

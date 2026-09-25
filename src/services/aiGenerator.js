@@ -2167,11 +2167,13 @@ function synchronizeDiagramData(
 			data.sequence.length < 2
 		) {
 			const emojis = questionText.match(
-				/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[☀️🌞🌅🌤️]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))/gu,
+				/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[\u2600\u{1F31E}\u{1F305}\u{1F324}]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))\uFE0F?/gu,
 			);
 			data.sequence =
 				emojis && emojis.length >= 2 ?
 					emojis
+						.map((m) => m.replace(/[\uFE0E\uFE0F\u200B-\u200D\uFEFF]/g, '').trim())
+						.filter(Boolean)
 				:	[
 						'Triangle (white)',
 						'Square (shaded)',

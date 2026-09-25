@@ -1177,12 +1177,17 @@ const VisualDiagram = memo(function VisualDiagram({
 			}
 		}
 
-		// Filter out any trailing question sentences, question marks, or placeholders
+		// Filter out any trailing question sentences, question marks, placeholders, or empty/invisible tokens
 		let items = rawItems
-			.map((item) => (typeof item === 'string' ? item.trim() : item))
+			.map((item) =>
+				typeof item === 'string' ?
+					item.replace(/[\uFE0E\uFE0F\u200B-\u200D\uFEFF]/g, '').trim()
+				:	item,
+			)
 			.filter((item) => {
 				if (!item) return false;
 				if (typeof item === 'string') {
+					if (!item.trim()) return false;
 					if (item === '?' || item.includes('?')) return false;
 					if (/^(_+|\.\.\.+)$/.test(item)) return false;
 					if (

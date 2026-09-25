@@ -78,11 +78,12 @@ describe('SkillIcon Component & Constants', () => {
 				diagramData: {
 					sequence: ['🌙', '⭐', '🌙', '⭐'],
 					nextItem: '🌙',
-					questionText: 'What shape comes next in the pattern? ⭐\n🌙 ⭐ 🌙 ⭐ ?',
+					questionText:
+						'What shape comes next in the pattern? ⭐\n🌙 ⭐ 🌙 ⭐ ?',
 				},
 				onClose: () => {},
 				soundEnabled: false,
-			})
+			}),
 		);
 
 		expect(html).toContain('Close-up Diagram View');
@@ -90,5 +91,40 @@ describe('SkillIcon Component & Constants', () => {
 		expect(html).toContain('overflow-hidden');
 		expect(html).toContain('Fit');
 		expect(html).toContain('Done Looking ✨');
+	});
+
+	it('extracts clean emoji sequence without variation selector empty boxes', async () => {
+		const { extractShapeSequenceTerms } = await import('../src/utils/shapeGenerator');
+		const VisualDiagram = (await import('../src/utils/VisualDiagrams')).default;
+		const ReactDOMServer = (await import('react-dom/server')).default;
+		const React = (await import('react')).default;
+
+		// Test prompt containing variation selector (common on Windows and AI outputs)
+		const promptWithVariationSelector = 'Look at the shape pattern: ⭐\uFE0F 🌙 ⭐\uFE0F 🌙 ⭐\uFE0F\n?';
+		const extracted = extractShapeSequenceTerms(promptWithVariationSelector);
+
+		expect(extracted).toEqual(['⭐', '🌙', '⭐', '🌙', '⭐']);
+		expect(extracted.length).toBe(5);
+
+		// Render VisualDiagram with the question
+		const html = ReactDOMServer.renderToStaticMarkup(
+			React.createElement(VisualDiagram, {
+				type: 'pattern-shapes',
+				data: {
+					sequence: extracted,
+					nextItem: '🌙',
+					questionText: promptWithVariationSelector,
+				},
+			})
+		);
+
+		// Verify Moon and Star are rendered
+		expect(html).toContain('Gold Star');
+		expect(html).toContain('Gold Moon');
+		// Count occurrences of Gold Star (3) and Gold Moon (2)
+		const starCount = (html.match(/Gold Star/g) || []).length;
+		const moonCount = (html.match(/Gold Moon/g) || []).length;
+		expect(starCount).toBe(3);
+		expect(moonCount).toBe(2);
 	});
 });

@@ -3,7 +3,11 @@
  */
 export function hasShapeOrVisualConcept(text) {
 	if (!text) return false;
-	const lower = String(text).toLowerCase();
+	const cleanText = String(text)
+		.replace(/[\uFE0E\uFE0F\u200B-\u200D\uFEFF]/g, '')
+		.trim();
+	if (!cleanText) return false;
+	const lower = cleanText.toLowerCase();
 	return (
 		lower.includes('triangle') ||
 		lower.includes('square') ||
@@ -35,11 +39,11 @@ export function hasShapeOrVisualConcept(text) {
 		lower.includes('purple') ||
 		lower.includes('pink') ||
 		lower.includes('[') ||
-		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[☀️🌞🌅🌤️]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))/u.test(
-			text,
+		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[\u2600\u{1F31E}\u{1F305}\u{1F324}]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))\uFE0F?/u.test(
+			cleanText,
 		) ||
 		/[\u{1F300}-\u{1F6FF}\u{1F780}-\u{1F7FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2B00}-\u{2BFF}]/u.test(
-			text,
+			cleanText,
 		)
 	);
 }
@@ -73,6 +77,7 @@ export function parseDynamicShape(rawInput) {
 	}
 
 	const text = String(rawInput)
+		.replace(/[\uFE0E\uFE0F\u200B-\u200D\uFEFF]/g, '')
 		.replace(/^\[|\]$/g, '')
 		.replace(/^\((.+)\)$/, '$1')
 		.trim();
@@ -1259,7 +1264,10 @@ export function DynamicShapeCard({
 	}
 
 	if (!parsed || !parsed.shape) {
-		const textStr = String(item || '').trim();
+		const textStr = String(item || '')
+			.replace(/[\uFE0E\uFE0F\u200B-\u200D\uFEFF]/g, '')
+			.trim();
+		if (!textStr) return null;
 		const isSingleEmoji =
 			/^[\p{Emoji}\s\u200d\ufe0e\ufe0f\u25A0-\u25FF\u2B50-\u2B55\u2600-\u26FF\u{1F780}-\u{1F7FF}]+$/u.test(
 				textStr,
@@ -1359,7 +1367,7 @@ export function extractShapeSequenceTerms(questionText, defaultTerms = []) {
 
 	// 3. Extract shape & symbol emojis if 2 or more are present!
 	const SHAPE_EMOJI_REGEX =
-		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[☀️🌞🌅🌤️]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))/gu;
+		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[\u2600\u{1F31E}\u{1F305}\u{1F324}]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))\uFE0F?/gu;
 
 	// If questionText has multiple lines, find the line that contains the sequence pattern (e.g. contains ? or multiple emojis)
 	// to avoid picking up decorative emojis in the question title/prompt (e.g. "What shape comes next in the pattern? ⭐")
@@ -1405,7 +1413,12 @@ export function extractShapeSequenceTerms(questionText, defaultTerms = []) {
 
 	const emojiMatches = emojiSearchText.match(SHAPE_EMOJI_REGEX);
 	if (emojiMatches && emojiMatches.length >= 2) {
-		return emojiMatches;
+		const validMatches = emojiMatches
+			.map((m) => m.replace(/[\uFE0E\uFE0F\u200B-\u200D\uFEFF]/g, '').trim())
+			.filter(Boolean);
+		if (validMatches.length >= 2) {
+			return validMatches;
+		}
 	}
 
 	// 4. Split by arrow (➔, ->, →) or comma
