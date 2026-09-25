@@ -97,7 +97,9 @@ describe('Cosmic Lifelines Suite', () => {
 	});
 
 	it('exports CosmicLifelinesBar component for direct quest-level lifeline access', async () => {
-		const CosmicLifelinesBar = (await import('../src/features/quest/CosmicLifelinesBar')).default;
+		const CosmicLifelinesBar = (
+			await import('../src/features/quest/CosmicLifelinesBar')
+		).default;
 		expect(CosmicLifelinesBar).toBeDefined();
 		expect(typeof CosmicLifelinesBar).toBe('object');
 	});

@@ -8,7 +8,6 @@ import {
 	Rocket,
 	SkipForward,
 	Sparkles,
-	Zap,
 } from 'lucide-react';
 import {
 	lazy,
@@ -18,7 +17,11 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import { CHRONO_FREEZE_SECONDS, PURE_QUEST_BADGE_ID, PURE_QUEST_XP_BONUS } from './constants';
+import {
+	CHRONO_FREEZE_SECONDS,
+	PURE_QUEST_BADGE_ID,
+	PURE_QUEST_XP_BONUS,
+} from './constants';
 import { getRandomCosmicFact } from './data/cosmicFacts';
 import SkillSelectionDashboard from './features/dashboard/SkillSelectionDashboard';
 import CosmicLifelinesBar from './features/quest/CosmicLifelinesBar';
@@ -924,7 +927,10 @@ export default function App() {
 
 		// Pure Quest Navigator: bonus for completing without any lifeline
 		const usedNoLifelines =
-			!cosmicClueUsed && !cosmicRayUsed && !telemetryScanUsed && !chronoFreezeUsed;
+			!cosmicClueUsed &&
+			!cosmicRayUsed &&
+			!telemetryScanUsed &&
+			!chronoFreezeUsed;
 		if (usedNoLifelines) {
 			awardBadge(PURE_QUEST_BADGE_ID);
 			awardXP(PURE_QUEST_XP_BONUS);
@@ -2013,9 +2019,14 @@ export default function App() {
 									kidAvatar={kidAvatar}
 									timerSeconds={timerSeconds}
 									pureQuestBonus={
-										!cosmicClueUsed && !cosmicRayUsed && !telemetryScanUsed && !chronoFreezeUsed ?
+										(
+											!cosmicClueUsed &&
+											!cosmicRayUsed &&
+											!telemetryScanUsed &&
+											!chronoFreezeUsed
+										) ?
 											PURE_QUEST_XP_BONUS
-									:	0
+										:	0
 									}
 								/>
 							:	<QuestionSummary

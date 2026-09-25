@@ -2167,7 +2167,7 @@ function synchronizeDiagramData(
 			data.sequence.length < 2
 		) {
 			const emojis = questionText.match(
-				/(?:[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[⭐🌟✨★☆])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))/gu,
+				/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[☀️🌞🌅🌤️]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))/gu,
 			);
 			data.sequence =
 				emojis && emojis.length >= 2 ?

@@ -35,7 +35,7 @@ export function hasShapeOrVisualConcept(text) {
 		lower.includes('purple') ||
 		lower.includes('pink') ||
 		lower.includes('[') ||
-		/(?:[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[⭐🌟✨★☆])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))/u.test(
+		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[☀️🌞🌅🌤️]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))/u.test(
 			text,
 		) ||
 		/[\u{1F300}-\u{1F6FF}\u{1F780}-\u{1F7FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2B00}-\u{2BFF}]/u.test(
@@ -498,12 +498,20 @@ export function parseDynamicShape(rawInput) {
 
 	if (
 		text.includes('🌙') ||
+		text.includes('🌕') ||
+		text.includes('🌖') ||
+		text.includes('🌗') ||
+		text.includes('🌘') ||
+		text.includes('🌑') ||
+		text.includes('🌒') ||
+		text.includes('🌓') ||
+		text.includes('🌔') ||
+		text.includes('🌚') ||
 		text.includes('🌛') ||
 		text.includes('🌜') ||
-		text.includes('🌔') ||
-		text.includes('🌖') ||
-		text.includes('🌘') ||
-		text.includes('🌒')
+		text.includes('🌝') ||
+		lower.includes('moon') ||
+		lower.includes('crescent')
 	)
 		return {
 			shape: 'moon',
@@ -1008,7 +1016,8 @@ export function DynamicSvgShape({
 			/>
 		);
 	} else if (shape === 'moon') {
-		const d = `M ${cx + r * 0.15} ${cy - r} C ${cx - r * 1.05} ${cy - r * 0.65}, ${cx - r * 1.05} ${cy + r * 0.65}, ${cx + r * 0.15} ${cy + r} C ${cx - r * 0.35} ${cy + r * 0.55}, ${cx - r * 0.35} ${cy - r * 0.55}, ${cx + r * 0.15} ${cy - r} Z`;
+		const startX = cx + r * 0.15;
+		const d = `M ${startX} ${cy - r} A ${r} ${r} 0 1 0 ${startX} ${cy + r} A ${r * 0.8} ${r * 0.8} 0 0 1 ${startX} ${cy - r} Z`;
 		shapeElement = (
 			<path
 				d={d}
@@ -1089,7 +1098,11 @@ export function DynamicSvgShape({
 	}
 
 	// Only show overlay text if there is an explicit numeric progression value (e.g. [Blue Circle, 3])
-	const overlayText = number !== null ? number : null;
+	const overlayText =
+		typeof number === 'number' ||
+		(typeof number === 'string' && number.trim() !== '') ?
+			number
+		:	null;
 
 	return (
 		<svg
@@ -1344,8 +1357,50 @@ export function extractShapeSequenceTerms(questionText, defaultTerms = []) {
 
 	// 3. Extract shape & symbol emojis if 2 or more are present!
 	const SHAPE_EMOJI_REGEX =
-		/(?:[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[⭐🌟✨★☆])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))/gu;
-	const emojiMatches = questionText.match(SHAPE_EMOJI_REGEX);
+		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[☀️🌞🌅🌤️]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))/gu;
+
+	// If questionText has multiple lines, find the line that contains the sequence pattern (e.g. contains ? or multiple emojis)
+	// to avoid picking up decorative emojis in the question title/prompt (e.g. "What shape comes next in the pattern? ⭐")
+	let emojiSearchText = questionText;
+	const lines = String(questionText)
+		.split(/\r?\n/)
+		.map((l) => l.trim())
+		.filter(Boolean);
+	if (lines.length > 1) {
+		const seqLine = lines.find(
+			(l) =>
+				(l.includes('?') || l.includes('➔') || l.includes('→')) &&
+				(l.match(SHAPE_EMOJI_REGEX) || []).length >= 2,
+		);
+		if (seqLine) {
+			emojiSearchText = seqLine;
+		} else {
+			const candidateLine = lines.find(
+				(l) => (l.match(SHAPE_EMOJI_REGEX) || []).length >= 2,
+			);
+			if (candidateLine) emojiSearchText = candidateLine;
+		}
+	} else {
+		// Single line with leading question prompt e.g. "What shape comes next in the pattern? ⭐ 🌙 ⭐ 🌙 ⭐ ?"
+		// Strip the question prompt before the first sequence block if it ends with ? or :
+		const colonSplit = questionText.split(/:\s*/);
+		if (
+			colonSplit.length > 1 &&
+			(colonSplit[colonSplit.length - 1].match(SHAPE_EMOJI_REGEX) || []).length >= 2
+		) {
+			emojiSearchText = colonSplit.pop();
+		} else {
+			const qMarkMatch = questionText.match(/^([^?]+\?\s*)(.+)$/s);
+			if (
+				qMarkMatch &&
+				(qMarkMatch[2].match(SHAPE_EMOJI_REGEX) || []).length >= 2
+			) {
+				emojiSearchText = qMarkMatch[2];
+			}
+		}
+	}
+
+	const emojiMatches = emojiSearchText.match(SHAPE_EMOJI_REGEX);
 	if (emojiMatches && emojiMatches.length >= 2) {
 		return emojiMatches;
 	}

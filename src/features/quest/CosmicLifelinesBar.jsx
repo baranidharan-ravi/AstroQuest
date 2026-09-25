@@ -121,6 +121,7 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							: isPaused ?
 								'Resume challenge to use lifelines'
 							:	'Reveal Mission Control clue for this question (1-time use per quest)'
+
 						}
 						aria-label={
 							cosmicClueUsed ?
@@ -135,9 +136,7 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							:	'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white border-pink-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-pink-400/40'
 						}`}>
 						<span className='text-xs sm:text-sm'>💡</span>
-						<span className='truncate'>
-							{cosmicClueUsed ? 'Used' : 'Clue'}
-						</span>
+						<span className='truncate'>{cosmicClueUsed ? 'Used' : 'Clue'}</span>
 					</button>
 
 					{/* Lifeline 2: 50/50 Cosmic Ray (1x usage per quest) */}
@@ -154,6 +153,7 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							: isPaused ?
 								'Resume challenge to use lifelines'
 							:	'Disintegrate 2 wrong options with a cosmic beam (1-time use per quest)'
+
 						}
 						aria-label={
 							cosmicRayUsed ?
@@ -168,9 +168,7 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							:	'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white border-amber-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-amber-400/40'
 						}`}>
 						<Zap className='w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current' />
-						<span className='truncate'>
-							{cosmicRayUsed ? 'Used' : '50/50'}
-						</span>
+						<span className='truncate'>{cosmicRayUsed ? 'Used' : '50/50'}</span>
 					</button>
 
 					{/* Lifeline 3: Starfleet Telemetry Radar (1x usage per quest) */}
@@ -187,6 +185,7 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							: isPaused ?
 								'Resume challenge to use lifelines'
 							:	'Deploy satellite radar sweep to detect option probabilities (1-time use per quest)'
+
 						}
 						aria-label={
 							telemetryScanUsed ?
@@ -222,6 +221,7 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							: timerEnabled ?
 								`Add +${CHRONO_FREEZE_SECONDS}s time warp boost to the timer (1-time use per quest)`
 							:	'Activate Cosmic Focus Shield for +20 bonus XP (1-time use per quest)'
+
 						}
 						aria-label={
 							chronoFreezeUsed ?

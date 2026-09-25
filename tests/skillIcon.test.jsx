@@ -43,4 +43,25 @@ describe('SkillIcon Component & Constants', () => {
 	it('renders as a valid React component function', () => {
 		expect(typeof SkillIcon).toBe('object'); // React.memo component
 	});
+
+	it('renders valid VisualDiagram with moon and star pattern matching question', async () => {
+		const VisualDiagram = (await import('../src/utils/VisualDiagrams')).default;
+		const ReactDOMServer = (await import('react-dom/server')).default;
+		const React = (await import('react')).default;
+		
+		const html = ReactDOMServer.renderToStaticMarkup(
+			React.createElement(VisualDiagram, {
+				type: 'pattern-shapes',
+				data: {
+					sequence: ['🌙', '⭐', '🌙', '⭐'],
+					nextItem: '🌙',
+					questionText: 'What shape comes next in the pattern? ⭐\n🌙 ⭐ 🌙 ⭐ ?',
+				}
+			})
+		);
+		expect(html).toContain('Moon');
+		expect(html).toContain('Star');
+		// Ensure crescent SVG arc path is rendered
+		expect(html).toMatch(/M\s*[\d.]+\s+[\d.]+\s+A/i);
+	});
 });
