@@ -81,7 +81,10 @@ describe('Cosmic Lifelines Suite', () => {
 	});
 
 	it('exports PURE_QUEST_XP_BONUS and PURE_QUEST_BADGE_ID constants with correct values', () => {
-		const { PURE_QUEST_XP_BONUS, PURE_QUEST_BADGE_ID } = require('../src/constants');
+		const {
+			PURE_QUEST_XP_BONUS,
+			PURE_QUEST_BADGE_ID,
+		} = require('../src/constants');
 		expect(PURE_QUEST_XP_BONUS).toBe(50);
 		expect(PURE_QUEST_BADGE_ID).toBe('pure_quest');
 	});
@@ -93,4 +96,3 @@ describe('Cosmic Lifelines Suite', () => {
 		expect(pureQuestBadge?.icon).toBe('🌟');
 	});
 });
-

@@ -30,7 +30,12 @@ const HintModal = memo(function HintModal({
 
 	// Mark Cosmic Clue as used the first time user views the clue tab
 	useEffect(() => {
-		if (isOpen && activeTab === LIFELINE_TABS.CLUE && !cosmicClueUsed && onCosmicClueViewed) {
+		if (
+			isOpen &&
+			activeTab === LIFELINE_TABS.CLUE &&
+			!cosmicClueUsed &&
+			onCosmicClueViewed
+		) {
 			onCosmicClueViewed();
 		}
 	}, [isOpen, activeTab, cosmicClueUsed, onCosmicClueViewed]);
@@ -94,8 +99,18 @@ const HintModal = memo(function HintModal({
 	const lifelines = [
 		{ label: 'Clue', icon: '💡', used: cosmicClueUsed, color: 'bg-pink-400' },
 		{ label: '50/50', icon: '⚡', used: cosmicRayUsed, color: 'bg-amber-400' },
-		{ label: 'Scan', icon: '🛸', used: telemetryScanUsed, color: 'bg-cyan-400' },
-		{ label: '+30s', icon: '⏱️', used: chronoFreezeUsed, color: 'bg-emerald-400' },
+		{
+			label: 'Scan',
+			icon: '🛸',
+			used: telemetryScanUsed,
+			color: 'bg-cyan-400',
+		},
+		{
+			label: '+30s',
+			icon: '⏱️',
+			used: chronoFreezeUsed,
+			color: 'bg-emerald-400',
+		},
 	];
 	const usedCount = lifelines.filter((l) => l.used).length;
 
@@ -146,9 +161,15 @@ const HintModal = memo(function HintModal({
 						{usedCount === 4 ? '🔒 All used' : `${4 - usedCount} remaining:`}
 					</span>
 					{lifelines.map((l) => (
-						<div key={l.label} className='flex flex-col items-center gap-0.5' title={`${l.label}: ${l.used ? 'Used' : 'Available'}`}>
-							<span className={`w-2.5 h-2.5 rounded-full ${l.used ? 'bg-slate-600' : l.color}`} />
-							<span className={`text-[9px] font-bold ${l.used ? 'text-slate-600 line-through' : 'text-slate-400'}`}>
+						<div
+							key={l.label}
+							className='flex flex-col items-center gap-0.5'
+							title={`${l.label}: ${l.used ? 'Used' : 'Available'}`}>
+							<span
+								className={`w-2.5 h-2.5 rounded-full ${l.used ? 'bg-slate-600' : l.color}`}
+							/>
+							<span
+								className={`text-[9px] font-bold ${l.used ? 'text-slate-600 line-through' : 'text-slate-400'}`}>
 								{l.icon}
 							</span>
 						</div>
@@ -194,7 +215,9 @@ const HintModal = memo(function HintModal({
 						<span>⚡</span>
 						<span>50/50</span>
 						{cosmicRayUsed && (
-							<span className='text-[9px] font-black text-slate-500 ml-0.5'>✓</span>
+							<span className='text-[9px] font-black text-slate-500 ml-0.5'>
+								✓
+							</span>
 						)}
 					</button>
 
@@ -216,7 +239,9 @@ const HintModal = memo(function HintModal({
 						<span>🛸</span>
 						<span>Scan</span>
 						{telemetryScanUsed && (
-							<span className='text-[9px] font-black text-slate-500 ml-0.5'>✓</span>
+							<span className='text-[9px] font-black text-slate-500 ml-0.5'>
+								✓
+							</span>
 						)}
 					</button>
 
@@ -238,19 +263,27 @@ const HintModal = memo(function HintModal({
 						<span>⏱️</span>
 						<span>+30s</span>
 						{chronoFreezeUsed && (
-							<span className='text-[9px] font-black text-slate-500 ml-0.5'>✓</span>
+							<span className='text-[9px] font-black text-slate-500 ml-0.5'>
+								✓
+							</span>
 						)}
 					</button>
 				</div>
 
 				{/* Tab 1: Cosmic Clue */}
 				{activeTab === LIFELINE_TABS.CLUE && (
-					<div className={`rounded-2xl p-4 sm:p-5 font-bold text-sm sm:text-base leading-relaxed shadow-inner my-3 animate-in fade-in duration-150 border-2 ${cosmicClueUsed ? 'bg-slate-900 text-slate-400 border-slate-700' : 'bg-white text-slate-800 border-pink-200'}`}>
-						<div className={`flex items-center gap-2 mb-2 text-xs font-black uppercase tracking-wider ${cosmicClueUsed ? 'text-slate-500' : 'text-pink-600'}`}>
-							<span>{cosmicClueUsed ? '🔒 Used This Quest · Mission Control Guidance' : '✨ Mission Control Guidance'}</span>
+					<div
+						className={`rounded-2xl p-4 sm:p-5 font-bold text-sm sm:text-base leading-relaxed shadow-inner my-3 animate-in fade-in duration-150 border-2 ${cosmicClueUsed ? 'bg-slate-900 text-slate-400 border-slate-700' : 'bg-white text-slate-800 border-pink-200'}`}>
+						<div
+							className={`flex items-center gap-2 mb-2 text-xs font-black uppercase tracking-wider ${cosmicClueUsed ? 'text-slate-500' : 'text-pink-600'}`}>
+							<span>
+								{cosmicClueUsed ?
+									'🔒 Used This Quest · Mission Control Guidance'
+								:	'✨ Mission Control Guidance'}
+							</span>
 						</div>
 						{hintText ||
-							'Look closely at the shapes, numbers, and relationships. Eliminate options that don\'t fit!'}
+							"Look closely at the shapes, numbers, and relationships. Eliminate options that don't fit!"}
 					</div>
 				)}
 
@@ -266,7 +299,8 @@ const HintModal = memo(function HintModal({
 						<p className='text-xs sm:text-sm text-slate-300 mb-4 leading-relaxed'>
 							{cosmicRayUsed ?
 								'⚡ Cosmic Ray already fired this quest — 2 wrong options were disintegrated!'
-							:	'Fire a cosmic beam to vaporize 2 incorrect options, leaving only the right answer and 1 distractor!'}
+							:	'Fire a cosmic beam to vaporize 2 incorrect options, leaving only the right answer and 1 distractor!'
+							}
 						</p>
 
 						<button
@@ -305,7 +339,8 @@ const HintModal = memo(function HintModal({
 						<p className='text-xs sm:text-sm text-slate-300 text-center mb-3 leading-relaxed'>
 							{telemetryScanUsed ?
 								'🛸 Telemetry radar already deployed this quest — probability readings are live on the options!'
-							:	'Deploy satellite radar sweep to detect the option with the highest probability match!'}
+							:	'Deploy satellite radar sweep to detect the option with the highest probability match!'
+							}
 						</p>
 
 						{/* Telemetry Progress Bars If Scanned */}
@@ -382,7 +417,8 @@ const HintModal = memo(function HintModal({
 								`⏱️ Chrono Freeze already used this quest — +${CHRONO_FREEZE_SECONDS}s were added to your clock!`
 							: timerEnabled ?
 								`Summon a cosmic time distortion to add +${CHRONO_FREEZE_SECONDS} bonus seconds and freeze urgency colors!`
-							:	'Activate the Cosmic Focus Shield for starlight protection and bonus XP!'}
+							:	'Activate the Cosmic Focus Shield for starlight protection and bonus XP!'
+							}
 						</p>
 
 						<button
