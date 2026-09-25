@@ -1106,13 +1106,15 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 									'w-8 h-8 rounded-lg mb-1.5'
 								:	'w-12 h-12 rounded-2xl mb-2.5'
 							} bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 group-hover:scale-110 group-hover:bg-cyan-500/30 transition-all`}>
-							<Plus className={cardSize === 'compact' ? 'w-4 h-4' : 'w-6 h-6'} />
+							<Plus
+								className={cardSize === 'compact' ? 'w-4 h-4' : 'w-6 h-6'}
+							/>
 						</div>
 						<h3
 							className={`${
-								cardSize === 'compact' ?
-									'text-sm font-black'
-								:	'text-base sm:text-lg font-black'
+								cardSize === 'compact' ? 'text-sm font-black' : (
+									'text-base sm:text-lg font-black'
+								)
 							} text-white group-hover:text-cyan-300 transition-colors`}>
 							Add Custom Skillset
 						</h3>
@@ -1131,7 +1133,9 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 									'mt-2 px-2.5 py-0.5 text-[10px]'
 								:	'mt-3.5 px-4 py-1.5 text-xs'
 							} rounded-full bg-cyan-400/20 text-cyan-300 font-bold border border-cyan-400/30 group-hover:bg-cyan-400/30 transition-all flex items-center gap-1`}>
-							<Plus className={cardSize === 'compact' ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
+							<Plus
+								className={cardSize === 'compact' ? 'w-3 h-3' : 'w-3.5 h-3.5'}
+							/>
 							<span>Create Topic</span>
 						</div>
 					</div>
