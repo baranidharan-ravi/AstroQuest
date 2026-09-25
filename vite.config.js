@@ -42,14 +42,17 @@ function checkServerListening(port = 5001, timeout = 250) {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
-	// GitHub Pages serves from https://baranidharan-ravi.github.io/AstroQuest/
-	// Must use absolute subpath — relative './' breaks dynamic import() chunk resolution on GH Pages.
-	base: '/AstroQuest/',
+export default defineConfig(({ command }) => ({
+	// GitHub Pages production deployment requires repo subpath '/AstroQuest/'
+	// Local dev server ('serve') uses '/' so localhost:3000 loads directly without 404s
+	base: command === 'serve' ? '/' : '/AstroQuest/',
 	plugins: [react()],
 	server: {
 		port: 3000,
 		open: true,
+		fs: {
+			allow: ['H:/Shraddha_Project', 'H:/AstroQuest', '..'],
+		},
 		proxy: {
 			'/api': {
 				target: 'http://localhost:5001',
@@ -113,4 +116,4 @@ export default defineConfig({
 		},
 		chunkSizeWarningLimit: 600,
 	},
-});
+}));
