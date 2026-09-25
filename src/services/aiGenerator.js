@@ -2172,7 +2172,9 @@ function synchronizeDiagramData(
 			data.sequence =
 				emojis && emojis.length >= 2 ?
 					emojis
-						.map((m) => m.replace(/[\uFE0E\uFE0F\u200B-\u200D\uFEFF]/g, '').trim())
+						.map((m) =>
+							m.replace(/[\uFE0E\uFE0F\u200B-\u200D\uFEFF]/g, '').trim(),
+						)
 						.filter(Boolean)
 				:	[
 						'Triangle (white)',

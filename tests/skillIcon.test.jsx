@@ -94,13 +94,15 @@ describe('SkillIcon Component & Constants', () => {
 	});
 
 	it('extracts clean emoji sequence without variation selector empty boxes', async () => {
-		const { extractShapeSequenceTerms } = await import('../src/utils/shapeGenerator');
+		const { extractShapeSequenceTerms } =
+			await import('../src/utils/shapeGenerator');
 		const VisualDiagram = (await import('../src/utils/VisualDiagrams')).default;
 		const ReactDOMServer = (await import('react-dom/server')).default;
 		const React = (await import('react')).default;
 
 		// Test prompt containing variation selector (common on Windows and AI outputs)
-		const promptWithVariationSelector = 'Look at the shape pattern: ⭐\uFE0F 🌙 ⭐\uFE0F 🌙 ⭐\uFE0F\n?';
+		const promptWithVariationSelector =
+			'Look at the shape pattern: ⭐\uFE0F 🌙 ⭐\uFE0F 🌙 ⭐\uFE0F\n?';
 		const extracted = extractShapeSequenceTerms(promptWithVariationSelector);
 
 		expect(extracted).toEqual(['⭐', '🌙', '⭐', '🌙', '⭐']);
@@ -115,7 +117,7 @@ describe('SkillIcon Component & Constants', () => {
 					nextItem: '🌙',
 					questionText: promptWithVariationSelector,
 				},
-			})
+			}),
 		);
 
 		// Verify Moon and Star are rendered
