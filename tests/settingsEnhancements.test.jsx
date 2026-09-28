@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import {
-	exportFullBackupToJsonFile,
-	importFullBackupFromJson,
-} from '../src/utils/backupManager';
+import { importFullBackupFromJson } from '../src/utils/backupManager';
 import {
 	getStoredKidAge,
 	getStoredKidName,
@@ -68,11 +65,7 @@ describe('Settings Enhancements & Portability Suite', () => {
 		let navigatedScreen = null;
 		let profileSaved = false;
 
-		const handleSaveKidProfile = ({
-			name,
-			age,
-			stayOnSettings = false,
-		}) => {
+		const handleSaveKidProfile = ({ name, age, stayOnSettings = false }) => {
 			saveStoredKidProfile(name, age);
 			profileSaved = true;
 			if (!stayOnSettings) {
