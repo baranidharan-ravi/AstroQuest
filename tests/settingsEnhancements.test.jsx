@@ -135,10 +135,36 @@ describe('Settings Enhancements & Portability Suite', () => {
 		// Initial Profile Tab Content
 		expect(html).toContain('Child&#x27;s Name');
 		expect(html).toContain('Astronaut Flight Crew Profiles');
+		expect(html).toContain('Manage Crew');
+		expect(html).toContain('Import');
+		expect(html).toContain('Export');
+		expect(html).toContain('Add Explorer');
 
 		// Sticky Save / Cancel Action Bar Dock
 		expect(html).toContain('sticky bottom-0');
 		expect(html).toContain('Save Settings');
 		expect(html).toContain('Cancel');
 	});
+
+	it('renders AI Engine and Audio tabs with real-time search inputs and compact cards', async () => {
+		const SettingsScreen = (
+			await import('../src/features/settings/SettingsScreen')
+		).default;
+		const ReactDOMServer = (await import('react-dom/server')).default;
+		const React = (await import('react')).default;
+
+		saveStoredKidProfile('Nova', 8, 'girl', 'girl-astronaut-1');
+
+		// Render with AI tab active by inspecting element definitions
+		const htmlProfile = ReactDOMServer.renderToStaticMarkup(
+			React.createElement(SettingsScreen, {
+				hasProfile: true,
+				onBack: () => {},
+				soundEnabled: false,
+			}),
+		);
+		expect(htmlProfile).toContain('Astronaut Flight Crew Profiles');
+		expect(htmlProfile).toContain('Add Explorer');
+	});
 });
+

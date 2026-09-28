@@ -17,6 +17,7 @@ import {
 	Rocket,
 	RotateCcw,
 	Save,
+	Search,
 	ShieldAlert,
 	Smile,
 	Sparkles,
@@ -281,6 +282,20 @@ const SettingsScreen = memo(function SettingsScreen({
 	);
 	const [isFetchingModels, setIsFetchingModels] = useState(false);
 	const [fetchModelStatus, setFetchModelStatus] = useState(null);
+	const [modelSearchQuery, setModelSearchQuery] = useState('');
+
+	const filteredModels = useMemo(() => {
+		const query = modelSearchQuery.trim().toLowerCase();
+		if (!query) return modelsList;
+		return modelsList.filter(
+			(m) =>
+				(m.name && m.name.toLowerCase().includes(query)) ||
+				(m.id && m.id.toLowerCase().includes(query)) ||
+				(m.tag && m.tag.toLowerCase().includes(query)) ||
+				(m.badge && m.badge.toLowerCase().includes(query)) ||
+				(m.description && m.description.toLowerCase().includes(query)),
+		);
+	}, [modelsList, modelSearchQuery]);
 
 	// Provider Switch Handler
 	const handleSelectProvider = (prov) => {
@@ -302,6 +317,7 @@ const SettingsScreen = memo(function SettingsScreen({
 		setProviderModels(updatedModels);
 
 		setSelectedProvider(prov);
+		setModelSearchQuery('');
 		const newKey = updatedKeys[prov] || '';
 		setApiKeyInput(newKey);
 		const newModels = getAvailableModels(prov);
@@ -331,6 +347,17 @@ const SettingsScreen = memo(function SettingsScreen({
 	const [selectedVoiceURI, setSelectedVoiceURI] = useState(
 		() => getStoredVoiceURI() || '',
 	);
+	const [voiceSearchQuery, setVoiceSearchQuery] = useState('');
+
+	const filteredVoices = useMemo(() => {
+		const query = voiceSearchQuery.trim().toLowerCase();
+		if (!query) return availableVoices;
+		return availableVoices.filter(
+			(v) =>
+				(v.name && v.name.toLowerCase().includes(query)) ||
+				(v.lang && v.lang.toLowerCase().includes(query)),
+		);
+	}, [availableVoices, voiceSearchQuery]);
 
 	// Neuro-Inclusive Accessibility & Multilingual State
 	const [accessibility, setAccessibility] = useState(() =>
@@ -1320,47 +1347,56 @@ const SettingsScreen = memo(function SettingsScreen({
 					{/* Tab 1: Explorer Profile (Name, Age, Avatar, Flight Crew & Portability) */}
 					{activeTab === 'profile' && (
 						<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
-							{/* Astronaut Flight Crew Management Card with Integrated Backup & Portability */}
-							<div className='bg-gradient-to-r from-blue-950/40 via-indigo-950/40 to-cyan-950/40 border border-cyan-500/30 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md'>
-								<div className='flex items-center justify-between gap-2 flex-wrap'>
-									<div className='flex items-center gap-2'>
-										<Users className='w-5 h-5 text-cyan-400' />
-										<div>
-											<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-2'>
-												<span>Astronaut Flight Crew Profiles</span>
-												<span className='text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'>
+							{/* Astronaut Flight Crew Management Console with Integrated Backup & Portability */}
+							<div className='bg-gradient-to-br from-[#0c133b]/90 via-[#0e1848]/85 to-[#080d28]/95 border border-cyan-500/35 rounded-2xl p-3.5 sm:p-4.5 flex flex-col gap-3 shadow-lg'>
+								{/* Header & Action Toolbar */}
+								<div className='flex items-center justify-between gap-3 flex-wrap'>
+									<div className='flex items-center gap-2.5 min-w-0'>
+										<div className='w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 flex-shrink-0 shadow-inner'>
+											<Users className='w-4 h-4 sm:w-4.5 sm:h-4.5' />
+										</div>
+										<div className='min-w-0'>
+											<div className='flex items-center gap-2'>
+												<h2 className='text-xs sm:text-sm font-extrabold text-white truncate'>
+													Astronaut Flight Crew Profiles
+												</h2>
+												<span className='text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 flex-shrink-0'>
 													{crewMembers.length} Explorer
 													{crewMembers.length === 1 ? '' : 's'}
 												</span>
-											</h2>
-											<p className='text-[11px] text-slate-300'>
-												Manage multiple children or export/import full system backup
-												across PCs.
+											</div>
+											<p className='text-[10.5px] text-slate-300 truncate'>
+												Switch explorer profiles or manage crew & system backups
 											</p>
 										</div>
 									</div>
 
+									{/* Action Toolbar */}
 									<div className='flex items-center gap-2 flex-wrap'>
-										<button
-											type='button'
-											disabled={isFormLocked}
-											onClick={handleTriggerImportBackup}
-											className='px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
-											title='Import complete backup (settings, crew profiles, and custom skillsets)'>
-											<Upload className='w-3.5 h-3.5 text-cyan-300' />
-											<span>Import</span>
-										</button>
+										{/* Backup Tools Group */}
+										<div className='flex items-center bg-[#070A1E] p-0.5 rounded-xl border border-slate-700/80 shadow-inner'>
+											<button
+												type='button'
+												disabled={isFormLocked}
+												onClick={handleTriggerImportBackup}
+												className='px-2 sm:px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+												title='Import complete backup (settings, crew profiles, and custom skillsets)'>
+												<Upload className='w-3 h-3 text-cyan-400' />
+												<span>Import</span>
+											</button>
+											<div className='w-px h-3.5 bg-slate-700/80 mx-0.5' />
+											<button
+												type='button'
+												disabled={isFormLocked}
+												onClick={handleExportBackup}
+												className='px-2 sm:px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+												title='Export complete backup (settings, crew profiles, and custom skillsets)'>
+												<Download className='w-3 h-3 text-amber-300' />
+												<span>Export</span>
+											</button>
+										</div>
 
-										<button
-											type='button'
-											disabled={isFormLocked}
-											onClick={handleExportBackup}
-											className='px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200 font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
-											title='Export complete backup (settings, crew profiles, and custom skillsets)'>
-											<Download className='w-3.5 h-3.5 text-amber-300' />
-											<span>Export</span>
-										</button>
-
+										{/* Primary Manage Crew Button */}
 										<button
 											type='button'
 											disabled={isFormLocked}
@@ -1368,49 +1404,81 @@ const SettingsScreen = memo(function SettingsScreen({
 												playButtonPop(soundEnabled);
 												setIsCrewModalOpen(true);
 											}}
-											className='px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
+											className='px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
 											<Users className='w-3.5 h-3.5' />
 											<span>Manage Crew</span>
 										</button>
 									</div>
 								</div>
 
-								{/* Crew Member Quick-Switch Chips */}
-								<div className='flex items-center gap-2 overflow-x-auto pb-1 pt-1'>
-									{crewMembers.map((member) => {
-										const isActive = member.id === getActiveCrewId();
-										return (
-											<button
-												key={member.id}
-												type='button'
-												disabled={isFormLocked}
-												onClick={() => {
-													if (isFormLocked) return;
-													playButtonPop(soundEnabled);
-													if (!isActive) {
-														switchActiveCrewMember(member.id);
+								{/* Crew Members Quick-Switch Dock */}
+								<div className='pt-2.5 border-t border-cyan-500/20'>
+									<div className='flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin'>
+										{crewMembers.map((member) => {
+											const isActive = member.id === getActiveCrewId();
+											return (
+												<button
+													key={member.id}
+													type='button'
+													disabled={isFormLocked}
+													onClick={() => {
+														if (isFormLocked) return;
+														playButtonPop(soundEnabled);
+														if (!isActive) {
+															switchActiveCrewMember(member.id);
+														}
+													}}
+													className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed ${
+														isActive ?
+															'bg-cyan-500/25 border-cyan-400 ring-2 ring-cyan-400/40 text-white shadow-[0_0_15px_rgba(34,211,238,0.25)]'
+														:	'bg-[#080B22] border-slate-700/80 hover:border-slate-500 text-slate-300 hover:text-white'
+													}`}>
+													<KidAvatar
+														avatarId={member.avatar}
+														gender={member.gender}
+														size='xs'
+													/>
+													<div className='text-left leading-tight'>
+														<div className='flex items-center gap-1.5'>
+															<span className='text-xs font-black text-white'>
+																{member.name}
+															</span>
+															<span
+																className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+																	isActive ?
+																		'bg-cyan-950/80 text-cyan-300 border border-cyan-400/40'
+																	:	'bg-slate-800 text-slate-400'
+																}`}>
+																Age {member.age}
+															</span>
+														</div>
+													</div>
+													{isActive ?
+														<span
+															className='w-2 h-2 rounded-full bg-cyan-400 animate-pulse ml-0.5'
+															title='Active explorer'
+														/>
+													:	<span className='text-[10px] text-cyan-400 font-semibold ml-0.5'>
+															Switch
+														</span>
 													}
-												}}
-												className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed ${
-													isActive ?
-														'bg-cyan-500/25 border-cyan-400 ring-2 ring-cyan-400/40 text-white shadow-md'
-													:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 text-slate-300 hover:text-white'
-												}`}>
-												<KidAvatar
-													avatarId={member.avatar}
-													gender={member.gender}
-													size='xs'
-												/>
-												<span className='text-xs font-black'>{member.name}</span>
-												<span className='text-[10px] text-slate-400 font-bold'>
-													Age {member.age}
-												</span>
-												{isActive && (
-													<span className='w-2 h-2 rounded-full bg-cyan-400 animate-pulse' />
-												)}
-											</button>
-										);
-									})}
+												</button>
+											);
+										})}
+
+										{/* Quick Add Explorer Shortcut */}
+										<button
+											type='button'
+											disabled={isFormLocked}
+											onClick={() => {
+												playButtonPop(soundEnabled);
+												setIsCrewModalOpen(true);
+											}}
+											className='flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-dashed border-cyan-500/40 hover:border-cyan-400 bg-cyan-500/5 hover:bg-cyan-500/15 text-cyan-300 hover:text-white text-xs font-bold transition-all cursor-pointer flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed'>
+											<Plus className='w-3.5 h-3.5' />
+											<span>Add Explorer</span>
+										</button>
+									</div>
 								</div>
 							</div>
 
@@ -1430,1496 +1498,1631 @@ const SettingsScreen = memo(function SettingsScreen({
 
 							{/* Section 1: Child Name & Age */}
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4'>
-						{/* Name Card */}
-						<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
-							<label
-								htmlFor='child-name-input'
-								className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5 mb-1.5 sm:mb-2'>
-								<Smile className='w-4 h-4 text-pink-400' />
-								<span>Child's Name</span>
-							</label>
-							<input
-								id='child-name-input'
-								name='child_display_name'
-								type='text'
-								maxLength={30}
-								autoComplete='off'
-								data-1p-ignore='true'
-								data-lpignore='true'
-								data-form-type='other'
-								aria-required='true'
-								aria-describedby='child-name-desc'
-								disabled={isValidating}
-								value={nameInput}
-								onChange={(e) => {
-									setNameInput(e.target.value);
-									if (error) setError('');
-								}}
-								placeholder='e.g. Leo, Maya, Alex...'
-								className='w-full bg-[#0D1030] border border-pink-500/40 focus:border-pink-400 text-white font-bold text-sm sm:text-base rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 transition-all'
-							/>
-							<span
-								id='child-name-desc'
-								className='text-[10px] sm:text-[11px] text-slate-400 mt-1 block'>
-								Used to personalize questions, voice feedback & reports.
-							</span>
-						</div>
-
-						{/* Age Card */}
-						<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
-							<div className='flex items-center justify-between mb-2'>
-								<label className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5'>
-									<Calendar className='w-4 h-4 text-cyan-400' />
-									<span>Child's Age</span>
-								</label>
-								<span className='text-xs font-black text-cyan-300 bg-cyan-950/80 border border-cyan-500/40 px-2 py-0.5 rounded-full'>
-									{ageInput} Years Old
-								</span>
-							</div>
-
-							{/* Quick Selection Pills */}
-							<div
-								role='group'
-								aria-label='Select explorer age'
-								className='grid grid-cols-6 gap-1 sm:gap-1.5'>
-								{quickAges.map((age) => (
-									<button
-										key={age}
-										type='button'
+								{/* Name Card */}
+								<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
+									<label
+										htmlFor='child-name-input'
+										className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5 mb-1.5 sm:mb-2'>
+										<Smile className='w-4 h-4 text-pink-400' />
+										<span>Child's Name</span>
+									</label>
+									<input
+										id='child-name-input'
+										name='child_display_name'
+										type='text'
+										maxLength={30}
+										autoComplete='off'
+										data-1p-ignore='true'
+										data-lpignore='true'
+										data-form-type='other'
+										aria-required='true'
+										aria-describedby='child-name-desc'
 										disabled={isValidating}
-										aria-label={`${age} years old`}
-										aria-pressed={Number(ageInput) === age && !isCustomAge}
-										onClick={() => handleQuickAgeSelect(age)}
-										className={`py-2 px-0.5 sm:px-1 rounded-xl text-xs font-black transition-all border cursor-pointer text-center focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
-											Number(ageInput) === age && !isCustomAge ?
-												'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-md scale-105'
-											:	'bg-[#0D1030] text-slate-300 border-slate-700/80 hover:bg-slate-800'
-										}`}>
-										{age}y
-									</button>
-								))}
-							</div>
-
-							{/* Custom Age Toggle */}
-							<div className='flex items-center justify-between mt-2 pt-2 border-t border-white/10'>
-								<span className='text-[11px] text-slate-400'>
-									Other Age (2 to 14):
-								</span>
-								<button
-									type='button'
-									disabled={isValidating}
-									aria-expanded={isCustomAge}
-									onClick={() => {
-										playButtonPop(soundEnabled);
-										setIsCustomAge((prev) => !prev);
-									}}
-									className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
-										isCustomAge ?
-											'bg-cyan-500/30 text-cyan-300 border-cyan-400'
-										:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
-									}`}>
-									{isCustomAge ? 'Custom Stepper Active' : 'Change Age Range'}
-								</button>
-							</div>
-
-							{/* Custom Age Stepper */}
-							{isCustomAge && (
-								<div className='flex items-center gap-2 bg-[#0D1030] border border-cyan-500/50 rounded-xl p-1.5 mt-2 animate-in fade-in duration-200'>
-									<button
-										type='button'
-										disabled={isValidating}
-										aria-label='Decrease age by 1 year'
-										onClick={() => handleIncrementAge(-1)}
-										className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none'>
-										<Minus className='w-3.5 h-3.5' />
-									</button>
-									<div className='flex-1 text-center'>
-										<input
-											id='custom-age-input'
-											name='child_age_years'
-											aria-label='Custom age in years'
-											type='number'
-											min={2}
-											max={14}
-											maxLength={2}
-											autoComplete='off'
-											data-1p-ignore='true'
-											data-lpignore='true'
-											data-form-type='other'
-											disabled={isValidating}
-											value={ageInput}
-											onKeyDown={(e) => {
-												// Block exponential, sign, and decimal characters
-												if (['e', 'E', '+', '-', '.'].includes(e.key)) {
-													e.preventDefault();
-												}
-											}}
-											onChange={(e) => {
-												const raw = e.target.value;
-												if (raw === '') {
-													setAgeInput('');
-													if (error) setError('');
-													return;
-												}
-												// Keep only digits
-												const digits = raw.replace(/\D/g, '');
-												if (!digits) {
-													setAgeInput('');
-													return;
-												}
-												const parsed = parseInt(digits, 10);
-												if (parsed > 14) {
-													setAgeInput(14);
-												} else {
-													setAgeInput(parsed);
-												}
-												if (error) setError('');
-											}}
-											onBlur={() => {
-												const val = parseInt(ageInput, 10);
-												if (isNaN(val) || val < 2) {
-													setAgeInput(2);
-												} else if (val > 14) {
-													setAgeInput(14);
-												} else {
-													setAgeInput(val);
-												}
-											}}
-											className='w-full bg-transparent text-center text-base font-black text-cyan-300 focus:outline-none'
-										/>
-										<span className='text-[10px] text-slate-400 block -mt-1'>
-											(Ages 2 to 14)
-										</span>
-									</div>
-									<button
-										type='button'
-										disabled={isValidating}
-										aria-label='Increase age by 1 year'
-										onClick={() => handleIncrementAge(1)}
-										className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none'>
-										<Plus className='w-3.5 h-3.5' />
-									</button>
-								</div>
-							)}
-						</div>
-					</div>
-
-					{/* Section 1B: Explorer Gender & Avatar Customization */}
-					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380] flex flex-col gap-3.5 sm:gap-4'>
-						{/* Top Header & Active Avatar Preview */}
-						<div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pb-3 border-b border-white/10'>
-							<div className='flex items-center gap-3 sm:gap-3.5'>
-								{/* Large Glowing Avatar Display */}
-								<div className='relative flex-shrink-0'>
-									<KidAvatar
-										avatarId={avatarInput}
-										size='lg'
-										showRing
-										className='shadow-[0_0_20px_rgba(34,211,238,0.4)]'
+										value={nameInput}
+										onChange={(e) => {
+											setNameInput(e.target.value);
+											if (error) setError('');
+										}}
+										placeholder='e.g. Leo, Maya, Alex...'
+										className='w-full bg-[#0D1030] border border-pink-500/40 focus:border-pink-400 text-white font-bold text-sm sm:text-base rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 transition-all'
 									/>
-									<span className='absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 shadow-md border-2 border-[#090B24]'>
-										<Check className='w-3 h-3' />
+									<span
+										id='child-name-desc'
+										className='text-[10px] sm:text-[11px] text-slate-400 mt-1 block'>
+										Used to personalize questions, voice feedback & reports.
 									</span>
 								</div>
-								<div>
-									<div className='flex items-center gap-2 flex-wrap'>
-										<h3 className='text-sm sm:text-base font-black text-white'>
-											{getAvatarById(avatarInput)?.name || 'Custom Explorer'}
-										</h3>
-										<span className='text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 capitalize'>
-											{genderInput === 'boy' ?
-												'👦 Boy'
-											: genderInput === 'girl' ?
-												'👧 Girl'
-											:	'🚀 Space Cadet'}
+
+								{/* Age Card */}
+								<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
+									<div className='flex items-center justify-between mb-2'>
+										<label className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5'>
+											<Calendar className='w-4 h-4 text-cyan-400' />
+											<span>Child's Age</span>
+										</label>
+										<span className='text-xs font-black text-cyan-300 bg-cyan-950/80 border border-cyan-500/40 px-2 py-0.5 rounded-full'>
+											{ageInput} Years Old
 										</span>
 									</div>
-									<p className='text-[11px] sm:text-xs text-slate-300 mt-0.5'>
-										{getAvatarById(avatarInput)?.label ||
-											'Hero Explorer Avatar'}{' '}
-										• Shown on dashboard & question headers
-									</p>
-								</div>
-							</div>
 
-							{/* Gender Selection 3-Button Toggle */}
-							<div className='w-full sm:w-auto flex flex-col items-start sm:items-end gap-1'>
-								<span className='text-[11px] font-bold text-slate-400 uppercase tracking-wider'>
-									Child's Gender
-								</span>
-								<div
-									className='grid grid-cols-3 gap-1.5 w-full sm:w-auto'
-									role='group'
-									aria-label='Select explorer gender'>
-									{[
-										{ id: 'boy', label: 'Boy', icon: '👦' },
-										{ id: 'girl', label: 'Girl', icon: '👧' },
-										{ id: 'neutral', label: 'Cadet', icon: '🚀' },
-									].map((opt) => {
-										const isSelected = genderInput === opt.id;
-										return (
+									{/* Quick Selection Pills */}
+									<div
+										role='group'
+										aria-label='Select explorer age'
+										className='grid grid-cols-6 gap-1 sm:gap-1.5'>
+										{quickAges.map((age) => (
 											<button
-												key={opt.id}
+												key={age}
 												type='button'
 												disabled={isValidating}
-												aria-pressed={isSelected}
-												onClick={() => handleGenderSelect(opt.id)}
-												className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
-													isSelected ?
+												aria-label={`${age} years old`}
+												aria-pressed={Number(ageInput) === age && !isCustomAge}
+												onClick={() => handleQuickAgeSelect(age)}
+												className={`py-2 px-0.5 sm:px-1 rounded-xl text-xs font-black transition-all border cursor-pointer text-center focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+													Number(ageInput) === age && !isCustomAge ?
 														'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-md scale-105'
 													:	'bg-[#0D1030] text-slate-300 border-slate-700/80 hover:bg-slate-800'
 												}`}>
-												<span>{opt.icon}</span>
-												<span>{opt.label}</span>
+												{age}y
 											</button>
-										);
-									})}
+										))}
+									</div>
+
+									{/* Custom Age Toggle */}
+									<div className='flex items-center justify-between mt-2 pt-2 border-t border-white/10'>
+										<span className='text-[11px] text-slate-400'>
+											Other Age (2 to 14):
+										</span>
+										<button
+											type='button'
+											disabled={isValidating}
+											aria-expanded={isCustomAge}
+											onClick={() => {
+												playButtonPop(soundEnabled);
+												setIsCustomAge((prev) => !prev);
+											}}
+											className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+												isCustomAge ?
+													'bg-cyan-500/30 text-cyan-300 border-cyan-400'
+												:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+											}`}>
+											{isCustomAge ?
+												'Custom Stepper Active'
+											:	'Change Age Range'}
+										</button>
+									</div>
+
+									{/* Custom Age Stepper */}
+									{isCustomAge && (
+										<div className='flex items-center gap-2 bg-[#0D1030] border border-cyan-500/50 rounded-xl p-1.5 mt-2 animate-in fade-in duration-200'>
+											<button
+												type='button'
+												disabled={isValidating}
+												aria-label='Decrease age by 1 year'
+												onClick={() => handleIncrementAge(-1)}
+												className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none'>
+												<Minus className='w-3.5 h-3.5' />
+											</button>
+											<div className='flex-1 text-center'>
+												<input
+													id='custom-age-input'
+													name='child_age_years'
+													aria-label='Custom age in years'
+													type='number'
+													min={2}
+													max={14}
+													maxLength={2}
+													autoComplete='off'
+													data-1p-ignore='true'
+													data-lpignore='true'
+													data-form-type='other'
+													disabled={isValidating}
+													value={ageInput}
+													onKeyDown={(e) => {
+														// Block exponential, sign, and decimal characters
+														if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+															e.preventDefault();
+														}
+													}}
+													onChange={(e) => {
+														const raw = e.target.value;
+														if (raw === '') {
+															setAgeInput('');
+															if (error) setError('');
+															return;
+														}
+														// Keep only digits
+														const digits = raw.replace(/\D/g, '');
+														if (!digits) {
+															setAgeInput('');
+															return;
+														}
+														const parsed = parseInt(digits, 10);
+														if (parsed > 14) {
+															setAgeInput(14);
+														} else {
+															setAgeInput(parsed);
+														}
+														if (error) setError('');
+													}}
+													onBlur={() => {
+														const val = parseInt(ageInput, 10);
+														if (isNaN(val) || val < 2) {
+															setAgeInput(2);
+														} else if (val > 14) {
+															setAgeInput(14);
+														} else {
+															setAgeInput(val);
+														}
+													}}
+													className='w-full bg-transparent text-center text-base font-black text-cyan-300 focus:outline-none'
+												/>
+												<span className='text-[10px] text-slate-400 block -mt-1'>
+													(Ages 2 to 14)
+												</span>
+											</div>
+											<button
+												type='button'
+												disabled={isValidating}
+												aria-label='Increase age by 1 year'
+												onClick={() => handleIncrementAge(1)}
+												className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none'>
+												<Plus className='w-3.5 h-3.5' />
+											</button>
+										</div>
+									)}
+								</div>
+							</div>
+
+							{/* Section 1B: Explorer Gender & Avatar Customization */}
+							<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380] flex flex-col gap-3.5 sm:gap-4'>
+								{/* Top Header & Active Avatar Preview */}
+								<div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pb-3 border-b border-white/10'>
+									<div className='flex items-center gap-3 sm:gap-3.5'>
+										{/* Large Glowing Avatar Display */}
+										<div className='relative flex-shrink-0'>
+											<KidAvatar
+												avatarId={avatarInput}
+												size='lg'
+												showRing
+												className='shadow-[0_0_20px_rgba(34,211,238,0.4)]'
+											/>
+											<span className='absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 shadow-md border-2 border-[#090B24]'>
+												<Check className='w-3 h-3' />
+											</span>
+										</div>
+										<div>
+											<div className='flex items-center gap-2 flex-wrap'>
+												<h3 className='text-sm sm:text-base font-black text-white'>
+													{getAvatarById(avatarInput)?.name ||
+														'Custom Explorer'}
+												</h3>
+												<span className='text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 capitalize'>
+													{genderInput === 'boy' ?
+														'👦 Boy'
+													: genderInput === 'girl' ?
+														'👧 Girl'
+													:	'🚀 Space Cadet'}
+												</span>
+											</div>
+											<p className='text-[11px] sm:text-xs text-slate-300 mt-0.5'>
+												{getAvatarById(avatarInput)?.label ||
+													'Hero Explorer Avatar'}{' '}
+												• Shown on dashboard & question headers
+											</p>
+										</div>
+									</div>
+
+									{/* Gender Selection 3-Button Toggle */}
+									<div className='w-full sm:w-auto flex flex-col items-start sm:items-end gap-1'>
+										<span className='text-[11px] font-bold text-slate-400 uppercase tracking-wider'>
+											Child's Gender
+										</span>
+										<div
+											className='grid grid-cols-3 gap-1.5 w-full sm:w-auto'
+											role='group'
+											aria-label='Select explorer gender'>
+											{[
+												{ id: 'boy', label: 'Boy', icon: '👦' },
+												{ id: 'girl', label: 'Girl', icon: '👧' },
+												{ id: 'neutral', label: 'Cadet', icon: '🚀' },
+											].map((opt) => {
+												const isSelected = genderInput === opt.id;
+												return (
+													<button
+														key={opt.id}
+														type='button'
+														disabled={isValidating}
+														aria-pressed={isSelected}
+														onClick={() => handleGenderSelect(opt.id)}
+														className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+															isSelected ?
+																'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-300 shadow-md scale-105'
+															:	'bg-[#0D1030] text-slate-300 border-slate-700/80 hover:bg-slate-800'
+														}`}>
+														<span>{opt.icon}</span>
+														<span>{opt.label}</span>
+													</button>
+												);
+											})}
+										</div>
+									</div>
+								</div>
+
+								{/* Preset Avatar Gallery */}
+								<div className='flex flex-col gap-2.5'>
+									<div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2'>
+										<label className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5'>
+											<Sparkles className='w-4 h-4 text-amber-400' />
+											<span>Preset Avatar Gallery</span>
+											<span className='text-[10px] text-slate-400 font-normal'>
+												({PRESET_AVATARS.length} Options)
+											</span>
+										</label>
+
+										{/* Category Filter Pills */}
+										<div
+											className='flex items-center gap-1 overflow-x-auto max-w-full pb-0.5'
+											role='tablist'
+											aria-label='Avatar categories'>
+											{['All', 'Boys', 'Girls', 'Cosmic Pals'].map(
+												(category) => {
+													const isActive = avatarCategoryFilter === category;
+													return (
+														<button
+															key={category}
+															type='button'
+															role='tab'
+															aria-selected={isActive}
+															disabled={isValidating}
+															onClick={() => {
+																playButtonPop(soundEnabled);
+																setAvatarCategoryFilter(category);
+															}}
+															className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all border cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+																isActive ?
+																	'bg-purple-600 text-white border-purple-400 shadow-sm'
+																:	'bg-[#0D1030] text-slate-400 border-slate-700/60 hover:text-white hover:bg-slate-800'
+															}`}>
+															{category === 'Boys' ?
+																'👦 Boys'
+															: category === 'Girls' ?
+																'👧 Girls'
+															: category === 'Cosmic Pals' ?
+																'🤖 Cosmic Pals'
+															:	'All'}
+														</button>
+													);
+												},
+											)}
+										</div>
+									</div>
+
+									{/* Grid of Preset Avatars */}
+									<div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-2.5'>
+										{filteredAvatars.map((avatar) => {
+											const isSelected = avatarInput === avatar.id;
+											return (
+												<button
+													key={avatar.id}
+													type='button'
+													disabled={isValidating}
+													aria-label={`Select avatar ${avatar.name}`}
+													aria-pressed={isSelected}
+													onClick={() => handleAvatarSelect(avatar.id)}
+													className={`relative p-2 rounded-xl flex flex-col items-center gap-1.5 transition-all text-center border cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+														isSelected ?
+															'bg-cyan-950/60 border-cyan-400 ring-2 ring-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.3)] scale-[1.03]'
+														:	'bg-[#0D1030]/90 border-slate-700/60 hover:border-slate-500 hover:bg-slate-800/80 hover:scale-[1.02]'
+													}`}>
+													{/* Active Checkmark Pin */}
+													{isSelected && (
+														<span className='absolute top-1 right-1 bg-cyan-400 text-slate-950 rounded-full p-0.5 shadow-sm'>
+															<Check className='w-2.5 h-2.5 stroke-[3]' />
+														</span>
+													)}
+													<KidAvatar
+														avatarId={avatar.id}
+														size='sm'
+													/>
+													<div className='min-w-0 w-full'>
+														<p className='text-[11px] font-bold text-white truncate leading-tight'>
+															{avatar.name.split(' ')[0]}
+														</p>
+														<p className='text-[9px] text-slate-400 truncate leading-none mt-0.5'>
+															{avatar.label}
+														</p>
+													</div>
+												</button>
+											);
+										})}
+									</div>
 								</div>
 							</div>
 						</div>
+					)}
 
-						{/* Preset Avatar Gallery */}
-						<div className='flex flex-col gap-2.5'>
-							<div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2'>
-								<label className='text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5'>
-									<Sparkles className='w-4 h-4 text-amber-400' />
-									<span>Preset Avatar Gallery</span>
-									<span className='text-[10px] text-slate-400 font-normal'>
-										({PRESET_AVATARS.length} Options)
+					{/* Tab 2: AI Intelligence Provider & Engine */}
+					{activeTab === 'ai' && (
+						<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
+							{/* Section 2: AI Intelligence Provider Selection */}
+							<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-indigo-500/40 shadow-inner flex flex-col gap-3'>
+								<div className='flex items-center justify-between gap-2 flex-wrap'>
+									<div className='flex items-center gap-2'>
+										<Sparkles className='w-4 h-4 text-amber-400 flex-shrink-0' />
+										<span className='text-xs sm:text-sm font-bold text-white'>
+											Select AI Intelligence Provider
+										</span>
+									</div>
+									<span className='text-[10px] font-black px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/40 uppercase'>
+										{AI_PROVIDER_INFO[selectedProvider]?.name || 'Gemini'}{' '}
+										Active
 									</span>
-								</label>
+								</div>
 
-								{/* Category Filter Pills */}
+								<p className='text-[11px] sm:text-xs text-slate-300'>
+									Choose your preferred AI to generate 100% real-time, adaptive
+									AstroQuest questions:
+								</p>
+
 								<div
-									className='flex items-center gap-1 overflow-x-auto max-w-full pb-0.5'
-									role='tablist'
-									aria-label='Avatar categories'>
-									{['All', 'Boys', 'Girls', 'Cosmic Pals'].map((category) => {
-										const isActive = avatarCategoryFilter === category;
+									className='grid grid-cols-1 sm:grid-cols-3 gap-2.5'
+									role='radiogroup'
+									aria-label='Select AI Provider'>
+									{Object.values(AI_PROVIDERS).map((provId) => {
+										const info = AI_PROVIDER_INFO[provId];
+										const isSelected = selectedProvider === provId;
+										const hasKey = Boolean(providerKeys[provId]);
+
 										return (
 											<button
-												key={category}
+												key={provId}
 												type='button'
-												role='tab'
-												aria-selected={isActive}
+												role='radio'
+												aria-checked={isSelected}
 												disabled={isValidating}
-												onClick={() => {
-													playButtonPop(soundEnabled);
-													setAvatarCategoryFilter(category);
-												}}
-												className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all border cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
-													isActive ?
-														'bg-purple-600 text-white border-purple-400 shadow-sm'
-													:	'bg-[#0D1030] text-slate-400 border-slate-700/60 hover:text-white hover:bg-slate-800'
+												onClick={() => handleSelectProvider(provId)}
+												className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left transition-all relative cursor-pointer flex flex-col justify-between gap-2.5 ${
+													isSelected ?
+														'bg-gradient-to-b from-indigo-950/80 via-[#161c4e] to-purple-950/80 border-amber-400 ring-2 ring-amber-400/50 shadow-[0_0_20px_rgba(251,191,36,0.3)]'
+													:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 hover:bg-[#121644]'
 												}`}>
-												{category === 'Boys' ?
-													'👦 Boys'
-												: category === 'Girls' ?
-													'👧 Girls'
-												: category === 'Cosmic Pals' ?
-													'🤖 Cosmic Pals'
-												:	'All'}
-											</button>
-										);
-									})}
-								</div>
-							</div>
-
-							{/* Grid of Preset Avatars */}
-							<div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-2.5'>
-								{filteredAvatars.map((avatar) => {
-									const isSelected = avatarInput === avatar.id;
-									return (
-										<button
-											key={avatar.id}
-											type='button'
-											disabled={isValidating}
-											aria-label={`Select avatar ${avatar.name}`}
-											aria-pressed={isSelected}
-											onClick={() => handleAvatarSelect(avatar.id)}
-											className={`relative p-2 rounded-xl flex flex-col items-center gap-1.5 transition-all text-center border cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
-												isSelected ?
-													'bg-cyan-950/60 border-cyan-400 ring-2 ring-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.3)] scale-[1.03]'
-												:	'bg-[#0D1030]/90 border-slate-700/60 hover:border-slate-500 hover:bg-slate-800/80 hover:scale-[1.02]'
-											}`}>
-											{/* Active Checkmark Pin */}
-											{isSelected && (
-												<span className='absolute top-1 right-1 bg-cyan-400 text-slate-950 rounded-full p-0.5 shadow-sm'>
-													<Check className='w-2.5 h-2.5 stroke-[3]' />
-												</span>
-											)}
-											<KidAvatar
-												avatarId={avatar.id}
-												size='sm'
-											/>
-											<div className='min-w-0 w-full'>
-												<p className='text-[11px] font-bold text-white truncate leading-tight'>
-													{avatar.name.split(' ')[0]}
-												</p>
-												<p className='text-[9px] text-slate-400 truncate leading-none mt-0.5'>
-													{avatar.label}
-												</p>
-											</div>
-										</button>
-									);
-								})}
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
-
-			{/* Tab 2: AI Intelligence Provider & Engine */}
-			{activeTab === 'ai' && (
-				<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
-					{/* Section 2: AI Intelligence Provider Selection */}
-					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-indigo-500/40 shadow-inner flex flex-col gap-3'>
-						<div className='flex items-center justify-between gap-2 flex-wrap'>
-							<div className='flex items-center gap-2'>
-								<Sparkles className='w-4 h-4 text-amber-400 flex-shrink-0' />
-								<span className='text-xs sm:text-sm font-bold text-white'>
-									Select AI Intelligence Provider
-								</span>
-							</div>
-							<span className='text-[10px] font-black px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/40 uppercase'>
-								{AI_PROVIDER_INFO[selectedProvider]?.name || 'Gemini'} Active
-							</span>
-						</div>
-
-						<p className='text-[11px] sm:text-xs text-slate-300'>
-							Choose your preferred AI to generate 100% real-time, adaptive
-							AstroQuest questions:
-						</p>
-
-						<div
-							className='grid grid-cols-1 sm:grid-cols-3 gap-2.5'
-							role='radiogroup'
-							aria-label='Select AI Provider'>
-							{Object.values(AI_PROVIDERS).map((provId) => {
-								const info = AI_PROVIDER_INFO[provId];
-								const isSelected = selectedProvider === provId;
-								const hasKey = Boolean(providerKeys[provId]);
-
-								return (
-									<button
-										key={provId}
-										type='button'
-										role='radio'
-										aria-checked={isSelected}
-										disabled={isValidating}
-										onClick={() => handleSelectProvider(provId)}
-										className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left transition-all relative cursor-pointer flex flex-col justify-between gap-2.5 ${
-											isSelected ?
-												'bg-gradient-to-b from-indigo-950/80 via-[#161c4e] to-purple-950/80 border-amber-400 ring-2 ring-amber-400/50 shadow-[0_0_20px_rgba(251,191,36,0.3)]'
-											:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 hover:bg-[#121644]'
-										}`}>
-										<div className='flex items-start justify-between gap-1.5'>
-											<div className='flex items-center gap-2'>
-												<span
-													className='text-xl flex-shrink-0'
-													role='img'
-													aria-label={info.name}>
-													{provId === AI_PROVIDERS.GEMINI ?
-														'✨'
-													: provId === AI_PROVIDERS.OPENAI ?
-														'🟢'
-													:	'🎭'}
-												</span>
-												<div>
-													<h3
-														className={`text-xs sm:text-sm font-black leading-tight ${
-															isSelected ? 'text-amber-300' : 'text-white'
-														}`}>
-														{info.name}
-													</h3>
-													<p className='text-[10px] text-slate-400 font-medium'>
-														{provId === AI_PROVIDERS.GEMINI ?
-															'Google AI Studio'
-														: provId === AI_PROVIDERS.OPENAI ?
-															'OpenAI Platform'
-														:	'Anthropic Console'}
-													</p>
-												</div>
-											</div>
-
-											{isSelected && (
-												<div className='w-4 h-4 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow flex-shrink-0'>
-													<Check className='w-3 h-3 stroke-[3]' />
-												</div>
-											)}
-										</div>
-
-										<div className='flex items-center justify-between gap-1 mt-0.5 flex-wrap'>
-											<span
-												className={`text-[9px] font-black px-1.5 py-0.5 rounded-full border ${info.badgeColor}`}>
-												{info.badge}
-											</span>
-											{hasKey && (
-												<span className='text-[9px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-0.5'>
-													<Check className='w-2.5 h-2.5' /> Key Stored
-												</span>
-											)}
-										</div>
-									</button>
-								);
-							})}
-						</div>
-					</div>
-
-					{/* Section 2B: Provider API Key (Mandatory with Live Validation) */}
-					<div
-						className={`bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all shadow-inner ${
-							isKeyError ?
-								'border-rose-500 ring-2 ring-rose-400/40 animate-shake'
-							:	'border-amber-400/60'
-						}`}>
-						<div className='flex flex-wrap items-center justify-between gap-1.5 mb-2'>
-							<label
-								htmlFor='active-api-key-input'
-								className='text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1.5'>
-								<Key className='w-4 h-4 text-amber-400 flex-shrink-0' />
-								<span>{AI_PROVIDER_INFO[selectedProvider]?.name} API Key</span>
-								<span className='text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase'>
-									Mandatory
-								</span>
-							</label>
-							<a
-								href={AI_PROVIDER_INFO[selectedProvider]?.portalUrl}
-								target='_blank'
-								rel='noopener noreferrer'
-								className='text-[11px] sm:text-xs font-bold text-cyan-300 hover:text-cyan-200 underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded'>
-								<span>
-									{selectedProvider === AI_PROVIDERS.GEMINI ?
-										'Get Free Key'
-									:	`Get ${AI_PROVIDER_INFO[selectedProvider]?.name} Key`}
-								</span>
-								<ExternalLink className='w-3 h-3' />
-							</a>
-						</div>
-
-						<div className='relative flex items-center'>
-							{/* Copy-blocked tooltip notification */}
-							{copyBlockedMessage && (
-								<div
-									role='alert'
-									aria-live='assertive'
-									className='absolute -top-10 left-0 sm:left-auto right-0 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold shadow-xl border border-rose-400'>
-									<ShieldAlert className='w-4 h-4 text-amber-200 flex-shrink-0' />
-									<span>Copy functionality is not allowed for this field</span>
-								</div>
-							)}
-
-							<input
-								id='active-api-key-input'
-								name='active_api_key_field'
-								aria-required='true'
-								aria-describedby='api-key-desc'
-								type='text'
-								style={{
-									WebkitTextSecurity: isRevealed ? 'none' : 'disc',
-									textSecurity: isRevealed ? 'none' : 'disc',
-								}}
-								autoComplete='off'
-								autoCorrect='off'
-								autoCapitalize='off'
-								spellCheck='false'
-								data-1p-ignore='true'
-								data-lpignore='true'
-								data-form-type='other'
-								data-bwignore='true'
-								disabled={isValidating}
-								value={apiKeyInput}
-								onPaste={handlePasteKey}
-								onChange={handleKeyChange}
-								onBlur={handleKeyBlur}
-								onCopy={handleBlockCopy}
-								onCut={handleBlockCopy}
-								onKeyDown={handleKeyDownKey}
-								placeholder={AI_PROVIDER_INFO[selectedProvider]?.keyPlaceholder}
-								className={`w-full bg-[#0D1030] border text-white font-mono text-xs sm:text-sm rounded-xl pl-4 pr-12 py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 transition-all ${
-									isKeyError ?
-										'border-rose-400 focus:border-rose-500'
-									:	'border-amber-400/50 focus:border-amber-400'
-								}`}
-							/>
-
-							{/* Encrypted Vault indicator (Replaces eye icon toggle) */}
-							<div
-								className='absolute right-3 p-1.5 rounded-lg text-emerald-400/80 flex items-center justify-center'
-								title={
-									isRevealed ?
-										'Revealed (auto-masking in 3 seconds)'
-									:	'Secure Encrypted Field'
-								}
-								aria-hidden='true'>
-								<Lock
-									className={`w-4 h-4 ${
-										isRevealed ?
-											'text-amber-400 animate-pulse'
-										:	'text-emerald-400'
-									}`}
-								/>
-							</div>
-						</div>
-						<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-1 mt-1.5'>
-							<span
-								id='api-key-desc'
-								className='text-[11px] text-slate-400 block'>
-								{isRevealed ?
-									<span className='text-amber-300 font-semibold'>
-										⚠️ Key visible — auto-masking in 3 seconds.
-									</span>
-								:	`Required for 100% real-time AI generation via ${AI_PROVIDER_INFO[selectedProvider]?.name}. Value is encrypted in the field.`
-								}
-							</span>
-							<span className='text-[10px] text-emerald-400/90 font-mono flex items-center gap-1'>
-								<Lock className='w-3 h-3 inline' />
-								<span>Encrypted Vault (Copy Disabled)</span>
-							</span>
-						</div>
-					</div>
-
-					{/* Section 3: AI Model Engine Selection */}
-					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-cyan-500/40 shadow-inner'>
-						<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2'>
-							<div className='flex items-center gap-2 flex-wrap'>
-								<Cpu className='w-4 h-4 text-cyan-400 flex-shrink-0' />
-								<span className='text-xs sm:text-sm font-bold text-white'>
-									{AI_PROVIDER_INFO[selectedProvider]?.name} Model Engine
-								</span>
-								{selectedProvider === AI_PROVIDERS.GEMINI &&
-									hasCachedGeminiModels() &&
-									!isFetchingModels && (
-										<span
-											className='text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-1'
-											title='Models are cached locally and loaded instantly without re-fetching'>
-											⚡ Cached
-										</span>
-									)}
-							</div>
-							<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap'>
-								{selectedProvider === AI_PROVIDERS.GEMINI && (
-									<button
-										type='button'
-										disabled={isFetchingModels || isValidating}
-										onClick={handleFetchLiveModels}
-										className='flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-bold text-[11px] shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50'>
-										<RefreshCw
-											className={`w-3.5 h-3.5 ${
-												isFetchingModels ? 'animate-spin text-cyan-200' : ''
-											}`}
-										/>
-										<span>
-											{isFetchingModels ? 'Downloading...' : 'Fetch Latest 🔄'}
-										</span>
-									</button>
-								)}
-								<span className='text-[10px] font-black px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 truncate max-w-[130px] sm:max-w-none'>
-									{modelsList.find((m) => m.id === selectedModel)?.name ||
-										selectedModel}
-								</span>
-							</div>
-						</div>
-
-						<p className='text-[11px] sm:text-xs text-slate-300 mb-2'>
-							Select which {AI_PROVIDER_INFO[selectedProvider]?.name} model
-							generates questions in real time:
-						</p>
-
-						{fetchModelStatus && (
-							<div
-								className={`mb-3 p-2.5 rounded-xl text-xs font-semibold border flex items-center justify-between gap-2 ${
-									fetchModelStatus.type === 'success' ?
-										'bg-emerald-500/20 border-emerald-400 text-emerald-200'
-									:	'bg-rose-500/20 border-rose-400 text-rose-200'
-								}`}>
-								<span>{fetchModelStatus.text}</span>
-								<button
-									type='button'
-									onClick={() => setFetchModelStatus(null)}
-									className='text-slate-400 hover:text-white text-xs font-black cursor-pointer px-1'>
-									✕
-								</button>
-							</div>
-						)}
-
-						<div className='grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 max-h-[360px] overflow-y-auto pr-1'>
-							{modelsList.map((model) => {
-								const isSelected = selectedModel === model.id;
-								return (
-									<button
-										key={model.id}
-										type='button'
-										disabled={isValidating || isFetchingModels}
-										onClick={() => {
-											playButtonPop(soundEnabled);
-											setSelectedModel(model.id);
-											setProviderModels((prev) => ({
-												...prev,
-												[selectedProvider]: model.id,
-											}));
-											if (error) setError('');
-										}}
-										className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left transition-all relative cursor-pointer flex flex-col justify-between gap-1.5 ${
-											isSelected ?
-												'bg-cyan-500/20 border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.35)] ring-2 ring-cyan-400/50'
-											:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 hover:bg-[#121644]'
-										}`}>
-										<div className='flex items-start justify-between gap-2'>
-											<span
-												className={`text-xs font-black leading-tight ${
-													isSelected ? 'text-cyan-300' : 'text-white'
-												}`}>
-												{model.name}
-											</span>
-											<div className='flex items-center gap-1.5 flex-shrink-0'>
-												{isSelected && (
-													<div className='w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shadow'>
-														<Check className='w-3 h-3 stroke-[3]' />
+												<div className='flex items-start justify-between gap-1.5'>
+													<div className='flex items-center gap-2'>
+														<span
+															className='text-xl flex-shrink-0'
+															role='img'
+															aria-label={info.name}>
+															{provId === AI_PROVIDERS.GEMINI ?
+																'✨'
+															: provId === AI_PROVIDERS.OPENAI ?
+																'🟢'
+															:	'🎭'}
+														</span>
+														<div>
+															<h3
+																className={`text-xs sm:text-sm font-black leading-tight ${
+																	isSelected ? 'text-amber-300' : 'text-white'
+																}`}>
+																{info.name}
+															</h3>
+															<p className='text-[10px] text-slate-400 font-medium'>
+																{provId === AI_PROVIDERS.GEMINI ?
+																	'Google AI Studio'
+																: provId === AI_PROVIDERS.OPENAI ?
+																	'OpenAI Platform'
+																:	'Anthropic Console'}
+															</p>
+														</div>
 													</div>
-												)}
-												{(
-													selectedProvider === AI_PROVIDERS.GEMINI &&
-													isModelRateLimited(model.id)
-												) ?
-													<span className='text-[9px] font-black px-2 py-0.5 rounded-full border bg-rose-500/20 text-rose-300 border-rose-400/40'>
-														⚠️ 429 Quota Limited
-													</span>
-												:	<span
-														className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${model.badgeColor}`}>
-														{model.badge}
-													</span>
-												}
-											</div>
-										</div>
-										<div className='text-[10px] sm:text-[11px] font-bold text-slate-300 flex items-center gap-1'>
-											<span>{model.tag}</span>
-										</div>
-										<p className='text-[10px] text-slate-400 leading-snug'>
-											{model.description}
-										</p>
-									</button>
-								);
-							})}
-						</div>
-					</div>
-				</div>
-			)}
 
-			{/* Tab 3: Timer, Auto-Advance & Visual Pacing */}
-			{activeTab === 'pacing' && (
-				<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
-					{/* Section 4: Per-Question Time Limit */}
-					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
-						<div className='flex items-center justify-between gap-2 mb-2.5'>
-							<div className='min-w-0'>
-								<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
-									<Clock className='w-4 h-4 text-cyan-400 flex-shrink-0' />
-									<span className='text-xs sm:text-sm font-bold text-white'>
-										Per-Question Time Limit
-									</span>
-									<span
-										className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
-											isMandatoryTimer ? 'bg-amber-400 text-slate-950 shadow'
-											: timerEnabled ? 'bg-emerald-400 text-slate-950 shadow'
-											: 'bg-slate-800 text-slate-400'
-										}`}>
-										{isMandatoryTimer ?
-											'Mandatory (Ages 8–14)'
-										: timerEnabled ?
-											'Enabled'
-										:	'Optional'}
-									</span>
-								</div>
-								<p className='text-[11px] sm:text-xs text-slate-400 mt-0.5'>
-									{isMandatoryTimer ?
-										'Sets an active countdown challenge for each question. Mandatory for Upper Elementary (8–10) & Middle School (11–14). Customize challenge duration below!'
-									:	'Sets a countdown challenge for each individual question. Optional for younger explorers.'
-									}
-								</p>
-							</div>
-
-							<button
-								type='button'
-								disabled={isValidating || isMandatoryTimer}
-								onClick={() => {
-									if (isMandatoryTimer) return;
-									playButtonPop(soundEnabled);
-									setTimerEnabled((prev) => !prev);
-								}}
-								title={
-									isMandatoryTimer ?
-										'Countdown timer is mandatory for Ages 8–14 to ensure active challenge. You can change the question duration below.'
-									: timerEnabled ?
-										'Turn timer off (unlimited time)'
-									:	'Turn timer on'
-								}
-								className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border flex items-center gap-1 ${
-									isMandatoryTimer ?
-										'bg-amber-400 text-slate-950 border-amber-300 shadow cursor-not-allowed opacity-95'
-									: timerEnabled ?
-										'bg-emerald-400 text-slate-950 border-emerald-300 shadow cursor-pointer'
-									:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white cursor-pointer'
-								}`}>
-								{isMandatoryTimer ?
-									<>
-										<Lock className='w-3 h-3 text-slate-950 inline' />
-										<span>⏱️ ON</span>
-									</>
-								: timerEnabled ?
-									'⏱️ ON'
-								:	'Timer OFF'}
-							</button>
-						</div>
-
-						{timerEnabled && (
-							<div className='space-y-2.5 pt-2.5 animate-in fade-in duration-200 border-t border-white/10'>
-								<div className='grid grid-cols-3 sm:flex sm:flex-wrap gap-1.5'>
-									{[
-										{ label: '30s', sec: 30 },
-										{ label: '45s', sec: 45 },
-										{ label: '60s (Def)', sec: 60 },
-										{ label: '90s', sec: 90 },
-										{ label: '2m', sec: 120 },
-										{ label: '3m', sec: 180 },
-									].map((preset) => (
-										<button
-											key={preset.sec}
-											type='button'
-											disabled={isValidating}
-											onClick={() => {
-												playButtonPop(soundEnabled);
-												setTimerSeconds(preset.sec);
-												setIsCustomTimer(false);
-											}}
-											className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-black transition-all border cursor-pointer text-center ${
-												timerSeconds === preset.sec && !isCustomTimer ?
-													'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 border-amber-300 shadow-md font-black'
-												:	'bg-[#0D1030] text-slate-300 border-slate-700 hover:bg-slate-800'
-											}`}>
-											{preset.label}
-										</button>
-									))}
-
-									<button
-										type='button'
-										disabled={isValidating}
-										onClick={() => {
-											playButtonPop(soundEnabled);
-											setIsCustomTimer((prev) => !prev);
-										}}
-										className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
-											isCustomTimer ?
-												'bg-amber-400/30 text-amber-300 border-amber-400'
-											:	'bg-[#0D1030] text-slate-400 border-slate-700 hover:text-white'
-										}`}>
-										Custom
-									</button>
-								</div>
-
-								{isCustomTimer && (
-									<div className='flex items-center gap-3 bg-[#0D1030] border border-amber-500/40 rounded-xl p-2 max-w-xs animate-in fade-in duration-200'>
-										<button
-											type='button'
-											disabled={isValidating}
-											onClick={() => handleStepTimer(-15)}
-											className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
-											<Minus className='w-4 h-4' />
-										</button>
-										<div className='flex-1 text-center font-mono font-black text-sm text-amber-300'>
-											{timerSeconds} seconds
-										</div>
-										<button
-											type='button'
-											disabled={isValidating}
-											onClick={() => handleStepTimer(15)}
-											className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
-											<Plus className='w-4 h-4' />
-										</button>
-									</div>
-								)}
-							</div>
-						)}
-					</div>
-
-					{/* Section 5: Next Question Auto-Advance Delay */}
-					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
-						<div className='flex items-center justify-between gap-2 mb-2.5'>
-							<div className='min-w-0'>
-								<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
-									<FastForward className='w-4 h-4 text-emerald-400 flex-shrink-0' />
-									<span className='text-xs sm:text-sm font-bold text-white'>
-										Next Question Auto-Advance
-									</span>
-									<span
-										className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
-											autoAdvanceEnabled ?
-												'bg-emerald-400 text-slate-950 shadow'
-											:	'bg-slate-800 text-slate-400'
-										}`}>
-										{autoAdvanceEnabled ? 'Active' : 'Manual'}
-									</span>
-								</div>
-								<p className='text-[11px] sm:text-xs text-slate-400 mt-0.5'>
-									Controls how long solution is shown before next question.
-								</p>
-							</div>
-
-							<button
-								type='button'
-								disabled={isValidating}
-								onClick={() => {
-									playButtonPop(soundEnabled);
-									setAutoAdvanceEnabled((prev) => !prev);
-								}}
-								className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
-									autoAdvanceEnabled ?
-										'bg-emerald-400 text-slate-950 border-emerald-300 shadow'
-									:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
-								}`}>
-								{autoAdvanceEnabled ? '⏩ Auto ON' : 'Manual Next'}
-							</button>
-						</div>
-
-						{!autoAdvanceEnabled && (
-							<div className='p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300 font-semibold'>
-								💡 <strong>Manual Next Mode:</strong> The solution stays on
-								screen indefinitely until you click <em>Next Question ➔</em>.
-							</div>
-						)}
-
-						{autoAdvanceEnabled && (
-							<div className='space-y-2.5 pt-2.5 animate-in fade-in duration-200 border-t border-white/10'>
-								<div className='grid grid-cols-3 sm:flex sm:flex-wrap gap-1.5'>
-									{[
-										{ label: '3s', sec: 3 },
-										{ label: '5s', sec: 5 },
-										{ label: '7s (Def)', sec: 7 },
-										{ label: '10s', sec: 10 },
-										{ label: '15s', sec: 15 },
-									].map((preset) => (
-										<button
-											key={preset.sec}
-											type='button'
-											disabled={isValidating}
-											onClick={() => {
-												playButtonPop(soundEnabled);
-												setAutoAdvanceSeconds(preset.sec);
-												setIsCustomAutoAdvance(false);
-											}}
-											className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-black transition-all border cursor-pointer text-center ${
-												(
-													autoAdvanceSeconds === preset.sec &&
-													!isCustomAutoAdvance
-												) ?
-													'bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 border-emerald-300 shadow-md font-black'
-												:	'bg-[#0D1030] text-slate-300 border-slate-700 hover:bg-slate-800'
-											}`}>
-											{preset.label}
-										</button>
-									))}
-
-									<button
-										type='button'
-										disabled={isValidating}
-										onClick={() => {
-											playButtonPop(soundEnabled);
-											setIsCustomAutoAdvance((prev) => !prev);
-										}}
-										className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
-											isCustomAutoAdvance ?
-												'bg-emerald-400/30 text-emerald-300 border-emerald-400'
-											:	'bg-[#0D1030] text-slate-400 border-slate-700 hover:text-white'
-										}`}>
-										Custom
-									</button>
-								</div>
-
-								{isCustomAutoAdvance && (
-									<div className='flex items-center gap-3 bg-[#0D1030] border border-emerald-500/40 rounded-xl p-2 max-w-xs animate-in fade-in duration-200'>
-										<button
-											type='button'
-											disabled={isValidating}
-											onClick={() => handleStepAutoAdvance(-1)}
-											className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
-											<Minus className='w-4 h-4' />
-										</button>
-										<div className='flex-1 text-center font-mono font-black text-sm text-emerald-300'>
-											{autoAdvanceSeconds}s delay
-										</div>
-										<button
-											type='button'
-											disabled={isValidating}
-											onClick={() => handleStepAutoAdvance(1)}
-											className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
-											<Plus className='w-4 h-4' />
-										</button>
-									</div>
-								)}
-							</div>
-						)}
-					</div>
-
-					{/* Section 6: Visual Diagrams & Clues Display */}
-					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-indigo-500/40 shadow-inner'>
-						<div className='flex items-center justify-between gap-2 mb-2'>
-							<div className='min-w-0'>
-								<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
-									<Eye className='w-4 h-4 text-indigo-400 flex-shrink-0' />
-									<span className='text-xs sm:text-sm font-bold text-white'>
-										Visual Diagrams & Clues
-									</span>
-									<span
-										className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
-											showVisualDiagrams ?
-												'bg-indigo-500 text-white shadow'
-											:	'bg-slate-800 text-slate-400'
-										}`}>
-										{showVisualDiagrams ? 'Enabled' : 'Disabled'}
-									</span>
-								</div>
-							</div>
-
-							<button
-								type='button'
-								disabled={isValidating}
-								onClick={() => {
-									playButtonPop(soundEnabled);
-									setShowVisualDiagrams((prev) => !prev);
-								}}
-								className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
-									showVisualDiagrams ?
-										'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]'
-									:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
-								}`}>
-								{showVisualDiagrams ? '👁️ Shown' : '🙈 Hidden'}
-							</button>
-						</div>
-
-						<p className='text-[11px] sm:text-xs text-slate-300 leading-relaxed'>
-							Choose whether interactive visual diagrams, 3x3 matrices, sequence
-							patterns, and STEM illustrations appear alongside questions and
-							option choices.
-						</p>
-
-						{/* Warning Notice for Dynamic Visual Generation */}
-						<div className='mt-2.5 p-2.5 sm:p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-[11px] sm:text-xs flex items-start gap-2.5 leading-relaxed'>
-							<AlertTriangle className='w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5' />
-							<div>
-								<strong className='text-amber-300'>Note:</strong> Visual
-								diagrams and option shapes are dynamically synthesized based on
-								AI prompts. Minor visual variations may occasionally occur.
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
-
-			{/* Tab 4: Audio, Voice & Neuro-Inclusive Accessibility */}
-			{activeTab === 'audio' && (
-				<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
-					{/* Section 7: Cosmic Audio & Sensory Focus Suite */}
-					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-purple-500/40 shadow-inner space-y-4'>
-						{/* Header */}
-						<div className='flex items-center justify-between gap-2 border-b border-purple-500/20 pb-2.5'>
-							<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
-								<Volume2 className='w-4 h-4 text-purple-400 flex-shrink-0' />
-								<span className='text-xs sm:text-sm font-bold text-white'>
-									Cosmic Voice & Audio Focus Suite
-								</span>
-							</div>
-							<span className='text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'>
-								Real-Time Audio
-							</span>
-						</div>
-
-						{/* 7.1 Cosmic Voice Personalities */}
-						<div>
-							<div className='text-xs font-black text-purple-200 mb-1 flex items-center gap-1.5'>
-								<span>🎙️ Narrator Personality</span>
-							</div>
-							<p className='text-[11px] sm:text-xs text-slate-300 mb-2.5'>
-								Select the personality and vocal pace of your cosmic flight
-								instructor:
-							</p>
-							<div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-								{COSMIC_VOICE_PERSONALITIES.map((p) => {
-									const isSelected = selectedPersonality === p.id;
-									return (
-										<button
-											key={p.id}
-											type='button'
-											onClick={() => {
-												playButtonPop(soundEnabled);
-												setSelectedPersonality(p.id);
-												const phrases = {
-													classic:
-														'Hello! I am ready to read questions for you.',
-													bot: 'Beep-boop! All circuits operational. Ready for mission!',
-													nova: 'Commander Nova here! Prepare for stellar navigation!',
-													nebula:
-														'Welcome, young star traveler. Take a gentle breath.',
-												};
-												speakText(phrases[p.id] || phrases.classic);
-											}}
-											className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
-												isSelected ?
-													'bg-purple-500/25 border-purple-400 ring-2 ring-purple-400/50 shadow-md'
-												:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500'
-											}`}>
-											<span className='text-xl sm:text-2xl leading-none flex-shrink-0'>
-												{p.emoji}
-											</span>
-											<div className='min-w-0 flex-1'>
-												<div className='flex items-center justify-between gap-1'>
-													<span
-														className={`text-xs font-black ${
-															isSelected ? 'text-purple-200' : 'text-white'
-														}`}>
-														{p.name}
-													</span>
 													{isSelected && (
-														<span className='text-[9px] font-black text-purple-300 bg-purple-500/30 px-1.5 py-0.2 rounded-full border border-purple-400/50'>
-															ACTIVE
+														<div className='w-4 h-4 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow flex-shrink-0'>
+															<Check className='w-3 h-3 stroke-[3]' />
+														</div>
+													)}
+												</div>
+
+												<div className='flex items-center justify-between gap-1 mt-0.5 flex-wrap'>
+													<span
+														className={`text-[9px] font-black px-1.5 py-0.5 rounded-full border ${info.badgeColor}`}>
+														{info.badge}
+													</span>
+													{hasKey && (
+														<span className='text-[9px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-0.5'>
+															<Check className='w-2.5 h-2.5' /> Key Stored
 														</span>
 													)}
 												</div>
-												<div className='text-[10px] text-slate-400 leading-tight mt-0.5'>
-													{p.description}
-												</div>
-											</div>
-										</button>
-									);
-								})}
+											</button>
+										);
+									})}
+								</div>
 							</div>
-						</div>
 
-						{/* 7.2 Ambient Deep-Space Focus Lo-Fi Soundscape */}
-						<div className='pt-3 border-t border-purple-500/20'>
-							<div className='flex items-center justify-between gap-2 mb-1.5'>
-								<div className='flex items-center gap-1.5'>
-									<span className='text-sm'>🎧</span>
-									<span className='text-xs font-black text-cyan-200'>
-										Deep-Space Focus Ambient Sound
+							{/* Section 2B: Provider API Key (Mandatory with Live Validation) */}
+							<div
+								className={`bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all shadow-inner ${
+									isKeyError ?
+										'border-rose-500 ring-2 ring-rose-400/40 animate-shake'
+									:	'border-amber-400/60'
+								}`}>
+								<div className='flex flex-wrap items-center justify-between gap-1.5 mb-2'>
+									<label
+										htmlFor='active-api-key-input'
+										className='text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1.5'>
+										<Key className='w-4 h-4 text-amber-400 flex-shrink-0' />
+										<span>
+											{AI_PROVIDER_INFO[selectedProvider]?.name} API Key
+										</span>
+										<span className='text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase'>
+											Mandatory
+										</span>
+									</label>
+									<a
+										href={AI_PROVIDER_INFO[selectedProvider]?.portalUrl}
+										target='_blank'
+										rel='noopener noreferrer'
+										className='text-[11px] sm:text-xs font-bold text-cyan-300 hover:text-cyan-200 underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded'>
+										<span>
+											{selectedProvider === AI_PROVIDERS.GEMINI ?
+												'Get Free Key'
+											:	`Get ${AI_PROVIDER_INFO[selectedProvider]?.name} Key`}
+										</span>
+										<ExternalLink className='w-3 h-3' />
+									</a>
+								</div>
+
+								<div className='relative flex items-center'>
+									{/* Copy-blocked tooltip notification */}
+									{copyBlockedMessage && (
+										<div
+											role='alert'
+											aria-live='assertive'
+											className='absolute -top-10 left-0 sm:left-auto right-0 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold shadow-xl border border-rose-400'>
+											<ShieldAlert className='w-4 h-4 text-amber-200 flex-shrink-0' />
+											<span>
+												Copy functionality is not allowed for this field
+											</span>
+										</div>
+									)}
+
+									<input
+										id='active-api-key-input'
+										name='active_api_key_field'
+										aria-required='true'
+										aria-describedby='api-key-desc'
+										type='text'
+										style={{
+											WebkitTextSecurity: isRevealed ? 'none' : 'disc',
+											textSecurity: isRevealed ? 'none' : 'disc',
+										}}
+										autoComplete='off'
+										autoCorrect='off'
+										autoCapitalize='off'
+										spellCheck='false'
+										data-1p-ignore='true'
+										data-lpignore='true'
+										data-form-type='other'
+										data-bwignore='true'
+										disabled={isValidating}
+										value={apiKeyInput}
+										onPaste={handlePasteKey}
+										onChange={handleKeyChange}
+										onBlur={handleKeyBlur}
+										onCopy={handleBlockCopy}
+										onCut={handleBlockCopy}
+										onKeyDown={handleKeyDownKey}
+										placeholder={
+											AI_PROVIDER_INFO[selectedProvider]?.keyPlaceholder
+										}
+										className={`w-full bg-[#0D1030] border text-white font-mono text-xs sm:text-sm rounded-xl pl-4 pr-12 py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 transition-all ${
+											isKeyError ?
+												'border-rose-400 focus:border-rose-500'
+											:	'border-amber-400/50 focus:border-amber-400'
+										}`}
+									/>
+
+									{/* Encrypted Vault indicator (Replaces eye icon toggle) */}
+									<div
+										className='absolute right-3 p-1.5 rounded-lg text-emerald-400/80 flex items-center justify-center'
+										title={
+											isRevealed ?
+												'Revealed (auto-masking in 3 seconds)'
+											:	'Secure Encrypted Field'
+										}
+										aria-hidden='true'>
+										<Lock
+											className={`w-4 h-4 ${
+												isRevealed ?
+													'text-amber-400 animate-pulse'
+												:	'text-emerald-400'
+											}`}
+										/>
+									</div>
+								</div>
+								<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-1 mt-1.5'>
+									<span
+										id='api-key-desc'
+										className='text-[11px] text-slate-400 block'>
+										{isRevealed ?
+											<span className='text-amber-300 font-semibold'>
+												⚠️ Key visible — auto-masking in 3 seconds.
+											</span>
+										:	`Required for 100% real-time AI generation via ${AI_PROVIDER_INFO[selectedProvider]?.name}. Value is encrypted in the field.`
+										}
+									</span>
+									<span className='text-[10px] text-emerald-400/90 font-mono flex items-center gap-1'>
+										<Lock className='w-3 h-3 inline' />
+										<span>Encrypted Vault (Copy Disabled)</span>
 									</span>
 								</div>
+							</div>
+
+							{/* Section 3: AI Model Engine Selection */}
+							<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-cyan-500/40 shadow-inner'>
+								<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2'>
+									<div className='flex items-center gap-2 flex-wrap'>
+										<Cpu className='w-4 h-4 text-cyan-400 flex-shrink-0' />
+										<span className='text-xs sm:text-sm font-bold text-white'>
+											{AI_PROVIDER_INFO[selectedProvider]?.name} Model Engine
+										</span>
+										{selectedProvider === AI_PROVIDERS.GEMINI &&
+											hasCachedGeminiModels() &&
+											!isFetchingModels && (
+												<span
+													className='text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 flex items-center gap-1'
+													title='Models are cached locally and loaded instantly without re-fetching'>
+													⚡ Cached
+												</span>
+											)}
+									</div>
+									<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap'>
+										{selectedProvider === AI_PROVIDERS.GEMINI && (
+											<button
+												type='button'
+												disabled={isFetchingModels || isValidating}
+												onClick={handleFetchLiveModels}
+												className='flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-bold text-[11px] shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50'>
+												<RefreshCw
+													className={`w-3.5 h-3.5 ${
+														isFetchingModels ? 'animate-spin text-cyan-200' : ''
+													}`}
+												/>
+												<span>
+													{isFetchingModels ?
+														'Downloading...'
+													:	'Fetch Latest 🔄'}
+												</span>
+											</button>
+										)}
+										<span className='text-[10px] font-black px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 truncate max-w-[130px] sm:max-w-none'>
+											{modelsList.find((m) => m.id === selectedModel)?.name ||
+												selectedModel}
+										</span>
+									</div>
+								</div>
+
+								<p className='text-[11px] sm:text-xs text-slate-300 mb-2'>
+									Select which {AI_PROVIDER_INFO[selectedProvider]?.name} model
+									generates questions in real time:
+								</p>
+
+								{fetchModelStatus && (
+									<div
+										className={`mb-3 p-2.5 rounded-xl text-xs font-semibold border flex items-center justify-between gap-2 ${
+											fetchModelStatus.type === 'success' ?
+												'bg-emerald-500/20 border-emerald-400 text-emerald-200'
+											:	'bg-rose-500/20 border-rose-400 text-rose-200'
+										}`}>
+										<span>{fetchModelStatus.text}</span>
+										<button
+											type='button'
+											onClick={() => setFetchModelStatus(null)}
+											className='text-slate-400 hover:text-white text-xs font-black cursor-pointer px-1'>
+											✕
+										</button>
+									</div>
+								)}
+
+								{/* AI Model Search & Filter Toolbar */}
+								<div className='flex items-center gap-2 mb-2.5'>
+									<div className='relative flex-1'>
+										<Search className='w-3.5 h-3.5 text-cyan-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none' />
+										<input
+											type='text'
+											value={modelSearchQuery}
+											onChange={(e) => setModelSearchQuery(e.target.value)}
+											placeholder={`Search ${AI_PROVIDER_INFO[selectedProvider]?.name || 'AI'} models (e.g. Flash, 2.5, Lite, Pro)...`}
+											className='w-full bg-[#080B22] border border-cyan-500/30 focus:border-cyan-400 text-white font-medium text-xs rounded-xl pl-8.5 pr-7 py-2 placeholder:text-slate-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 transition-all'
+										/>
+										{modelSearchQuery && (
+											<button
+												type='button'
+												onClick={() => setModelSearchQuery('')}
+												className='absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5 rounded cursor-pointer'
+												title='Clear search'>
+												<X className='w-3.5 h-3.5' />
+											</button>
+										)}
+									</div>
+									<span className='text-[10px] font-bold text-slate-400 px-2.5 py-1.5 bg-[#080B22] rounded-xl border border-slate-700/80 flex-shrink-0'>
+										{filteredModels.length} of {modelsList.length}
+									</span>
+								</div>
+
+								{/* Compact Model Cards Grid */}
+								<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-[290px] overflow-y-auto pr-1 scrollbar-thin'>
+									{filteredModels.map((model) => {
+										const isSelected = selectedModel === model.id;
+										return (
+											<button
+												key={model.id}
+												type='button'
+												disabled={isValidating || isFetchingModels}
+												onClick={() => {
+													playButtonPop(soundEnabled);
+													setSelectedModel(model.id);
+													setProviderModels((prev) => ({
+														...prev,
+														[selectedProvider]: model.id,
+													}));
+													if (error) setError('');
+												}}
+												className={`p-2.5 rounded-xl border text-left transition-all relative cursor-pointer flex flex-col justify-between gap-1.5 ${
+													isSelected ?
+														'bg-cyan-500/20 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)] ring-1 ring-cyan-400/50'
+													:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 hover:bg-[#121644]'
+												}`}>
+												<div className='flex items-start justify-between gap-1.5'>
+													<span
+														className={`text-xs font-black leading-snug truncate ${
+															isSelected ? 'text-cyan-300' : 'text-white'
+														}`}
+														title={model.name}>
+														{model.name}
+													</span>
+													<div className='flex items-center gap-1 flex-shrink-0'>
+														{isSelected && (
+															<div className='w-3.5 h-3.5 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shadow'>
+																<Check className='w-2.5 h-2.5 stroke-[3]' />
+															</div>
+														)}
+													</div>
+												</div>
+
+												<div className='flex items-center justify-between gap-1'>
+													<span className='text-[10px] font-bold text-slate-300 truncate'>
+														{model.tag}
+													</span>
+													{(
+														selectedProvider === AI_PROVIDERS.GEMINI &&
+														isModelRateLimited(model.id)
+													) ?
+														<span className='text-[8.5px] font-black px-1.5 py-0.2 rounded-full border bg-rose-500/20 text-rose-300 border-rose-400/40'>
+															⚠️ 429 Limit
+														</span>
+													:	<span
+															className={`text-[8.5px] font-black px-1.5 py-0.2 rounded-full border truncate max-w-[90px] ${model.badgeColor}`}>
+															{model.badge}
+														</span>
+													}
+												</div>
+
+												<p
+													className='text-[9.5px] text-slate-400 leading-tight line-clamp-1'
+													title={model.description}>
+													{model.description}
+												</p>
+											</button>
+										);
+									})}
+
+									{filteredModels.length === 0 && (
+										<div className='col-span-full p-4 rounded-xl bg-[#080B22] border border-slate-700/80 text-center'>
+											<p className='text-xs text-slate-300'>
+												No AI models found matching "<strong>{modelSearchQuery}</strong>"
+											</p>
+											<button
+												type='button'
+												onClick={() => setModelSearchQuery('')}
+												className='mt-2 px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 border border-cyan-400/40 text-xs font-bold transition-all cursor-pointer'>
+												Clear Search ✕
+											</button>
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Tab 3: Timer, Auto-Advance & Visual Pacing */}
+					{activeTab === 'pacing' && (
+						<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
+							{/* Section 4: Per-Question Time Limit */}
+							<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
+								<div className='flex items-center justify-between gap-2 mb-2.5'>
+									<div className='min-w-0'>
+										<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+											<Clock className='w-4 h-4 text-cyan-400 flex-shrink-0' />
+											<span className='text-xs sm:text-sm font-bold text-white'>
+												Per-Question Time Limit
+											</span>
+											<span
+												className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
+													isMandatoryTimer ?
+														'bg-amber-400 text-slate-950 shadow'
+													: timerEnabled ?
+														'bg-emerald-400 text-slate-950 shadow'
+													:	'bg-slate-800 text-slate-400'
+												}`}>
+												{isMandatoryTimer ?
+													'Mandatory (Ages 8–14)'
+												: timerEnabled ?
+													'Enabled'
+												:	'Optional'}
+											</span>
+										</div>
+										<p className='text-[11px] sm:text-xs text-slate-400 mt-0.5'>
+											{isMandatoryTimer ?
+												'Sets an active countdown challenge for each question. Mandatory for Upper Elementary (8–10) & Middle School (11–14). Customize challenge duration below!'
+											:	'Sets a countdown challenge for each individual question. Optional for younger explorers.'
+											}
+										</p>
+									</div>
+
+									<button
+										type='button'
+										disabled={isValidating || isMandatoryTimer}
+										onClick={() => {
+											if (isMandatoryTimer) return;
+											playButtonPop(soundEnabled);
+											setTimerEnabled((prev) => !prev);
+										}}
+										title={
+											isMandatoryTimer ?
+												'Countdown timer is mandatory for Ages 8–14 to ensure active challenge. You can change the question duration below.'
+											: timerEnabled ?
+												'Turn timer off (unlimited time)'
+											:	'Turn timer on'
+										}
+										className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border flex items-center gap-1 ${
+											isMandatoryTimer ?
+												'bg-amber-400 text-slate-950 border-amber-300 shadow cursor-not-allowed opacity-95'
+											: timerEnabled ?
+												'bg-emerald-400 text-slate-950 border-emerald-300 shadow cursor-pointer'
+											:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white cursor-pointer'
+										}`}>
+										{isMandatoryTimer ?
+											<>
+												<Lock className='w-3 h-3 text-slate-950 inline' />
+												<span>⏱️ ON</span>
+											</>
+										: timerEnabled ?
+											'⏱️ ON'
+										:	'Timer OFF'}
+									</button>
+								</div>
+
+								{timerEnabled && (
+									<div className='space-y-2.5 pt-2.5 animate-in fade-in duration-200 border-t border-white/10'>
+										<div className='grid grid-cols-3 sm:flex sm:flex-wrap gap-1.5'>
+											{[
+												{ label: '30s', sec: 30 },
+												{ label: '45s', sec: 45 },
+												{ label: '60s (Def)', sec: 60 },
+												{ label: '90s', sec: 90 },
+												{ label: '2m', sec: 120 },
+												{ label: '3m', sec: 180 },
+											].map((preset) => (
+												<button
+													key={preset.sec}
+													type='button'
+													disabled={isValidating}
+													onClick={() => {
+														playButtonPop(soundEnabled);
+														setTimerSeconds(preset.sec);
+														setIsCustomTimer(false);
+													}}
+													className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-black transition-all border cursor-pointer text-center ${
+														timerSeconds === preset.sec && !isCustomTimer ?
+															'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 border-amber-300 shadow-md font-black'
+														:	'bg-[#0D1030] text-slate-300 border-slate-700 hover:bg-slate-800'
+													}`}>
+													{preset.label}
+												</button>
+											))}
+
+											<button
+												type='button'
+												disabled={isValidating}
+												onClick={() => {
+													playButtonPop(soundEnabled);
+													setIsCustomTimer((prev) => !prev);
+												}}
+												className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
+													isCustomTimer ?
+														'bg-amber-400/30 text-amber-300 border-amber-400'
+													:	'bg-[#0D1030] text-slate-400 border-slate-700 hover:text-white'
+												}`}>
+												Custom
+											</button>
+										</div>
+
+										{isCustomTimer && (
+											<div className='flex items-center gap-3 bg-[#0D1030] border border-amber-500/40 rounded-xl p-2 max-w-xs animate-in fade-in duration-200'>
+												<button
+													type='button'
+													disabled={isValidating}
+													onClick={() => handleStepTimer(-15)}
+													className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
+													<Minus className='w-4 h-4' />
+												</button>
+												<div className='flex-1 text-center font-mono font-black text-sm text-amber-300'>
+													{timerSeconds} seconds
+												</div>
+												<button
+													type='button'
+													disabled={isValidating}
+													onClick={() => handleStepTimer(15)}
+													className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
+													<Plus className='w-4 h-4' />
+												</button>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+
+							{/* Section 5: Next Question Auto-Advance Delay */}
+							<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
+								<div className='flex items-center justify-between gap-2 mb-2.5'>
+									<div className='min-w-0'>
+										<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+											<FastForward className='w-4 h-4 text-emerald-400 flex-shrink-0' />
+											<span className='text-xs sm:text-sm font-bold text-white'>
+												Next Question Auto-Advance
+											</span>
+											<span
+												className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
+													autoAdvanceEnabled ?
+														'bg-emerald-400 text-slate-950 shadow'
+													:	'bg-slate-800 text-slate-400'
+												}`}>
+												{autoAdvanceEnabled ? 'Active' : 'Manual'}
+											</span>
+										</div>
+										<p className='text-[11px] sm:text-xs text-slate-400 mt-0.5'>
+											Controls how long solution is shown before next question.
+										</p>
+									</div>
+
+									<button
+										type='button'
+										disabled={isValidating}
+										onClick={() => {
+											playButtonPop(soundEnabled);
+											setAutoAdvanceEnabled((prev) => !prev);
+										}}
+										className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
+											autoAdvanceEnabled ?
+												'bg-emerald-400 text-slate-950 border-emerald-300 shadow'
+											:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+										}`}>
+										{autoAdvanceEnabled ? '⏩ Auto ON' : 'Manual Next'}
+									</button>
+								</div>
+
+								{!autoAdvanceEnabled && (
+									<div className='p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300 font-semibold'>
+										💡 <strong>Manual Next Mode:</strong> The solution stays on
+										screen indefinitely until you click <em>Next Question ➔</em>
+										.
+									</div>
+								)}
+
+								{autoAdvanceEnabled && (
+									<div className='space-y-2.5 pt-2.5 animate-in fade-in duration-200 border-t border-white/10'>
+										<div className='grid grid-cols-3 sm:flex sm:flex-wrap gap-1.5'>
+											{[
+												{ label: '3s', sec: 3 },
+												{ label: '5s', sec: 5 },
+												{ label: '7s (Def)', sec: 7 },
+												{ label: '10s', sec: 10 },
+												{ label: '15s', sec: 15 },
+											].map((preset) => (
+												<button
+													key={preset.sec}
+													type='button'
+													disabled={isValidating}
+													onClick={() => {
+														playButtonPop(soundEnabled);
+														setAutoAdvanceSeconds(preset.sec);
+														setIsCustomAutoAdvance(false);
+													}}
+													className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-black transition-all border cursor-pointer text-center ${
+														(
+															autoAdvanceSeconds === preset.sec &&
+															!isCustomAutoAdvance
+														) ?
+															'bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 border-emerald-300 shadow-md font-black'
+														:	'bg-[#0D1030] text-slate-300 border-slate-700 hover:bg-slate-800'
+													}`}>
+													{preset.label}
+												</button>
+											))}
+
+											<button
+												type='button'
+												disabled={isValidating}
+												onClick={() => {
+													playButtonPop(soundEnabled);
+													setIsCustomAutoAdvance((prev) => !prev);
+												}}
+												className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
+													isCustomAutoAdvance ?
+														'bg-emerald-400/30 text-emerald-300 border-emerald-400'
+													:	'bg-[#0D1030] text-slate-400 border-slate-700 hover:text-white'
+												}`}>
+												Custom
+											</button>
+										</div>
+
+										{isCustomAutoAdvance && (
+											<div className='flex items-center gap-3 bg-[#0D1030] border border-emerald-500/40 rounded-xl p-2 max-w-xs animate-in fade-in duration-200'>
+												<button
+													type='button'
+													disabled={isValidating}
+													onClick={() => handleStepAutoAdvance(-1)}
+													className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
+													<Minus className='w-4 h-4' />
+												</button>
+												<div className='flex-1 text-center font-mono font-black text-sm text-emerald-300'>
+													{autoAdvanceSeconds}s delay
+												</div>
+												<button
+													type='button'
+													disabled={isValidating}
+													onClick={() => handleStepAutoAdvance(1)}
+													className='w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold text-sm cursor-pointer'>
+													<Plus className='w-4 h-4' />
+												</button>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+
+							{/* Section 6: Visual Diagrams & Clues Display */}
+							<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-indigo-500/40 shadow-inner'>
+								<div className='flex items-center justify-between gap-2 mb-2'>
+									<div className='min-w-0'>
+										<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+											<Eye className='w-4 h-4 text-indigo-400 flex-shrink-0' />
+											<span className='text-xs sm:text-sm font-bold text-white'>
+												Visual Diagrams & Clues
+											</span>
+											<span
+												className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
+													showVisualDiagrams ?
+														'bg-indigo-500 text-white shadow'
+													:	'bg-slate-800 text-slate-400'
+												}`}>
+												{showVisualDiagrams ? 'Enabled' : 'Disabled'}
+											</span>
+										</div>
+									</div>
+
+									<button
+										type='button'
+										disabled={isValidating}
+										onClick={() => {
+											playButtonPop(soundEnabled);
+											setShowVisualDiagrams((prev) => !prev);
+										}}
+										className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border cursor-pointer ${
+											showVisualDiagrams ?
+												'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]'
+											:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+										}`}>
+										{showVisualDiagrams ? '👁️ Shown' : '🙈 Hidden'}
+									</button>
+								</div>
+
+								<p className='text-[11px] sm:text-xs text-slate-300 leading-relaxed'>
+									Choose whether interactive visual diagrams, 3x3 matrices,
+									sequence patterns, and STEM illustrations appear alongside
+									questions and option choices.
+								</p>
+
+								{/* Warning Notice for Dynamic Visual Generation */}
+								<div className='mt-2.5 p-2.5 sm:p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-[11px] sm:text-xs flex items-start gap-2.5 leading-relaxed'>
+									<AlertTriangle className='w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5' />
+									<div>
+										<strong className='text-amber-300'>Note:</strong> Visual
+										diagrams and option shapes are dynamically synthesized based
+										on AI prompts. Minor visual variations may occasionally
+										occur.
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Tab 4: Audio, Voice & Neuro-Inclusive Accessibility */}
+					{activeTab === 'audio' && (
+						<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
+							{/* Section 7: Cosmic Audio & Sensory Focus Suite */}
+							<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-purple-500/40 shadow-inner space-y-4'>
+								{/* Header */}
+								<div className='flex items-center justify-between gap-2 border-b border-purple-500/20 pb-2.5'>
+									<div className='flex items-center gap-1.5 sm:gap-2 flex-wrap'>
+										<Volume2 className='w-4 h-4 text-purple-400 flex-shrink-0' />
+										<span className='text-xs sm:text-sm font-bold text-white'>
+											Cosmic Voice & Audio Focus Suite
+										</span>
+									</div>
+									<span className='text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'>
+										Real-Time Audio
+									</span>
+								</div>
+
+								{/* 7.1 Cosmic Voice Personalities */}
+								<div>
+									<div className='text-xs font-black text-purple-200 mb-1 flex items-center gap-1.5'>
+										<span>🎙️ Narrator Personality</span>
+									</div>
+									<p className='text-[11px] sm:text-xs text-slate-300 mb-2.5'>
+										Select the personality and vocal pace of your cosmic flight
+										instructor:
+									</p>
+									<div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+										{COSMIC_VOICE_PERSONALITIES.map((p) => {
+											const isSelected = selectedPersonality === p.id;
+											return (
+												<button
+													key={p.id}
+													type='button'
+													onClick={() => {
+														playButtonPop(soundEnabled);
+														setSelectedPersonality(p.id);
+														const phrases = {
+															classic:
+																'Hello! I am ready to read questions for you.',
+															bot: 'Beep-boop! All circuits operational. Ready for mission!',
+															nova: 'Commander Nova here! Prepare for stellar navigation!',
+															nebula:
+																'Welcome, young star traveler. Take a gentle breath.',
+														};
+														speakText(phrases[p.id] || phrases.classic);
+													}}
+													className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
+														isSelected ?
+															'bg-purple-500/25 border-purple-400 ring-2 ring-purple-400/50 shadow-md'
+														:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500'
+													}`}>
+													<span className='text-xl sm:text-2xl leading-none flex-shrink-0'>
+														{p.emoji}
+													</span>
+													<div className='min-w-0 flex-1'>
+														<div className='flex items-center justify-between gap-1'>
+															<span
+																className={`text-xs font-black ${
+																	isSelected ? 'text-purple-200' : 'text-white'
+																}`}>
+																{p.name}
+															</span>
+															{isSelected && (
+																<span className='text-[9px] font-black text-purple-300 bg-purple-500/30 px-1.5 py-0.2 rounded-full border border-purple-400/50'>
+																	ACTIVE
+																</span>
+															)}
+														</div>
+														<div className='text-[10px] text-slate-400 leading-tight mt-0.5'>
+															{p.description}
+														</div>
+													</div>
+												</button>
+											);
+										})}
+									</div>
+								</div>
+
+								{/* 7.2 Ambient Deep-Space Focus Lo-Fi Soundscape */}
+								<div className='pt-3 border-t border-purple-500/20'>
+									<div className='flex items-center justify-between gap-2 mb-1.5'>
+										<div className='flex items-center gap-1.5'>
+											<span className='text-sm'>🎧</span>
+											<span className='text-xs font-black text-cyan-200'>
+												Deep-Space Focus Ambient Sound
+											</span>
+										</div>
+										<button
+											type='button'
+											onClick={() => {
+												playButtonPop(soundEnabled);
+												const next = !ambientAudioEnabled;
+												setAmbientAudioEnabled(next);
+												if (next) {
+													startAmbientSound(ambientAudioVolume);
+												} else {
+													stopAmbientSound();
+												}
+											}}
+											className={`px-3 py-1 rounded-full text-xs font-black transition-all border cursor-pointer ${
+												ambientAudioEnabled ?
+													'bg-cyan-500 text-cyan-950 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
+												:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+											}`}>
+											{ambientAudioEnabled ? '✨ Active' : 'Off'}
+										</button>
+									</div>
+									<p className='text-[11px] text-slate-300 mb-2 leading-relaxed'>
+										Gentle 432Hz harmonic space drone &amp; soothing star
+										chimes. Scientifically designed to calm test anxiety and
+										improve focus.
+									</p>
+
+									{ambientAudioEnabled && (
+										<div className='bg-[#080B1E] p-2.5 rounded-xl border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn'>
+											<div className='flex items-center gap-2 w-full sm:w-auto'>
+												<span className='text-xs text-slate-400 font-bold'>
+													Soundscape Volume:
+												</span>
+												<input
+													type='range'
+													min='0.05'
+													max='0.8'
+													step='0.05'
+													value={ambientAudioVolume}
+													onChange={(e) => {
+														const val = parseFloat(e.target.value);
+														setAmbientAudioVolume(val);
+														setAmbientVolume(val);
+													}}
+													className='w-28 sm:w-36 accent-cyan-400 cursor-pointer'
+												/>
+												<span className='text-xs font-mono font-bold text-cyan-300'>
+													{Math.round(ambientAudioVolume * 100)}%
+												</span>
+											</div>
+											<button
+												type='button'
+												onClick={() => {
+													if (isAmbientSoundPlaying()) {
+														stopAmbientSound();
+													} else {
+														startAmbientSound(ambientAudioVolume);
+													}
+												}}
+												className='text-[11px] font-bold text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/80 px-2.5 py-1 rounded-lg border border-cyan-500/40 transition-all cursor-pointer'>
+												{isAmbientSoundPlaying() ?
+													'⏸ Pause Preview'
+												:	'▶ Test Audio'}
+											</button>
+										</div>
+									)}
+								</div>
+
+								{/* 7.3 Specific Browser Voice Picker */}
+								<div className='pt-3 border-t border-purple-500/20'>
+									<div className='flex items-center justify-between gap-2 mb-2'>
+										<span className='text-xs font-bold text-slate-300'>
+											Specific Synthesizer Voice Override
+										</span>
+										{selectedVoiceURI && (
+											<span className='text-[9px] font-black px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-400/40 truncate max-w-[150px]'>
+												{availableVoices.find(
+													(v) => v.voiceURI === selectedVoiceURI,
+												)?.name || 'Custom'}
+											</span>
+										)}
+									</div>
+
+									{availableVoices.length === 0 ?
+										<div className='text-xs text-slate-400 font-semibold p-2.5 rounded-xl bg-slate-800/60 border border-slate-700'>
+											⚠️ No voices loaded yet. Click speaker icon on a question
+											to pre-warm voices.
+										</div>
+									:	<>
+											{/* Voice Search & Filter Toolbar */}
+											<div className='flex items-center gap-2 mb-2'>
+												<div className='relative flex-1'>
+													<Search className='w-3.5 h-3.5 text-purple-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none' />
+													<input
+														type='text'
+														value={voiceSearchQuery}
+														onChange={(e) => setVoiceSearchQuery(e.target.value)}
+														placeholder='Search voices or languages (e.g. David, Zira, English, India)...'
+														className='w-full bg-[#080B22] border border-purple-500/30 focus:border-purple-400 text-white font-medium text-xs rounded-xl pl-8.5 pr-7 py-2 placeholder:text-slate-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-purple-400 transition-all'
+													/>
+													{voiceSearchQuery && (
+														<button
+															type='button'
+															onClick={() => setVoiceSearchQuery('')}
+															className='absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5 rounded cursor-pointer'
+															title='Clear search'>
+															<X className='w-3.5 h-3.5' />
+														</button>
+													)}
+												</div>
+												<span className='text-[10px] font-bold text-slate-400 px-2.5 py-1.5 bg-[#080B22] rounded-xl border border-slate-700/80 flex-shrink-0'>
+													{filteredVoices.length +
+														(!voiceSearchQuery ||
+														'auto recommended'.includes(
+															voiceSearchQuery.toLowerCase(),
+														) ?
+															1
+														:	0)}{' '}
+													voices
+												</span>
+											</div>
+
+											{/* Compact Voice Cards Grid */}
+											<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 sm:gap-2 max-h-[220px] overflow-y-auto pr-1 scrollbar-thin'>
+												{/* Default / Auto option */}
+												{(!voiceSearchQuery ||
+													'auto recommended'.includes(
+														voiceSearchQuery.toLowerCase(),
+													)) && (
+													<button
+														type='button'
+														onClick={() => {
+															playButtonPop(soundEnabled);
+															setSelectedVoiceURI('');
+														}}
+														className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
+															!selectedVoiceURI ?
+																'bg-purple-500/20 border-purple-400 ring-1 ring-purple-400/40 shadow-sm'
+															:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 hover:bg-[#121644]'
+														}`}>
+														<div
+															className={`w-2.5 h-2.5 rounded-full flex-shrink-0 border-2 ${
+																!selectedVoiceURI ?
+																	'bg-purple-400 border-purple-300'
+																:	'bg-transparent border-slate-500'
+															}`}
+														/>
+														<div className='min-w-0 flex-1'>
+															<div className='text-xs font-bold text-white truncate'>
+																Auto (Recommended)
+															</div>
+															<div className='text-[9.5px] text-slate-400 truncate'>
+																Matches personality
+															</div>
+														</div>
+													</button>
+												)}
+
+												{filteredVoices.map((voice) => {
+													const isSelected = selectedVoiceURI === voice.voiceURI;
+													return (
+														<button
+															key={voice.voiceURI}
+															type='button'
+															onClick={() => {
+																playButtonPop(soundEnabled);
+																setSelectedVoiceURI(voice.voiceURI);
+																speakText('Voice calibrated for mission.');
+															}}
+															className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
+																isSelected ?
+																	'bg-purple-500/20 border-purple-400 ring-1 ring-purple-400/40 shadow-sm'
+																:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 hover:bg-[#121644]'
+															}`}>
+															<div
+																className={`w-2.5 h-2.5 rounded-full flex-shrink-0 border-2 ${
+																	isSelected ?
+																		'bg-purple-400 border-purple-300'
+																	:	'bg-transparent border-slate-500'
+																}`}
+															/>
+															<div className='min-w-0 flex-1'>
+																<div
+																	className={`text-xs font-bold truncate ${
+																		isSelected ? 'text-purple-200' : 'text-white'
+																	}`}
+																	title={voice.name}>
+																	{voice.name}
+																</div>
+																<div className='text-[9.5px] text-slate-400 truncate flex items-center gap-1'>
+																	<span className='font-mono font-bold text-purple-300/90'>
+																		{voice.lang}
+																	</span>
+																	<span>·</span>
+																	<span>
+																		{voice.localService ? 'Local' : 'Network'}
+																	</span>
+																</div>
+															</div>
+														</button>
+													);
+												})}
+
+												{filteredVoices.length === 0 &&
+													voiceSearchQuery &&
+													!'auto recommended'.includes(
+														voiceSearchQuery.toLowerCase(),
+													) && (
+														<div className='col-span-full p-3.5 rounded-xl bg-[#080B22] border border-slate-700/80 text-center'>
+															<p className='text-xs text-slate-300'>
+																No voices match "
+																<strong>{voiceSearchQuery}</strong>"
+															</p>
+															<button
+																type='button'
+																onClick={() => setVoiceSearchQuery('')}
+																className='mt-2 px-3 py-1 rounded-lg bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 border border-purple-400/40 text-xs font-bold transition-all cursor-pointer'>
+																Clear Search ✕
+															</button>
+														</div>
+													)}
+											</div>
+										</>
+									}
+								</div>
+							</div>
+
+							{/* 8. Neuro-Inclusive Accessibility & Multilingual Speech Card */}
+							<div className='bg-[#0c1033]/80 border border-teal-500/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 flex flex-col gap-4 shadow-md'>
+								<div className='flex items-center gap-2.5'>
+									<div className='w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300 flex-shrink-0'>
+										<Sparkles className='w-4 h-4 sm:w-5 sm:h-5 text-teal-300' />
+									</div>
+									<div>
+										<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-2'>
+											<span>
+												Neuro-Inclusive Accessibility & Multilingual Voice
+											</span>
+											<span className='text-[9px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/40'>
+												Universal Flight
+											</span>
+										</h2>
+										<p className='text-[11px] text-slate-300'>
+											Sensory-friendly soundscapes, hyper-legible dyslexia
+											reading modes, and multilingual audio narration.
+										</p>
+									</div>
+								</div>
+
+								{/* 8.1 Multilingual Voice Narration */}
+								<div className='space-y-2'>
+									<div className='flex items-center justify-between'>
+										<span className='text-xs font-bold text-slate-300'>
+											Cosmic Voice Language:
+										</span>
+										<span className='text-[10px] font-black text-teal-300'>
+											{COSMIC_LANGUAGES.find(
+												(l) => l.code === accessibility.language,
+											)?.nativeName || 'English'}
+										</span>
+									</div>
+									<div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
+										{COSMIC_LANGUAGES.map((lang) => {
+											const isSelected = accessibility.language === lang.code;
+											return (
+												<button
+													key={lang.code}
+													type='button'
+													onClick={() => handleLanguageSelect(lang.code)}
+													className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
+														isSelected ?
+															'bg-teal-500/20 border-teal-400 ring-2 ring-teal-400/40 text-teal-200 shadow-sm'
+														:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
+													}`}>
+													<span className='text-base'>{lang.flag}</span>
+													<div className='min-w-0'>
+														<div className='text-xs font-bold truncate'>
+															{lang.label}
+														</div>
+														<div className='text-[9px] text-slate-400 truncate'>
+															{lang.nativeName}
+														</div>
+													</div>
+												</button>
+											);
+										})}
+									</div>
+								</div>
+
+								{/* 8.2 Inclusive Accessibility Toggles */}
+								<div className='grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-teal-500/20'>
+									{/* Toggle: Dyslexia-Friendly Font */}
+									<div
+										role='button'
+										tabIndex={0}
+										onClick={handleToggleDyslexic}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.preventDefault();
+												handleToggleDyslexic();
+											}
+										}}
+										className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
+											accessibility.dyslexicFont ?
+												'bg-teal-500/15 border-teal-400 text-teal-200'
+											:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
+										}`}>
+										<div className='flex items-center justify-between'>
+											<span className='text-xs font-bold'>
+												Dyslexia Reading Mode
+											</span>
+											<span
+												className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+													accessibility.dyslexicFont ?
+														'bg-teal-400 text-slate-950'
+													:	'bg-slate-800 text-slate-400'
+												}`}>
+												{accessibility.dyslexicFont ? 'Active' : 'Off'}
+											</span>
+										</div>
+										<p className='text-[10px] text-slate-400 leading-snug'>
+											Wide letter spacing and bottom-weighted hyper-legible
+											letterforms.
+										</p>
+									</div>
+
+									{/* Toggle: OLED High-Contrast Mode */}
+									<div
+										role='button'
+										tabIndex={0}
+										onClick={handleToggleOled}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.preventDefault();
+												handleToggleOled();
+											}
+										}}
+										className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
+											accessibility.highContrastOled ?
+												'bg-cyan-500/15 border-cyan-400 text-cyan-200'
+											:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
+										}`}>
+										<div className='flex items-center justify-between'>
+											<span className='text-xs font-bold'>
+												OLED Midnight Contrast
+											</span>
+											<span
+												className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+													accessibility.highContrastOled ?
+														'bg-cyan-400 text-slate-950'
+													:	'bg-slate-800 text-slate-400'
+												}`}>
+												{accessibility.highContrastOled ? 'Active' : 'Off'}
+											</span>
+										</div>
+										<p className='text-[10px] text-slate-400 leading-snug'>
+											Pitch-black cosmic backdrop with reduced glare for
+											low-light environments.
+										</p>
+									</div>
+
+									{/* Toggle: Sensory Audio Frequency */}
+									<div
+										role='button'
+										tabIndex={0}
+										onClick={handleToggleSensoryAudio}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.preventDefault();
+												handleToggleSensoryAudio();
+											}
+										}}
+										className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
+											accessibility.sensoryAudio ?
+												'bg-purple-500/15 border-purple-400 text-purple-200'
+											:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
+										}`}>
+										<div className='flex items-center justify-between'>
+											<span className='text-xs font-bold'>
+												Soothing Sensory Audio
+											</span>
+											<span
+												className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+													accessibility.sensoryAudio ?
+														'bg-purple-400 text-slate-950'
+													:	'bg-slate-800 text-slate-400'
+												}`}>
+												{accessibility.sensoryAudio ? 'Active' : 'Off'}
+											</span>
+										</div>
+										<p className='text-[10px] text-slate-400 leading-snug'>
+											Low-stimulation, warmer harmonic tones for children
+											sensitive to sharp chimes.
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
+				</fieldset>
+
+				{/* Error Alert */}
+				{error && (
+					<div
+						role='alert'
+						aria-live='assertive'
+						className='bg-rose-500/20 border border-rose-500/50 rounded-2xl p-4 text-xs sm:text-sm font-bold text-rose-200 text-center animate-shake shadow-lg'>
+						⚠️ {error}
+					</div>
+				)}
+
+				{/* Sticky Save / Launch Action Bar */}
+				<div className='sticky bottom-0 z-40 bg-[#0D1030]/95 backdrop-blur-md border-t-2 border-amber-400/50 shadow-[0_-10px_35px_rgba(0,0,0,0.65)] -mx-3 sm:-mx-8 -mb-3 sm:-mb-8 p-3 sm:p-4 rounded-b-2xl sm:rounded-b-3xl flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 items-stretch sm:items-center justify-between'>
+					<div className='hidden sm:flex items-center gap-2 text-xs text-slate-300 font-medium pl-1'>
+						<span className='w-2 h-2 rounded-full bg-emerald-400 animate-pulse' />
+						<span className='font-bold text-white'>
+							{nameInput || 'Explorer'}
+						</span>
+						<span className='text-slate-500'>•</span>
+						<span className='text-amber-300 font-semibold'>
+							{SETTINGS_TABS.find((t) => t.id === activeTab)?.label}
+						</span>
+					</div>
+
+					{saveSuccess ?
+						<div className='flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto ml-auto'>
+							<button
+								type='button'
+								onClick={() => {
+									playButtonPop(soundEnabled);
+									setSaveSuccess(false);
+								}}
+								className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2'>
+								<span>Edit Settings ✏️</span>
+							</button>
+
+							{hasProfile && onBack && (
 								<button
 									type='button'
 									onClick={() => {
 										playButtonPop(soundEnabled);
-										const next = !ambientAudioEnabled;
-										setAmbientAudioEnabled(next);
-										if (next) {
-											startAmbientSound(ambientAudioVolume);
-										} else {
-											stopAmbientSound();
-										}
+										onBack();
 									}}
-									className={`px-3 py-1 rounded-full text-xs font-black transition-all border cursor-pointer ${
-										ambientAudioEnabled ?
-											'bg-cyan-500 text-cyan-950 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
-										:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
-									}`}>
-									{ambientAudioEnabled ? '✨ Active' : 'Off'}
+									className='w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-105 active:scale-95'>
+									<span>Back to Dashboard ➔</span>
 								</button>
-							</div>
-							<p className='text-[11px] text-slate-300 mb-2 leading-relaxed'>
-								Gentle 432Hz harmonic space drone &amp; soothing star chimes.
-								Scientifically designed to calm test anxiety and improve focus.
-							</p>
-
-							{ambientAudioEnabled && (
-								<div className='bg-[#080B1E] p-2.5 rounded-xl border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn'>
-									<div className='flex items-center gap-2 w-full sm:w-auto'>
-										<span className='text-xs text-slate-400 font-bold'>
-											Soundscape Volume:
-										</span>
-										<input
-											type='range'
-											min='0.05'
-											max='0.8'
-											step='0.05'
-											value={ambientAudioVolume}
-											onChange={(e) => {
-												const val = parseFloat(e.target.value);
-												setAmbientAudioVolume(val);
-												setAmbientVolume(val);
-											}}
-											className='w-28 sm:w-36 accent-cyan-400 cursor-pointer'
-										/>
-										<span className='text-xs font-mono font-bold text-cyan-300'>
-											{Math.round(ambientAudioVolume * 100)}%
-										</span>
-									</div>
-									<button
-										type='button'
-										onClick={() => {
-											if (isAmbientSoundPlaying()) {
-												stopAmbientSound();
-											} else {
-												startAmbientSound(ambientAudioVolume);
-											}
-										}}
-										className='text-[11px] font-bold text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/80 px-2.5 py-1 rounded-lg border border-cyan-500/40 transition-all cursor-pointer'>
-										{isAmbientSoundPlaying() ?
-											'⏸ Pause Preview'
-										:	'▶ Test Audio'}
-									</button>
-								</div>
 							)}
 						</div>
+					:	<div className='flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto ml-auto'>
+							{hasProfile && onBack && (
+								<button
+									type='button'
+									disabled={isValidating}
+									onClick={handleAttemptLeave}
+									className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400 text-center disabled:opacity-50 disabled:cursor-not-allowed'>
+									Cancel
+								</button>
+							)}
 
-						{/* 7.3 Specific Browser Voice Picker */}
-						<div className='pt-3 border-t border-purple-500/20'>
-							<div className='flex items-center justify-between gap-2 mb-1.5'>
-								<span className='text-xs font-bold text-slate-300'>
-									Specific Synthesizer Voice Override
-								</span>
-								{selectedVoiceURI && (
-									<span className='text-[9px] font-black px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-400/40 truncate max-w-[150px]'>
-										{availableVoices.find(
-											(v) => v.voiceURI === selectedVoiceURI,
-										)?.name || 'Custom'}
-									</span>
-								)}
-							</div>
-
-							{availableVoices.length === 0 ?
-								<div className='text-xs text-slate-400 font-semibold p-2.5 rounded-xl bg-slate-800/60 border border-slate-700'>
-									⚠️ No voices loaded yet. Click speaker icon on a question to
-									pre-warm voices.
-								</div>
-							:	<div className='grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[160px] overflow-y-auto pr-1'>
-									{/* Default / Auto option */}
-									<button
-										type='button'
-										onClick={() => {
-											playButtonPop(soundEnabled);
-											setSelectedVoiceURI('');
-										}}
-										className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-											!selectedVoiceURI ?
-												'bg-purple-500/20 border-purple-400 ring-2 ring-purple-400/40'
-											:	'bg-[#0D1030] border-slate-700 hover:border-slate-500'
-										}`}>
-										<div
-											className={`w-2.5 h-2.5 rounded-full flex-shrink-0 border-2 ${
-												!selectedVoiceURI ?
-													'bg-purple-400 border-purple-300'
-												:	'bg-transparent border-slate-500'
-											}`}
-										/>
-										<div className='min-w-0'>
-											<div className='text-xs font-bold text-white'>
-												Auto (Recommended)
-											</div>
-											<div className='text-[10px] text-slate-400'>
-												Matches personality automatically
-											</div>
-										</div>
-									</button>
-
-									{availableVoices.map((voice) => {
-										const isSelected = selectedVoiceURI === voice.voiceURI;
-										return (
-											<button
-												key={voice.voiceURI}
-												type='button'
-												onClick={() => {
-													playButtonPop(soundEnabled);
-													setSelectedVoiceURI(voice.voiceURI);
-													speakText('Voice calibrated for mission.');
-												}}
-												className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-													isSelected ?
-														'bg-purple-500/20 border-purple-400 ring-2 ring-purple-400/40'
-													:	'bg-[#0D1030] border-slate-700 hover:border-slate-500'
-												}`}>
-												<div
-													className={`w-2.5 h-2.5 rounded-full flex-shrink-0 border-2 ${
-														isSelected ?
-															'bg-purple-400 border-purple-300'
-														:	'bg-transparent border-slate-500'
-													}`}
-												/>
-												<div className='min-w-0'>
-													<div
-														className={`text-xs font-bold truncate ${
-															isSelected ? 'text-purple-200' : 'text-white'
-														}`}>
-														{voice.name}
-													</div>
-													<div className='text-[10px] text-slate-400 truncate'>
-														{voice.lang}
-														{voice.localService ? ' · Local' : ' · Network'}
-													</div>
-												</div>
-											</button>
-										);
-									})}
-								</div>
-							}
-						</div>
-					</div>
-
-					{/* 8. Neuro-Inclusive Accessibility & Multilingual Speech Card */}
-					<div className='bg-[#0c1033]/80 border border-teal-500/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 flex flex-col gap-4 shadow-md'>
-						<div className='flex items-center gap-2.5'>
-							<div className='w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300 flex-shrink-0'>
-								<Sparkles className='w-4 h-4 sm:w-5 sm:h-5 text-teal-300' />
-							</div>
-							<div>
-								<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-2'>
-									<span>
-										Neuro-Inclusive Accessibility & Multilingual Voice
-									</span>
-									<span className='text-[9px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/40'>
-										Universal Flight
-									</span>
-								</h2>
-								<p className='text-[11px] text-slate-300'>
-									Sensory-friendly soundscapes, hyper-legible dyslexia reading
-									modes, and multilingual audio narration.
-								</p>
-							</div>
-						</div>
-
-						{/* 8.1 Multilingual Voice Narration */}
-						<div className='space-y-2'>
-							<div className='flex items-center justify-between'>
-								<span className='text-xs font-bold text-slate-300'>
-									Cosmic Voice Language:
-								</span>
-								<span className='text-[10px] font-black text-teal-300'>
-									{COSMIC_LANGUAGES.find(
-										(l) => l.code === accessibility.language,
-									)?.nativeName || 'English'}
-								</span>
-							</div>
-							<div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
-								{COSMIC_LANGUAGES.map((lang) => {
-									const isSelected = accessibility.language === lang.code;
-									return (
-										<button
-											key={lang.code}
-											type='button'
-											onClick={() => handleLanguageSelect(lang.code)}
-											className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-												isSelected ?
-													'bg-teal-500/20 border-teal-400 ring-2 ring-teal-400/40 text-teal-200 shadow-sm'
-												:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
-											}`}>
-											<span className='text-base'>{lang.flag}</span>
-											<div className='min-w-0'>
-												<div className='text-xs font-bold truncate'>
-													{lang.label}
-												</div>
-												<div className='text-[9px] text-slate-400 truncate'>
-													{lang.nativeName}
-												</div>
-											</div>
-										</button>
-									);
-								})}
-							</div>
-						</div>
-
-						{/* 8.2 Inclusive Accessibility Toggles */}
-						<div className='grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-teal-500/20'>
-							{/* Toggle: Dyslexia-Friendly Font */}
-							<div
-								role='button'
-								tabIndex={0}
-								onClick={handleToggleDyslexic}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										handleToggleDyslexic();
-									}
-								}}
-								className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
-									accessibility.dyslexicFont ?
-										'bg-teal-500/15 border-teal-400 text-teal-200'
-									:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
+							<button
+								type='button'
+								disabled={isValidating}
+								onClick={() => handleSave(true)}
+								className={`w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 focus-visible:ring-4 focus-visible:ring-amber-400 ${
+									isValidating ?
+										'bg-gradient-to-r from-amber-600 via-pink-600 to-purple-700 opacity-90 cursor-wait animate-pulse text-white'
+									:	'bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white hover:scale-105 active:scale-95 cursor-pointer'
 								}`}>
-								<div className='flex items-center justify-between'>
-									<span className='text-xs font-bold'>
-										Dyslexia Reading Mode
-									</span>
-									<span
-										className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
-											accessibility.dyslexicFont ?
-												'bg-teal-400 text-slate-950'
-											:	'bg-slate-800 text-slate-400'
-										}`}>
-										{accessibility.dyslexicFont ? 'Active' : 'Off'}
-									</span>
-								</div>
-								<p className='text-[10px] text-slate-400 leading-snug'>
-									Wide letter spacing and bottom-weighted hyper-legible
-									letterforms.
-								</p>
-							</div>
-
-							{/* Toggle: OLED High-Contrast Mode */}
-							<div
-								role='button'
-								tabIndex={0}
-								onClick={handleToggleOled}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										handleToggleOled();
-									}
-								}}
-								className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
-									accessibility.highContrastOled ?
-										'bg-cyan-500/15 border-cyan-400 text-cyan-200'
-									:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
-								}`}>
-								<div className='flex items-center justify-between'>
-									<span className='text-xs font-bold'>
-										OLED Midnight Contrast
-									</span>
-									<span
-										className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
-											accessibility.highContrastOled ?
-												'bg-cyan-400 text-slate-950'
-											:	'bg-slate-800 text-slate-400'
-										}`}>
-										{accessibility.highContrastOled ? 'Active' : 'Off'}
-									</span>
-								</div>
-								<p className='text-[10px] text-slate-400 leading-snug'>
-									Pitch-black cosmic backdrop with reduced glare for low-light
-									environments.
-								</p>
-							</div>
-
-							{/* Toggle: Sensory Audio Frequency */}
-							<div
-								role='button'
-								tabIndex={0}
-								onClick={handleToggleSensoryAudio}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										handleToggleSensoryAudio();
-									}
-								}}
-								className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
-									accessibility.sensoryAudio ?
-										'bg-purple-500/15 border-purple-400 text-purple-200'
-									:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
-								}`}>
-								<div className='flex items-center justify-between'>
-									<span className='text-xs font-bold'>
-										Soothing Sensory Audio
-									</span>
-									<span
-										className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
-											accessibility.sensoryAudio ?
-												'bg-purple-400 text-slate-950'
-											:	'bg-slate-800 text-slate-400'
-										}`}>
-										{accessibility.sensoryAudio ? 'Active' : 'Off'}
-									</span>
-								</div>
-								<p className='text-[10px] text-slate-400 leading-snug'>
-									Low-stimulation, warmer harmonic tones for children sensitive
-									to sharp chimes.
-								</p>
-							</div>
+								{isValidating ?
+									<>
+										<Sparkles className='w-5 h-5 text-amber-300 animate-spin' />
+										<span>Validating Key with Gemini... ⏳</span>
+									</>
+								: pendingSkill ?
+									<>
+										<Rocket className='w-5 h-5 text-amber-300' />
+										<span>Save & Launch {pendingSkill} 🚀</span>
+									</>
+								:	<>
+										<Check className='w-5 h-5 stroke-[3]' />
+										<span>Save Settings 🚀</span>
+									</>
+								}
+							</button>
 						</div>
-					</div>
+					}
 				</div>
-			)}
-		</fieldset>
-
-		{/* Error Alert */}
-		{error && (
-			<div
-				role='alert'
-				aria-live='assertive'
-				className='bg-rose-500/20 border border-rose-500/50 rounded-2xl p-4 text-xs sm:text-sm font-bold text-rose-200 text-center animate-shake shadow-lg'>
-				⚠️ {error}
-			</div>
-		)}
-
-		{/* Sticky Save / Launch Action Bar */}
-		<div className='sticky bottom-0 z-40 bg-[#0D1030]/95 backdrop-blur-md border-t-2 border-amber-400/50 shadow-[0_-10px_35px_rgba(0,0,0,0.65)] -mx-3 sm:-mx-8 -mb-3 sm:-mb-8 p-3 sm:p-4 rounded-b-2xl sm:rounded-b-3xl flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 items-stretch sm:items-center justify-between'>
-			<div className='hidden sm:flex items-center gap-2 text-xs text-slate-300 font-medium pl-1'>
-				<span className='w-2 h-2 rounded-full bg-emerald-400 animate-pulse' />
-				<span className='font-bold text-white'>{nameInput || 'Explorer'}</span>
-				<span className='text-slate-500'>•</span>
-				<span className='text-amber-300 font-semibold'>
-					{SETTINGS_TABS.find((t) => t.id === activeTab)?.label}
-				</span>
-			</div>
-
-			{saveSuccess ?
-				<div className='flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto ml-auto'>
-					<button
-						type='button'
-						onClick={() => {
-							playButtonPop(soundEnabled);
-							setSaveSuccess(false);
-						}}
-						className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2'>
-						<span>Edit Settings ✏️</span>
-					</button>
-
-					{hasProfile && onBack && (
-						<button
-							type='button'
-							onClick={() => {
-								playButtonPop(soundEnabled);
-								onBack();
-							}}
-							className='w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-105 active:scale-95'>
-							<span>Back to Dashboard ➔</span>
-						</button>
-					)}
-				</div>
-			:	<div className='flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto ml-auto'>
-					{hasProfile && onBack && (
-						<button
-							type='button'
-							disabled={isValidating}
-							onClick={handleAttemptLeave}
-							className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400 text-center disabled:opacity-50 disabled:cursor-not-allowed'>
-							Cancel
-						</button>
-					)}
-
-					<button
-						type='button'
-						disabled={isValidating}
-						onClick={() => handleSave(true)}
-						className={`w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 focus-visible:ring-4 focus-visible:ring-amber-400 ${
-							isValidating ?
-								'bg-gradient-to-r from-amber-600 via-pink-600 to-purple-700 opacity-90 cursor-wait animate-pulse text-white'
-							:	'bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white hover:scale-105 active:scale-95 cursor-pointer'
-						}`}>
-						{isValidating ?
-							<>
-								<Sparkles className='w-5 h-5 text-amber-300 animate-spin' />
-								<span>Validating Key with Gemini... ⏳</span>
-							</>
-						: pendingSkill ?
-							<>
-								<Rocket className='w-5 h-5 text-amber-300' />
-								<span>Save & Launch {pendingSkill} 🚀</span>
-							</>
-						:	<>
-								<Check className='w-5 h-5 stroke-[3]' />
-								<span>Save Settings 🚀</span>
-							</>
-						}
-					</button>
-				</div>
-			}
-		</div>
 			</div>
 
 			{/* Unsaved Changes Confirmation Modal */}
