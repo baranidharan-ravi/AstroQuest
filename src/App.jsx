@@ -49,6 +49,10 @@ import {
 	speakText,
 } from './utils/audioSynthesis';
 import {
+	recordAnomaly,
+	recordAnomalyMastery,
+} from './utils/anomaliesManager';
+import {
 	awardBadge,
 	awardXP,
 	getStoredAchievements,
@@ -681,6 +685,7 @@ export default function App() {
 		setWasSkippedOnRevisit(false);
 		setSelectedOptionId(null);
 		playIncorrectSound(soundEnabled);
+		recordAnomaly(currentQuestion, 'timed_out');
 		setLiveAnnouncement(
 			"Time's up! No answer was selected. Look at the correct solution.",
 		);
@@ -929,9 +934,11 @@ export default function App() {
 			if (isReviewMode) {
 				awardBadge('nebula_scholar');
 			}
+			recordAnomalyMastery(currentQuestion.id);
 			setAchievements(getStoredAchievements());
 		} else {
 			playIncorrectSound(soundEnabled);
+			recordAnomaly(currentQuestion, 'incorrect');
 		}
 
 		// If auto-advance is enabled, start the configured countdown

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
+	COSMIC_LANGUAGES,
 	DEFAULT_QUESTION_TIMER_SECONDS,
 	isTimerMandatoryForAge,
 } from '../../constants';
@@ -60,11 +61,14 @@ import {
 	stopAmbientSound,
 } from '../../utils/ambientAudio';
 import {
+	applyAccessibilityDomClasses,
 	COSMIC_VOICE_PERSONALITIES,
 	getAvailableVoices,
+	getStoredAccessibilitySettings,
 	getStoredVoicePersonality,
 	getStoredVoiceURI,
 	playButtonPop,
+	setStoredAccessibilitySettings,
 	setStoredVoicePersonality,
 	setStoredVoiceURI,
 	speakText,
@@ -308,6 +312,47 @@ const SettingsScreen = memo(function SettingsScreen({
 	const [selectedVoiceURI, setSelectedVoiceURI] = useState(
 		() => getStoredVoiceURI() || '',
 	);
+
+	// Neuro-Inclusive Accessibility & Multilingual State
+	const [accessibility, setAccessibility] = useState(() =>
+		getStoredAccessibilitySettings(),
+	);
+
+	const handleLanguageSelect = (code) => {
+		playButtonPop(soundEnabled);
+		const next = { ...accessibility, language: code };
+		setAccessibility(next);
+		applyAccessibilityDomClasses(next);
+	};
+
+	const handleToggleDyslexic = () => {
+		playButtonPop(soundEnabled);
+		const next = {
+			...accessibility,
+			dyslexicFont: !accessibility.dyslexicFont,
+		};
+		setAccessibility(next);
+		applyAccessibilityDomClasses(next);
+	};
+
+	const handleToggleOled = () => {
+		playButtonPop(soundEnabled);
+		const next = {
+			...accessibility,
+			highContrastOled: !accessibility.highContrastOled,
+		};
+		setAccessibility(next);
+		applyAccessibilityDomClasses(next);
+	};
+
+	const handleToggleSensoryAudio = () => {
+		playButtonPop(soundEnabled);
+		const next = {
+			...accessibility,
+			sensoryAudio: !accessibility.sensoryAudio,
+		};
+		setAccessibility(next);
+	};
 
 	const [initialValues, setInitialValues] = useState(null);
 	const [showUnsavedModal, setShowUnsavedModal] = useState(false);
@@ -1047,6 +1092,7 @@ const SettingsScreen = memo(function SettingsScreen({
 		setStoredVoicePersonality(selectedPersonality);
 		setStoredAmbientEnabled(ambientAudioEnabled);
 		setStoredAmbientVolume(ambientAudioVolume);
+		setStoredAccessibilitySettings(accessibility);
 
 		if (ambientAudioEnabled) {
 			startAmbientSound(ambientAudioVolume);
@@ -2488,6 +2534,159 @@ const SettingsScreen = memo(function SettingsScreen({
 								})}
 							</div>
 						}
+					</div>
+				</div>
+
+				{/* 8. Neuro-Inclusive Accessibility & Multilingual Speech Card */}
+				<div className='bg-[#0c1033]/80 border border-teal-500/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 flex flex-col gap-4 shadow-md'>
+					<div className='flex items-center gap-2.5'>
+						<div className='w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300 flex-shrink-0'>
+							<Sparkles className='w-4 h-4 sm:w-5 sm:h-5 text-teal-300' />
+						</div>
+						<div>
+							<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-2'>
+								<span>Neuro-Inclusive Accessibility & Multilingual Voice</span>
+								<span className='text-[9px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/40'>
+									Universal Flight
+								</span>
+							</h2>
+							<p className='text-[11px] text-slate-300'>
+								Sensory-friendly soundscapes, hyper-legible dyslexia reading modes, and multilingual audio narration.
+							</p>
+						</div>
+					</div>
+
+					{/* 8.1 Multilingual Voice Narration */}
+					<div className='space-y-2'>
+						<div className='flex items-center justify-between'>
+							<span className='text-xs font-bold text-slate-300'>
+								Cosmic Voice Language:
+							</span>
+							<span className='text-[10px] font-black text-teal-300'>
+								{COSMIC_LANGUAGES.find((l) => l.code === accessibility.language)?.nativeName || 'English'}
+							</span>
+						</div>
+						<div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
+							{COSMIC_LANGUAGES.map((lang) => {
+								const isSelected = accessibility.language === lang.code;
+								return (
+									<button
+										key={lang.code}
+										type='button'
+										onClick={() => handleLanguageSelect(lang.code)}
+										className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
+											isSelected ?
+												'bg-teal-500/20 border-teal-400 ring-2 ring-teal-400/40 text-teal-200 shadow-sm'
+											:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
+										}`}>
+										<span className='text-base'>{lang.flag}</span>
+										<div className='min-w-0'>
+											<div className='text-xs font-bold truncate'>{lang.label}</div>
+											<div className='text-[9px] text-slate-400 truncate'>{lang.nativeName}</div>
+										</div>
+									</button>
+								);
+							})}
+						</div>
+					</div>
+
+					{/* 8.2 Inclusive Accessibility Toggles */}
+					<div className='grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-teal-500/20'>
+						{/* Toggle: Dyslexia-Friendly Font */}
+						<div
+							role='button'
+							tabIndex={0}
+							onClick={handleToggleDyslexic}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									handleToggleDyslexic();
+								}
+							}}
+							className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
+								accessibility.dyslexicFont ?
+									'bg-teal-500/15 border-teal-400 text-teal-200'
+								:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
+							}`}>
+							<div className='flex items-center justify-between'>
+								<span className='text-xs font-bold'>Dyslexia Reading Mode</span>
+								<span
+									className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+										accessibility.dyslexicFont ?
+											'bg-teal-400 text-slate-950'
+										:	'bg-slate-800 text-slate-400'
+									}`}>
+									{accessibility.dyslexicFont ? 'Active' : 'Off'}
+								</span>
+							</div>
+							<p className='text-[10px] text-slate-400 leading-snug'>
+								Wide letter spacing and bottom-weighted hyper-legible letterforms.
+							</p>
+						</div>
+
+						{/* Toggle: OLED High-Contrast Mode */}
+						<div
+							role='button'
+							tabIndex={0}
+							onClick={handleToggleOled}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									handleToggleOled();
+								}
+							}}
+							className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
+								accessibility.highContrastOled ?
+									'bg-cyan-500/15 border-cyan-400 text-cyan-200'
+								:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
+							}`}>
+							<div className='flex items-center justify-between'>
+								<span className='text-xs font-bold'>OLED Midnight Contrast</span>
+								<span
+									className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+										accessibility.highContrastOled ?
+											'bg-cyan-400 text-slate-950'
+										:	'bg-slate-800 text-slate-400'
+									}`}>
+									{accessibility.highContrastOled ? 'Active' : 'Off'}
+								</span>
+							</div>
+							<p className='text-[10px] text-slate-400 leading-snug'>
+								Pitch-black cosmic backdrop with reduced glare for low-light environments.
+							</p>
+						</div>
+
+						{/* Toggle: Sensory Audio Frequency */}
+						<div
+							role='button'
+							tabIndex={0}
+							onClick={handleToggleSensoryAudio}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									handleToggleSensoryAudio();
+								}
+							}}
+							className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
+								accessibility.sensoryAudio ?
+									'bg-purple-500/15 border-purple-400 text-purple-200'
+								:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
+							}`}>
+							<div className='flex items-center justify-between'>
+								<span className='text-xs font-bold'>Soothing Sensory Audio</span>
+								<span
+									className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+										accessibility.sensoryAudio ?
+											'bg-purple-400 text-slate-950'
+										:	'bg-slate-800 text-slate-400'
+									}`}>
+									{accessibility.sensoryAudio ? 'Active' : 'Off'}
+								</span>
+							</div>
+							<p className='text-[10px] text-slate-400 leading-snug'>
+								Low-stimulation, warmer harmonic tones for children sensitive to sharp chimes.
+							</p>
+						</div>
 					</div>
 				</div>
 

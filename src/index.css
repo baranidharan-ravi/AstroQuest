@@ -15,6 +15,22 @@
 	}
 }
 
+/* Neuro-Inclusive Dyslexia & Sensory Accessibility */
+body.font-dyslexic,
+body.font-dyslexic * {
+	font-family: 'Comic Sans MS', 'Atkinson Hyperlegible', sans-serif !important;
+	letter-spacing: 0.035em !important;
+	word-spacing: 0.08em !important;
+	line-height: 1.6 !important;
+}
+
+/* OLED Midnight High-Contrast Sensory Mode */
+body.high-contrast-oled,
+body.high-contrast-oled .space-background {
+	background-color: #000000 !important;
+	background-image: none !important;
+}
+
 /* Custom Background Space Stars */
 .space-background {
 	background-color: #070926;

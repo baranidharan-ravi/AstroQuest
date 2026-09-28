@@ -1,7 +1,56 @@
 // Pure Web Audio API Sound Generator & Web Speech API Narration
 // Zero external asset files needed, 100% reliable & zero latency
+import { ACCESSIBILITY_SETTINGS_STORAGE_KEY, COSMIC_LANGUAGES } from '../constants';
 
 let audioCtx = null;
+
+export function getStoredAccessibilitySettings() {
+	try {
+		if (typeof localStorage !== 'undefined') {
+			const raw = localStorage.getItem(ACCESSIBILITY_SETTINGS_STORAGE_KEY);
+			if (raw) return JSON.parse(raw);
+		}
+	} catch {}
+	return {
+		language: 'en-US',
+		dyslexicFont: false,
+		highContrastOled: false,
+		sensoryAudio: false,
+	};
+}
+
+export function setStoredAccessibilitySettings(settings) {
+	try {
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem(
+				ACCESSIBILITY_SETTINGS_STORAGE_KEY,
+				JSON.stringify(settings),
+			);
+		}
+		applyAccessibilityDomClasses(settings);
+	} catch {}
+}
+
+export function applyAccessibilityDomClasses(settings) {
+	if (typeof document === 'undefined' || !document.body) return;
+	const current = settings || getStoredAccessibilitySettings();
+	if (current?.dyslexicFont) {
+		document.body.classList.add('font-dyslexic');
+	} else {
+		document.body.classList.remove('font-dyslexic');
+	}
+	if (current?.highContrastOled) {
+		document.body.classList.add('high-contrast-oled');
+	} else {
+		document.body.classList.remove('high-contrast-oled');
+	}
+}
+
+if (typeof window !== 'undefined') {
+	try {
+		applyAccessibilityDomClasses();
+	} catch {}
+}
 
 function getAudioContext() {
 	try {
@@ -22,14 +71,20 @@ function getAudioContext() {
 }
 
 /**
- * Play a cheerful, bright chime for correct answers
+ * Play a cheerful, bright chime for correct answers (mellow in sensory mode)
  */
 export function playCorrectSound(enabled = true) {
 	if (!enabled) return;
 	const ctx = getAudioContext();
 	if (!ctx) return;
 
-	const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6 (Major arpeggio)
+	const isSensory = getStoredAccessibilitySettings().sensoryAudio;
+	// When sensory mode is enabled: softer warm marimba arpeggio with lower gain and gentler frequencies
+	const notes =
+		isSensory ?
+			[261.63, 329.63, 392.0, 523.25] // C4, E4, G4, C5 (an octave lower, warmer)
+		:	[523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6 (standard bright)
+	const maxGain = isSensory ? 0.12 : 0.25;
 	const now = ctx.currentTime;
 
 	notes.forEach((freq, index) => {
@@ -40,7 +95,7 @@ export function playCorrectSound(enabled = true) {
 		osc.frequency.setValueAtTime(freq, now + index * 0.08);
 
 		gain.gain.setValueAtTime(0, now + index * 0.08);
-		gain.gain.linearRampToValueAtTime(0.25, now + index * 0.08 + 0.02);
+		gain.gain.linearRampToValueAtTime(maxGain, now + index * 0.08 + 0.02);
 		gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.08 + 0.35);
 
 		osc.connect(gain);
@@ -52,7 +107,7 @@ export function playCorrectSound(enabled = true) {
 }
 
 /**
- * Play a gentle, encouraging cartoon "Uh oh" boing for incorrect answers
+ * Play a gentle, encouraging cartoon "Uh oh" boing for incorrect answers (gentle hum in sensory mode)
  */
 export function playIncorrectSound(enabled = true) {
 	if (!enabled) return;
@@ -60,6 +115,24 @@ export function playIncorrectSound(enabled = true) {
 	if (!ctx) return;
 
 	const now = ctx.currentTime;
+	const isSensory = getStoredAccessibilitySettings().sensoryAudio;
+
+	if (isSensory) {
+		// Soft, warm low-frequency gentle hum (soothing, non-startling)
+		const osc = ctx.createOscillator();
+		const gain = ctx.createGain();
+		osc.type = 'sine';
+		osc.frequency.setValueAtTime(180, now);
+		osc.frequency.exponentialRampToValueAtTime(150, now + 0.3);
+		gain.gain.setValueAtTime(0, now);
+		gain.gain.linearRampToValueAtTime(0.08, now + 0.04);
+		gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+		osc.connect(gain);
+		gain.connect(ctx.destination);
+		osc.start(now);
+		osc.stop(now + 0.36);
+		return;
+	}
 
 	// Gentle low-pass filtered cartoon boing
 	const osc1 = ctx.createOscillator();
@@ -454,13 +527,26 @@ export function getStoredVoiceURI() {
 
 /**
  * Pick the voice to use, in priority order:
+ * 0. Matching native voice for selected non-English language
  * 1. User-selected voice URI from settings
  * 2. Preferred English voice (Natural / Google / Samantha / Jenny / Guy / Aria / David / Zira)
  * 3. Any English voice
  * 4. First available voice
  */
-function resolveVoice(voices, personality = null) {
+function resolveVoice(voices, personality = null, targetLang = null) {
 	if (!voices || voices.length === 0) return null;
+
+	// 0. Language-specific matching if language is not English
+	const accSettings = getStoredAccessibilitySettings();
+	const activeLang = targetLang || accSettings?.language || 'en-US';
+	const langPrefix = activeLang.split('-')[0].toLowerCase();
+
+	if (langPrefix !== 'en') {
+		const langMatch = voices.find(
+			(v) => v.lang && v.lang.toLowerCase().startsWith(langPrefix),
+		);
+		if (langMatch) return langMatch;
+	}
 
 	// 1. User-selected
 	const storedUri = getStoredVoiceURI();
@@ -545,6 +631,7 @@ export function speakText(
 	onStart = null,
 	onEnd = null,
 	onBoundary = null,
+	customLang = null,
 ) {
 	try {
 		if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
@@ -578,9 +665,12 @@ export function speakText(
 			COSMIC_VOICE_PERSONALITIES.find((p) => p.id === personalityId) ||
 			COSMIC_VOICE_PERSONALITIES[0];
 
+		const acc = getStoredAccessibilitySettings();
+		const activeLang = customLang || acc?.language || 'en-US';
+
 		utterance.rate = personality.rate || 0.92;
 		utterance.pitch = personality.pitch || 1.1;
-		utterance.lang = 'en-US';
+		utterance.lang = activeLang;
 
 		// Resolve and apply voice (respects user's saved preference and personality)
 		const liveVoices = window.speechSynthesis.getVoices();
@@ -589,10 +679,10 @@ export function speakText(
 		if (voices && voices.length > 0) {
 			cachedVoices = voices;
 		}
-		const voice = resolveVoice(voices, personality);
+		const voice = resolveVoice(voices, personality, activeLang);
 		if (voice) {
 			utterance.voice = voice;
-			utterance.lang = voice.lang || 'en-US';
+			utterance.lang = voice.lang || activeLang;
 		}
 
 		utterance.onstart = () => {

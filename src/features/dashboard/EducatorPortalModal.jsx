@@ -1,7 +1,10 @@
 import {
 	Award,
+	BookOpen,
 	Download,
 	Lock,
+	Printer,
+	QrCode,
 	ShieldCheck,
 	Sparkles,
 	TrendingUp,
@@ -9,10 +12,12 @@ import {
 	Zap,
 } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
+import { CURRICULUM_STANDARDS } from '../../constants';
 import { generateCognitiveFlightRecommendations } from '../../utils/adaptiveEngine';
 import { playButtonPop } from '../../utils/audioSynthesis';
 import { exportSessionToPdf } from '../../utils/pdfGenerator';
 import { loadProfileStats } from '../../utils/progressTracker';
+import { generatePrintableWorksheet } from '../../utils/worksheetGenerator';
 
 const EducatorPortalModal = memo(function EducatorPortalModal({
 	isOpen,
@@ -85,6 +90,9 @@ const EducatorPortalModal = memo(function EducatorPortalModal({
 		}
 	};
 
+	const [worksheetStatus, setWorksheetStatus] = useState(null);
+	const [activeStandardsTab, setActiveStandardsTab] = useState('all');
+
 	const handleExportPdf = () => {
 		playButtonPop(soundEnabled);
 		exportSessionToPdf(
@@ -99,6 +107,25 @@ const EducatorPortalModal = memo(function EducatorPortalModal({
 			},
 			`AstroQuest_Educator_Report_${kidName}.pdf`,
 		);
+	};
+
+	const handlePrintWorksheet = async () => {
+		playButtonPop(soundEnabled);
+		try {
+			setWorksheetStatus('Generating worksheet with QR launcher...');
+			await generatePrintableWorksheet({
+				title: 'Classroom & Home STEM Mission',
+				skillName: 'STEM & Logic Standards',
+				studentName: kidName,
+				studentAge: kidAge,
+			});
+			setWorksheetStatus('✓ Downloaded study sheet with Scan-to-Play QR code!');
+			setTimeout(() => setWorksheetStatus(null), 4000);
+		} catch (err) {
+			console.error(err);
+			setWorksheetStatus('⚠️ Could not generate worksheet.');
+			setTimeout(() => setWorksheetStatus(null), 3500);
+		}
 	};
 
 	return (
@@ -285,14 +312,101 @@ const EducatorPortalModal = memo(function EducatorPortalModal({
 							</div>
 						</div>
 
-						{/* PDF Export Button */}
-						<button
-							type='button'
-							onClick={handleExportPdf}
-							className='w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all'>
-							<Download className='w-4 h-4' />
-							<span>Download Full Progress Report (PDF)</span>
-						</button>
+						{/* Curriculum Standards Alignment (NGSS & Common Core) */}
+						<div className='bg-slate-950/70 border border-indigo-900/60 rounded-2xl p-4 flex flex-col gap-2.5'>
+							<div className='flex items-center justify-between flex-wrap gap-1'>
+								<div className='flex items-center gap-1.5 text-xs font-bold text-cyan-300'>
+									<BookOpen className='w-4 h-4' />
+									<span>Curriculum Standards Alignment</span>
+								</div>
+								<div className='flex items-center gap-1 text-[10px] font-bold'>
+									<button
+										type='button'
+										onClick={() => setActiveStandardsTab('all')}
+										className={`px-2 py-0.5 rounded-md transition-colors ${
+											activeStandardsTab === 'all' ?
+												'bg-cyan-500/30 text-cyan-200 border border-cyan-400/40'
+											:	'text-slate-400 hover:text-white'
+										}`}>
+										All
+									</button>
+									<button
+										type='button'
+										onClick={() => setActiveStandardsTab('ngss')}
+										className={`px-2 py-0.5 rounded-md transition-colors ${
+											activeStandardsTab === 'ngss' ?
+												'bg-cyan-500/30 text-cyan-200 border border-cyan-400/40'
+											:	'text-slate-400 hover:text-white'
+										}`}>
+										NGSS Science
+									</button>
+									<button
+										type='button'
+										onClick={() => setActiveStandardsTab('ccss')}
+										className={`px-2 py-0.5 rounded-md transition-colors ${
+											activeStandardsTab === 'ccss' ?
+												'bg-cyan-500/30 text-cyan-200 border border-cyan-400/40'
+											:	'text-slate-400 hover:text-white'
+										}`}>
+										CCSS Math
+									</button>
+								</div>
+							</div>
+
+							<div className='grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1 max-h-48 overflow-y-auto pr-1'>
+								{[
+									...(activeStandardsTab === 'ccss' ?
+										[]
+									:	CURRICULUM_STANDARDS.ngss),
+									...(activeStandardsTab === 'ngss' ?
+										[]
+									:	CURRICULUM_STANDARDS.ccssMath),
+								].map((std) => (
+									<div
+										key={std.code}
+										className='bg-slate-900/70 border border-indigo-500/20 rounded-xl p-2.5 flex flex-col gap-1 text-left'>
+										<div className='flex items-center justify-between text-[11px] font-black'>
+											<span className='text-amber-300'>{std.code}</span>
+											<span className='text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'>
+												{std.domain}
+											</span>
+										</div>
+										<span className='text-xs font-bold text-white'>
+											{std.label}
+										</span>
+										<p className='text-[10px] text-slate-300 leading-snug line-clamp-2'>
+											{std.description}
+										</p>
+									</div>
+								))}
+							</div>
+						</div>
+
+						{/* Status Feedback Toast */}
+						{worksheetStatus && (
+							<div className='px-3 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 text-xs font-bold text-center animate-in fade-in'>
+								{worksheetStatus}
+							</div>
+						)}
+
+						{/* Action Buttons Row */}
+						<div className='grid grid-cols-1 sm:grid-cols-2 gap-2.5'>
+							<button
+								type='button'
+								onClick={handleExportPdf}
+								className='w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all'>
+								<Download className='w-4 h-4' />
+								<span>Download Analytics (PDF)</span>
+							</button>
+
+							<button
+								type='button'
+								onClick={handlePrintWorksheet}
+								className='w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all'>
+								<QrCode className='w-4 h-4' />
+								<span>Print Worksheet with QR</span>
+							</button>
+						</div>
 					</>
 				}
 			</div>

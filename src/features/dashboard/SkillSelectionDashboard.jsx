@@ -436,10 +436,10 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 		reader.readAsText(file);
 	};
 
-	const handleDownloadWorksheet = () => {
+	const handleDownloadWorksheet = async () => {
 		playButtonPop(soundEnabled);
 		try {
-			generatePrintableWorksheet({
+			await generatePrintableWorksheet({
 				title: 'AstroQuest Cosmic Mission',
 				skillName: 'Visual & Logic Explorations',
 				studentName: kidName,
