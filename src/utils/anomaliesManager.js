@@ -1,7 +1,4 @@
-import {
-	ANOMALIES_MAX_ITEMS,
-	ANOMALIES_VAULT_STORAGE_KEY,
-} from '../constants';
+import { ANOMALIES_MAX_ITEMS, ANOMALIES_VAULT_STORAGE_KEY } from '../constants';
 
 /**
  * Loads all recorded anomaly questions from the Spaced-Repetition Anomalies Vault.
@@ -39,23 +36,33 @@ function saveAnomalies(items) {
 export function recordAnomaly(question, reason = 'incorrect') {
 	if (!question) return;
 	const existing = getAnomalies();
-	const qId = question.id || question.questionId || question.questionText || question.question;
+	const qId =
+		question.id ||
+		question.questionId ||
+		question.questionText ||
+		question.question;
 
 	// Check if already in vault
 	const existingIndex = existing.findIndex(
-		(item) => item.id === qId || item.questionText === (question.question || question.questionText),
+		(item) =>
+			item.id === qId ||
+			item.questionText === (question.question || question.questionText),
 	);
 
 	const anomalyItem = {
 		id: qId,
-		questionText: question.question || question.questionText || 'Cosmic Challenge',
+		questionText:
+			question.question || question.questionText || 'Cosmic Challenge',
 		options: question.options || [],
 		correctAnswerId: question.correctAnswerId || question.answer || 'A',
 		solutionText: question.solutionText || question.explanation || '',
 		skillName: question.skillName || 'Cosmic Exploration',
 		reason,
 		masteryLevel: 0,
-		firstEncountered: existingIndex >= 0 ? existing[existingIndex].firstEncountered : Date.now(),
+		firstEncountered:
+			existingIndex >= 0 ?
+				existing[existingIndex].firstEncountered
+			:	Date.now(),
 		lastReviewed: Date.now(),
 	};
 

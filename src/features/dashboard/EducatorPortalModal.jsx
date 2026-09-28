@@ -3,7 +3,6 @@ import {
 	BookOpen,
 	Download,
 	Lock,
-	Printer,
 	QrCode,
 	ShieldCheck,
 	Sparkles,

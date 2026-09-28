@@ -1089,4 +1089,3 @@ export const CELESTIAL_IMAGE_CATALOG = [
 		keywords: ['saturn', 'hexagon', 'rings', 'vortex', 'storm'],
 	},
 ];
-

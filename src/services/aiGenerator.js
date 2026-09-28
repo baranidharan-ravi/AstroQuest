@@ -2317,9 +2317,9 @@ function shuffleAndFormatOptions(questionObj, selectedSkill) {
 	const assignedDiagramType =
 		finalDiagramType || (celestialMatch ? 'celestial_photo' : null);
 	const assignedDiagramData =
-		finalDiagramType ? synchedData : (
-			celestialMatch ? { celestialImage: celestialMatch } : null
-		);
+		finalDiagramType ? synchedData
+		: celestialMatch ? { celestialImage: celestialMatch }
+		: null;
 
 	return {
 		id:

@@ -40,6 +40,7 @@ import {
 	getStoredAmbientEnabled,
 	startAmbientSound,
 } from './utils/ambientAudio';
+import { recordAnomaly, recordAnomalyMastery } from './utils/anomaliesManager';
 import {
 	playButtonPop,
 	playChronoFreezeSound,
@@ -48,10 +49,6 @@ import {
 	playTelemetryScanSound,
 	speakText,
 } from './utils/audioSynthesis';
-import {
-	recordAnomaly,
-	recordAnomalyMastery,
-} from './utils/anomaliesManager';
 import {
 	awardBadge,
 	awardXP,
@@ -620,6 +617,7 @@ export default function App() {
 		timerConfig: newTimerConfig,
 		showVisualDiagrams: newShowVisualDiagrams,
 		toastNotice,
+		stayOnSettings = false,
 	}) => {
 		saveStoredKidProfile(name, age, newGender, newAvatar);
 		setKidName(name);
@@ -647,7 +645,7 @@ export default function App() {
 			const skillToLaunch = pendingSkill;
 			setPendingSkill(null);
 			startSkillSession(skillToLaunch, age);
-		} else {
+		} else if (!stayOnSettings) {
 			setCurrentScreen('dashboard');
 			window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 			document.documentElement.scrollTop = 0;

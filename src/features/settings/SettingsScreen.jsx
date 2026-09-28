@@ -257,6 +257,15 @@ const SettingsScreen = memo(function SettingsScreen({
 	const [error, setError] = useState('');
 	const [saveSuccess, setSaveSuccess] = useState(false);
 
+	const isFormLocked = isValidating || saveSuccess;
+
+	// Auto-scroll to top when settings are saved to highlight the confirmation banner
+	useEffect(() => {
+		if (saveSuccess) {
+			window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+		}
+	}, [saveSuccess]);
+
 	// Dynamic Models State
 	const [modelsList, setModelsList] = useState(() =>
 		getAvailableModels(getActiveAiProvider() || AI_PROVIDERS.GEMINI),
@@ -266,6 +275,7 @@ const SettingsScreen = memo(function SettingsScreen({
 
 	// Provider Switch Handler
 	const handleSelectProvider = (prov) => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		if (prov === selectedProvider) return;
 
@@ -319,6 +329,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	);
 
 	const handleLanguageSelect = (code) => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		const next = { ...accessibility, language: code };
 		setAccessibility(next);
@@ -326,6 +337,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	};
 
 	const handleToggleDyslexic = () => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		const next = {
 			...accessibility,
@@ -336,6 +348,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	};
 
 	const handleToggleOled = () => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		const next = {
 			...accessibility,
@@ -346,6 +359,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	};
 
 	const handleToggleSensoryAudio = () => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		const next = {
 			...accessibility,
@@ -371,6 +385,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	}, [avatarCategoryFilter]);
 
 	const handleGenderSelect = (newGender) => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		setGenderInput(newGender);
 		const defaultAv = getDefaultAvatarForGender(newGender);
@@ -379,12 +394,14 @@ const SettingsScreen = memo(function SettingsScreen({
 	};
 
 	const handleAvatarSelect = (avatarId) => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		setAvatarInput(avatarId);
 		if (error) setError('');
 	};
 
 	const handleExportBackup = () => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		try {
 			exportFullBackupToJsonFile();
@@ -403,6 +420,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	};
 
 	const handleTriggerImportBackup = () => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		if (backupFileInputRef.current) {
 			backupFileInputRef.current.value = '';
@@ -934,7 +952,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	// Save changes and proceed
 	const handleSaveAndLeave = async () => {
 		setShowUnsavedModal(false);
-		await handleSave();
+		await handleSave(false);
 	};
 
 	const isMandatoryTimer = isTimerMandatoryForAge(ageInput);
@@ -949,6 +967,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	}, [isMandatoryTimer, timerEnabled, timerSeconds]);
 
 	const handleQuickAgeSelect = (age) => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		setAgeInput(age);
 		setIsCustomAge(false);
@@ -960,6 +979,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	};
 
 	const handleIncrementAge = (delta) => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		const curr = parseInt(ageInput, 10) || 5;
 		const nextAge = Math.min(14, Math.max(2, curr + delta));
@@ -974,6 +994,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	};
 
 	const handleStepTimer = (delta) => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		const curr = timerSeconds || DEFAULT_QUESTION_TIMER_SECONDS;
 		const nextSec = Math.min(300, Math.max(15, curr + delta));
@@ -981,14 +1002,14 @@ const SettingsScreen = memo(function SettingsScreen({
 	};
 
 	const handleStepAutoAdvance = (delta) => {
+		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
 		const curr = autoAdvanceSeconds || 7;
 		const nextSec = Math.min(30, Math.max(2, curr + delta));
 		setAutoAdvanceSeconds(nextSec);
 	};
 
-	const handleSave = async (e) => {
-		if (e) e.preventDefault();
+	const handleSave = async (shouldStay = true) => {
 		if (isValidating) return;
 
 		const trimmedName = nameInput.trim();
@@ -1137,6 +1158,7 @@ const SettingsScreen = memo(function SettingsScreen({
 				selectedModel,
 				timerConfig: updatedConfig,
 				showVisualDiagrams,
+				stayOnSettings: shouldStay,
 			});
 		}
 	};
@@ -1197,64 +1219,56 @@ const SettingsScreen = memo(function SettingsScreen({
 
 			{/* Main Settings Form */}
 			<div className='max-w-3xl w-full mx-auto bg-gradient-to-b from-[#1C1F5E]/90 via-[#141846]/95 to-[#0D1030] border-2 sm:border-4 border-amber-400/80 rounded-2xl sm:rounded-3xl p-3 sm:p-8 shadow-[0_0_60px_rgba(251,191,36,0.25)] flex flex-col gap-3.5 sm:gap-6 backdrop-blur-md'>
-				{/* Cross-Device Backup & Portability Card */}
-				<div className='bg-gradient-to-r from-cyan-950/50 via-indigo-950/40 to-purple-950/50 border border-cyan-400/40 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 shadow-md'>
-					<div className='flex items-center gap-2.5 sm:gap-3'>
-						<div className='w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 flex-shrink-0'>
-							<Sparkles className='w-4 h-4 sm:w-5 sm:h-5 text-cyan-300' />
-						</div>
-						<div className='min-w-0'>
-							<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-1.5 sm:gap-2 flex-wrap'>
-								<span>Cross-Device Backup & Portability</span>
-								<span className='text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 uppercase font-black'>
-									Multi-PC
-								</span>
-							</h2>
-							<p className='text-[11px] sm:text-xs text-slate-300 font-semibold mt-0.5'>
-								Export or import your profile, API key, model choice, and custom
-								skillsets to move to another computer.
-							</p>
-						</div>
-					</div>
-
-					<div className='flex items-center gap-2 w-full sm:w-auto'>
-						<button
-							type='button'
-							disabled={isValidating}
-							onClick={handleTriggerImportBackup}
-							className='flex-1 sm:flex-initial px-3 sm:px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer'
-							title='Import complete backup (settings and custom skillsets)'>
-							<Upload className='w-3.5 h-3.5 text-cyan-300' />
-							<span>Import</span>
-						</button>
-
-						<button
-							type='button'
-							disabled={isValidating}
-							onClick={handleExportBackup}
-							className='flex-1 sm:flex-initial px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-400/40 text-amber-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer'
-							title='Export complete backup (settings and custom skillsets)'>
-							<Download className='w-3.5 h-3.5 text-amber-300' />
-							<span>Export</span>
-						</button>
-					</div>
-				</div>
-
-				{/* Backup Feedback Alert Banner */}
-				{backupStatus && (
+				{/* Saved Settings Success Banner */}
+				{saveSuccess && (
 					<div
 						role='status'
 						aria-live='polite'
-						className={`p-3 rounded-xl sm:rounded-2xl border text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 ${
-							backupStatus.type === 'success' ?
-								'bg-emerald-500/20 border-emerald-400 text-emerald-200 shadow-md'
-							:	'bg-rose-500/20 border-rose-400 text-rose-200 shadow-md'
-						}`}>
-						<span>{backupStatus.text}</span>
+						className='bg-gradient-to-r from-emerald-950/90 via-teal-950/90 to-emerald-950/90 border-2 border-emerald-400 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-[0_0_30px_rgba(52,211,153,0.3)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 animate-in fade-in slide-in-from-top-3 duration-300'>
+						<div className='flex items-center gap-3'>
+							<div className='w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-500/25 border border-emerald-400/50 flex items-center justify-center text-emerald-300 shadow-inner flex-shrink-0'>
+								<Check className='w-6 h-6 stroke-[3]' />
+							</div>
+							<div>
+								<h3 className='text-sm sm:text-base font-black text-white flex items-center gap-2 flex-wrap'>
+									<span>Settings Saved Successfully!</span>
+									<span className='text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 border border-emerald-400/40'>
+										Locked & Active
+									</span>
+								</h3>
+								<p className='text-xs text-emerald-200/90 font-medium mt-0.5'>
+									All explorer parameters, API credentials, and pacing options are updated. Form values are locked.
+								</p>
+							</div>
+						</div>
+						<div className='flex items-center gap-2 w-full sm:w-auto justify-end flex-shrink-0'>
+							<button
+								type='button'
+								onClick={() => {
+									playButtonPop(soundEnabled);
+									setSaveSuccess(false);
+								}}
+								className='flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm'
+								title='Unlock settings to edit values'>
+								<span>Edit Settings ✏️</span>
+							</button>
+							{hasProfile && onBack && (
+								<button
+									type='button'
+									onClick={() => {
+										playButtonPop(soundEnabled);
+										onBack();
+									}}
+									className='flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer hover:scale-105 active:scale-95'>
+									<span>Return to Dashboard</span>
+									<ArrowLeft className='w-3.5 h-3.5 rotate-180' />
+								</button>
+							)}
+						</div>
 					</div>
 				)}
 
-				{/* Astronaut Flight Crew Management Card */}
+				{/* Astronaut Flight Crew Management Card with Integrated Backup & Portability */}
 				<div className='bg-gradient-to-r from-blue-950/40 via-indigo-950/40 to-cyan-950/40 border border-cyan-500/30 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md'>
 					<div className='flex items-center justify-between gap-2 flex-wrap'>
 						<div className='flex items-center gap-2'>
@@ -1268,22 +1282,44 @@ const SettingsScreen = memo(function SettingsScreen({
 									</span>
 								</h2>
 								<p className='text-[11px] text-slate-300'>
-									Manage multiple children on this device without sharing
-									progress or settings.
+									Manage multiple children or export/import full system backup across PCs.
 								</p>
 							</div>
 						</div>
 
-						<button
-							type='button'
-							onClick={() => {
-								playButtonPop(soundEnabled);
-								setIsCrewModalOpen(true);
-							}}
-							className='px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer'>
-							<Users className='w-3.5 h-3.5' />
-							<span>Manage Crew Profiles</span>
-						</button>
+						<div className='flex items-center gap-2 flex-wrap'>
+							<button
+								type='button'
+								disabled={isFormLocked}
+								onClick={handleTriggerImportBackup}
+								className='px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+								title='Import complete backup (settings, crew profiles, and custom skillsets)'>
+								<Upload className='w-3.5 h-3.5 text-cyan-300' />
+								<span>Import</span>
+							</button>
+
+							<button
+								type='button'
+								disabled={isFormLocked}
+								onClick={handleExportBackup}
+								className='px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200 font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+								title='Export complete backup (settings, crew profiles, and custom skillsets)'>
+								<Download className='w-3.5 h-3.5 text-amber-300' />
+								<span>Export</span>
+							</button>
+
+							<button
+								type='button'
+								disabled={isFormLocked}
+								onClick={() => {
+									playButtonPop(soundEnabled);
+									setIsCrewModalOpen(true);
+								}}
+								className='px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
+								<Users className='w-3.5 h-3.5' />
+								<span>Manage Crew</span>
+							</button>
+						</div>
 					</div>
 
 					{/* Crew Member Quick-Switch Chips */}
@@ -1294,13 +1330,15 @@ const SettingsScreen = memo(function SettingsScreen({
 								<button
 									key={member.id}
 									type='button'
+									disabled={isFormLocked}
 									onClick={() => {
+										if (isFormLocked) return;
 										playButtonPop(soundEnabled);
 										if (!isActive) {
 											switchActiveCrewMember(member.id);
 										}
 									}}
-									className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex-shrink-0 ${
+									className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed ${
 										isActive ?
 											'bg-cyan-500/25 border-cyan-400 ring-2 ring-cyan-400/40 text-white shadow-md'
 										:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 text-slate-300 hover:text-white'
@@ -1322,6 +1360,27 @@ const SettingsScreen = memo(function SettingsScreen({
 						})}
 					</div>
 				</div>
+
+				{/* Backup Feedback Alert Banner */}
+				{backupStatus && (
+					<div
+						role='status'
+						aria-live='polite'
+						className={`p-3 rounded-xl sm:rounded-2xl border text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 ${
+							backupStatus.type === 'success' ?
+								'bg-emerald-500/20 border-emerald-400 text-emerald-200 shadow-md'
+							:	'bg-rose-500/20 border-rose-400 text-rose-200 shadow-md'
+						}`}>
+						<span>{backupStatus.text}</span>
+					</div>
+				)}
+
+				{/* Form Fields Locked Container when Validating or Saved */}
+				<fieldset
+					disabled={isFormLocked}
+					className={`border-0 p-0 m-0 space-y-3.5 sm:space-y-6 transition-all ${
+						isFormLocked ? 'opacity-85 pointer-events-none' : ''
+					}`}>
 
 				{/* Section 1: Child Name & Age */}
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4'>
@@ -2551,7 +2610,8 @@ const SettingsScreen = memo(function SettingsScreen({
 								</span>
 							</h2>
 							<p className='text-[11px] text-slate-300'>
-								Sensory-friendly soundscapes, hyper-legible dyslexia reading modes, and multilingual audio narration.
+								Sensory-friendly soundscapes, hyper-legible dyslexia reading
+								modes, and multilingual audio narration.
 							</p>
 						</div>
 					</div>
@@ -2563,7 +2623,8 @@ const SettingsScreen = memo(function SettingsScreen({
 								Cosmic Voice Language:
 							</span>
 							<span className='text-[10px] font-black text-teal-300'>
-								{COSMIC_LANGUAGES.find((l) => l.code === accessibility.language)?.nativeName || 'English'}
+								{COSMIC_LANGUAGES.find((l) => l.code === accessibility.language)
+									?.nativeName || 'English'}
 							</span>
 						</div>
 						<div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
@@ -2581,8 +2642,12 @@ const SettingsScreen = memo(function SettingsScreen({
 										}`}>
 										<span className='text-base'>{lang.flag}</span>
 										<div className='min-w-0'>
-											<div className='text-xs font-bold truncate'>{lang.label}</div>
-											<div className='text-[9px] text-slate-400 truncate'>{lang.nativeName}</div>
+											<div className='text-xs font-bold truncate'>
+												{lang.label}
+											</div>
+											<div className='text-[9px] text-slate-400 truncate'>
+												{lang.nativeName}
+											</div>
 										</div>
 									</button>
 								);
@@ -2620,7 +2685,8 @@ const SettingsScreen = memo(function SettingsScreen({
 								</span>
 							</div>
 							<p className='text-[10px] text-slate-400 leading-snug'>
-								Wide letter spacing and bottom-weighted hyper-legible letterforms.
+								Wide letter spacing and bottom-weighted hyper-legible
+								letterforms.
 							</p>
 						</div>
 
@@ -2641,7 +2707,9 @@ const SettingsScreen = memo(function SettingsScreen({
 								:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
 							}`}>
 							<div className='flex items-center justify-between'>
-								<span className='text-xs font-bold'>OLED Midnight Contrast</span>
+								<span className='text-xs font-bold'>
+									OLED Midnight Contrast
+								</span>
 								<span
 									className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
 										accessibility.highContrastOled ?
@@ -2652,7 +2720,8 @@ const SettingsScreen = memo(function SettingsScreen({
 								</span>
 							</div>
 							<p className='text-[10px] text-slate-400 leading-snug'>
-								Pitch-black cosmic backdrop with reduced glare for low-light environments.
+								Pitch-black cosmic backdrop with reduced glare for low-light
+								environments.
 							</p>
 						</div>
 
@@ -2673,7 +2742,9 @@ const SettingsScreen = memo(function SettingsScreen({
 								:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
 							}`}>
 							<div className='flex items-center justify-between'>
-								<span className='text-xs font-bold'>Soothing Sensory Audio</span>
+								<span className='text-xs font-bold'>
+									Soothing Sensory Audio
+								</span>
 								<span
 									className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
 										accessibility.sensoryAudio ?
@@ -2684,11 +2755,13 @@ const SettingsScreen = memo(function SettingsScreen({
 								</span>
 							</div>
 							<p className='text-[10px] text-slate-400 leading-snug'>
-								Low-stimulation, warmer harmonic tones for children sensitive to sharp chimes.
+								Low-stimulation, warmer harmonic tones for children sensitive to
+								sharp chimes.
 							</p>
 						</div>
 					</div>
 				</div>
+			</fieldset>
 
 				{/* Error Alert */}
 
@@ -2703,41 +2776,69 @@ const SettingsScreen = memo(function SettingsScreen({
 
 				{/* Save / Launch Action Bar */}
 				<div className='flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 items-stretch sm:items-center justify-end pt-2 border-t border-white/10'>
-					{hasProfile && onBack && (
-						<button
-							type='button'
-							disabled={isValidating}
-							onClick={handleAttemptLeave}
-							className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400 text-center'>
-							Cancel
-						</button>
-					)}
+					{saveSuccess ? (
+						<div className='flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto'>
+							<button
+								type='button'
+								onClick={() => {
+									playButtonPop(soundEnabled);
+									setSaveSuccess(false);
+								}}
+								className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2'>
+								<span>Edit Settings ✏️</span>
+							</button>
 
-					<button
-						type='button'
-						disabled={isValidating}
-						onClick={handleSave}
-						className={`w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 focus-visible:ring-4 focus-visible:ring-amber-400 ${
-							isValidating ?
-								'bg-gradient-to-r from-amber-600 via-pink-600 to-purple-700 opacity-90 cursor-wait animate-pulse text-white'
-							:	'bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white hover:scale-105 active:scale-95 cursor-pointer'
-						}`}>
-						{isValidating ?
-							<>
-								<Sparkles className='w-5 h-5 text-amber-300 animate-spin' />
-								<span>Validating Key with Gemini... ⏳</span>
-							</>
-						: pendingSkill ?
-							<>
-								<Rocket className='w-5 h-5 text-amber-300' />
-								<span>Save & Launch {pendingSkill} 🚀</span>
-							</>
-						:	<>
-								<Check className='w-5 h-5 stroke-[3]' />
-								<span>Save Settings 🚀</span>
-							</>
-						}
-					</button>
+							{hasProfile && onBack && (
+								<button
+									type='button'
+									onClick={() => {
+										playButtonPop(soundEnabled);
+										onBack();
+									}}
+									className='w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-105 active:scale-95'>
+									<span>Back to Dashboard ➔</span>
+								</button>
+							)}
+						</div>
+					) : (
+						<>
+							{hasProfile && onBack && (
+								<button
+									type='button'
+									disabled={isValidating}
+									onClick={handleAttemptLeave}
+									className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400 text-center disabled:opacity-50 disabled:cursor-not-allowed'>
+									Cancel
+								</button>
+							)}
+
+							<button
+								type='button'
+								disabled={isValidating}
+								onClick={() => handleSave(true)}
+								className={`w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 focus-visible:ring-4 focus-visible:ring-amber-400 ${
+									isValidating ?
+										'bg-gradient-to-r from-amber-600 via-pink-600 to-purple-700 opacity-90 cursor-wait animate-pulse text-white'
+									:	'bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white hover:scale-105 active:scale-95 cursor-pointer'
+								}`}>
+								{isValidating ?
+									<>
+										<Sparkles className='w-5 h-5 text-amber-300 animate-spin' />
+										<span>Validating Key with Gemini... ⏳</span>
+									</>
+								: pendingSkill ?
+									<>
+										<Rocket className='w-5 h-5 text-amber-300' />
+										<span>Save & Launch {pendingSkill} 🚀</span>
+									</>
+								:	<>
+										<Check className='w-5 h-5 stroke-[3]' />
+										<span>Save Settings 🚀</span>
+									</>
+								}
+							</button>
+						</>
+					)}
 				</div>
 			</div>
 

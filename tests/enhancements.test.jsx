@@ -7,6 +7,10 @@ import {
 	CURRICULUM_STANDARDS,
 } from '../src/constants';
 import {
+	findMatchingCelestialImage,
+	generateExpeditionCampaign,
+} from '../src/services/aiGenerator';
+import {
 	clearAnomaliesVault,
 	getAnomalies,
 	getUnresolvedAnomaliesCount,
@@ -17,10 +21,6 @@ import {
 	getStoredAccessibilitySettings,
 	setStoredAccessibilitySettings,
 } from '../src/utils/audioSynthesis';
-import {
-	findMatchingCelestialImage,
-	generateExpeditionCampaign,
-} from '../src/services/aiGenerator';
 import {
 	generateQrDataUrl,
 	getMatchingStandardsForSkill,
@@ -40,7 +40,9 @@ describe('AstroQuest Enhancements Suite (Ideas 3, 5, 6)', () => {
 
 	it('exports valid centralized constants for languages, standards, and celestial catalog', () => {
 		expect(ANOMALIES_VAULT_STORAGE_KEY).toBe('astroquest_anomalies_vault_v1');
-		expect(ACCESSIBILITY_SETTINGS_STORAGE_KEY).toBe('astroquest_accessibility_v1');
+		expect(ACCESSIBILITY_SETTINGS_STORAGE_KEY).toBe(
+			'astroquest_accessibility_v1',
+		);
 
 		// Check supported languages
 		expect(COSMIC_LANGUAGES.length).toBeGreaterThanOrEqual(7);
@@ -73,8 +75,12 @@ describe('AstroQuest Enhancements Suite (Ideas 3, 5, 6)', () => {
 		expect(astronomyStandards.length).toBeGreaterThanOrEqual(1);
 		expect(astronomyStandards.some((s) => s.code.includes('NGSS'))).toBe(true);
 
-		const fractionStandards = getMatchingStandardsForSkill('fractions and crystals');
-		expect(fractionStandards.some((s) => s.code.includes('CCSS.MATH'))).toBe(true);
+		const fractionStandards = getMatchingStandardsForSkill(
+			'fractions and crystals',
+		);
+		expect(fractionStandards.some((s) => s.code.includes('CCSS.MATH'))).toBe(
+			true,
+		);
 	});
 
 	it('manages the Spaced-Repetition Anomalies Vault with progressive mastery resolution', () => {
@@ -133,11 +139,16 @@ describe('AstroQuest Enhancements Suite (Ideas 3, 5, 6)', () => {
 	});
 
 	it('matches real NASA celestial imagery and generates 5-stage space expeditions', async () => {
-		const match = findMatchingCelestialImage('Tell me about the Pillars of Creation in the Eagle Nebula');
+		const match = findMatchingCelestialImage(
+			'Tell me about the Pillars of Creation in the Eagle Nebula',
+		);
 		expect(match).not.toBeNull();
 		expect(match.title).toContain('Pillars of Creation');
 
-		const campaign = await generateExpeditionCampaign({ theme: 'Europa Submersible', kidAge: 7 });
+		const campaign = await generateExpeditionCampaign({
+			theme: 'Europa Submersible',
+			kidAge: 7,
+		});
 		expect(campaign).toHaveLength(5);
 		expect(campaign[0].isExpedition).toBe(true);
 		expect(campaign[0].expeditionStage).toBe(1);

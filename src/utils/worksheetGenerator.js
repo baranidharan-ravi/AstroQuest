@@ -116,7 +116,8 @@ export async function generatePrintableWorksheet({
 		doc.text('Scan to Play Online', qrX - 1, qrY + qrSize + 3);
 	}
 
-	const textMaxWidth = qrDataUrl ? contentWidth - qrSize - 10 : contentWidth - 8;
+	const textMaxWidth =
+		qrDataUrl ? contentWidth - qrSize - 10 : contentWidth - 8;
 
 	doc.setFont('helvetica', 'bold');
 	doc.setFontSize(14);
@@ -232,7 +233,11 @@ export async function generatePrintableWorksheet({
 	doc.rect(margin, y, contentWidth, 7, 'F');
 	doc.setFont('helvetica', 'bold');
 	doc.setFontSize(10);
-	doc.text('CURRICULUM STANDARDS & COMPETENCY MASTERY CHECKLIST', margin + 3, y + 5);
+	doc.text(
+		'CURRICULUM STANDARDS & COMPETENCY MASTERY CHECKLIST',
+		margin + 3,
+		y + 5,
+	);
 	y += 12;
 
 	doc.setFontSize(8.5);

@@ -617,10 +617,10 @@ export function isDiagramAppropriateForQuestion(
 		case 'celestial_photo': {
 			return Boolean(
 				data.celestialImage ||
-					data.image ||
-					CELESTIAL_IMAGE_CATALOG.some((item) =>
-						item.keywords.some((kw) => qText.toLowerCase().includes(kw)),
-					),
+				data.image ||
+				CELESTIAL_IMAGE_CATALOG.some((item) =>
+					item.keywords.some((kw) => qText.toLowerCase().includes(kw)),
+				),
 			);
 		}
 

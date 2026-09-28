@@ -1,6 +1,6 @@
 // Pure Web Audio API Sound Generator & Web Speech API Narration
 // Zero external asset files needed, 100% reliable & zero latency
-import { ACCESSIBILITY_SETTINGS_STORAGE_KEY, COSMIC_LANGUAGES } from '../constants';
+import { ACCESSIBILITY_SETTINGS_STORAGE_KEY } from '../constants';
 
 let audioCtx = null;
 
