@@ -167,4 +167,3 @@ describe('Settings Enhancements & Portability Suite', () => {
 		expect(htmlProfile).toContain('Add Explorer');
 	});
 });
-

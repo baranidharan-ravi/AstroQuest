@@ -2221,7 +2221,8 @@ const SettingsScreen = memo(function SettingsScreen({
 									{filteredModels.length === 0 && (
 										<div className='col-span-full p-4 rounded-xl bg-[#080B22] border border-slate-700/80 text-center'>
 											<p className='text-xs text-slate-300'>
-												No AI models found matching "<strong>{modelSearchQuery}</strong>"
+												No AI models found matching "
+												<strong>{modelSearchQuery}</strong>"
 											</p>
 											<button
 												type='button'
@@ -2732,7 +2733,9 @@ const SettingsScreen = memo(function SettingsScreen({
 													<input
 														type='text'
 														value={voiceSearchQuery}
-														onChange={(e) => setVoiceSearchQuery(e.target.value)}
+														onChange={(e) =>
+															setVoiceSearchQuery(e.target.value)
+														}
 														placeholder='Search voices or languages (e.g. David, Zira, English, India)...'
 														className='w-full bg-[#080B22] border border-purple-500/30 focus:border-purple-400 text-white font-medium text-xs rounded-xl pl-8.5 pr-7 py-2 placeholder:text-slate-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-purple-400 transition-all'
 													/>
@@ -2748,9 +2751,11 @@ const SettingsScreen = memo(function SettingsScreen({
 												</div>
 												<span className='text-[10px] font-bold text-slate-400 px-2.5 py-1.5 bg-[#080B22] rounded-xl border border-slate-700/80 flex-shrink-0'>
 													{filteredVoices.length +
-														(!voiceSearchQuery ||
-														'auto recommended'.includes(
-															voiceSearchQuery.toLowerCase(),
+														((
+															!voiceSearchQuery ||
+															'auto recommended'.includes(
+																voiceSearchQuery.toLowerCase(),
+															)
 														) ?
 															1
 														:	0)}{' '}
@@ -2795,7 +2800,8 @@ const SettingsScreen = memo(function SettingsScreen({
 												)}
 
 												{filteredVoices.map((voice) => {
-													const isSelected = selectedVoiceURI === voice.voiceURI;
+													const isSelected =
+														selectedVoiceURI === voice.voiceURI;
 													return (
 														<button
 															key={voice.voiceURI}
@@ -2820,7 +2826,9 @@ const SettingsScreen = memo(function SettingsScreen({
 															<div className='min-w-0 flex-1'>
 																<div
 																	className={`text-xs font-bold truncate ${
-																		isSelected ? 'text-purple-200' : 'text-white'
+																		isSelected ? 'text-purple-200' : (
+																			'text-white'
+																		)
 																	}`}
 																	title={voice.name}>
 																	{voice.name}
