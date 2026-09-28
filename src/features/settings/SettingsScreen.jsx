@@ -30,6 +30,7 @@ import {
 	COSMIC_LANGUAGES,
 	DEFAULT_QUESTION_TIMER_SECONDS,
 	isTimerMandatoryForAge,
+	SETTINGS_TABS,
 } from '../../constants';
 import {
 	AI_PROVIDER_INFO,
@@ -100,6 +101,13 @@ import {
 	saveStoredTimerConfig,
 } from '../../utils/progressTracker';
 import CrewSwitcherModal from '../dashboard/CrewSwitcherModal';
+
+const TAB_ICONS = {
+	profile: Smile,
+	ai: Cpu,
+	pacing: Clock,
+	audio: Volume2,
+};
 
 const SettingsScreen = memo(function SettingsScreen({
 	onSaveAndReturn,
@@ -256,6 +264,7 @@ const SettingsScreen = memo(function SettingsScreen({
 	const [isValidating, setIsValidating] = useState(false);
 	const [error, setError] = useState('');
 	const [saveSuccess, setSaveSuccess] = useState(false);
+	const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'ai' | 'pacing' | 'audio'
 
 	const isFormLocked = isValidating || saveSuccess;
 
@@ -1014,12 +1023,14 @@ const SettingsScreen = memo(function SettingsScreen({
 
 		const trimmedName = nameInput.trim();
 		if (!trimmedName) {
+			setActiveTab('profile');
 			setError('Please enter the explorer’s name! 😊');
 			return;
 		}
 
 		const numAge = parseInt(ageInput, 10);
 		if (!numAge || numAge < 2 || numAge > 14) {
+			setActiveTab('profile');
 			setError('Please select a valid age between 2 and 14 years old! 🎂');
 			return;
 		}
@@ -1029,6 +1040,7 @@ const SettingsScreen = memo(function SettingsScreen({
 			AI_PROVIDER_INFO[AI_PROVIDERS.GEMINI];
 		const trimmedKey = apiKeyInput.trim();
 		if (!trimmedKey) {
+			setActiveTab('ai');
 			setError(
 				`${activeProviderInfo.name} API Key is mandatory for real-time AI questions! 🔑`,
 			);
@@ -1050,6 +1062,7 @@ const SettingsScreen = memo(function SettingsScreen({
 
 		if (!validationResult.valid) {
 			setIsValidating(false);
+			setActiveTab('ai');
 			setError(
 				validationResult.message ||
 					`Invalid ${activeProviderInfo.name} API Key. Please verify your key.`,
@@ -1269,113 +1282,34 @@ const SettingsScreen = memo(function SettingsScreen({
 					</div>
 				)}
 
-				{/* Astronaut Flight Crew Management Card with Integrated Backup & Portability */}
-				<div className='bg-gradient-to-r from-blue-950/40 via-indigo-950/40 to-cyan-950/40 border border-cyan-500/30 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md'>
-					<div className='flex items-center justify-between gap-2 flex-wrap'>
-						<div className='flex items-center gap-2'>
-							<Users className='w-5 h-5 text-cyan-400' />
-							<div>
-								<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-2'>
-									<span>Astronaut Flight Crew Profiles</span>
-									<span className='text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'>
-										{crewMembers.length} Explorer
-										{crewMembers.length === 1 ? '' : 's'}
-									</span>
-								</h2>
-								<p className='text-[11px] text-slate-300'>
-									Manage multiple children or export/import full system backup
-									across PCs.
-								</p>
-							</div>
-						</div>
-
-						<div className='flex items-center gap-2 flex-wrap'>
+				{/* Settings Navigation Tabs */}
+				<div className='sticky top-2 sm:top-4 z-30 bg-[#0B0E2B]/95 backdrop-blur-md p-1 sm:p-1.5 rounded-xl sm:rounded-2xl border border-amber-400/30 shadow-lg flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none'>
+					{SETTINGS_TABS.map((tab) => {
+						const TabIcon = TAB_ICONS[tab.id] || Sparkles;
+						const isActive = activeTab === tab.id;
+						return (
 							<button
+								key={tab.id}
 								type='button'
-								disabled={isFormLocked}
-								onClick={handleTriggerImportBackup}
-								className='px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
-								title='Import complete backup (settings, crew profiles, and custom skillsets)'>
-								<Upload className='w-3.5 h-3.5 text-cyan-300' />
-								<span>Import</span>
-							</button>
-
-							<button
-								type='button'
-								disabled={isFormLocked}
-								onClick={handleExportBackup}
-								className='px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200 font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
-								title='Export complete backup (settings, crew profiles, and custom skillsets)'>
-								<Download className='w-3.5 h-3.5 text-amber-300' />
-								<span>Export</span>
-							</button>
-
-							<button
-								type='button'
-								disabled={isFormLocked}
 								onClick={() => {
 									playButtonPop(soundEnabled);
-									setIsCrewModalOpen(true);
+									setActiveTab(tab.id);
 								}}
-								className='px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
-								<Users className='w-3.5 h-3.5' />
-								<span>Manage Crew</span>
+								className={`flex-1 min-w-[78px] sm:min-w-[120px] py-2 sm:py-2.5 px-2 sm:px-3 rounded-lg sm:rounded-xl transition-all font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 cursor-pointer border ${
+									isActive ?
+										'bg-gradient-to-r from-amber-500/25 via-pink-500/20 to-purple-500/25 border-amber-400 text-white shadow-md ring-1 ring-amber-400/50'
+									:	'bg-transparent border-transparent text-slate-400 hover:text-white hover:bg-white/5'
+								}`}>
+								<TabIcon
+									className={`w-4 h-4 sm:w-4.5 sm:h-4.5 flex-shrink-0 ${
+										isActive ? 'text-amber-300' : 'text-slate-400'
+									}`}
+								/>
+								<span className='truncate'>{tab.shortLabel || tab.label}</span>
 							</button>
-						</div>
-					</div>
-
-					{/* Crew Member Quick-Switch Chips */}
-					<div className='flex items-center gap-2 overflow-x-auto pb-1 pt-1'>
-						{crewMembers.map((member) => {
-							const isActive = member.id === getActiveCrewId();
-							return (
-								<button
-									key={member.id}
-									type='button'
-									disabled={isFormLocked}
-									onClick={() => {
-										if (isFormLocked) return;
-										playButtonPop(soundEnabled);
-										if (!isActive) {
-											switchActiveCrewMember(member.id);
-										}
-									}}
-									className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed ${
-										isActive ?
-											'bg-cyan-500/25 border-cyan-400 ring-2 ring-cyan-400/40 text-white shadow-md'
-										:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 text-slate-300 hover:text-white'
-									}`}>
-									<KidAvatar
-										avatarId={member.avatar}
-										gender={member.gender}
-										size='xs'
-									/>
-									<span className='text-xs font-black'>{member.name}</span>
-									<span className='text-[10px] text-slate-400 font-bold'>
-										Age {member.age}
-									</span>
-									{isActive && (
-										<span className='w-2 h-2 rounded-full bg-cyan-400 animate-pulse' />
-									)}
-								</button>
-							);
-						})}
-					</div>
+						);
+					})}
 				</div>
-
-				{/* Backup Feedback Alert Banner */}
-				{backupStatus && (
-					<div
-						role='status'
-						aria-live='polite'
-						className={`p-3 rounded-xl sm:rounded-2xl border text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 ${
-							backupStatus.type === 'success' ?
-								'bg-emerald-500/20 border-emerald-400 text-emerald-200 shadow-md'
-							:	'bg-rose-500/20 border-rose-400 text-rose-200 shadow-md'
-						}`}>
-						<span>{backupStatus.text}</span>
-					</div>
-				)}
 
 				{/* Form Fields Locked Container when Validating or Saved */}
 				<fieldset
@@ -1383,8 +1317,119 @@ const SettingsScreen = memo(function SettingsScreen({
 					className={`border-0 p-0 m-0 space-y-3.5 sm:space-y-6 transition-all ${
 						isFormLocked ? 'opacity-85 pointer-events-none' : ''
 					}`}>
-					{/* Section 1: Child Name & Age */}
-					<div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4'>
+					{/* Tab 1: Explorer Profile (Name, Age, Avatar, Flight Crew & Portability) */}
+					{activeTab === 'profile' && (
+						<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
+							{/* Astronaut Flight Crew Management Card with Integrated Backup & Portability */}
+							<div className='bg-gradient-to-r from-blue-950/40 via-indigo-950/40 to-cyan-950/40 border border-cyan-500/30 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md'>
+								<div className='flex items-center justify-between gap-2 flex-wrap'>
+									<div className='flex items-center gap-2'>
+										<Users className='w-5 h-5 text-cyan-400' />
+										<div>
+											<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-2'>
+												<span>Astronaut Flight Crew Profiles</span>
+												<span className='text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'>
+													{crewMembers.length} Explorer
+													{crewMembers.length === 1 ? '' : 's'}
+												</span>
+											</h2>
+											<p className='text-[11px] text-slate-300'>
+												Manage multiple children or export/import full system backup
+												across PCs.
+											</p>
+										</div>
+									</div>
+
+									<div className='flex items-center gap-2 flex-wrap'>
+										<button
+											type='button'
+											disabled={isFormLocked}
+											onClick={handleTriggerImportBackup}
+											className='px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+											title='Import complete backup (settings, crew profiles, and custom skillsets)'>
+											<Upload className='w-3.5 h-3.5 text-cyan-300' />
+											<span>Import</span>
+										</button>
+
+										<button
+											type='button'
+											disabled={isFormLocked}
+											onClick={handleExportBackup}
+											className='px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200 font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+											title='Export complete backup (settings, crew profiles, and custom skillsets)'>
+											<Download className='w-3.5 h-3.5 text-amber-300' />
+											<span>Export</span>
+										</button>
+
+										<button
+											type='button'
+											disabled={isFormLocked}
+											onClick={() => {
+												playButtonPop(soundEnabled);
+												setIsCrewModalOpen(true);
+											}}
+											className='px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
+											<Users className='w-3.5 h-3.5' />
+											<span>Manage Crew</span>
+										</button>
+									</div>
+								</div>
+
+								{/* Crew Member Quick-Switch Chips */}
+								<div className='flex items-center gap-2 overflow-x-auto pb-1 pt-1'>
+									{crewMembers.map((member) => {
+										const isActive = member.id === getActiveCrewId();
+										return (
+											<button
+												key={member.id}
+												type='button'
+												disabled={isFormLocked}
+												onClick={() => {
+													if (isFormLocked) return;
+													playButtonPop(soundEnabled);
+													if (!isActive) {
+														switchActiveCrewMember(member.id);
+													}
+												}}
+												className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed ${
+													isActive ?
+														'bg-cyan-500/25 border-cyan-400 ring-2 ring-cyan-400/40 text-white shadow-md'
+													:	'bg-[#0D1030] border-slate-700/80 hover:border-slate-500 text-slate-300 hover:text-white'
+												}`}>
+												<KidAvatar
+													avatarId={member.avatar}
+													gender={member.gender}
+													size='xs'
+												/>
+												<span className='text-xs font-black'>{member.name}</span>
+												<span className='text-[10px] text-slate-400 font-bold'>
+													Age {member.age}
+												</span>
+												{isActive && (
+													<span className='w-2 h-2 rounded-full bg-cyan-400 animate-pulse' />
+												)}
+											</button>
+										);
+									})}
+								</div>
+							</div>
+
+							{/* Backup Feedback Alert Banner */}
+							{backupStatus && (
+								<div
+									role='status'
+									aria-live='polite'
+									className={`p-3 rounded-xl sm:rounded-2xl border text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 ${
+										backupStatus.type === 'success' ?
+											'bg-emerald-500/20 border-emerald-400 text-emerald-200 shadow-md'
+										:	'bg-rose-500/20 border-rose-400 text-rose-200 shadow-md'
+									}`}>
+									<span>{backupStatus.text}</span>
+								</div>
+							)}
+
+							{/* Section 1: Child Name & Age */}
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4'>
 						{/* Name Card */}
 						<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
 							<label
@@ -1721,7 +1766,12 @@ const SettingsScreen = memo(function SettingsScreen({
 							</div>
 						</div>
 					</div>
+				</div>
+			)}
 
+			{/* Tab 2: AI Intelligence Provider & Engine */}
+			{activeTab === 'ai' && (
+				<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
 					{/* Section 2: AI Intelligence Provider Selection */}
 					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-indigo-500/40 shadow-inner flex flex-col gap-3'>
 						<div className='flex items-center justify-between gap-2 flex-wrap'>
@@ -2053,7 +2103,12 @@ const SettingsScreen = memo(function SettingsScreen({
 							})}
 						</div>
 					</div>
+				</div>
+			)}
 
+			{/* Tab 3: Timer, Auto-Advance & Visual Pacing */}
+			{activeTab === 'pacing' && (
+				<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
 					{/* Section 4: Per-Question Time Limit */}
 					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#2C3380]'>
 						<div className='flex items-center justify-between gap-2 mb-2.5'>
@@ -2357,7 +2412,12 @@ const SettingsScreen = memo(function SettingsScreen({
 							</div>
 						</div>
 					</div>
+				</div>
+			)}
 
+			{/* Tab 4: Audio, Voice & Neuro-Inclusive Accessibility */}
+			{activeTab === 'audio' && (
+				<div className='space-y-3.5 sm:space-y-6 animate-in fade-in duration-200'>
 					{/* Section 7: Cosmic Audio & Sensory Focus Suite */}
 					<div className='bg-[#090B24]/80 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-purple-500/40 shadow-inner space-y-4'>
 						{/* Header */}
@@ -2772,84 +2832,94 @@ const SettingsScreen = memo(function SettingsScreen({
 							</div>
 						</div>
 					</div>
-				</fieldset>
-
-				{/* Error Alert */}
-
-				{error && (
-					<div
-						role='alert'
-						aria-live='assertive'
-						className='bg-rose-500/20 border border-rose-500/50 rounded-2xl p-4 text-xs sm:text-sm font-bold text-rose-200 text-center animate-shake shadow-lg'>
-						⚠️ {error}
-					</div>
-				)}
-
-				{/* Save / Launch Action Bar */}
-				<div className='flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 items-stretch sm:items-center justify-end pt-2 border-t border-white/10'>
-					{saveSuccess ?
-						<div className='flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto'>
-							<button
-								type='button'
-								onClick={() => {
-									playButtonPop(soundEnabled);
-									setSaveSuccess(false);
-								}}
-								className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2'>
-								<span>Edit Settings ✏️</span>
-							</button>
-
-							{hasProfile && onBack && (
-								<button
-									type='button'
-									onClick={() => {
-										playButtonPop(soundEnabled);
-										onBack();
-									}}
-									className='w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-105 active:scale-95'>
-									<span>Back to Dashboard ➔</span>
-								</button>
-							)}
-						</div>
-					:	<>
-							{hasProfile && onBack && (
-								<button
-									type='button'
-									disabled={isValidating}
-									onClick={handleAttemptLeave}
-									className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400 text-center disabled:opacity-50 disabled:cursor-not-allowed'>
-									Cancel
-								</button>
-							)}
-
-							<button
-								type='button'
-								disabled={isValidating}
-								onClick={() => handleSave(true)}
-								className={`w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 focus-visible:ring-4 focus-visible:ring-amber-400 ${
-									isValidating ?
-										'bg-gradient-to-r from-amber-600 via-pink-600 to-purple-700 opacity-90 cursor-wait animate-pulse text-white'
-									:	'bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white hover:scale-105 active:scale-95 cursor-pointer'
-								}`}>
-								{isValidating ?
-									<>
-										<Sparkles className='w-5 h-5 text-amber-300 animate-spin' />
-										<span>Validating Key with Gemini... ⏳</span>
-									</>
-								: pendingSkill ?
-									<>
-										<Rocket className='w-5 h-5 text-amber-300' />
-										<span>Save & Launch {pendingSkill} 🚀</span>
-									</>
-								:	<>
-										<Check className='w-5 h-5 stroke-[3]' />
-										<span>Save Settings 🚀</span>
-									</>
-								}
-							</button>
-						</>
-					}
 				</div>
+			)}
+		</fieldset>
+
+		{/* Error Alert */}
+		{error && (
+			<div
+				role='alert'
+				aria-live='assertive'
+				className='bg-rose-500/20 border border-rose-500/50 rounded-2xl p-4 text-xs sm:text-sm font-bold text-rose-200 text-center animate-shake shadow-lg'>
+				⚠️ {error}
+			</div>
+		)}
+
+		{/* Sticky Save / Launch Action Bar */}
+		<div className='sticky bottom-0 z-40 bg-[#0D1030]/95 backdrop-blur-md border-t-2 border-amber-400/50 shadow-[0_-10px_35px_rgba(0,0,0,0.65)] -mx-3 sm:-mx-8 -mb-3 sm:-mb-8 p-3 sm:p-4 rounded-b-2xl sm:rounded-b-3xl flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 items-stretch sm:items-center justify-between'>
+			<div className='hidden sm:flex items-center gap-2 text-xs text-slate-300 font-medium pl-1'>
+				<span className='w-2 h-2 rounded-full bg-emerald-400 animate-pulse' />
+				<span className='font-bold text-white'>{nameInput || 'Explorer'}</span>
+				<span className='text-slate-500'>•</span>
+				<span className='text-amber-300 font-semibold'>
+					{SETTINGS_TABS.find((t) => t.id === activeTab)?.label}
+				</span>
+			</div>
+
+			{saveSuccess ?
+				<div className='flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto ml-auto'>
+					<button
+						type='button'
+						onClick={() => {
+							playButtonPop(soundEnabled);
+							setSaveSuccess(false);
+						}}
+						className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2'>
+						<span>Edit Settings ✏️</span>
+					</button>
+
+					{hasProfile && onBack && (
+						<button
+							type='button'
+							onClick={() => {
+								playButtonPop(soundEnabled);
+								onBack();
+							}}
+							className='w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-105 active:scale-95'>
+							<span>Back to Dashboard ➔</span>
+						</button>
+					)}
+				</div>
+			:	<div className='flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto ml-auto'>
+					{hasProfile && onBack && (
+						<button
+							type='button'
+							disabled={isValidating}
+							onClick={handleAttemptLeave}
+							className='w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400 text-center disabled:opacity-50 disabled:cursor-not-allowed'>
+							Cancel
+						</button>
+					)}
+
+					<button
+						type='button'
+						disabled={isValidating}
+						onClick={() => handleSave(true)}
+						className={`w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_25px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2.5 focus-visible:ring-4 focus-visible:ring-amber-400 ${
+							isValidating ?
+								'bg-gradient-to-r from-amber-600 via-pink-600 to-purple-700 opacity-90 cursor-wait animate-pulse text-white'
+							:	'bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white hover:scale-105 active:scale-95 cursor-pointer'
+						}`}>
+						{isValidating ?
+							<>
+								<Sparkles className='w-5 h-5 text-amber-300 animate-spin' />
+								<span>Validating Key with Gemini... ⏳</span>
+							</>
+						: pendingSkill ?
+							<>
+								<Rocket className='w-5 h-5 text-amber-300' />
+								<span>Save & Launch {pendingSkill} 🚀</span>
+							</>
+						:	<>
+								<Check className='w-5 h-5 stroke-[3]' />
+								<span>Save Settings 🚀</span>
+							</>
+						}
+					</button>
+				</div>
+			}
+		</div>
 			</div>
 
 			{/* Unsaved Changes Confirmation Modal */}

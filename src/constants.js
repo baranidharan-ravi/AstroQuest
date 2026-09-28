@@ -1089,3 +1089,34 @@ export const CELESTIAL_IMAGE_CATALOG = [
 		keywords: ['saturn', 'hexagon', 'rings', 'vortex', 'storm'],
 	},
 ];
+
+export const SETTINGS_TABS = [
+	{
+		id: 'profile',
+		label: 'Explorer Profile',
+		shortLabel: 'Profile',
+		iconName: 'Smile',
+		description: 'Child name, age, avatar & flight crew',
+	},
+	{
+		id: 'ai',
+		label: 'AI Engine & Key',
+		shortLabel: 'AI Engine',
+		iconName: 'Cpu',
+		description: 'Provider, API key & model selection',
+	},
+	{
+		id: 'pacing',
+		label: 'Timer & Pacing',
+		shortLabel: 'Pacing',
+		iconName: 'Clock',
+		description: 'Question countdown, auto-advance & diagrams',
+	},
+	{
+		id: 'audio',
+		label: 'Audio & Access',
+		shortLabel: 'Audio',
+		iconName: 'Volume2',
+		description: 'Voice narrator, soundscape & accessibility',
+	},
+];

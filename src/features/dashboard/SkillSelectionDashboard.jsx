@@ -790,7 +790,8 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 									</span>
 								</h2>
 								<p className='text-[11px] sm:text-xs text-slate-300 font-semibold mt-0.5'>
-									Odyssey solar map, colony base builder, 60s speed challenge, observatory & worksheets
+									Odyssey solar map, colony base builder, 60s speed challenge,
+									observatory & worksheets
 								</p>
 							</div>
 						</div>
@@ -801,84 +802,84 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 						className={`w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${
 							cardSize === 'compact' ? 'gap-2.5' : 'gap-3 sm:gap-3.5'
 						}`}>
-					{COSMIC_FEATURE_MODES.map((mode) => {
-						const isCompact = cardSize === 'compact';
-						return (
-							<div
-								key={mode.id}
-								role='button'
-								tabIndex={0}
-								onClick={() => handleModeClick(mode)}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										handleModeClick(mode);
-									}
-								}}
-								className={`group ${mode.bgGradient} ${
-									isCompact ?
-										'rounded-xl p-2.5 shadow-md flex items-center justify-between gap-2.5'
-									:	'rounded-2xl p-3 sm:p-3.5 shadow-lg flex flex-col justify-between'
-								} transition-all hover:scale-[1.02] active:scale-95 cursor-pointer`}>
-								{isCompact ?
-									<>
-										<div className='flex items-center gap-2.5 min-w-0'>
-											<div
-												className={`w-8 h-8 rounded-lg ${mode.iconBg} flex items-center justify-center text-base shadow-inner flex-shrink-0`}>
-												{mode.icon}
+						{COSMIC_FEATURE_MODES.map((mode) => {
+							const isCompact = cardSize === 'compact';
+							return (
+								<div
+									key={mode.id}
+									role='button'
+									tabIndex={0}
+									onClick={() => handleModeClick(mode)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											handleModeClick(mode);
+										}
+									}}
+									className={`group ${mode.bgGradient} ${
+										isCompact ?
+											'rounded-xl p-2.5 shadow-md flex items-center justify-between gap-2.5'
+										:	'rounded-2xl p-3 sm:p-3.5 shadow-lg flex flex-col justify-between'
+									} transition-all hover:scale-[1.02] active:scale-95 cursor-pointer`}>
+									{isCompact ?
+										<>
+											<div className='flex items-center gap-2.5 min-w-0'>
+												<div
+													className={`w-8 h-8 rounded-lg ${mode.iconBg} flex items-center justify-center text-base shadow-inner flex-shrink-0`}>
+													{mode.icon}
+												</div>
+												<div className='min-w-0'>
+													<div className='flex items-center gap-1.5'>
+														<h3
+															className={`text-xs font-black text-white ${mode.hoverText} transition-colors truncate`}>
+															{mode.shortTitle}
+														</h3>
+														<span
+															className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full ${mode.badgeStyle} hidden sm:inline`}>
+															{mode.badge}
+														</span>
+													</div>
+													<p className='text-[10px] text-slate-300 font-medium truncate'>
+														{mode.shortDesc}
+													</p>
+												</div>
 											</div>
-											<div className='min-w-0'>
-												<div className='flex items-center gap-1.5'>
-													<h3
-														className={`text-xs font-black text-white ${mode.hoverText} transition-colors truncate`}>
-														{mode.shortTitle}
-													</h3>
+											<div
+												className={`text-[11px] font-black ${mode.accentText} flex items-center gap-0.5 flex-shrink-0 group-hover:translate-x-0.5 transition-transform`}>
+												<span>{mode.shortAction}</span>
+												<span>→</span>
+											</div>
+										</>
+									:	<>
+											<div>
+												<div className='flex items-center justify-between gap-2 mb-1.5'>
+													<div
+														className={`w-8 h-8 rounded-xl ${mode.iconBg} flex items-center justify-center text-base shadow-inner`}>
+														{mode.icon}
+													</div>
 													<span
-														className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full ${mode.badgeStyle} hidden sm:inline`}>
+														className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${mode.badgeStyle}`}>
 														{mode.badge}
 													</span>
 												</div>
-												<p className='text-[10px] text-slate-300 font-medium truncate'>
-													{mode.shortDesc}
+												<h3
+													className={`text-xs sm:text-sm font-black text-white ${mode.hoverText} transition-colors`}>
+													{mode.title}
+												</h3>
+												<p className='text-[10px] sm:text-[11px] text-slate-300 font-semibold mt-0.5 line-clamp-2 leading-snug'>
+													{mode.desc}
 												</p>
 											</div>
-										</div>
-										<div
-											className={`text-[11px] font-black ${mode.accentText} flex items-center gap-0.5 flex-shrink-0 group-hover:translate-x-0.5 transition-transform`}>
-											<span>{mode.shortAction}</span>
-											<span>→</span>
-										</div>
-									</>
-								:	<>
-										<div>
-											<div className='flex items-center justify-between gap-2 mb-1.5'>
-												<div
-													className={`w-8 h-8 rounded-xl ${mode.iconBg} flex items-center justify-center text-base shadow-inner`}>
-													{mode.icon}
-												</div>
-												<span
-													className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${mode.badgeStyle}`}>
-													{mode.badge}
-												</span>
+											<div
+												className={`mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-black ${mode.accentText}`}>
+												<span>{mode.actionText}</span>
+												<span>{mode.actionIcon}</span>
 											</div>
-											<h3
-												className={`text-xs sm:text-sm font-black text-white ${mode.hoverText} transition-colors`}>
-												{mode.title}
-											</h3>
-											<p className='text-[10px] sm:text-[11px] text-slate-300 font-semibold mt-0.5 line-clamp-2 leading-snug'>
-												{mode.desc}
-											</p>
-										</div>
-										<div
-											className={`mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-black ${mode.accentText}`}>
-											<span>{mode.actionText}</span>
-											<span>{mode.actionIcon}</span>
-										</div>
-									</>
-								}
-							</div>
-						);
-					})}
+										</>
+									}
+								</div>
+							);
+						})}
 					</div>
 				</section>
 

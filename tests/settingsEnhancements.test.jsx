@@ -93,4 +93,52 @@ describe('Settings Enhancements & Portability Suite', () => {
 		});
 		expect(navigatedScreen).toBe('dashboard');
 	});
+
+	it('defines 4 intuitive SETTINGS_TABS in centralized constants', async () => {
+		const { SETTINGS_TABS } = await import('../src/constants');
+		expect(SETTINGS_TABS).toHaveLength(4);
+
+		const expectedTabs = ['profile', 'ai', 'pacing', 'audio'];
+		expectedTabs.forEach((id) => {
+			const tab = SETTINGS_TABS.find((t) => t.id === id);
+			expect(tab).toBeDefined();
+			expect(tab.label).toBeTruthy();
+			expect(tab.shortLabel).toBeTruthy();
+			expect(tab.iconName).toBeTruthy();
+			expect(tab.description).toBeTruthy();
+		});
+	});
+
+	it('renders SettingsScreen with 4 navigation tabs and sticky action dock', async () => {
+		const SettingsScreen = (
+			await import('../src/features/settings/SettingsScreen')
+		).default;
+		const ReactDOMServer = (await import('react-dom/server')).default;
+		const React = (await import('react')).default;
+
+		saveStoredKidProfile('Zack', 7, 'boy', 'boy-astronaut-1');
+
+		const html = ReactDOMServer.renderToStaticMarkup(
+			React.createElement(SettingsScreen, {
+				hasProfile: true,
+				onBack: () => {},
+				soundEnabled: false,
+			}),
+		);
+
+		// Navigation Tabs
+		expect(html).toContain('Profile');
+		expect(html).toContain('AI Engine');
+		expect(html).toContain('Pacing');
+		expect(html).toContain('Audio');
+
+		// Initial Profile Tab Content
+		expect(html).toContain('Child&#x27;s Name');
+		expect(html).toContain('Astronaut Flight Crew Profiles');
+
+		// Sticky Save / Cancel Action Bar Dock
+		expect(html).toContain('sticky bottom-0');
+		expect(html).toContain('Save Settings');
+		expect(html).toContain('Cancel');
+	});
 });
