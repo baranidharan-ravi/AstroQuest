@@ -855,17 +855,23 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 					})}
 				</div>
 
-				{/* Section Header with Action Buttons */}
-				<div className='w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-4'>
-					<div>
-						<h2 className='text-xl sm:text-2xl font-extrabold text-white tracking-wide drop-shadow'>
-							Choose Your Cosmic Mission 🚀
-						</h2>
-						<p className='text-xs text-slate-300 font-semibold mt-0.5'>
-							Select any built-in skill or create custom topics powered by
-							Google Gemini AI.
-						</p>
-					</div>
+				{/* Cosmic Missions Section Card with Section Border */}
+				<section
+					aria-labelledby='cosmic-missions-heading'
+					className='w-full bg-white/[0.05] backdrop-blur-md border border-white/15 hover:border-cyan-400/30 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col transition-all'>
+					{/* Section Header with Action Buttons */}
+					<div className='w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-5 pb-3.5 border-b border-white/10'>
+						<div>
+							<h2
+								id='cosmic-missions-heading'
+								className='text-xl sm:text-2xl font-extrabold text-white tracking-wide drop-shadow'>
+								Choose Your Cosmic Mission 🚀
+							</h2>
+							<p className='text-xs text-slate-300 font-semibold mt-0.5'>
+								Select any built-in skill or create custom topics powered by
+								Google Gemini AI.
+							</p>
+						</div>
 
 					{/* Skillset Tools: Add, Import, Export */}
 					<div className='flex items-center gap-2 flex-wrap'>
@@ -1143,7 +1149,8 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 						</div>
 					</div>
 				</div>
-			</main>
+			</section>
+		</main>
 
 			{/* Modal: Create Custom Skillset */}
 			{isCreateModalOpen && (
