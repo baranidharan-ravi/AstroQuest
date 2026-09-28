@@ -1,7 +1,10 @@
 import { Search, Sparkles, Volume2, X } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { COSMIC_LANGUAGES } from '../../../constants';
-import { COSMIC_VOICE_PERSONALITIES, playButtonPop } from '../../../utils/audioSynthesis';
+import {
+	COSMIC_VOICE_PERSONALITIES,
+	playButtonPop,
+} from '../../../utils/audioSynthesis';
 
 /**
  * AudioAccessSettingsTab Component
@@ -58,7 +61,8 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 						<span>🎙️ Narrator Personality</span>
 					</div>
 					<p className='text-[11px] sm:text-xs text-slate-300 mb-2.5'>
-						Select the personality and vocal pace of your cosmic flight instructor:
+						Select the personality and vocal pace of your cosmic flight
+						instructor:
 					</p>
 					<div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
 						{COSMIC_VOICE_PERSONALITIES.map((p) => {
@@ -74,7 +78,8 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 											classic: 'Hello! I am ready to read questions for you.',
 											bot: 'Beep-boop! All circuits operational. Ready for mission!',
 											nova: 'Commander Nova here! Prepare for stellar navigation!',
-											nebula: 'Welcome, young star traveler. Take a gentle breath.',
+											nebula:
+												'Welcome, young star traveler. Take a gentle breath.',
 										};
 										speakText(phrases[p.id] || phrases.classic);
 									}}
@@ -140,7 +145,8 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 						</button>
 					</div>
 					<p className='text-[11px] text-slate-300 mb-2 leading-relaxed'>
-						Gentle 432Hz harmonic space drone &amp; soothing star chimes. Scientifically designed to calm test anxiety and improve focus.
+						Gentle 432Hz harmonic space drone &amp; soothing star chimes.
+						Scientifically designed to calm test anxiety and improve focus.
 					</p>
 
 					{ambientAudioEnabled && (
@@ -176,9 +182,7 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 									}
 								}}
 								className='text-[11px] font-bold text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/80 px-2.5 py-1 rounded-lg border border-cyan-500/40 transition-all cursor-pointer'>
-								{isAmbientSoundPlaying() ?
-									'⏸ Pause Preview'
-								:	'▶ Test Audio'}
+								{isAmbientSoundPlaying() ? '⏸ Pause Preview' : '▶ Test Audio'}
 							</button>
 						</div>
 					)}
@@ -192,16 +196,16 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 						</span>
 						{selectedVoiceURI && (
 							<span className='text-[9px] font-black px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-400/40 truncate max-w-[150px]'>
-								{availableVoices.find(
-									(v) => v.voiceURI === selectedVoiceURI,
-								)?.name || 'Custom'}
+								{availableVoices.find((v) => v.voiceURI === selectedVoiceURI)
+									?.name || 'Custom'}
 							</span>
 						)}
 					</div>
 
 					{availableVoices.length === 0 ?
 						<div className='text-xs text-slate-400 font-semibold p-2.5 rounded-xl bg-slate-800/60 border border-slate-700'>
-							⚠️ No voices loaded yet. Click speaker icon on a question to pre-warm voices.
+							⚠️ No voices loaded yet. Click speaker icon on a question to
+							pre-warm voices.
 						</div>
 					:	<>
 							{/* Voice Search & Filter Toolbar */}
@@ -327,8 +331,7 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 									) && (
 										<div className='col-span-full p-3.5 rounded-xl bg-[#080B22] border border-slate-700/80 text-center'>
 											<p className='text-xs text-slate-300'>
-												No voices match "
-												<strong>{voiceSearchQuery}</strong>"
+												No voices match "<strong>{voiceSearchQuery}</strong>"
 											</p>
 											<button
 												type='button'
@@ -352,15 +355,14 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 					</div>
 					<div>
 						<h2 className='text-xs sm:text-base font-extrabold text-white flex items-center gap-2'>
-							<span>
-								Neuro-Inclusive Accessibility & Multilingual Voice
-							</span>
+							<span>Neuro-Inclusive Accessibility & Multilingual Voice</span>
 							<span className='text-[9px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/40'>
 								Universal Flight
 							</span>
 						</h2>
 						<p className='text-[11px] text-slate-300'>
-							Sensory-friendly soundscapes, hyper-legible dyslexia reading modes, and multilingual audio narration.
+							Sensory-friendly soundscapes, hyper-legible dyslexia reading
+							modes, and multilingual audio narration.
 						</p>
 					</div>
 				</div>
@@ -372,9 +374,8 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 							Cosmic Voice Language:
 						</span>
 						<span className='text-[10px] font-black text-teal-300'>
-							{COSMIC_LANGUAGES.find(
-								(l) => l.code === accessibility.language,
-							)?.nativeName || 'English'}
+							{COSMIC_LANGUAGES.find((l) => l.code === accessibility.language)
+								?.nativeName || 'English'}
 						</span>
 					</div>
 					<div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
@@ -424,9 +425,7 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 							:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
 						}`}>
 						<div className='flex items-center justify-between'>
-							<span className='text-xs font-bold'>
-								Dyslexia Reading Mode
-							</span>
+							<span className='text-xs font-bold'>Dyslexia Reading Mode</span>
 							<span
 								className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
 									accessibility.dyslexicFont ?
@@ -458,9 +457,7 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 							:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
 						}`}>
 						<div className='flex items-center justify-between'>
-							<span className='text-xs font-bold'>
-								OLED Midnight Contrast
-							</span>
+							<span className='text-xs font-bold'>OLED Midnight Contrast</span>
 							<span
 								className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
 									accessibility.highContrastOled ?
@@ -471,7 +468,8 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 							</span>
 						</div>
 						<p className='text-[10px] text-slate-400 leading-snug'>
-							Pitch-black cosmic backdrop with reduced glare for low-light environments.
+							Pitch-black cosmic backdrop with reduced glare for low-light
+							environments.
 						</p>
 					</div>
 
@@ -492,9 +490,7 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 							:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
 						}`}>
 						<div className='flex items-center justify-between'>
-							<span className='text-xs font-bold'>
-								Soothing Sensory Audio
-							</span>
+							<span className='text-xs font-bold'>Soothing Sensory Audio</span>
 							<span
 								className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
 									accessibility.sensoryAudio ?
@@ -505,7 +501,8 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 							</span>
 						</div>
 						<p className='text-[10px] text-slate-400 leading-snug'>
-							Low-stimulation, warmer harmonic tones for children sensitive to sharp chimes.
+							Low-stimulation, warmer harmonic tones for children sensitive to
+							sharp chimes.
 						</p>
 					</div>
 				</div>

@@ -10,7 +10,7 @@ import {
 	Sparkles,
 	X,
 } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { AI_PROVIDER_INFO, AI_PROVIDERS } from '../../../services/aiGenerator';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 
@@ -69,7 +69,8 @@ export const AiEngineSettingsTab = memo(function AiEngineSettingsTab({
 				</div>
 
 				<p className='text-[11px] sm:text-xs text-slate-300'>
-					Choose your preferred AI to generate 100% real-time, adaptive AstroQuest questions:
+					Choose your preferred AI to generate 100% real-time, adaptive
+					AstroQuest questions:
 				</p>
 
 				<div
@@ -159,9 +160,7 @@ export const AiEngineSettingsTab = memo(function AiEngineSettingsTab({
 						htmlFor='active-api-key-input'
 						className='text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1.5'>
 						<Key className='w-4 h-4 text-amber-400 flex-shrink-0' />
-						<span>
-							{AI_PROVIDER_INFO[selectedProvider]?.name} API Key
-						</span>
+						<span>{AI_PROVIDER_INFO[selectedProvider]?.name} API Key</span>
 						<span className='text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase'>
 							Mandatory
 						</span>
@@ -188,9 +187,7 @@ export const AiEngineSettingsTab = memo(function AiEngineSettingsTab({
 							aria-live='assertive'
 							className='absolute -top-10 left-0 sm:left-auto right-0 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold shadow-xl border border-rose-400'>
 							<ShieldAlert className='w-4 h-4 text-amber-200 flex-shrink-0' />
-							<span>
-								Copy functionality is not allowed for this field
-							</span>
+							<span>Copy functionality is not allowed for this field</span>
 						</div>
 					)}
 
@@ -220,9 +217,7 @@ export const AiEngineSettingsTab = memo(function AiEngineSettingsTab({
 						onCopy={handleBlockCopy}
 						onCut={handleBlockCopy}
 						onKeyDown={handleKeyDownKey}
-						placeholder={
-							AI_PROVIDER_INFO[selectedProvider]?.keyPlaceholder
-						}
+						placeholder={AI_PROVIDER_INFO[selectedProvider]?.keyPlaceholder}
 						className={`w-full bg-[#0D1030] border text-white font-mono text-xs sm:text-sm rounded-xl pl-4 pr-12 py-3 placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 transition-all ${
 							isKeyError ?
 								'border-rose-400 focus:border-rose-500'
@@ -241,9 +236,7 @@ export const AiEngineSettingsTab = memo(function AiEngineSettingsTab({
 						aria-hidden='true'>
 						<Lock
 							className={`w-4 h-4 ${
-								isRevealed ?
-									'text-amber-400 animate-pulse'
-								:	'text-emerald-400'
+								isRevealed ? 'text-amber-400 animate-pulse' : 'text-emerald-400'
 							}`}
 						/>
 					</div>
@@ -297,9 +290,7 @@ export const AiEngineSettingsTab = memo(function AiEngineSettingsTab({
 									}`}
 								/>
 								<span>
-									{isFetchingModels ?
-										'Downloading...'
-									:	'Fetch Latest 🔄'}
+									{isFetchingModels ? 'Downloading...' : 'Fetch Latest 🔄'}
 								</span>
 							</button>
 						)}
@@ -428,8 +419,8 @@ export const AiEngineSettingsTab = memo(function AiEngineSettingsTab({
 					{filteredModels.length === 0 && (
 						<div className='col-span-full p-4 rounded-xl bg-[#080B22] border border-slate-700/80 text-center'>
 							<p className='text-xs text-slate-300'>
-								No AI models found matching "
-								<strong>{modelSearchQuery}</strong>"
+								No AI models found matching "<strong>{modelSearchQuery}</strong>
+								"
 							</p>
 							<button
 								type='button'

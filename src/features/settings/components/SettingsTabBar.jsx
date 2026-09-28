@@ -1,5 +1,5 @@
 import { Clock, Cpu, Smile, Sparkles, Volume2 } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { SETTINGS_TABS } from '../../../constants';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 

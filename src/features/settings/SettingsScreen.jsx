@@ -1,28 +1,8 @@
-import {
-	ArrowLeft,
-	Check,
-	Sparkles,
-} from 'lucide-react';
-import {
-	AiEngineSettingsTab,
-	AudioAccessSettingsTab,
-	PacingSettingsTab,
-	ProfileSettingsTab,
-	SettingsStickyDock,
-	SettingsTabBar,
-	UnsavedChangesModal,
-} from './components';
-import {
-	appMemoryStore,
-	STORE_ACTIONS,
-	useMemoryStore,
-} from '../../store/appMemoryStore';
+import { ArrowLeft, Check, Sparkles } from 'lucide-react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
-	COSMIC_LANGUAGES,
 	DEFAULT_QUESTION_TIMER_SECONDS,
 	isTimerMandatoryForAge,
-	SETTINGS_TABS,
 } from '../../constants';
 import {
 	AI_PROVIDER_INFO,
@@ -44,6 +24,11 @@ import {
 	validateApiKey,
 } from '../../services/aiGenerator';
 import {
+	appMemoryStore,
+	STORE_ACTIONS,
+	useMemoryStore,
+} from '../../store/appMemoryStore';
+import {
 	getStoredAmbientEnabled,
 	getStoredAmbientVolume,
 	isAmbientSoundPlaying,
@@ -55,7 +40,6 @@ import {
 } from '../../utils/ambientAudio';
 import {
 	applyAccessibilityDomClasses,
-	COSMIC_VOICE_PERSONALITIES,
 	getAvailableVoices,
 	getStoredAccessibilitySettings,
 	getStoredVoicePersonality,
@@ -67,20 +51,14 @@ import {
 	speakText,
 } from '../../utils/audioSynthesis';
 import {
-	getAvatarById,
 	getDefaultAvatarForGender,
-	KidAvatar,
 	PRESET_AVATARS,
 } from '../../utils/avatarManager';
 import {
 	exportFullBackupToJsonFile,
 	importFullBackupFromJson,
 } from '../../utils/backupManager';
-import {
-	getActiveCrewId,
-	getAllCrewMembers,
-	switchActiveCrewMember,
-} from '../../utils/crewManager';
+import { getAllCrewMembers } from '../../utils/crewManager';
 import {
 	getStoredKidAge,
 	getStoredKidAvatar,
@@ -93,6 +71,15 @@ import {
 	saveStoredTimerConfig,
 } from '../../utils/progressTracker';
 import CrewSwitcherModal from '../dashboard/CrewSwitcherModal';
+import {
+	AiEngineSettingsTab,
+	AudioAccessSettingsTab,
+	PacingSettingsTab,
+	ProfileSettingsTab,
+	SettingsStickyDock,
+	SettingsTabBar,
+	UnsavedChangesModal,
+} from './components';
 
 const SettingsScreen = memo(function SettingsScreen({
 	onSaveAndReturn,

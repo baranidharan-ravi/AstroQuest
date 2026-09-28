@@ -1,5 +1,5 @@
 import { AlertTriangle, RotateCcw, Save, X } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 
 /**
@@ -59,9 +59,9 @@ export const UnsavedChangesModal = memo(function UnsavedChangesModal({
 				<p
 					id='unsaved-modal-desc'
 					className='text-xs sm:text-sm text-slate-300 font-semibold mb-6 leading-relaxed'>
-					You modified your settings without saving. Please save your
-					settings before navigating, or your changes will be discarded and
-					reverted back to the previous values.
+					You modified your settings without saving. Please save your settings
+					before navigating, or your changes will be discarded and reverted back
+					to the previous values.
 				</p>
 
 				<div className='flex flex-col gap-3'>

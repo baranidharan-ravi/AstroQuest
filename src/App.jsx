@@ -1,15 +1,4 @@
 import {
-	ArrowLeft,
-	Clock,
-	Key,
-	Pause,
-	Play,
-	RefreshCw,
-	Rocket,
-	SkipForward,
-	Sparkles,
-} from 'lucide-react';
-import {
 	lazy,
 	Suspense,
 	useCallback,
@@ -25,16 +14,21 @@ import {
 	PURE_QUEST_XP_BONUS,
 } from './constants';
 import { getRandomCosmicFact } from './data/cosmicFacts';
+import { DashboardModalsHub } from './features/dashboard/components';
 import SkillSelectionDashboard from './features/dashboard/SkillSelectionDashboard';
 import CosmicLifelinesBar from './features/quest/CosmicLifelinesBar';
+import {
+	QuestActionBar,
+	QuestAiErrorCard,
+	QuestLoadingNextView,
+	QuestModalsHub,
+	QuestPauseShield,
+	QuestResultsView,
+	QuestSubmittedSolutionView,
+} from './features/quest/components';
 import OptionsGrid from './features/quest/OptionsGrid';
 import QuestionCard from './features/quest/QuestionCard';
-import SolutionPanel from './features/quest/SolutionPanel';
-import {
-	AI_PROVIDER_INFO,
-	getActiveAiProvider,
-	getStoredApiKey,
-} from './services/aiGenerator';
+import { getStoredApiKey } from './services/aiGenerator';
 import { getFreshThinksheetSession } from './services/questionService';
 import {
 	getStoredAmbientEnabled,
@@ -54,6 +48,7 @@ import {
 	awardXP,
 	getStoredAchievements,
 } from './utils/badgeManager';
+import { triggerConfetti } from './utils/confettiHelper';
 import Header from './utils/Header';
 import {
 	getStoredKidAge,
@@ -69,43 +64,13 @@ import {
 	saveStoredSelectedSkill,
 	saveStoredShowVisualDiagrams,
 } from './utils/progressTracker';
+import { exportQuestSessionPdf } from './utils/sessionExportHelper';
 import { clearSessionState, saveSessionState } from './utils/storage';
 
-// Code-split screens, loaders, and modals loaded on demand
+// Code-split screens and loaders loaded on demand
 const SettingsScreen = lazy(() => import('./features/settings/SettingsScreen'));
-const ResultOverview = lazy(() => import('./features/results/ResultOverview'));
-const QuestionSummary = lazy(
-	() => import('./features/results/QuestionSummary'),
-);
 const CosmicQuestLoader = lazy(() => import('./utils/CosmicQuestLoader'));
-const AskDoubtModal = lazy(() => import('./features/quest/AskDoubtModal'));
-const ExitConfirmationModal = lazy(
-	() => import('./features/quest/ExitConfirmationModal'),
-);
-const HintModal = lazy(() => import('./features/quest/HintModal'));
-const ZoomModal = lazy(() => import('./utils/ZoomModal'));
-const SkippedReviewModal = lazy(
-	() => import('./features/quest/SkippedReviewModal'),
-);
-const CrewSwitcherModal = lazy(
-	() => import('./features/dashboard/CrewSwitcherModal'),
-);
 const TimeWarpMode = lazy(() => import('./features/quest/TimeWarpMode'));
-const PocketPlanetariumModal = lazy(
-	() => import('./features/dashboard/PocketPlanetariumModal'),
-);
-const ConstellationObservatory = lazy(
-	() => import('./features/dashboard/ConstellationObservatory'),
-);
-const GalaxyOdysseyModal = lazy(
-	() => import('./features/dashboard/GalaxyOdysseyModal'),
-);
-const EducatorPortalModal = lazy(
-	() => import('./features/dashboard/EducatorPortalModal'),
-);
-const CosmicHabitatModal = lazy(
-	() => import('./features/dashboard/CosmicHabitatModal'),
-);
 
 function ScreenLoadingFallback() {
 	return (
@@ -117,24 +82,6 @@ function ScreenLoadingFallback() {
 		</div>
 	);
 }
-
-// On-demand celebration confetti loader (zero initial bundle cost)
-const triggerConfetti = async () => {
-	try {
-		const confettiModule = await import('canvas-confetti');
-		const confetti = confettiModule.default || confettiModule;
-		confetti({
-			particleCount: 90,
-			spread: 70,
-			origin: { y: 0.6 },
-			colors: ['#00D166', '#FFD166', '#00E5FF', '#FF5B84', '#B845ED'],
-			shapes: ['star', 'circle'],
-			scalar: 1.2,
-		});
-	} catch (err) {
-		console.warn('Confetti error', err);
-	}
-};
 
 export default function App() {
 	// Kid Profile & Name State
@@ -1381,59 +1328,17 @@ export default function App() {
 	// Download Sheet Progress as PDF
 	const handleDownloadSheet = useCallback(async () => {
 		playButtonPop(soundEnabled);
-		const now = new Date();
-		const day = String(now.getDate()).padStart(2, '0');
-		const monthNames = [
-			'Jan',
-			'Feb',
-			'Mar',
-			'Apr',
-			'May',
-			'Jun',
-			'Jul',
-			'Aug',
-			'Sep',
-			'Oct',
-			'Nov',
-			'Dec',
-		];
-		const month = monthNames[now.getMonth()];
-		const year = now.getFullYear();
-		let hours = now.getHours();
-		const ampm = hours >= 12 ? 'PM' : 'AM';
-		hours = hours % 12 || 12;
-		const formattedHours = String(hours).padStart(2, '0');
-		const minutes = String(now.getMinutes()).padStart(2, '0');
-		const timeStampStr = `${day}${month}${year}_${formattedHours}-${minutes}${ampm}`;
-
-		const safeKidName =
-			(kidName || 'Explorer').trim().replace(/[^\w-]/g, '_') || 'Explorer';
-		const fullDateTime = now.toLocaleDateString('en-US', {
-			weekday: 'short',
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
+		await exportQuestSessionPdf({
+			kidName,
+			kidAge,
+			selectedSkill,
+			sheetNumber,
+			scorePercent,
+			correctCount,
+			questions,
+			timerSeconds,
+			history,
 		});
-
-		const { exportSessionToPdf } = await import('./utils/pdfGenerator');
-		exportSessionToPdf(
-			{
-				studentName: kidName || 'Explorer',
-				studentAge: kidAge || 5,
-				selectedSkill,
-				sheetNumber,
-				date: fullDateTime,
-				scorePercent,
-				correctCount,
-				totalQuestions: questions.length,
-				timerSeconds,
-				questions,
-				history,
-			},
-			`AstroQuest_${safeKidName}_Age${kidAge}_${selectedSkill}_Sheet${sheetNumber}_${timeStampStr}.pdf`,
-		);
 	}, [
 		soundEnabled,
 		kidName,
@@ -1524,65 +1429,30 @@ export default function App() {
 				/>
 
 				{/* Modals triggered from Dashboard */}
-				<Suspense fallback={null}>
-					{isPlanetariumOpen && (
-						<PocketPlanetariumModal
-							isOpen={isPlanetariumOpen}
-							onClose={() => setIsPlanetariumOpen(false)}
-							soundEnabled={soundEnabled}
-						/>
-					)}
-					{isObservatoryOpen && (
-						<ConstellationObservatory
-							isOpen={isObservatoryOpen}
-							onClose={() => setIsObservatoryOpen(false)}
-							soundEnabled={soundEnabled}
-						/>
-					)}
-					{isOdysseyOpen && (
-						<GalaxyOdysseyModal
-							isOpen={isOdysseyOpen}
-							onClose={() => setIsOdysseyOpen(false)}
-							soundEnabled={soundEnabled}
-							kidName={kidName}
-						/>
-					)}
-					{isHabitatOpen && (
-						<CosmicHabitatModal
-							isOpen={isHabitatOpen}
-							onClose={() => setIsHabitatOpen(false)}
-							soundEnabled={soundEnabled}
-							kidName={kidName}
-						/>
-					)}
-					{isEducatorPortalOpen && (
-						<EducatorPortalModal
-							isOpen={isEducatorPortalOpen}
-							onClose={() => setIsEducatorPortalOpen(false)}
-							soundEnabled={soundEnabled}
-							kidName={kidName}
-							kidAge={kidAge}
-						/>
-					)}
-					{isCrewModalOpen && (
-						<CrewSwitcherModal
-							isOpen={isCrewModalOpen}
-							onClose={() => setIsCrewModalOpen(false)}
-							soundEnabled={soundEnabled}
-							currentKidName={kidName}
-							currentKidAge={kidAge}
-							currentKidGender={kidGender}
-							currentKidAvatar={kidAvatar}
-							onCrewSwitched={(profile) => {
-								setKidName(profile.name);
-								setKidAge(profile.age);
-								if (profile.gender) setKidGender(profile.gender);
-								if (profile.avatar) setKidAvatar(profile.avatar);
-								setAchievements(getStoredAchievements());
-							}}
-						/>
-					)}
-				</Suspense>
+				<DashboardModalsHub
+					isPlanetariumOpen={isPlanetariumOpen}
+					setIsPlanetariumOpen={setIsPlanetariumOpen}
+					isObservatoryOpen={isObservatoryOpen}
+					setIsObservatoryOpen={setIsObservatoryOpen}
+					isOdysseyOpen={isOdysseyOpen}
+					setIsOdysseyOpen={setIsOdysseyOpen}
+					isHabitatOpen={isHabitatOpen}
+					setIsHabitatOpen={setIsHabitatOpen}
+					isEducatorPortalOpen={isEducatorPortalOpen}
+					setIsEducatorPortalOpen={setIsEducatorPortalOpen}
+					isCrewModalOpen={isCrewModalOpen}
+					setIsCrewModalOpen={setIsCrewModalOpen}
+					soundEnabled={soundEnabled}
+					kidName={kidName}
+					kidAge={kidAge}
+					kidGender={kidGender}
+					kidAvatar={kidAvatar}
+					setKidName={setKidName}
+					setKidAge={setKidAge}
+					setKidGender={setKidGender}
+					setKidAvatar={setKidAvatar}
+					setAchievements={setAchievements}
+				/>
 			</>
 		);
 	}
@@ -1656,103 +1526,22 @@ export default function App() {
 					</Suspense>
 				: aiError ?
 					/* AI Error / API Key Setup Prompt Screen */
-					<div className='w-full max-w-xl mx-auto p-6 sm:p-8 bg-gradient-to-b from-[#1C1F5E] via-[#141846] to-[#0D1030] border-4 border-amber-400/80 rounded-3xl shadow-2xl text-center animate-in fade-in'>
-						<div className='w-16 h-16 rounded-3xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center mx-auto mb-4 text-amber-300'>
-							<Key className='w-8 h-8' />
-						</div>
-
-						<h2 className='text-xl sm:text-2xl font-black text-white mb-2'>
-							{aiError === 'MISSING_KEY' ?
-								`${AI_PROVIDER_INFO[getActiveAiProvider()]?.name || 'AI'} API Key Required`
-							:	'AI Generation Connection Error'}
-						</h2>
-
-						<p className='text-sm text-slate-300 font-semibold mb-6 leading-relaxed'>
-							{aiError === 'MISSING_KEY' ?
-								`All AstroQuest challenges are generated live by ${AI_PROVIDER_INFO[getActiveAiProvider()]?.name || 'AI'}. Please configure your API key to start generating customized questions.`
-							: typeof aiError === 'string' && aiError !== 'API_ERROR' ?
-								aiError
-							:	`Unable to connect to the ${AI_PROVIDER_INFO[getActiveAiProvider()]?.name || 'AI'} API. Please check your internet connection or verify your API key in Settings.`
-							}
-						</p>
-
-						<div className='flex flex-col sm:flex-row gap-3 justify-center'>
-							<button
-								onClick={() => {
-									playButtonPop(soundEnabled);
-									setCurrentScreen('settings');
-								}}
-								className='px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-sm sm:text-base shadow-lg flex items-center justify-center gap-2 transform hover:scale-105 transition-all cursor-pointer'>
-								<Sparkles className='w-4 h-4' />
-								<span>Open Settings & Key ⚙️</span>
-							</button>
-
-							<button
-								onClick={() => handleSelectSkill(selectedSkill)}
-								className='px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer'>
-								<RefreshCw className='w-4 h-4' />
-								<span>Try Again</span>
-							</button>
-
-							<button
-								onClick={() => {
-									playButtonPop(soundEnabled);
-									setCurrentScreen('dashboard');
-								}}
-								className='px-4 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center gap-1.5 cursor-pointer'>
-								<ArrowLeft className='w-4 h-4' />
-								<span>Skills Hub</span>
-							</button>
-						</div>
-					</div>
+					<QuestAiErrorCard
+						aiError={aiError}
+						soundEnabled={soundEnabled}
+						onOpenSettings={() => setCurrentScreen('settings')}
+						onRetry={() => handleSelectSkill(selectedSkill)}
+						onBackToDashboard={() => setCurrentScreen('dashboard')}
+					/>
 				: !isCompleted ?
 					/* Question Playing View */
 					<div className='w-full flex flex-col justify-center flex-1 my-auto min-h-0 h-full'>
 						{/* Loading Next Question Transition View (Timer Paused While Loading) */}
 						{isLoadingNextQuestion ?
-							<div className='w-full max-w-lg mx-auto my-auto flex flex-col items-center justify-center p-8 sm:p-10 bg-gradient-to-b from-[#1C1F5E]/95 via-[#141846]/95 to-[#0D1030] border-2 sm:border-4 border-cyan-400/60 rounded-3xl shadow-[0_0_50px_rgba(34,211,238,0.25)] text-center animate-in fade-in zoom-in-95 duration-200'>
-								<div className='relative mb-5'>
-									<div className='w-18 h-18 sm:w-20 sm:h-20 rounded-3xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 shadow-xl animate-bounce-short'>
-										<Rocket className='w-9 h-9 sm:w-10 sm:h-10 text-cyan-300 -rotate-45' />
-									</div>
-									<Sparkles className='w-5 h-5 text-amber-300 absolute -top-2 -right-2 animate-pulse' />
-								</div>
-								<h2 className='text-xl sm:text-2xl font-black text-white tracking-wide mb-1'>
-									Loading Next Challenge... 🚀
-								</h2>
-								<p className='text-xs sm:text-sm font-semibold text-slate-300 max-w-sm mb-4 leading-relaxed'>
-									Timer is paused while the next question loads.
-								</p>
-
-								{/* Cosmic Space Factoid Display */}
-								{activeCosmicFact && (
-									<div className='w-full bg-[#090C28]/85 border border-cyan-400/30 rounded-2xl p-3.5 sm:p-4 mb-5 text-left shadow-inner flex items-start gap-3'>
-										<span
-											className='text-2xl flex-shrink-0'
-											aria-hidden='true'>
-											{activeCosmicFact.emoji}
-										</span>
-										<div className='flex flex-col min-w-0'>
-											<div className='flex items-center gap-2 mb-1'>
-												<span className='text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'>
-													Cosmic Fact 🛸 • {activeCosmicFact.topic}
-												</span>
-											</div>
-											<p className='text-xs sm:text-sm font-medium text-slate-200 leading-relaxed'>
-												{activeCosmicFact.fact}
-											</p>
-										</div>
-									</div>
-								)}
-
-								<button
-									type='button'
-									onClick={handleImmediateResumeAndLoadNext}
-									className='px-6 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-xs sm:text-sm tracking-wider uppercase shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer'>
-									<Play className='w-4 h-4 fill-current' />
-									<span>Resume & Load Now ➔</span>
-								</button>
-							</div>
+							<QuestLoadingNextView
+								activeCosmicFact={activeCosmicFact}
+								handleImmediateResumeAndLoadNext={handleImmediateResumeAndLoadNext}
+							/>
 						: !isSubmitted ?
 							/* Layout when NOT submitted: Full-width layout with Question and Options side-by-side and full-width bottom Action Bar */
 							<div
@@ -1799,36 +1588,11 @@ export default function App() {
 								</div>
 
 								{/* Anti-Cheat / Screenshot Shield Overlay when timer is paused before submitting */}
-								{isTimerPaused && (
-									<div
-										onClick={resumeTimerIfPaused}
-										className='absolute inset-x-0 top-0 bottom-16 sm:bottom-20 z-20 flex flex-col items-center justify-center p-4 text-center cursor-pointer bg-slate-950/40 backdrop-blur-[2px] rounded-3xl animate-in fade-in duration-200 select-none'>
-										<div
-											onClick={(e) => e.stopPropagation()}
-											className='p-6 sm:p-8 rounded-3xl bg-[#0e1238]/95 border-2 border-amber-400/80 shadow-[0_0_50px_rgba(251,191,36,0.3)] flex flex-col items-center max-w-sm sm:max-w-md mx-auto'>
-											<div className='w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-amber-400/20 border-2 border-amber-400/60 flex items-center justify-center text-amber-300 mb-3 animate-pulse shadow-lg'>
-												<Pause className='w-8 h-8 fill-current' />
-											</div>
-											<h3 className='text-xl sm:text-2xl font-black text-white tracking-wide mb-1'>
-												Challenge Paused ⏸️
-											</h3>
-											<p className='text-xs sm:text-sm font-semibold text-slate-300 mb-5 leading-relaxed'>
-												Question and choices are hidden while paused to keep the
-												challenge fair. Tap resume when ready to continue!
-											</p>
-											<button
-												type='button'
-												onClick={() => {
-													playButtonPop(soundEnabled);
-													resumeTimerIfPaused();
-												}}
-												className='px-6 py-2.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm tracking-wider uppercase shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer'>
-												<Play className='w-4 h-4 fill-current' />
-												<span>Resume Challenge</span>
-											</button>
-										</div>
-									</div>
-								)}
+								<QuestPauseShield
+									isTimerPaused={isTimerPaused}
+									resumeTimerIfPaused={resumeTimerIfPaused}
+									soundEnabled={soundEnabled}
+								/>
 
 								{/* Quick-Access Cosmic Lifelines Console (Outside question section) */}
 								<div className='flex-shrink-0 w-full'>
@@ -1853,370 +1617,113 @@ export default function App() {
 									/>
 								</div>
 
-								{/* Full-Width Bottom Action Bar (Skip, Center Timer, and Submit) spanning the entire width */}
-								<div
-									id='bottom-action-bar'
-									data-no-auto-resume='true'
-									className='flex-shrink-0 sticky bottom-0 sm:bottom-1 z-30 w-full flex items-center justify-between gap-2 sm:gap-4 py-2.5 sm:py-3 px-3.5 sm:px-6 select-none border-t border-white/15 bg-[#0C1033]/95 backdrop-blur-md rounded-2xl shadow-[0_-8px_25px_rgba(0,0,0,0.5)]'>
-									{/* Left: Skip Button */}
-									<div className='flex items-center gap-2 sm:gap-3 flex-shrink-0'>
-										{/* Skip Question Button */}
-										<button
-											disabled={isTimerPaused}
-											onClick={handleSkip}
-											className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full font-black text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
-												isTimerPaused ?
-													'bg-slate-800/70 border-slate-700/60 text-slate-500 cursor-not-allowed opacity-50 shadow-none'
-												:	'bg-[#1A1D54] hover:bg-[#252A74] text-slate-300 hover:text-white border-indigo-400/40 hover:border-indigo-300 hover:scale-105 active:scale-95 cursor-pointer focus-visible:ring-4 focus-visible:ring-indigo-400 focus-visible:outline-none'
-											}`}
-											title={
-												isTimerPaused ?
-													'Resume challenge to skip question'
-												:	'Skip this question'
-											}
-											aria-label={
-												isTimerPaused ?
-													'Skip is disabled while challenge is paused. Resume challenge to skip.'
-												:	'Skip this question'
-											}
-											aria-disabled={isTimerPaused}>
-											<SkipForward
-												className={`w-4 h-4 ${isTimerPaused ? 'text-slate-500' : 'text-amber-400'}`}
-											/>
-											<span>Skip</span>
-										</button>
-									</div>
-
-									{/* Center: Running Timer for both Timer Limit (countdown) & Infinite Timer (stopwatch) */}
-									<div className='flex items-center justify-center flex-1 mx-2 sm:mx-4'>
-										{timerConfig?.enabled ?
-											<button
-												type='button'
-												onClick={handleToggleTimerPause}
-												role='timer'
-												aria-live='off'
-												className={`flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-2xl border font-mono font-black text-sm sm:text-base md:text-lg tracking-wider shadow-inner transition-all cursor-pointer select-none group ${
-													isTimerPaused ?
-														'bg-amber-950/90 border-amber-400 text-amber-300 ring-2 ring-amber-400/50 animate-pulse'
-													: chronoFreezeActive ?
-														'bg-emerald-950/90 border-emerald-400 text-emerald-300 ring-2 ring-emerald-400/50 shadow-[0_0_15px_rgba(16,185,129,0.35)]'
-													: questionTimeRemaining <= 5 ?
-														'bg-rose-950/80 border-rose-500 text-rose-300 ring-2 ring-rose-400/40 animate-bounce'
-													: questionTimeRemaining <= 15 ?
-														'bg-amber-950/70 border-amber-400 text-amber-300 ring-2 ring-amber-400/30 animate-pulse'
-													:	'bg-[#121644]/90 border-cyan-400/50 hover:border-cyan-400 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)]'
-												}`}
-												title={
-													isTimerPaused ?
-														'Timer paused. Click to resume or interact with the question.'
-													:	'Click to pause question timer'
-												}
-												aria-label={
-													isTimerPaused ?
-														`Countdown paused at ${Math.floor(questionTimeRemaining / 60)}:${(questionTimeRemaining % 60).toString().padStart(2, '0')}. Click to resume.`
-													:	`Question countdown: ${questionTimeRemaining} seconds remaining. Click to pause.`
-												}>
-												{isTimerPaused ?
-													<Play className='w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-current' />
-												: questionTimeRemaining <= 15 ?
-													<Clock className='w-4 h-4 sm:w-5 sm:h-5 text-amber-400 animate-spin' />
-												:	<Pause className='w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 group-hover:scale-110 transition-transform' />
-												}
-												<span>
-													{Math.floor(questionTimeRemaining / 60)
-														.toString()
-														.padStart(2, '0')}
-													:
-													{(questionTimeRemaining % 60)
-														.toString()
-														.padStart(2, '0')}
-												</span>
-												{isTimerPaused ?
-													<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/30'>
-														Paused
-													</span>
-												: chronoFreezeActive ?
-													<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-emerald-400/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-400/40 animate-pulse ml-0.5'>
-														⏱️ +30s
-													</span>
-												:	<span className='text-[10px] sm:text-xs uppercase font-extrabold tracking-widest opacity-80 ml-0.5 hidden xs:inline'>
-														Left
-													</span>
-												}
-											</button>
-										:	<button
-												type='button'
-												onClick={handleToggleTimerPause}
-												role='timer'
-												aria-live='off'
-												className={`flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-2xl border font-mono font-black text-sm sm:text-base md:text-lg tracking-wider shadow-inner transition-all cursor-pointer select-none group ${
-													isTimerPaused ?
-														'bg-amber-950/90 border-amber-400 text-amber-300 ring-2 ring-amber-400/50 animate-pulse'
-													:	'bg-[#121644]/90 border-pink-400/40 hover:border-pink-400/80 text-pink-300 hover:text-white shadow-[0_0_15px_rgba(244,114,182,0.15)]'
-												}`}
-												title={
-													isTimerPaused ?
-														'Timer paused. Click to resume or interact with the question.'
-													:	'Click to pause session timer'
-												}
-												aria-label={
-													isTimerPaused ?
-														`Timer paused at ${Math.floor(timerSeconds / 60)}:${(timerSeconds % 60).toString().padStart(2, '0')}. Click to resume.`
-													:	`Elapsed time: ${Math.floor(timerSeconds / 60)}:${(timerSeconds % 60).toString().padStart(2, '0')}. Click to pause.`
-												}>
-												{isTimerPaused ?
-													<Play className='w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-current' />
-												:	<Pause className='w-4 h-4 sm:w-5 sm:h-5 text-pink-300 group-hover:scale-110 transition-transform' />
-												}
-												<span>
-													{Math.floor(timerSeconds / 60)
-														.toString()
-														.padStart(2, '0')}
-													:{(timerSeconds % 60).toString().padStart(2, '0')}
-												</span>
-												{isTimerPaused ?
-													<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/30'>
-														Paused
-													</span>
-												:	<span className='text-[10px] sm:text-xs uppercase font-extrabold tracking-widest opacity-80 ml-0.5 hidden xs:inline'>
-														Elapsed
-													</span>
-												}
-											</button>
-										}
-									</div>
-
-									{/* Right: Submit Button */}
-									<button
-										disabled={!selectedOptionId}
-										onClick={handleSubmit}
-										aria-label={
-											selectedOptionId ? 'Submit your answer' : (
-												'Select an answer option to submit'
-											)
-										}
-										aria-disabled={!selectedOptionId}
-										className={`px-7 sm:px-12 py-3 sm:py-3.5 rounded-full font-black text-sm sm:text-base md:text-lg tracking-wider uppercase transition-all shadow-xl flex items-center justify-center gap-2.5 flex-shrink-0 focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:outline-none ${
-											selectedOptionId ?
-												'bg-[#FF5B84] hover:bg-[#FF435A] text-white hover:scale-[1.02] active:scale-95 shadow-[0_8px_20px_rgba(255,91,132,0.4)] cursor-pointer'
-											:	'bg-slate-700 text-slate-400 cursor-not-allowed opacity-60'
-										}`}>
-										<span>Submit</span>
-									</button>
-								</div>
+								{/* Full-Width Bottom Action Bar (Skip, Center Timer, and Submit) */}
+								<QuestActionBar
+									isTimerPaused={isTimerPaused}
+									handleSkip={handleSkip}
+									timerConfig={timerConfig}
+									handleToggleTimerPause={handleToggleTimerPause}
+									chronoFreezeActive={chronoFreezeActive}
+									questionTimeRemaining={questionTimeRemaining}
+									timerSeconds={timerSeconds}
+									selectedOptionId={selectedOptionId}
+									handleSubmit={handleSubmit}
+								/>
 							</div>
 						:	/* Layout when SUBMITTED / TIMED OUT: Question Card on Left, Solution Panel with NEXT button on Right */
-							<div
-								onPointerDownCapture={resumeTimerIfPaused}
-								className='grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch w-full h-full lg:max-h-[calc(100dvh-95px)] min-h-0'>
-								{/* Left Column: Question Card & compact Options */}
-								<div className='lg:col-span-7 flex flex-col gap-3 lg:max-h-[calc(100dvh-95px)] lg:overflow-y-auto pr-1 min-h-0'>
-									<QuestionCard
-										question={currentQuestion}
-										currentIndex={currentIndex}
-										totalQuestions={questions.length}
-										onZoomClick={() => setIsZoomOpen(true)}
-										soundEnabled={soundEnabled}
-										isSubmitted={true}
-										showVisualDiagrams={showVisualDiagrams}
-										kidName={kidName}
-										kidAge={kidAge}
-										isReviewMode={isReviewMode}
-									/>
-									<OptionsGrid
-										options={currentQuestion.options || []}
-										selectedOptionId={selectedOptionId}
-										onSelectOption={handleSelectOption}
-										isSubmitted={true}
-										correctAnswerId={currentQuestion.correctAnswerId}
-										soundEnabled={soundEnabled}
-										showVisualDiagrams={showVisualDiagrams}
-										question={currentQuestion}
-									/>
-								</div>
-
-								{/* Right Column: Solution & Feedback Panel with NEXT BUTTON right below solution! */}
-								<div className='lg:col-span-5 flex flex-col min-w-0 h-full lg:max-h-[calc(100dvh-95px)] min-h-0'>
-									<SolutionPanel
-										isCorrect={
-											selectedOptionId === currentQuestion.correctAnswerId
-										}
-										isTimedOut={isTimedOut}
-										autoAdvanceCountdown={autoAdvanceCountdown}
-										question={currentQuestion}
-										onAskDoubt={() => setIsAskDoubtOpen(true)}
-										soundEnabled={soundEnabled}
-										onNext={handleNext}
-										showVisualDiagrams={showVisualDiagrams}
-										isReviewMode={isReviewMode}
-										wasSkippedOnRevisit={wasSkippedOnRevisit}
-										hasNextSkipped={
-											isReviewMode &&
-											skippedReviewQueue.filter((idx) => idx !== currentIndex)
-												.length > 0
-										}
-									/>
-								</div>
-							</div>
+							<QuestSubmittedSolutionView
+								resumeTimerIfPaused={resumeTimerIfPaused}
+								currentQuestion={currentQuestion}
+								currentIndex={currentIndex}
+								totalQuestions={questions.length}
+								setIsZoomOpen={setIsZoomOpen}
+								soundEnabled={soundEnabled}
+								showVisualDiagrams={showVisualDiagrams}
+								kidName={kidName}
+								kidAge={kidAge}
+								isReviewMode={isReviewMode}
+								selectedOptionId={selectedOptionId}
+								handleSelectOption={handleSelectOption}
+								isTimedOut={isTimedOut}
+								autoAdvanceCountdown={autoAdvanceCountdown}
+								setIsAskDoubtOpen={setIsAskDoubtOpen}
+								handleNext={handleNext}
+								wasSkippedOnRevisit={wasSkippedOnRevisit}
+								hasNextSkipped={
+									isReviewMode &&
+									skippedReviewQueue.filter((idx) => idx !== currentIndex).length > 0
+								}
+							/>
 						}
 					</div>
 				:	/* Completion & Summary View */
-					<div className='w-full max-w-5xl mx-auto pb-16'>
-						<Suspense fallback={<ScreenLoadingFallback />}>
-							{resultTab === 'overview' ?
-								<ResultOverview
-									scorePercent={scorePercent}
-									correctCount={correctCount}
-									totalCount={questions.length}
-									history={history}
-									onStartNextSheet={handleStartNextSheet}
-									onViewSummary={() => setResultTab('summary')}
-									onDownloadPdf={handleDownloadSheet}
-									activeTab={resultTab}
-									setActiveTab={setResultTab}
-									soundEnabled={soundEnabled}
-									onBackToDashboard={() => setCurrentScreen('dashboard')}
-									kidName={kidName}
-									kidAge={kidAge}
-									kidAvatar={kidAvatar}
-									timerSeconds={timerSeconds}
-									pureQuestBonus={
-										(
-											!cosmicClueUsed &&
-											!cosmicRayUsed &&
-											!telemetryScanUsed &&
-											!chronoFreezeUsed
-										) ?
-											PURE_QUEST_XP_BONUS
-										:	0
-									}
-								/>
-							:	<QuestionSummary
-									questions={questions}
-									history={history}
-									onStartNextSheet={handleStartNextSheet}
-									onDownloadPdf={handleDownloadSheet}
-									activeTab={resultTab}
-									setActiveTab={setResultTab}
-									soundEnabled={soundEnabled}
-									onBackToDashboard={() => setCurrentScreen('dashboard')}
-									showVisualDiagrams={showVisualDiagrams}
-								/>
-							}
-						</Suspense>
-					</div>
+					<QuestResultsView
+						resultTab={resultTab}
+						setResultTab={setResultTab}
+						scorePercent={scorePercent}
+						correctCount={correctCount}
+						totalCount={questions.length}
+						questions={questions}
+						history={history}
+						handleStartNextSheet={handleStartNextSheet}
+						handleDownloadSheet={handleDownloadSheet}
+						soundEnabled={soundEnabled}
+						setCurrentScreen={setCurrentScreen}
+						kidName={kidName}
+						kidAge={kidAge}
+						kidAvatar={kidAvatar}
+						timerSeconds={timerSeconds}
+						cosmicClueUsed={cosmicClueUsed}
+						cosmicRayUsed={cosmicRayUsed}
+						telemetryScanUsed={telemetryScanUsed}
+						chronoFreezeUsed={chronoFreezeUsed}
+						showVisualDiagrams={showVisualDiagrams}
+					/>
 				}
 			</main>
 
 			{/* Interactive Modals (Lazy Loaded on Demand) */}
-			<Suspense fallback={null}>
-				{isHintOpen && (
-					<HintModal
-						hintText={currentQuestion.hint}
-						isOpen={isHintOpen}
-						onClose={() => setIsHintOpen(false)}
-						soundEnabled={soundEnabled}
-						onActivateCosmicRay={handleActivateCosmicRay}
-						cosmicRayUsed={cosmicRayUsed}
-						canUseCosmicRay={!isSubmitted && !isTimedOut}
-						onActivateTelemetryScan={handleActivateTelemetryScan}
-						telemetryScan={telemetryScan}
-						telemetryScanUsed={telemetryScanUsed}
-						canUseTelemetryScan={!isSubmitted && !isTimedOut}
-						onActivateChronoFreeze={handleActivateChronoFreeze}
-						chronoFreezeUsed={chronoFreezeUsed}
-						canUseChronoFreeze={!isSubmitted && !isTimedOut}
-						currentQuestion={currentQuestion}
-						eliminatedOptionIds={eliminatedOptionIds}
-						timerEnabled={timerConfig?.enabled}
-					/>
-				)}
-
-				{isZoomOpen && (
-					<ZoomModal
-						diagramType={currentQuestion.diagramType}
-						diagramData={{
-							...currentQuestion.diagramData,
-							questionText:
-								currentQuestion.question || currentQuestion.questionText,
-							correctAnswerText:
-								currentQuestion.correctAnswerText ||
-								currentQuestion.correctAnswer,
-						}}
-						isOpen={isZoomOpen}
-						onClose={() => setIsZoomOpen(false)}
-						soundEnabled={soundEnabled}
-					/>
-				)}
-
-				{isAskDoubtOpen && (
-					<AskDoubtModal
-						question={currentQuestion}
-						isOpen={isAskDoubtOpen}
-						onClose={() => setIsAskDoubtOpen(false)}
-						soundEnabled={soundEnabled}
-						kidAge={kidAge}
-						kidName={kidName}
-					/>
-				)}
-
-				{isExitModalOpen && (
-					<ExitConfirmationModal
-						isOpen={isExitModalOpen}
-						onClose={() => setIsExitModalOpen(false)}
-						onConfirmExit={handleConfirmExit}
-						currentIndex={currentIndex}
-						totalQuestions={questions.length}
-						selectedSkill={selectedSkill}
-						soundEnabled={soundEnabled}
-					/>
-				)}
-
-				{isSkippedReviewPromptOpen && (
-					<SkippedReviewModal
-						isOpen={isSkippedReviewPromptOpen}
-						onRevisit={handleStartSkippedReview}
-						onViewResults={handleSkipReviewAndFinish}
-						skippedIndices={history
-							.map((h, idx) => (h && h.skipped ? idx : null))
-							.filter((idx) => idx !== null)}
-						soundEnabled={soundEnabled}
-					/>
-				)}
-
-				{isCrewModalOpen && (
-					<CrewSwitcherModal
-						isOpen={isCrewModalOpen}
-						onClose={() => setIsCrewModalOpen(false)}
-						soundEnabled={soundEnabled}
-					/>
-				)}
-
-				{isPlanetariumOpen && (
-					<PocketPlanetariumModal
-						isOpen={isPlanetariumOpen}
-						onClose={() => setIsPlanetariumOpen(false)}
-						soundEnabled={soundEnabled}
-					/>
-				)}
-
-				{isObservatoryOpen && (
-					<ConstellationObservatory
-						isOpen={isObservatoryOpen}
-						onClose={() => setIsObservatoryOpen(false)}
-						soundEnabled={soundEnabled}
-					/>
-				)}
-
-				{isHabitatOpen && (
-					<CosmicHabitatModal
-						isOpen={isHabitatOpen}
-						onClose={() => setIsHabitatOpen(false)}
-						soundEnabled={soundEnabled}
-						kidName={kidName}
-					/>
-				)}
-			</Suspense>
+			<QuestModalsHub
+				isHintOpen={isHintOpen}
+				setIsHintOpen={setIsHintOpen}
+				currentQuestion={currentQuestion}
+				soundEnabled={soundEnabled}
+				handleActivateCosmicRay={handleActivateCosmicRay}
+				cosmicRayUsed={cosmicRayUsed}
+				isSubmitted={isSubmitted}
+				isTimedOut={isTimedOut}
+				handleActivateTelemetryScan={handleActivateTelemetryScan}
+				telemetryScan={telemetryScan}
+				telemetryScanUsed={telemetryScanUsed}
+				handleActivateChronoFreeze={handleActivateChronoFreeze}
+				chronoFreezeUsed={chronoFreezeUsed}
+				eliminatedOptionIds={eliminatedOptionIds}
+				timerConfig={timerConfig}
+				isZoomOpen={isZoomOpen}
+				setIsZoomOpen={setIsZoomOpen}
+				isAskDoubtOpen={isAskDoubtOpen}
+				setIsAskDoubtOpen={setIsAskDoubtOpen}
+				kidAge={kidAge}
+				kidName={kidName}
+				isExitModalOpen={isExitModalOpen}
+				setIsExitModalOpen={setIsExitModalOpen}
+				handleConfirmExit={handleConfirmExit}
+				currentIndex={currentIndex}
+				totalQuestions={questions.length}
+				selectedSkill={selectedSkill}
+				isSkippedReviewPromptOpen={isSkippedReviewPromptOpen}
+				handleStartSkippedReview={handleStartSkippedReview}
+				handleSkipReviewAndFinish={handleSkipReviewAndFinish}
+				history={history}
+				isCrewModalOpen={isCrewModalOpen}
+				setIsCrewModalOpen={setIsCrewModalOpen}
+				isPlanetariumOpen={isPlanetariumOpen}
+				setIsPlanetariumOpen={setIsPlanetariumOpen}
+				isObservatoryOpen={isObservatoryOpen}
+				setIsObservatoryOpen={setIsObservatoryOpen}
+				isHabitatOpen={isHabitatOpen}
+				setIsHabitatOpen={setIsHabitatOpen}
+			/>
 		</div>
 	);
 }

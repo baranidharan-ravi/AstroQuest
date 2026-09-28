@@ -7,7 +7,7 @@ import {
 	Minus,
 	Plus,
 } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 
 /**
@@ -51,11 +51,9 @@ export const PacingSettingsTab = memo(function PacingSettingsTab({
 							</span>
 							<span
 								className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
-									isMandatoryTimer ?
-										'bg-amber-400 text-slate-950 shadow'
-									: timerEnabled ?
-										'bg-emerald-400 text-slate-950 shadow'
-									:	'bg-slate-800 text-slate-400'
+									isMandatoryTimer ? 'bg-amber-400 text-slate-950 shadow'
+									: timerEnabled ? 'bg-emerald-400 text-slate-950 shadow'
+									: 'bg-slate-800 text-slate-400'
 								}`}>
 								{isMandatoryTimer ?
 									'Mandatory (Ages 8–14)'
@@ -216,8 +214,8 @@ export const PacingSettingsTab = memo(function PacingSettingsTab({
 
 				{!autoAdvanceEnabled && (
 					<div className='p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300 font-semibold'>
-						💡 <strong>Manual Next Mode:</strong> The solution stays on
-						screen indefinitely until you click <em>Next Question ➔</em>.
+						💡 <strong>Manual Next Mode:</strong> The solution stays on screen
+						indefinitely until you click <em>Next Question ➔</em>.
 					</div>
 				)}
 
@@ -241,10 +239,7 @@ export const PacingSettingsTab = memo(function PacingSettingsTab({
 										setIsCustomAutoAdvance(false);
 									}}
 									className={`py-2 px-1 sm:px-3 rounded-xl text-xs font-black transition-all border cursor-pointer text-center ${
-										(
-											autoAdvanceSeconds === preset.sec &&
-											!isCustomAutoAdvance
-										) ?
+										autoAdvanceSeconds === preset.sec && !isCustomAutoAdvance ?
 											'bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 border-emerald-300 shadow-md font-black'
 										:	'bg-[#0D1030] text-slate-300 border-slate-700 hover:bg-slate-800'
 									}`}>
@@ -330,18 +325,18 @@ export const PacingSettingsTab = memo(function PacingSettingsTab({
 				</div>
 
 				<p className='text-[11px] sm:text-xs text-slate-300 leading-relaxed'>
-					Choose whether interactive visual diagrams, 3x3 matrices,
-					sequence patterns, and STEM illustrations appear alongside
-					questions and option choices.
+					Choose whether interactive visual diagrams, 3x3 matrices, sequence
+					patterns, and STEM illustrations appear alongside questions and option
+					choices.
 				</p>
 
 				{/* Warning Notice for Dynamic Visual Generation */}
 				<div className='mt-2.5 p-2.5 sm:p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-[11px] sm:text-xs flex items-start gap-2.5 leading-relaxed'>
 					<AlertTriangle className='w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5' />
 					<div>
-						<strong className='text-amber-300'>Note:</strong> Visual
-						diagrams and option shapes are dynamically synthesized based
-						on AI prompts. Minor visual variations may occasionally occur.
+						<strong className='text-amber-300'>Note:</strong> Visual diagrams
+						and option shapes are dynamically synthesized based on AI prompts.
+						Minor visual variations may occasionally occur.
 					</div>
 				</div>
 			</div>

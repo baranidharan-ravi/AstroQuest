@@ -1,9 +1,26 @@
-import { Calendar, Check, Download, Minus, Plus, Smile, Sparkles, Upload, Users } from 'lucide-react';
-import React, { memo, useState } from 'react';
+import {
+	Calendar,
+	Check,
+	Download,
+	Minus,
+	Plus,
+	Smile,
+	Sparkles,
+	Upload,
+	Users,
+} from 'lucide-react';
+import { memo, useState } from 'react';
 import { isTimerMandatoryForAge } from '../../../constants';
 import { playButtonPop } from '../../../utils/audioSynthesis';
-import { getAvatarById, KidAvatar, PRESET_AVATARS } from '../../../utils/avatarManager';
-import { getActiveCrewId, switchActiveCrewMember } from '../../../utils/crewManager';
+import {
+	getAvatarById,
+	KidAvatar,
+	PRESET_AVATARS,
+} from '../../../utils/avatarManager';
+import {
+	getActiveCrewId,
+	switchActiveCrewMember,
+} from '../../../utils/crewManager';
 
 /**
  * ProfileSettingsTab
@@ -415,8 +432,8 @@ export const ProfileSettingsTab = memo(function ProfileSettingsTab({
 								</span>
 							</div>
 							<p className='text-[11px] sm:text-xs text-slate-300 mt-0.5'>
-								{getAvatarById(avatarInput)?.label || 'Hero Explorer Avatar'}{' '}
-								• Shown on dashboard & question headers
+								{getAvatarById(avatarInput)?.label || 'Hero Explorer Avatar'} •
+								Shown on dashboard & question headers
 							</p>
 						</div>
 					</div>
