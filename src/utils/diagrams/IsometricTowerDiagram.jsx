@@ -1,10 +1,17 @@
 import { Box } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 /**
  * Renders a single 3D Isometric Cube in SVG with light, medium, and dark shaded faces
  */
-export function render3DIsoCube({ gx, gy, gz, size = 20, color = 'blue', key = '' }) {
+export function render3DIsoCube({
+	gx,
+	gy,
+	gz,
+	size = 20,
+	color = 'blue',
+	key = '',
+}) {
 	const originX = 140;
 	const originY = 145;
 
@@ -66,7 +73,7 @@ export function render3DIsoCube({ gx, gy, gz, size = 20, color = 'blue', key = '
 
 /**
  * Isometric Block Tower Diagram Component
- * 
+ *
  * Implements SOLID Single Responsibility:
  * Displays layered 3D isometric cube towers, pyramids, and unit volume metrics.
  */

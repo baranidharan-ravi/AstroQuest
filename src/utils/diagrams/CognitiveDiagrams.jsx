@@ -1,12 +1,5 @@
-import {
-	ArrowRight,
-	Link2,
-	Scale,
-	Shapes,
-	Sparkles,
-	Zap,
-} from 'lucide-react';
-import React, { memo } from 'react';
+import { ArrowRight, Link2, Scale, Shapes, Sparkles, Zap } from 'lucide-react';
+import { memo } from 'react';
 import { DynamicShapeCard } from '../shapeGenerator';
 import { getConceptVisual } from './conceptVisualDictionary';
 
@@ -120,9 +113,7 @@ export const AnalogyMapDiagram = memo(function AnalogyMapDiagram({
 							className={`text-xs sm:text-sm font-black leading-snug break-words ${
 								isSolution ? 'text-white' : 'text-pink-800'
 							}`}>
-							{isSolution ?
-								visD.label || 'Answer'
-							:	'Choose option on right ➔'}
+							{isSolution ? visD.label || 'Answer' : 'Choose option on right ➔'}
 						</h4>
 					</div>
 				</div>
@@ -150,8 +141,8 @@ export const OddOneOutDiagram = memo(function OddOneOutDiagram({
 
 			<div className='w-full bg-white rounded-2xl p-3 sm:p-4 border border-amber-200 shadow-xs flex flex-col items-center text-center gap-2.5'>
 				<span className='text-[11px] sm:text-xs font-bold text-amber-900'>
-					🎯 Clue: Three items share the exact same state of matter or
-					property. One belongs to a different group!
+					🎯 Clue: Three items share the exact same state of matter or property.
+					One belongs to a different group!
 				</span>
 
 				{isSolution ?
@@ -187,8 +178,7 @@ export const CauseEffectDiagram = memo(function CauseEffectDiagram({
 	const visCause = getConceptVisual(data.cause || 'Initial Event');
 	const visEffect = getConceptVisual(data.effect || 'Outcome');
 	const action = data.action || 'leads to';
-	const cleanAction =
-		action.length > 25 ? action.slice(0, 22) + '...' : action;
+	const cleanAction = action.length > 25 ? action.slice(0, 22) + '...' : action;
 
 	return (
 		<div className='flex flex-col items-center justify-center p-3 sm:p-4 my-2 bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-yellow-50/90 rounded-2xl border-2 border-amber-200 shadow-sm max-w-xl w-full animate-in fade-in duration-300 overflow-hidden'>
@@ -331,8 +321,7 @@ export const MatrixGridDiagram = memo(function MatrixGridDiagram({
 
 			<div className='grid grid-cols-3 gap-2.5 bg-white p-3 rounded-2xl border-2 border-purple-200 shadow-md'>
 				{rawGrid.flat().map((cell, idx) => {
-					const isTarget =
-						cell === '?' || idx === rawGrid.flat().length - 1;
+					const isTarget = cell === '?' || idx === rawGrid.flat().length - 1;
 
 					return (
 						<div
@@ -549,8 +538,7 @@ export const ScaleBalanceDiagram = memo(function ScaleBalanceDiagram({
 	}
 
 	if (!rightEmoji) {
-		if (qLower.includes('block') || qLower.includes('brick'))
-			rightEmoji = '🧱';
+		if (qLower.includes('block') || qLower.includes('brick')) rightEmoji = '🧱';
 		else if (qLower.includes('cube')) rightEmoji = '🧊';
 		else if (qLower.includes('marble')) rightEmoji = '⚪';
 		else if (qLower.includes('weight')) rightEmoji = '⚖️';
@@ -558,9 +546,7 @@ export const ScaleBalanceDiagram = memo(function ScaleBalanceDiagram({
 	}
 
 	if (!leftLabel && qText) {
-		const carMatch = qText.match(
-			/(\d+)\s*(?:identical\s*)?(?:toy\s*)?car/i,
-		);
+		const carMatch = qText.match(/(\d+)\s*(?:identical\s*)?(?:toy\s*)?car/i);
 		if (carMatch) {
 			leftLabel = `${carMatch[1]} Car${parseInt(carMatch[1], 10) > 1 ? 's' : ''}`;
 		} else {

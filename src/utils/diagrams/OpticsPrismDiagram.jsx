@@ -1,13 +1,15 @@
 import { Sparkles } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 /**
  * Optics Prism Diagram Component
- * 
+ *
  * Implements SOLID Single Responsibility:
  * Renders light dispersion and refraction physics through a glass prism in SVG.
  */
-export const OpticsPrismDiagram = memo(function OpticsPrismDiagram({ isSolution = false }) {
+export const OpticsPrismDiagram = memo(function OpticsPrismDiagram({
+	isSolution = false,
+}) {
 	return (
 		<div className='flex flex-col items-center justify-center p-3.5 sm:p-4 my-2 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl border-2 border-indigo-400/50 shadow-xl max-w-xl w-full animate-in fade-in duration-300'>
 			<div className='flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase text-cyan-300 tracking-wider mb-2 bg-cyan-950/80 px-3 py-0.5 rounded-full border border-cyan-500/40'>

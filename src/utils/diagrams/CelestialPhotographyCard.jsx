@@ -1,13 +1,15 @@
 import { Sparkles } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 /**
  * Real NASA / JWST Celestial Photography Visual Card
- * 
+ *
  * Implements SOLID Single Responsibility:
  * Displays verified deep space telemetry photography with metadata and epoch.
  */
-export const CelestialPhotographyCard = memo(function CelestialPhotographyCard({ image }) {
+export const CelestialPhotographyCard = memo(function CelestialPhotographyCard({
+	image,
+}) {
 	if (!image) return null;
 	return (
 		<div className='flex flex-col items-center justify-center p-3.5 sm:p-4 my-2 bg-gradient-to-br from-[#05071A] via-[#0C1236] to-[#05071A] text-white rounded-2xl border-2 border-cyan-400/50 shadow-2xl max-w-lg w-full animate-in fade-in duration-300'>

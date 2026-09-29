@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { CELESTIAL_IMAGE_CATALOG } from '../constants';
 import {
 	AnalogyMapDiagram,
@@ -32,7 +32,7 @@ export {
 
 /**
  * VisualDiagram Orchestrator Component
- * 
+ *
  * Implements SOLID Open/Closed & Single Responsibility Principles:
  * Dispatches question diagram specifications to their specialized renderers.
  */

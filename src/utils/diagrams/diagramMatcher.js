@@ -4,7 +4,7 @@ import { CELESTIAL_IMAGE_CATALOG } from '../../constants';
  * Strict validity & relevance gatekeeper.
  * Returns false if the diagram cannot be authentically and accurately generated for this question,
  * preventing any misleading, fabricated, or nonsense imagery from ever reaching the student.
- * 
+ *
  * Implements SOLID Single Responsibility:
  * Validates pedagogical correctness and ensures diagrams strictly align with question semantics.
  */

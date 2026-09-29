@@ -1,6 +1,6 @@
 /**
  * Intelligent Concept Visual Mapper for STEM & Analogy Words
- * 
+ *
  * Implements SOLID Single Responsibility:
  * Maps conceptual keywords, emojis, and educational analogies
  * to appropriate icon/emoji representations for visual learning.

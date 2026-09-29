@@ -10,7 +10,7 @@ import { isDiagramAppropriateForQuestion } from '../../utils/VisualDiagrams';
 /**
  * Ensures diagram data mathematically and visually matches the correct answer
  * Provides rich diagram auto-detection for all questions
- * 
+ *
  * Implements SOLID Single Responsibility:
  * Analyzes question semantics and synchronizes diagram geometric specs.
  */

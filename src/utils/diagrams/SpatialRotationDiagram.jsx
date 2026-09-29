@@ -1,10 +1,10 @@
 import { RotateCcw, RotateCw } from 'lucide-react';
-import React, { Fragment, memo } from 'react';
+import { Fragment, memo } from 'react';
 import { DynamicSvgShape } from '../shapeGenerator';
 
 /**
  * Spatial Rotation & Quadrant Progression Diagram Component
- * 
+ *
  * Implements SOLID Single Responsibility:
  * Displays 2D spatial rotation, angular increments (CW / CCW),
  * and quadrant changes across educational challenge steps.
@@ -54,8 +54,8 @@ export const SpatialRotationDiagram = memo(function SpatialRotationDiagram({
 					<RotateCcw className='w-3.5 h-3.5 text-cyan-400 animate-spin-slow' />
 				:	<RotateCw className='w-3.5 h-3.5 text-cyan-400 animate-spin-slow' />}
 				<span>
-					Spatial Geometry: {angle}°{' '}
-					{isCCW ? 'Counter-Clockwise' : 'Clockwise'} Rotation
+					Spatial Geometry: {angle}° {isCCW ? 'Counter-Clockwise' : 'Clockwise'}{' '}
+					Rotation
 				</span>
 			</div>
 

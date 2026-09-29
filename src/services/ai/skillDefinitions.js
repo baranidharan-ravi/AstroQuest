@@ -1,6 +1,6 @@
 /**
  * Explicit Skillset Definitions, Pedagogical Descriptions, and Distinct Batch Domains
- * 
+ *
  * Implements SOLID Single Responsibility:
  * Central pedagogical definitions and curriculum objectives for core skills.
  */

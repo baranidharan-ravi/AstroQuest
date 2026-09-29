@@ -1,5 +1,5 @@
 import { Shapes } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import {
 	DynamicShapeCard,
 	extractShapeSequenceTerms,
@@ -10,10 +10,7 @@ import {
  * ShapeClusterProgressionDiagram Component
  */
 export const ShapeClusterProgressionDiagram = memo(
-	function ShapeClusterProgressionDiagram({
-		data = {},
-		isSolution = false,
-	}) {
+	function ShapeClusterProgressionDiagram({ data = {}, isSolution = false }) {
 		const steps = data.steps || [
 			{ step: 1, count: 1, shape: 'square', isShaded: true },
 			{ step: 2, count: 3, shape: 'square', isShaded: true },
@@ -121,9 +118,7 @@ export const ShapeSequenceDiagram = memo(function ShapeSequenceDiagram({
 				if (!item.trim()) return false;
 				if (item === '?' || item.includes('?')) return false;
 				if (/^(_+|\.\.\.+)$/.test(item)) return false;
-				if (
-					/^(what|which|how|find|comes|pattern|sequence|look)\b/i.test(item)
-				)
+				if (/^(what|which|how|find|comes|pattern|sequence|look)\b/i.test(item))
 					return false;
 			}
 			return true;

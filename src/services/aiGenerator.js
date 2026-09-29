@@ -1,6 +1,6 @@
 /**
  * AstroQuest AI Generator Facade
- * 
+ *
  * Implements SOLID Interface Segregation & Facade Pattern:
  * Decomposed into specialized services under `src/services/ai/`:
  * - `aiConfig.js`: Provider credentials, models, dynamic caching, rate-limit scoring.
@@ -11,7 +11,7 @@
  * - `questionParser.js`: Resilient JSON cleaning, options formatting, age-calibrated pedagogy.
  * - `aiImageGenerator.js`: Multi-provider image synthesis and prompt sanitization.
  * - `questionSynthesizer.js`: Parallel batch question synthesis & space expedition campaigns.
- * 
+ *
  * All exports are preserved 100% backwards-compatible for all existing consumers.
  */
 

@@ -139,7 +139,12 @@ Return ONLY the valid JSON array without any markdown preamble.`;
  * Fallback emergency top-up pool for rare cases where AI returns 8 or 9 questions
  * Guarantees exactly 10 questions are always delivered without fail.
  */
-export function generateEmergencyTopUp(selectedSkill, kidAge, countNeeded, localSeen) {
+export function generateEmergencyTopUp(
+	selectedSkill,
+	kidAge,
+	countNeeded,
+	localSeen,
+) {
 	const isVisual = selectedSkill === 'Visual';
 
 	const visualPool = [

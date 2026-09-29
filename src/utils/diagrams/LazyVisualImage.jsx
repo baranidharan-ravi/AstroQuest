@@ -1,9 +1,9 @@
 import { Image as ImageIcon } from 'lucide-react';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 /**
  * Lazy-loaded visual image component with skeleton placeholder
- * 
+ *
  * Implements SOLID Single Responsibility:
  * Safe image loader with fallback and placeholder skeleton.
  */
