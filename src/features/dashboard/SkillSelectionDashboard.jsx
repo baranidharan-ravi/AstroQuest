@@ -1,33 +1,8 @@
-import {
-	AlertTriangle,
-	Check,
-	Clock,
-	Dices,
-	Download,
-	Edit2,
-	Eye,
-	EyeOff,
-	Gauge,
-	Grid3X3,
-	Info,
-	LayoutGrid,
-	Plus,
-	RefreshCw,
-	Settings,
-	SlidersHorizontal,
-	Sparkles,
-	Trash2,
-	Upload,
-	Users,
-	X,
-	Zap,
-} from 'lucide-react';
+import { Edit2, Gauge, Settings, Sparkles, Users } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
 import {
 	CARD_DENSITY_STORAGE_KEY,
-	COSMIC_FEATURE_MODES,
 	DEFAULT_QUESTION_TIMER_SECONDS,
-	POPULAR_ICONS,
 	SUGGESTED_SKILLSETS_STORAGE_KEY,
 } from '../../constants';
 import {
@@ -40,14 +15,13 @@ import {
 	exportFullBackupToJsonFile,
 	importFullBackupFromJson,
 } from '../../utils/backupManager';
-import { SkillIcon } from '../../utils/SkillIcon';
 import {
 	COLOR_THEMES,
 	deleteCustomSkillset,
 	getAllSkillsets,
 	saveCustomSkillset,
-	SKILLSET_PRESETS,
 } from '../../utils/skillManager';
+import { generatePrintableWorksheet } from '../../utils/worksheetGenerator';
 import {
 	CreateSkillsetModal,
 	MissionParametersCard,
@@ -56,7 +30,6 @@ import {
 	SkillInfoModal,
 	SkillsetsGrid,
 } from './components';
-import { generatePrintableWorksheet } from '../../utils/worksheetGenerator';
 
 const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	onSelectSkill,
@@ -648,7 +621,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 						'opacity-0 translate-y-8 pointer-events-none'
 					:	'opacity-100 translate-y-0'
 				}`}>
-												{/* Mission Parameters & Quest Controls Card */}
+				{/* Mission Parameters & Quest Controls Card */}
 				<MissionParametersCard
 					timerConfig={timerConfig}
 					soundEnabled={soundEnabled}
