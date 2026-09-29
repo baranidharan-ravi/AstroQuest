@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import {
 	Activity,
 	AlertTriangle,
@@ -10,7 +10,6 @@ import {
 	Flame,
 	Gauge,
 	HardDrive,
-	Info,
 	Layers,
 	Play,
 	RefreshCw,

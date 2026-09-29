@@ -1,6 +1,5 @@
-import { AlertTriangle, Trash2, X } from 'lucide-react';
-import React, { memo } from 'react';
-import { playButtonPop } from '../../../utils/audioSynthesis';
+import { Trash2 } from 'lucide-react';
+import { memo } from 'react';
 
 export const SkillDeleteModal = memo(function SkillDeleteModal({
 	skillToDelete,

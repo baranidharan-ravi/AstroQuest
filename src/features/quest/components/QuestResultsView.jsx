@@ -1,4 +1,4 @@
-import React, { lazy, memo, Suspense } from 'react';
+import { lazy, memo, Suspense } from 'react';
 import { PURE_QUEST_XP_BONUS } from '../../../constants';
 
 const ResultOverview = lazy(() => import('../../results/ResultOverview'));

@@ -128,21 +128,12 @@ export const SkillsetsGrid = memo(function SkillsetsGrid({
 					return (
 						<div
 							key={skill.id || skill.name}
-							role='button'
-							tabIndex={0}
-							aria-label={`Start ${skill.name} Thinksheet: ${skill.tagline || ''}`}
 							onClick={() => handleCardClick(skill.name)}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter' || e.key === ' ') {
-									e.preventDefault();
-									handleCardClick(skill.name);
-								}
-							}}
 							className={`group bg-white text-slate-800 ${
 								cardSize === 'compact' ?
 									'rounded-xl p-3 shadow-md min-h-[118px] border-2'
 								:	'rounded-2xl sm:rounded-3xl p-4 sm:p-4.5 shadow-xl min-h-[195px] border-4'
-							} ${theme.cardBorder} cursor-pointer transform hover:-translate-y-1 active:translate-y-0 transition-all duration-200 flex flex-col justify-between focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none relative`}>
+							} ${theme.cardBorder} cursor-pointer transform hover:-translate-y-1 active:translate-y-0 transition-all duration-200 flex flex-col justify-between focus-within:ring-4 focus-within:ring-cyan-400 relative`}>
 							<div>
 								{/* Top Bar: Icon, Name, Tagline & Actions */}
 								<div
@@ -252,40 +243,35 @@ export const SkillsetsGrid = memo(function SkillsetsGrid({
 								className={`flex items-center justify-end ${
 									cardSize === 'compact' ? 'pt-2' : 'pt-3'
 								} border-t border-slate-100`}>
-								<div
-									aria-hidden='true'
+								<button
+									type='button'
+									onClick={() => handleCardClick(skill.name)}
+									aria-label={`Start ${skill.name} Thinksheet: ${skill.tagline || ''}`}
 									className={`${
 										cardSize === 'compact' ?
 											'px-3 py-1 rounded-lg text-[11px] gap-1'
 										:	'w-full sm:w-auto px-5 py-2 rounded-xl text-xs gap-1.5'
-									} bg-gradient-to-r ${theme.buttonGradient} text-white font-extrabold shadow-sm group-hover:scale-105 transition-all flex items-center justify-center`}>
+									} bg-gradient-to-r ${theme.buttonGradient} text-white font-extrabold shadow-sm group-hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none`}>
 									<span>
 										{cardSize === 'compact' ? 'Start' : `Start ${skill.name}`}
 									</span>
 									<span>➔</span>
-								</div>
+								</button>
 							</div>
 						</div>
 					);
 				})}
 
 				{/* Card: Add Custom Skillset Shortcut */}
-				<div
-					role='button'
-					tabIndex={0}
+				<button
+					type='button'
 					aria-label='Create and add a new custom skillset'
 					onClick={handleOpenCreateModal}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							e.preventDefault();
-							handleOpenCreateModal();
-						}
-					}}
 					className={`group bg-white/5 hover:bg-white/10 border-2 border-dashed border-cyan-400/50 hover:border-cyan-300 ${
 						cardSize === 'compact' ?
 							'rounded-xl p-3 min-h-[118px] flex flex-col items-center justify-center text-center'
 						:	'rounded-3xl p-5 min-h-[195px] flex flex-col items-center justify-center text-center'
-					} shadow-xl cursor-pointer transform hover:-translate-y-1 transition-all duration-200 focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none`}>
+					} shadow-xl cursor-pointer transform hover:-translate-y-1 transition-all duration-200 focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none w-full`}>
 					<div
 						className={`${
 							cardSize === 'compact' ?
@@ -322,7 +308,7 @@ export const SkillsetsGrid = memo(function SkillsetsGrid({
 						/>
 						<span>Create Topic</span>
 					</div>
-				</div>
+				</button>
 			</div>
 		</section>
 	);

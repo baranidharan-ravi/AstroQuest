@@ -1,6 +1,3 @@
-import React from 'react';
-import { DynamicSvgShape } from './DynamicSvgShape';
-import { parseDynamicShape } from './shapeParsers';
 
 export function ShapeClusterCard({
 	step,

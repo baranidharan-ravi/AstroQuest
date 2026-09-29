@@ -1,4 +1,4 @@
-import React, { lazy, memo, Suspense } from 'react';
+import { lazy, memo, Suspense } from 'react';
 
 const HintModal = lazy(() => import('../HintModal'));
 const ZoomModal = lazy(() => import('../../../utils/ZoomModal'));

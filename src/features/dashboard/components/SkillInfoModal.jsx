@@ -1,8 +1,5 @@
-import { Download, Sparkles, X } from 'lucide-react';
-import React, { memo } from 'react';
-import { playButtonPop } from '../../../utils/audioSynthesis';
+import { memo } from 'react';
 import { SkillIcon } from '../../../utils/SkillIcon';
-import { COLOR_THEMES } from '../../../utils/skillManager';
 
 export const SkillInfoModal = memo(function SkillInfoModal({
 	infoModalSkill,

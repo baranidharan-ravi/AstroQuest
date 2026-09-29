@@ -1,4 +1,3 @@
-import React from 'react';
 import { getRegularPolygonPoints } from './shapeParsers';
 
 export function DynamicSvgShape({

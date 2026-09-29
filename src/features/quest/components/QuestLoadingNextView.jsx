@@ -1,5 +1,5 @@
 import { Play, Rocket, Sparkles } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 /**
  * QuestLoadingNextView Component

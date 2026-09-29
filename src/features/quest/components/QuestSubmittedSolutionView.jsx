@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import OptionsGrid from '../OptionsGrid';
 import QuestionCard from '../QuestionCard';
 import SolutionPanel from '../SolutionPanel';

@@ -409,22 +409,16 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 				{/* 8.2 Inclusive Accessibility Toggles */}
 				<div className='grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-teal-500/20'>
 					{/* Toggle: Dyslexia-Friendly Font */}
-					<div
-						role='button'
-						tabIndex={0}
+					{/* Toggle: Dyslexia-Friendly Font */}
+					<button
+						type='button'
 						onClick={handleToggleDyslexic}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								handleToggleDyslexic();
-							}
-						}}
-						className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
+						className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 focus-visible:ring-4 focus-visible:ring-teal-400 focus-visible:outline-none ${
 							accessibility.dyslexicFont ?
 								'bg-teal-500/15 border-teal-400 text-teal-200'
 							:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
 						}`}>
-						<div className='flex items-center justify-between'>
+						<div className='flex items-center justify-between w-full'>
 							<span className='text-xs font-bold'>Dyslexia Reading Mode</span>
 							<span
 								className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
@@ -438,25 +432,18 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 						<p className='text-[10px] text-slate-400 leading-snug'>
 							Wide letter spacing and bottom-weighted hyper-legible letterforms.
 						</p>
-					</div>
+					</button>
 
 					{/* Toggle: OLED High-Contrast Mode */}
-					<div
-						role='button'
-						tabIndex={0}
+					<button
+						type='button'
 						onClick={handleToggleOled}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								handleToggleOled();
-							}
-						}}
-						className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
+						className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none ${
 							accessibility.highContrastOled ?
 								'bg-cyan-500/15 border-cyan-400 text-cyan-200'
 							:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
 						}`}>
-						<div className='flex items-center justify-between'>
+						<div className='flex items-center justify-between w-full'>
 							<span className='text-xs font-bold'>OLED Midnight Contrast</span>
 							<span
 								className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
@@ -471,25 +458,18 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 							Pitch-black cosmic backdrop with reduced glare for low-light
 							environments.
 						</p>
-					</div>
+					</button>
 
 					{/* Toggle: Sensory Audio Frequency */}
-					<div
-						role='button'
-						tabIndex={0}
+					<button
+						type='button'
 						onClick={handleToggleSensoryAudio}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								handleToggleSensoryAudio();
-							}
-						}}
-						className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 ${
+						className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-2 focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:outline-none ${
 							accessibility.sensoryAudio ?
 								'bg-purple-500/15 border-purple-400 text-purple-200'
 							:	'bg-[#080B1E] border-slate-700/70 text-slate-300 hover:border-slate-500'
 						}`}>
-						<div className='flex items-center justify-between'>
+						<div className='flex items-center justify-between w-full'>
 							<span className='text-xs font-bold'>Soothing Sensory Audio</span>
 							<span
 								className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
@@ -504,7 +484,7 @@ export const AudioAccessSettingsTab = memo(function AudioAccessSettingsTab({
 							Low-stimulation, warmer harmonic tones for children sensitive to
 							sharp chimes.
 						</p>
-					</div>
+					</button>
 				</div>
 			</div>
 		</div>

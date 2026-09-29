@@ -1,5 +1,5 @@
 import { Clock, Pause, Play, SkipForward } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 /**
  * QuestActionBar Component

@@ -2,14 +2,12 @@ import {
 	AlertTriangle,
 	Check,
 	Dices,
-	Plus,
 	RefreshCw,
 	Sparkles,
 	X,
 } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { POPULAR_ICONS } from '../../../constants';
-import { playButtonPop } from '../../../utils/audioSynthesis';
 import { SkillIcon } from '../../../utils/SkillIcon';
 import { COLOR_THEMES, SKILLSET_PRESETS } from '../../../utils/skillManager';
 

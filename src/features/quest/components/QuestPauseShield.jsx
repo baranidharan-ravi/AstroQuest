@@ -1,5 +1,5 @@
 import { Pause, Play } from 'lucide-react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 
 /**

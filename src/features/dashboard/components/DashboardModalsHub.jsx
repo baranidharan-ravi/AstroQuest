@@ -1,4 +1,4 @@
-import React, { lazy, memo, Suspense } from 'react';
+import { lazy, memo, Suspense } from 'react';
 import { getStoredAchievements } from '../../../utils/badgeManager';
 
 const PocketPlanetariumModal = lazy(

@@ -47,22 +47,16 @@ export const PredefinedFeaturesGrid = memo(function PredefinedFeaturesGrid({
 				{COSMIC_FEATURE_MODES.map((mode) => {
 					const isCompact = cardSize === 'compact';
 					return (
-						<div
+						<button
 							key={mode.id}
-							role='button'
-							tabIndex={0}
+							type='button'
+							aria-label={`${mode.title || mode.shortTitle}: ${mode.desc || mode.shortDesc || ''}`}
 							onClick={() => handleModeClick(mode)}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter' || e.key === ' ') {
-									e.preventDefault();
-									handleModeClick(mode);
-								}
-							}}
-							className={`group ${mode.bgGradient} ${
+							className={`group text-left ${mode.bgGradient} ${
 								isCompact ?
 									'rounded-xl p-2.5 shadow-md flex items-center justify-between gap-2.5'
 								:	'rounded-2xl p-3 sm:p-3.5 shadow-lg flex flex-col justify-between'
-							} transition-all hover:scale-[1.02] active:scale-95 cursor-pointer`}>
+							} transition-all hover:scale-[1.02] active:scale-95 cursor-pointer focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none`}>
 							{isCompact ?
 								<>
 									<div className='flex items-center gap-2.5 min-w-0'>
@@ -119,7 +113,7 @@ export const PredefinedFeaturesGrid = memo(function PredefinedFeaturesGrid({
 									</div>
 								</>
 							}
-						</div>
+						</button>
 					);
 				})}
 			</div>
