@@ -1,5 +1,5 @@
-import { Check, X } from 'lucide-react';
-import React, { memo } from 'react';
+import { X } from 'lucide-react';
+import { memo } from 'react';
 import { POPULAR_ICONS } from '../../../constants';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 import { SkillIcon } from '../../../utils/SkillIcon';
@@ -47,10 +47,15 @@ export const SkillIconSelectorModal = memo(function SkillIconSelectorModal({
 				{/* Header */}
 				<div className='flex items-center gap-3 mb-4'>
 					<div className='w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shrink-0'>
-						<SkillIcon icon={newSkillIcon || 'Rocket'} className='w-5 h-5' />
+						<SkillIcon
+							icon={newSkillIcon || 'Rocket'}
+							className='w-5 h-5'
+						/>
 					</div>
 					<div>
-						<h3 id='icon-picker-title' className='text-lg font-black text-white'>
+						<h3
+							id='icon-picker-title'
+							className='text-lg font-black text-white'>
 							Select Skill Icon
 						</h3>
 						<p className='text-xs text-slate-300 font-medium'>
@@ -76,7 +81,10 @@ export const SkillIconSelectorModal = memo(function SkillIconSelectorModal({
 										'bg-cyan-500/30 border-2 border-cyan-400 scale-105 shadow-lg text-cyan-300'
 									:	'bg-white/10 hover:bg-white/20 border border-white/10 text-slate-300 hover:text-white'
 								}`}>
-								<SkillIcon icon={iconItem.id} className='w-5 h-5' />
+								<SkillIcon
+									icon={iconItem.id}
+									className='w-5 h-5'
+								/>
 								<span className='text-[9px] font-semibold truncate max-w-full'>
 									{iconItem.label}
 								</span>

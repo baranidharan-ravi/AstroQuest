@@ -1,3 +1,4 @@
+import { Sparkles } from 'lucide-react';
 import { memo } from 'react';
 import { COSMIC_FEATURE_MODES } from '../../../constants';
 
