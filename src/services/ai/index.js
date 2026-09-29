@@ -81,3 +81,25 @@ export {
 	askSocraticTutor,
 	generateLocalSocraticGuidance,
 } from './socraticTutor';
+
+import * as aiConfig from './aiConfig';
+import * as aiImageGenerator from './aiImageGenerator';
+import * as curatedSkillsets from './curatedSkillsets';
+import * as diagramSynchronizer from './diagramSynchronizer';
+import * as questionParser from './questionParser';
+import * as questionSynthesizer from './questionSynthesizer';
+import * as skillDefinitions from './skillDefinitions';
+import * as socraticTutor from './socraticTutor';
+
+const aiService = {
+	...aiConfig,
+	...aiImageGenerator,
+	...curatedSkillsets,
+	...diagramSynchronizer,
+	...questionParser,
+	...questionSynthesizer,
+	...skillDefinitions,
+	...socraticTutor,
+};
+
+export default aiService;

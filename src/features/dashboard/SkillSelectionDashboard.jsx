@@ -671,16 +671,13 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 					cardSize={cardSize}
 					handleSetCardSize={handleSetCardSize}
 					soundEnabled={soundEnabled}
-					activeCategory={activeCategory}
-					handleCategoryChange={handleCategoryChange}
-					categories={categories}
-					customSkillsets={customSkillsets}
-					filteredSkillsets={filteredSkillsets}
-					onSelectSkill={onSelectSkill}
-					onOpenSettings={onOpenSettings}
+					skillsets={skillsets}
+					handleCardClick={handleCardClick}
+					handleInfoClick={handleInfoClick}
+					handleRequestDelete={handleRequestDelete}
+					handleTriggerImport={handleTriggerImport}
+					handleExportSkills={handleExportSkills}
 					handleOpenCreateModal={handleOpenCreateModal}
-					setInfoModalSkill={setInfoModalSkill}
-					setSkillToDelete={setSkillToDelete}
 				/>
 			</main>
 

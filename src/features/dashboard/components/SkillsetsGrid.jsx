@@ -1,10 +1,12 @@
 import {
+	Download,
 	Grid3X3,
 	Info,
 	LayoutGrid,
 	Plus,
 	Sparkles,
 	Trash2,
+	Upload,
 } from 'lucide-react';
 import { memo } from 'react';
 import { playButtonPop } from '../../../utils/audioSynthesis';
@@ -22,16 +24,13 @@ export const SkillsetsGrid = memo(function SkillsetsGrid({
 	cardSize,
 	handleSetCardSize,
 	soundEnabled,
-	activeCategory,
-	handleCategoryChange,
-	categories,
-	customSkillsets,
-	filteredSkillsets,
-	onSelectSkill,
-	onOpenSettings,
+	skillsets = [],
+	handleCardClick,
+	handleInfoClick,
+	handleRequestDelete,
+	handleTriggerImport,
+	handleExportSkills,
 	handleOpenCreateModal,
-	setInfoModalSkill,
-	setSkillToDelete,
 }) {
 	return (
 		<section

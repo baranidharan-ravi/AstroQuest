@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import {
+import aiGeneratorDefault, {
 	CURATED_RANDOM_SKILLSETS,
 	getCuratedRandomSkillset,
 	suggestSkillsetDetails,
 } from '../src/services/aiGenerator';
+import aiServiceDefault from '../src/services/ai/index';
 
 describe('Random Non-Repeating Skillset Generator', () => {
 	it('contains a diverse curated bank with valid properties and allowed colors', () => {
@@ -73,5 +74,16 @@ describe('Random Non-Repeating Skillset Generator', () => {
 		expect(['emerald', 'blue', 'purple', 'amber', 'rose', 'cyan']).toContain(
 			result.color,
 		);
+	});
+
+	it('provides a valid default export on aiGenerator facade and ai module', () => {
+		expect(aiGeneratorDefault).toBeDefined();
+		expect(typeof aiGeneratorDefault.generateAIQuestions).toBe('function');
+		expect(typeof aiGeneratorDefault.suggestSkillsetDetails).toBe('function');
+		expect(typeof aiGeneratorDefault.askSocraticTutor).toBe('function');
+
+		expect(aiServiceDefault).toBeDefined();
+		expect(typeof aiServiceDefault.generateAIQuestions).toBe('function');
+		expect(typeof aiServiceDefault.suggestSkillsetDetails).toBe('function');
 	});
 });
