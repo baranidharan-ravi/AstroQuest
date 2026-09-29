@@ -29,8 +29,8 @@ export const QuestPauseShield = memo(function QuestPauseShield({
 					Challenge Paused ⏸️
 				</h3>
 				<p className='text-xs sm:text-sm font-semibold text-slate-300 mb-5 leading-relaxed'>
-					Question and choices are hidden while paused to keep the
-					challenge fair. Tap resume when ready to continue!
+					Question and choices are hidden while paused to keep the challenge
+					fair. Tap resume when ready to continue!
 				</p>
 				<button
 					type='button'

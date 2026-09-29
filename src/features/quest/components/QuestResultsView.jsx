@@ -45,10 +45,12 @@ export const QuestResultsView = memo(function QuestResultsView({
 	showVisualDiagrams,
 }) {
 	const pureQuestBonus =
-		!cosmicClueUsed &&
-		!cosmicRayUsed &&
-		!telemetryScanUsed &&
-		!chronoFreezeUsed ?
+		(
+			!cosmicClueUsed &&
+			!cosmicRayUsed &&
+			!telemetryScanUsed &&
+			!chronoFreezeUsed
+		) ?
 			PURE_QUEST_XP_BONUS
 		:	0;
 

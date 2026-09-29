@@ -1,4 +1,3 @@
-
 export function ShapeClusterCard({
 	step,
 	count = 1,

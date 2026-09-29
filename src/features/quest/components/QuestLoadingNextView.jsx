@@ -30,7 +30,9 @@ export const QuestLoadingNextView = memo(function QuestLoadingNextView({
 			{/* Cosmic Space Factoid Display */}
 			{activeCosmicFact && (
 				<div className='w-full bg-[#090C28]/85 border border-cyan-400/30 rounded-2xl p-3.5 sm:p-4 mb-5 text-left shadow-inner flex items-start gap-3'>
-					<span className='text-2xl flex-shrink-0' aria-hidden='true'>
+					<span
+						className='text-2xl flex-shrink-0'
+						aria-hidden='true'>
 						{activeCosmicFact.emoji}
 					</span>
 					<div className='flex flex-col min-w-0'>

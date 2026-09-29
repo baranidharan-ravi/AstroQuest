@@ -91,10 +91,7 @@ export const QuestActionBar = memo(function QuestActionBar({
 							{Math.floor(questionTimeRemaining / 60)
 								.toString()
 								.padStart(2, '0')}
-							:
-							{(questionTimeRemaining % 60)
-								.toString()
-								.padStart(2, '0')}
+							:{(questionTimeRemaining % 60).toString().padStart(2, '0')}
 						</span>
 						{isTimerPaused ?
 							<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/30'>

@@ -1,6 +1,9 @@
 import { ArrowLeft, Key, RefreshCw, Sparkles } from 'lucide-react';
 import { memo } from 'react';
-import { AI_PROVIDER_INFO, getActiveAiProvider } from '../../../services/aiGenerator';
+import {
+	AI_PROVIDER_INFO,
+	getActiveAiProvider,
+} from '../../../services/aiGenerator';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 
 /**

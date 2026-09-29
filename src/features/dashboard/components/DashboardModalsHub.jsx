@@ -1,24 +1,14 @@
 import { lazy, memo, Suspense } from 'react';
 import { getStoredAchievements } from '../../../utils/badgeManager';
 
-const PocketPlanetariumModal = lazy(
-	() => import('../PocketPlanetariumModal'),
-);
+const PocketPlanetariumModal = lazy(() => import('../PocketPlanetariumModal'));
 const ConstellationObservatory = lazy(
 	() => import('../ConstellationObservatory'),
 );
-const GalaxyOdysseyModal = lazy(
-	() => import('../GalaxyOdysseyModal'),
-);
-const CosmicHabitatModal = lazy(
-	() => import('../CosmicHabitatModal'),
-);
-const EducatorPortalModal = lazy(
-	() => import('../EducatorPortalModal'),
-);
-const CrewSwitcherModal = lazy(
-	() => import('../CrewSwitcherModal'),
-);
+const GalaxyOdysseyModal = lazy(() => import('../GalaxyOdysseyModal'));
+const CosmicHabitatModal = lazy(() => import('../CosmicHabitatModal'));
+const EducatorPortalModal = lazy(() => import('../EducatorPortalModal'));
+const CrewSwitcherModal = lazy(() => import('../CrewSwitcherModal'));
 const PerformanceObservatoryModal = lazy(
 	() => import('../PerformanceObservatoryModal'),
 );
