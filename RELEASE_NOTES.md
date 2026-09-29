@@ -4,6 +4,78 @@ All notable changes, new capabilities, architectural enhancements, and pedagogic
 
 ---
 
+## 🌟 Version 1.4.1 — "SOLID Submodule Architecture & Monolith Decomposition" (September 2026)
+
+**AstroQuest v1.4.1** completes a comprehensive architectural overhaul, decomposing all legacy monolithic files (>1,000 LOC) into focused, single-responsibility submodules adhering to **SOLID design principles**, while preserving 100% backwards-compatible facades, zero performance regressions, and expanding the automated test suite to 61 tests.
+
+---
+
+### 1. AI Synthesis Decomposition (`src/services/ai/`)
+
+- **Modular AI Architecture**:
+  - `aiGenerator.js` reduced from 3,474 lines down to a clean 20-line facade re-exporting the modular subsystem.
+  - `aiConfig.js`: Dynamic model scoring, provider definitions, rate-limiting registry, and secure API key accessors.
+  - `aiClientCallers.js`: Direct HTTP API clients for Google Gemini (`callGeminiApi`), OpenAI ChatGPT (`callOpenAiApi`), and Anthropic Claude (`callClaudeApi`) with automatic failover and key validation.
+  - `questionSynthesizer.js`: Parallel question batch fetching, exponential retry orchestration, and space expedition campaigns.
+  - `questionParser.js`: Resilient JSON cleaning, options shuffling, and age-calibrated pedagogical prompts.
+  - `aiImageGenerator.js`: Multi-provider visual puzzle image generation and prompt sanitization.
+  - `curatedSkillsets.js`: Non-repeating random skillset topic banks, category chips, and AI topic auto-suggestions.
+  - `socraticTutor.js`: Socratic doubt tutor engine guided by Cosmo the cosmic guide.
+  - `skillDefinitions.js`: Curriculum standards and learning objectives.
+  - `diagramSynchronizer.js`: Geometric synchronization and visual diagram verification.
+
+---
+
+### 2. Visual Diagrams Modularization (`src/utils/diagrams/`)
+
+- **Specialized SVG Diagram Renderers**:
+  - `VisualDiagrams.jsx` reduced from 2,024 lines down to a 175-line orchestrator with React memoization.
+  - `CognitiveDiagrams.jsx`: Analogy maps, odd-one-out cards, cause-effect sequences, sequence ladders, 3x3 matrix grids, apple counting arrays, and scale balances.
+  - `SpatialRotationDiagram.jsx`: 2D/3D angular rotations, quadrant step progressions, and symmetry axes.
+  - `ShapePatternDiagram.jsx`: Geometric sequence progression and shape cluster cards.
+  - `IsometricTowerDiagram.jsx`: 3D isometric cube rendering and tower layers.
+  - `OpticsPrismDiagram.jsx`: Light refraction and spectral dispersion diagrams.
+  - `LazyVisualImage.jsx`: Safe image loader with placeholder fallback.
+  - `conceptVisualDictionary.js`: Keyword concept visual matcher.
+  - `diagramMatcher.js`: Diagram type validator ensuring questions get appropriate visuals.
+  - `CelestialPhotographyCard.jsx`: NASA/JWST telemetry cards and deep-space photo visualizer.
+
+---
+
+### 3. Application & Dashboard Subcomponents
+
+- **`src/App.jsx` Decomposed**:
+  - Extracted modular components: `DashboardTopNav.jsx`, `QuestTopBar.jsx`, `VoiceStatusBar.jsx`, and `QuestActionControls.jsx`.
+- **`SkillSelectionDashboard.jsx` Subcomponents (`src/features/dashboard/components/`)**:
+  - `MissionParametersCard.jsx`: AI Question Engine status, Visual Diagrams 1-click toggle, question countdown timer, and auto-advance pacing.
+  - `PredefinedFeaturesGrid.jsx`: 2.5D space base, observatory, and planetarium hubs.
+  - `SkillsetsGrid.jsx`: Custom and preset skillset cards with progress meters.
+  - `CreateSkillsetModal.jsx`, `SkillDeleteModal.jsx`, `SkillInfoModal.jsx`: Focused modal dialogs.
+- **`SettingsScreen.jsx` Subcomponents (`src/features/settings/`)**:
+  - Form state and validation extracted into `hooks/useSettingsState.js`.
+  - Tab views split into `ProfileSettingsTab.jsx`, `SecuritySettingsTab.jsx`, `MissionSettingsTab.jsx`, and `AudioAccessibilityTab.jsx`.
+
+---
+
+### 4. Utilities, Shapes & Constants Modularization
+
+- **Shape Generation (`src/utils/shapes/`)**:
+  - `shapeGenerator.jsx` reduced from 1,857 lines to a 21-line facade backed by `shapeParsers.js`, `DynamicSvgShape.jsx`, `DynamicShapeCard.jsx`, and `ShapeClusterCard.jsx`.
+- **Avatars (`src/utils/avatars/`)**:
+  - Avatar presets extracted into `presetAvatars.jsx`, reducing `avatarManager.jsx` from 1,750 lines to 74 lines.
+- **Central Constants (`src/data/`)**:
+  - Data stores extracted into `celestialData.js`, `cosmicFeatureModes.js`, `curriculumStandards.js`, `habitatModules.js`, `popularIcons.js`, and `rapidFallbackQuestions.js`, maintaining `src/constants.js` as the single canonical source of truth.
+
+---
+
+### 5. Automated Verification & Testing
+
+- **61 Unit Tests Across 14 Test Suites (100% Pass Rate)**:
+  - All tests passing in ~8.9s with zero regressions.
+  - Verified clean production build via Vite Rollup in ~18.2s.
+
+---
+
 ## 🌟 Version 1.4.0 — "Cosmic Space Habitat & Unobstructed Question Experience" (September 2026)
 
 **AstroQuest v1.4.0** delivers the modular **Cosmic Space Habitat Base Builder**, while streamlining the learning experience by removing the floating Pet Assistant to guarantee a clean, completely unobstructed view for question cards and multiple-choice options.

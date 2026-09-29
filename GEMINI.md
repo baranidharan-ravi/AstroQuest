@@ -18,7 +18,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 - **Frontend Core**: React 18 (`react`, `react-dom`), Vite 6 (`vite`), Tailwind CSS 3 (`tailwindcss`, `autoprefixer`, `postcss`).
 - **Iconography**: `lucide-react` (Vector SVG font icons via `SkillIcon.jsx`).
 - **Backend / Proxy**: Express 5 (`server/index.js`) on port 5001 with automatic client-direct fallback when server is offline.
-- **AI Providers**: Multi-provider support via `src/services/aiGenerator.js`:
+- **AI Providers**: Multi-provider support via `src/services/ai/`:
   - Google Gemini (`@google/genai`)
   - OpenAI ChatGPT (`axios` REST API)
   - Anthropic Claude (`axios` REST API)
@@ -27,20 +27,34 @@ This document is automatically loaded by Antigravity to provide instant context,
   - Web Speech API TTS (`speechSynthesis`) with pitch/rate adaptation for young children.
   - Web Speech API STT (`webkitSpeechRecognition` / `SpeechRecognition`) with phonetic matching for hands-free voice answers.
 - **Utilities**: `canvas-confetti` (celebrations), `jspdf` (printables), `clsx`, `tailwind-merge`.
-- **Testing & Tooling**: Vitest (`npm test` running 43 tests across 11 test files).
+- **Testing & Tooling**: Vitest (`npm test` running 61 tests across 14 test files, 100% pass rate).
 
 ---
 
 ## 3. Directory Map & File Architecture
 
-### Central Constants
+### Central Constants & Static Data
 
-- `src/constants.js`: Centralized single source of truth for all storage keys, `POPULAR_ICONS` (24 curated Lucide icons), `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `HABITAT_MODULES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, `PLANET_COLOR_CONFIGS`, `DEFAULT_QUESTION_TIMER_SECONDS` (60s), and `isTimerMandatoryForAge` helper. All component-local constants must be placed here.
+- `src/constants.js`: Centralized single source of truth for all storage keys, `POPULAR_ICONS` (24 curated Lucide icons), `DEFAULT_QUESTION_TIMER_SECONDS` (60s), and `isTimerMandatoryForAge` helper. All component-local constants must be placed here.
+- `src/data/`: Modular data stores re-exported through `constants.js`:
+  - `celestialData.js`: Curated NASA/JWST celestial image catalogs and planetary facts.
+  - `cosmicFeatureModes.js`: Definitions for special game modes and exploration hubs.
+  - `curriculumStandards.js`: Age-bracket pedagogical standards and difficulty curves.
+  - `habitatModules.js`: Base builder module definitions and telemetry requirements.
+  - `popularIcons.js`: Vector icon catalog and educational emoji mappings.
+  - `rapidFallbackQuestions.js`: Offline emergency fallback question repository.
 
 ### Dashboard Feature (`src/features/dashboard/`)
 
-- `SkillSelectionDashboard.jsx`: Primary launchpad with consolidated "Mission Parameters & Quest Controls" card (AI Question Engine status, Visual Diagrams 1-click toggle, question countdown challenge timer, and auto-advance pacing), custom skillset creator with AI auto-fill and "Surprise Me 🎲" non-repeating topic generator (disables "Autofill with AI" button upon clicking "Surprise Me" until text is manually edited), preset inspiration chips, and Lucide vector icon picker.
-- `CosmicHabitatModal.jsx`: Interactive 2.5D modular space base colony builder with 8 unlockable pods (Solar Array, Greenhouse, Oxygen Scrubber, Radio Telescope, Crew Quarters, Fusion Reactor, Rover Garage, Quantum Supercomputer) tracking life-support ($\text{O}_2$), power grid ($\text{kW}$), and research ($\text{TB}$) telemetry.
+- `SkillSelectionDashboard.jsx`: Primary launchpad with consolidated "Mission Parameters & Quest Controls" card, custom skillset creator with AI auto-fill and "Surprise Me 🎲" non-repeating topic generator, preset inspiration chips, and Lucide vector icon picker.
+- `components/`: Modular subcomponents:
+  - `MissionParametersCard.jsx`: AI Question Engine status, Visual Diagrams 1-click toggle, question countdown challenge timer, and auto-advance pacing.
+  - `PredefinedFeaturesGrid.jsx`: 2.5D space base, observatory, and planetarium hubs.
+  - `SkillsetsGrid.jsx`: Custom and preset skillset cards with progress meters.
+  - `CreateSkillsetModal.jsx`: Custom skillset creation modal.
+  - `SkillDeleteModal.jsx`: Skillset deletion confirmation modal.
+  - `SkillInfoModal.jsx`: Skill pedagogical info and curriculum modal.
+- `CosmicHabitatModal.jsx`: Interactive 2.5D modular space base colony builder with 8 unlockable pods tracking life-support ($\text{O}_2$), power grid ($\text{kW}$), and research ($\text{TB}$) telemetry.
 - `GalaxyOdysseyModal.jsx`: 10-world solar system exploration map tracking cumulative stars collected.
 - `PocketPlanetariumModal.jsx`: Audio-narrated encyclopedia of Solar System celestial worlds.
 - `ConstellationObservatory.jsx`: Stargazing observatory with constellation star-matching game.
@@ -69,16 +83,48 @@ This document is automatically loaded by Antigravity to provide instant context,
 
 ### Settings Feature (`src/features/settings/`)
 
-- `SettingsScreen.jsx`: Explorer profile configuration, AI provider credentials vault, timer toggles, audio controls.
+- `SettingsScreen.jsx`: Explorer profile configuration orchestrator with dirty-state guard and unsaved changes modal.
+- `hooks/useSettingsState.js`: Encapsulated settings form logic, dirty detection, and validation handlers.
+- `components/`: Modular tabs:
+  - `ProfileSettingsTab.jsx`: Child name, age selection, and astronaut avatar customization.
+  - `SecuritySettingsTab.jsx`: Encrypted AI API credentials vault (Gemini, OpenAI, Claude).
+  - `MissionSettingsTab.jsx`: Question countdown timer preferences and auto-advance controls.
+  - `AudioAccessibilityTab.jsx`: Text-to-speech voice selector, rate/pitch sliders, and sound FX volumes.
+  - `SettingsResetModal.jsx`: Reset confirmation modal.
 
 ### Services (`src/services/`)
 
-- `aiGenerator.js`: Unified Gemini, OpenAI, and Claude API caller with strict JSON parsing, retry logic, non-repeating random skillset generator, Socratic tutor, and 30+ curated offline fallback themes.
+- `aiGenerator.js`: Facade re-exporting the modular AI architecture under `src/services/ai/`.
+- `ai/`: Modular AI subsystem:
+  - `aiConfig.js`: Provider credentials, storage keys, dynamic model scoring, and rate-limiting tracking.
+  - `aiClientCallers.js`: Direct HTTP API callers for Gemini, OpenAI, and Claude with retry logic and error sanitization.
+  - `questionSynthesizer.js`: Parallel batch question synthesis, retry orchestration, and space expedition campaigns.
+  - `questionParser.js`: Resilient JSON cleaning, options shuffling, and age-calibrated pedagogical prompts.
+  - `aiImageGenerator.js`: Multi-provider image synthesis and prompt sanitization.
+  - `curatedSkillsets.js`: Non-repeating random skillset topic banks & AI topic suggestion.
+  - `socraticTutor.js`: Socratic AI doubt resolution engine guided by Cosmo.
+  - `skillDefinitions.js`: Skill pedagogical descriptions and core learning objectives.
+  - `diagramSynchronizer.js`: Geometric synchronization & visual diagram validation.
+  - `index.js`: Barrel export providing all AI symbols with 100% backwards compatibility.
 - `questionService.js`: Dynamic question batch fetcher, age-level cognitive difficulty calibration, offline quest vault caching.
 - `cryptoStorage.js`: AES-like obfuscated client storage for API keys.
+- `apiClient.js`: Centralized Axios client with exponential backoff retry interceptors.
 
 ### Core Utilities (`src/utils/`)
 
+- `VisualDiagrams.jsx`: Facade orchestrator delegating to specialized SVG subcomponents under `src/utils/diagrams/`:
+  - `CognitiveDiagrams.jsx`: Analogy maps, odd-one-out, cause-effect, sequence ladders, matrix grids, apple counters, scale balance.
+  - `SpatialRotationDiagram.jsx`: 2D/3D angular rotations, symmetry axes, and quadrant steps.
+  - `ShapePatternDiagram.jsx`: Geometric sequence progression and shape cluster cards.
+  - `IsometricTowerDiagram.jsx`: 3D isometric cube rendering and tower layers.
+  - `OpticsPrismDiagram.jsx`: Refraction and light dispersion diagrams.
+  - `LazyVisualImage.jsx`: Safe image loader with placeholder fallback.
+  - `conceptVisualDictionary.js`: Keyword concept visual matcher.
+  - `diagramMatcher.js`: Diagram type validator ensuring questions get appropriate visuals.
+  - `CelestialPhotographyCard.jsx`: NASA/JWST telemetry cards and deep-space photo visualizer.
+  - `index.js`: Barrel export for all diagram renderers and helpers.
+- `shapeGenerator.jsx`: Facade delegating to modular SVG generators under `src/utils/shapes/` (`shapeParsers.js`, `DynamicSvgShape.jsx`, `DynamicShapeCard.jsx`, `ShapeClusterCard.jsx`).
+- `avatarManager.jsx`: Modular astronaut avatar selector leveraging catalog in `src/utils/avatars/presetAvatars.jsx`.
 - `SkillIcon.jsx`: Universal vector SVG font icon renderer supporting all Lucide icons and bidirectional emoji mapping.
 - `skillManager.js`: Custom skillset manager, preset definitions, color themes, import/export helpers.
 - `CosmicQuestLoader.jsx`: 3D planetary orbit spaceship launch animation during AI synthesis.
@@ -109,5 +155,5 @@ This document is automatically loaded by Antigravity to provide instant context,
 - **Iconography Usage**: Use `SkillIcon` component (`src/utils/SkillIcon.jsx`) and `POPULAR_ICONS` from `src/constants.js` rather than raw browser emojis for UI elements.
 - **Mandatory Question Timer for Ages 8–14**: Question countdown timer is mandatory for Upper Elementary (ages 8–10) and Middle School (ages 11–14) to maintain cognitive challenge. For these ages, the timer cannot be disabled (unlimited time locked), though explorers can adjust the duration (presets: 30s, 45s, 60s default, 90s, 2m, 3m, or custom stepper). Explorers aged 2–7 retain optional/toggleable timers. Default timer across the app is 60 seconds.
 - **Auto-Execution of Commands**: Proactively propose and run commands on behalf of the user without prompting for approval or asking what command to run.
-- **Verification Routine**: Always run `npm test` (vitest) to ensure all 43 tests across 11 test files pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
+- **Verification Routine**: Always run `npm test` (vitest) to ensure all 61 tests across 14 test files pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
 - **Git Push Protocol**: After completing requested tasks and verification, stage relevant files, commit with clear semantic conventional commit messages, and push to `origin/main`.

@@ -13,8 +13,16 @@ For complete architectural details, file maps, storage schemas, and developer di
 - **App Name & Version**: AstroQuest v1.4.0
 - **Domain**: Space-themed early childhood STEM & cognitive challenge platform (Ages 2–14).
 - **Core Stack**: React 18, Vite 6, Tailwind CSS 3, Lucide React (`SkillIcon`), Express 5 proxy server.
-- **Central Constants**: All constants, configs, and storage keys are consolidated in [`src/constants.js`](./src/constants.js). Component-local constants are forbidden.
+- **Central Constants**: All constants, configs, and storage keys are consolidated in [`src/constants.js`](./src/constants.js). Component-local constants are forbidden. Catalogs are modularly structured under `src/data/` (`celestialData.js`, `cosmicFeatureModes.js`, `curriculumStandards.js`, `habitatModules.js`, `popularIcons.js`, `rapidFallbackQuestions.js`).
 - **Icon System**: Vector SVG font icons via [`src/utils/SkillIcon.jsx`](./src/utils/SkillIcon.jsx) and `POPULAR_ICONS` with backwards-compatible emoji mapping.
+- **SOLID Submodule Architecture**: All monolithic files (>1,000 LOC) are decomposed into specialized single-responsibility modules:
+  - `src/services/ai/`: Modular AI synthesis (`aiConfig.js`, `aiClientCallers.js`, `questionSynthesizer.js`, `questionParser.js`, `aiImageGenerator.js`, `curatedSkillsets.js`, `socraticTutor.js`, `skillDefinitions.js`, `diagramSynchronizer.js`) with backwards-compatible facade at `src/services/aiGenerator.js`.
+  - `src/utils/diagrams/`: Specialized visual diagrams (`CognitiveDiagrams.jsx`, `SpatialRotationDiagram.jsx`, `ShapePatternDiagram.jsx`, `IsometricTowerDiagram.jsx`, `OpticsPrismDiagram.jsx`, `LazyVisualImage.jsx`, `conceptVisualDictionary.js`, `diagramMatcher.js`, `CelestialPhotographyCard.jsx`) with orchestrator at `src/utils/VisualDiagrams.jsx`.
+  - `src/utils/shapes/`: Modular shape generation (`shapeParsers.js`, `DynamicSvgShape.jsx`, `DynamicShapeCard.jsx`, `ShapeClusterCard.jsx`) with facade at `src/utils/shapeGenerator.jsx`.
+  - `src/utils/avatars/`: Avatar catalog definitions in `presetAvatars.jsx` managed by `avatarManager.jsx`.
+  - `src/features/dashboard/components/`: Subcomponents for mission parameters, skillset creation, grids, and modal dialogs.
+  - `src/features/settings/`: Form state custom hook `useSettingsState.js` and modular tabs (`ProfileSettingsTab.jsx`, `SecuritySettingsTab.jsx`, `MissionSettingsTab.jsx`, `AudioAccessibilityTab.jsx`).
+  - `src/App.jsx`: Decomposed navigation and control bars (`DashboardTopNav.jsx`, `QuestTopBar.jsx`, `VoiceStatusBar.jsx`, `QuestActionControls.jsx`).
 - **Key Modules**:
   - Cosmic Space Habitat modular colony builder with 8 pods and live telemetry (`src/features/dashboard/CosmicHabitatModal.jsx`).
   - Tactile manipulatives: Balance scales, Analog clocks, 3D block towers, and Fraction crystals (`src/features/quest/InteractiveManipulative.jsx`).
@@ -22,7 +30,7 @@ For complete architectural details, file maps, storage schemas, and developer di
   - 4 Strategic In-Quest Lifelines: Quick-access console (`src/features/quest/CosmicLifelinesBar.jsx`) and modal (`src/features/quest/HintModal.jsx`) providing Cosmic Clue, 50/50 Cosmic Ray, Starfleet Telemetry Scan, and Chrono Freeze (+30s). All 4 lifelines are strictly 1-time use per quest. Completing without lifelines awards the Pure Quest Navigator bonus (+50 XP).
 - **Dashboard Logic**: When a user clicks "Surprise Me 🎲", the "Autofill with AI" button is automatically disabled until the skillset name is manually edited. Consolidated Mission Parameters & Quest Controls card integrates the AI question engine status, visual diagrams 1-click toggle, question timer challenge, and auto-advance pacing.
 - **Mandatory Timer Rules**: Question countdown timer is mandatory for Upper Elementary (ages 8–10) and Middle School (ages 11–14). The duration can be changed (30s, 45s, 60s default, 90s, 2m, 3m, custom stepper), but unlimited time / disabling timer is locked. Early childhood explorers (ages 2–7) retain optional timers.
-- **Testing**: Vitest (`npm test`), 43 unit tests across 11 files (100% pass rate).
+- **Testing**: Vitest (`npm test`), 61 unit tests across 14 test files (100% pass rate).
 - **Rules & Constraints**:
   - Never use markdown tables in any docs, guides, or release notes. Use bulleted/definition lists instead.
   - Never implement, revive, or re-introduce the Pet Assistant feature in future tasks or roadmap ideas (permanently removed per user directive as it obstructed option selection and is not important).

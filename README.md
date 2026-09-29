@@ -83,7 +83,7 @@ An engaging, visual-first educational web application engineered for early child
 - **AI Synthesis**: Google Gemini (`@google/genai`), OpenAI ChatGPT, Anthropic Claude (`src/services/aiGenerator.js`)
 - **Audio & Speech**: Web Audio API procedural oscillator synthesis, Web Speech API TTS & STT
 - **Security & Privacy**: Client-side AES-GCM 256-bit encryption with salted XOR fallback, DOM inspection defense, and optional Express 5 proxy server (`server/index.js`)
-- **Testing**: Vitest (`npm test` — 29 unit tests across 10 test files, 100% pass rate)
+- **Testing**: Vitest (`npm test` — 61 unit tests across 14 test files, 100% pass rate)
 
 ---
 

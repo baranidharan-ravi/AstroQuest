@@ -1,6 +1,6 @@
 # 🚀 AstroQuest: Technical Architecture & Implementation Documentation
 
-**Document Version**: 2.2.0 (AstroQuest v1.4.0 Cosmic Habitat Edition)  
+**Document Version**: 2.3.0 (AstroQuest v1.4.1 SOLID Architecture Edition)  
 **Classification**: Engineering Design & Technical Implementation Specification  
 **Target Platforms**: Modern Web Browsers (Chrome, Edge, Safari, Firefox), Desktop, Tablet, Mobile Responsive, PWA Installable  
 
@@ -22,8 +22,8 @@ The application synthesizes strictly dynamic mathematical diagrams, polygonal SV
   - Sub-second Hot Module Replacement (HMR) and optimized Rollup code-splitting with manual chunking.
 - **Styling & Responsive UI**: Tailwind CSS (v3.4.17)
   - Utility-first styling with custom space-theme palettes, dynamic fluid grids, and hardware-accelerated animations.
-- **Automated Testing**: Vitest (v3.x / 24 unit tests across 9 test files)
-  - Fast automated test runner for crypto encryption, speech recognition parsing, question schema verification, and habitat modules.
+- **Automated Testing**: Vitest (v5.x / 61 unit tests across 14 test files, 100% pass rate)
+  - Fast automated test runner for crypto encryption, speech recognition parsing, question schema verification, mandatory timer age rules, lifelines, and habitat modules.
 - **Progressive Web App**: Web App Manifest (W3C PWA Standard)
   - Enables full-screen installation and offline caching on Chromebooks, iPads, and desktop platforms.
 - **HTTP & Network Layer**: Axios (v1.20.0)
@@ -203,19 +203,32 @@ The application synthesizes strictly dynamic mathematical diagrams, polygonal SV
 - **Text Sanitization & Pronunciation**: Cleans text strings using regex to eliminate redundant emoji reading (e.g. "shiny red apples" instead of "shiny red apples red apple") and translates relational analogy colon syntax (`::` -> " as ", `:` -> " is to ").
 - **Browser Voice Discovery & Preference**: `getAvailableVoices` queries all installed OS voices. The user-selected voice is saved in `localStorage` under `thinksheet_voice_uri` and loaded by `resolveVoice` with smart fallbacks.
 
-### 4.4 Mathematical SVG Shape Engine & Deduplication (`src/utils/shapeGenerator.jsx`)
+### 4.4 Mathematical SVG Shape Engine & Deduplication (`src/utils/shapes/` & `src/utils/shapeGenerator.jsx`)
 
+- **Decomposed Modular Architecture**: The shape generation engine is factored into dedicated single-responsibility components in `src/utils/shapes/` with a backwards-compatible facade at `shapeGenerator.jsx`:
+  - `shapeParsers.js`: Mathematical polygon calculations and emoji token extraction.
+  - `DynamicSvgShape.jsx`: Hardware-accelerated SVG polygon, crescent, and star rendering.
+  - `DynamicShapeCard.jsx`: Card container with label deduplication and theme palettes.
+  - `ShapeClusterCard.jsx`: Multi-shape cluster visualizer for spatial questions.
 - **Regular Polygon Geometry**: `getRegularPolygonPoints` dynamically calculates trigonometric vertex points ($x = r \cdot \cos(\theta), y = r \cdot \sin(\theta)$) for triangles, pentagons, hexagons, heptagons, octagons, nonagons, and decagons.
 - **Vector Crescent Moon & Celestial Geometries**: Implemented a smooth cubic Bezier vector crescent moon curve in `DynamicSvgShape` and decoupled 0-sided shapes (`moon`, `sun`, `heart`) from circle intercept conditions, rendering scalable vector art for celestial patterns.
 - **Comprehensive Emoji Parser (`parseDynamicShape`)**: Directly extracts and normalizes celestial emojis (`🌙`, `🌛`, `☀️`, `⚡`, `☁️`), hearts (`❤️`), stars (`⭐`), and geometric blocks into structured shape objects with appropriate theme color mappings.
 - **Label Deduplication Safeguard (`DynamicShapeCard`)**: Ensures that card headers and text subtitles never redundantly repeat identical emoji symbols, displaying clean deduplicated labels (e.g. `Gold Star`, `Gold Moon`).
 - **Vector Hatching & Patterns**: Injects SVG `<defs>` containing `<pattern id="...-striped">` with 45-degree diagonal lines and `<pattern id="...-dotted">` with radial dot arrays.
-- **3x3 Matrix Grid Parser**: `parseMatrixGridFromQuestion` extracts Row 1, Row 2, and Row 3 descriptions from question text, populating a 9-cell grid with interactive question marks and emerald solution highlights.
-- **3D Isometric Cube Towers**: Computes isometric projections with depth-sorted back-to-front rendering and dynamic face shading (top: light, left: medium, right: dark).
-- **Optics Dispersion Prism**: Renders a glass prism bending incident white light into a 7-color rainbow spectrum with step-by-step ray physics.
+- **Visual Diagrams Subsystem (`src/utils/diagrams/`)**: Visual diagram dispatching is decomposed from `VisualDiagrams.jsx` into focused renderers (`CognitiveDiagrams.jsx`, `SpatialRotationDiagram.jsx`, `ShapePatternDiagram.jsx`, `IsometricTowerDiagram.jsx`, `OpticsPrismDiagram.jsx`, `LazyVisualImage.jsx`, `CelestialPhotographyCard.jsx`).
 
-### 4.5 Question Generation & Deduplication Engine (`src/services/aiGenerator.js`)
+### 4.5 Question Generation & Multi-Provider AI Engine (`src/services/ai/` & `src/services/aiGenerator.js`)
 
+- **SOLID Subsystem Architecture**: AI operations are modularized into single-responsibility services under `src/services/ai/` unified by an exports barrel and backwards-compatible facade:
+  - `aiConfig.js`: Model dynamic rankings, rate-limiting sets, and secure storage accessors.
+  - `aiClientCallers.js`: Direct HTTP API callers with timeout and error mapping for Gemini, OpenAI, and Claude.
+  - `questionSynthesizer.js`: Parallel batch question synthesis, retry orchestration, and space expedition campaigns.
+  - `questionParser.js`: Resilient JSON cleaning, options shuffling, and age-calibrated pedagogical prompts.
+  - `aiImageGenerator.js`: Multi-provider image synthesis and prompt sanitization.
+  - `curatedSkillsets.js`: Non-repeating random skillset topic banks & AI topic suggestion.
+  - `socraticTutor.js`: Socratic AI doubt resolution engine guided by Cosmo.
+  - `skillDefinitions.js`: Skill pedagogical descriptions and core learning objectives.
+  - `diagramSynchronizer.js`: Geometric synchronization & visual diagram validation.
 - **Dual-Batch Synthesis**: Fires two simultaneous requests for 6 questions each (12 total buffer) divided into pedagogical sub-domains (e.g. Batch 1: analogies & riddles; Batch 2: sequences & deductive logic).
 - **String Normalization & Signature Tracking**: Applies `normalizeText` to strip punctuation and case, checking against `SEEN_QUESTIONS_KEY` in browser storage to prevent repetition across sessions.
 - **Automated Top-Up Pass**: If deduplication yields 8 or 9 questions, immediately fetches a top-up batch to guarantee exactly 10 questions.

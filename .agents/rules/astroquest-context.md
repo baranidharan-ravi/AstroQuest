@@ -14,15 +14,22 @@ This rule is unconditionally active (`always_on`) to ensure immediate, zero-late
 - **App**: AstroQuest v1.4.0
 - **Domain**: Space-themed early childhood cognitive & STEM learning platform (Ages 2 to 14).
 - **Frontend**: React 18, Vite 6, Tailwind CSS 3, Lucide React (vector font icons via `SkillIcon.jsx`).
-- **AI Engines**: Google Gemini (`@google/genai`), OpenAI ChatGPT, Anthropic Claude (`src/services/aiGenerator.js`).
+- **AI Engines**: Google Gemini (`@google/genai`), OpenAI ChatGPT, Anthropic Claude (`src/services/ai/`).
 - **Audio & Speech**: Web Audio API oscillator synthesis, Web Speech API speech synthesis & voice recognition.
-- **Testing**: Vitest (`npm test`), 43 tests across 11 suites with 100% pass rate.
+- **Testing**: Vitest (`npm test`), 61 tests across 14 suites with 100% pass rate.
 
 ---
 
 ## Key Modules & Single Source of Truth
 
-- **Constants & Configs**: Centralized in `src/constants.js`. Holds `POPULAR_ICONS`, `SOLAR_PLANETS`, `CELESTIAL_BODIES`, `HABITAT_MODULES`, `QUICK_PROMPTS`, `RAPID_FALLBACK_QUESTIONS`, `PLANET_COLOR_CONFIGS`, `DEFAULT_QUESTION_TIMER_SECONDS` (60s), and `isTimerMandatoryForAge` helper. All component-local constants must live here.
+- **Constants & Catalogs**: Centralized in `src/constants.js`. Catalogs organized in `src/data/` (`celestialData.js`, `cosmicFeatureModes.js`, `curriculumStandards.js`, `habitatModules.js`, `popularIcons.js`, `rapidFallbackQuestions.js`).
+- **SOLID Submodules**:
+  - `src/services/ai/`: Modular AI subsystem (`aiConfig.js`, `aiClientCallers.js`, `questionSynthesizer.js`, `questionParser.js`, `aiImageGenerator.js`, `curatedSkillsets.js`, `socraticTutor.js`, `skillDefinitions.js`, `diagramSynchronizer.js`) with facade at `src/services/aiGenerator.js`.
+  - `src/utils/diagrams/`: Specialized SVG diagram renderers (`CognitiveDiagrams.jsx`, `SpatialRotationDiagram.jsx`, `ShapePatternDiagram.jsx`, `IsometricTowerDiagram.jsx`, `OpticsPrismDiagram.jsx`, `LazyVisualImage.jsx`, `conceptVisualDictionary.js`, `diagramMatcher.js`, `CelestialPhotographyCard.jsx`) with orchestrator at `src/utils/VisualDiagrams.jsx`.
+  - `src/utils/shapes/`: Decomposed SVG shape generator (`shapeParsers.js`, `DynamicSvgShape.jsx`, `DynamicShapeCard.jsx`, `ShapeClusterCard.jsx`) with facade at `src/utils/shapeGenerator.jsx`.
+  - `src/utils/avatars/`: Preset avatar catalog in `presetAvatars.jsx` managed by `avatarManager.jsx`.
+  - `src/features/dashboard/components/`: Modular subcomponents for mission parameters, skillset creation, grids, and modal dialogs.
+  - `src/features/settings/`: Form hook `useSettingsState.js` and modular tabs in `components/`.
 - **Icon Component**: `src/utils/SkillIcon.jsx` provides Lucide React SVG font icons with bidirectional mapping for educational emojis.
 - **Skillset Engine**: `src/utils/skillManager.js` handles custom skillset persistence, defaults, and presets.
 - **Dashboard & Modals**: `src/features/dashboard/` contains `SkillSelectionDashboard.jsx` (consolidated "Mission Parameters & Quest Controls" card uniting AI question engine status, visual diagrams 1-click toggle, question timer, and auto-advance pacing; Surprise Me topic generator disables "Autofill with AI" button until input changes), `CosmicHabitatModal.jsx` (8-module space base colony builder with $\text{O}_2$, $\text{kW}$, $\text{TB}$ telemetry), `GalaxyOdysseyModal.jsx`, `PocketPlanetariumModal.jsx`, `ConstellationObservatory.jsx`, and `EducatorPortalModal.jsx`.
