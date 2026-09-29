@@ -54,6 +54,7 @@ if (typeof window !== 'undefined') {
 
 function getAudioContext() {
 	try {
+		if (typeof window === 'undefined') return null;
 		if (!audioCtx) {
 			const AudioContext = window.AudioContext || window.webkitAudioContext;
 			if (AudioContext) {

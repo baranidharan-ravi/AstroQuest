@@ -216,6 +216,12 @@ export function isAmbientSoundPlaying() {
 	return isPlaying;
 }
 
+// Backwards-compatible aliases
+export const getAmbientAudioEnabled = getStoredAmbientEnabled;
+export const setAmbientAudioEnabled = setStoredAmbientEnabled;
+export const startAmbientAudio = startAmbientSound;
+export const stopAmbientAudio = stopAmbientSound;
+
 // Battery and tab focus lifecycle optimization
 if (typeof document !== 'undefined') {
 	document.addEventListener('visibilitychange', () => {
