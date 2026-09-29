@@ -689,10 +689,14 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 				hasApiKey={hasApiKey}
 				isAiSuggesting={isAiSuggesting}
 				suggestMode={suggestMode}
-				handleAutoSuggestSkillset={handleAutoSuggestSkillset}
+				handleAiSuggestSkillset={handleAiSuggestSkillset}
 				aiSuggestSuccess={aiSuggestSuccess}
+				canAutoFill={canAutoFill}
+				hasTypedName={hasTypedName}
+				isGeneratedNameUnchanged={isGeneratedNameUnchanged}
+				handleSelectPreset={handleSelectPreset}
 				newSkillName={newSkillName}
-				handleSkillNameChange={handleSkillNameChange}
+				setNewSkillName={setNewSkillName}
 				newSkillTagline={newSkillTagline}
 				setNewSkillTagline={setNewSkillTagline}
 				newSkillDesc={newSkillDesc}
@@ -702,7 +706,8 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 				newSkillColor={newSkillColor}
 				setNewSkillColor={setNewSkillColor}
 				createError={createError}
-				handleCreateSkillset={handleCreateSkillset}
+				setCreateError={setCreateError}
+				handleSaveNewSkill={handleSaveNewSkill}
 				handleOpenSettings={() => {
 					setIsCreateModalOpen(false);
 					onOpenSettings();
@@ -715,7 +720,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 				infoModalSkill={infoModalSkill}
 				setInfoModalSkill={setInfoModalSkill}
 				onSelectSkill={onSelectSkill}
-				handlePrintWorksheet={handlePrintWorksheet}
+				handlePrintWorksheet={handleDownloadWorksheet}
 				soundEnabled={soundEnabled}
 			/>
 

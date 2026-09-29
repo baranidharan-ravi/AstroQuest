@@ -11,7 +11,7 @@ import React, { memo } from 'react';
 import { POPULAR_ICONS } from '../../../constants';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 import { SkillIcon } from '../../../utils/SkillIcon';
-import { COLOR_THEMES } from '../../../utils/skillManager';
+import { COLOR_THEMES, SKILLSET_PRESETS } from '../../../utils/skillManager';
 
 export const CreateSkillsetModal = memo(function CreateSkillsetModal({
 	isCreateModalOpen,
@@ -20,10 +20,14 @@ export const CreateSkillsetModal = memo(function CreateSkillsetModal({
 	hasApiKey,
 	isAiSuggesting,
 	suggestMode,
-	handleAutoSuggestSkillset,
+	handleAiSuggestSkillset,
 	aiSuggestSuccess,
+	canAutoFill,
+	hasTypedName,
+	isGeneratedNameUnchanged,
+	handleSelectPreset,
 	newSkillName,
-	handleSkillNameChange,
+	setNewSkillName,
 	newSkillTagline,
 	setNewSkillTagline,
 	newSkillDesc,
@@ -33,7 +37,8 @@ export const CreateSkillsetModal = memo(function CreateSkillsetModal({
 	newSkillColor,
 	setNewSkillColor,
 	createError,
-	handleCreateSkillset,
+	setCreateError,
+	handleSaveNewSkill,
 	handleOpenSettings,
 	soundEnabled,
 }) {
