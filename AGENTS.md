@@ -10,7 +10,7 @@ For complete architectural details, file maps, storage schemas, and developer di
 
 ## Quick Reference Summary
 
-- **App Name & Version**: AstroQuest v1.4.0
+- **App Name & Version**: AstroQuest v1.4.1
 - **Domain**: Space-themed early childhood STEM & cognitive challenge platform (Ages 2–14).
 - **Core Stack**: React 18, Vite 6, Tailwind CSS 3, Lucide React (`SkillIcon`), Express 5 proxy server.
 - **Central Constants**: All constants, configs, and storage keys are consolidated in [`src/constants.js`](./src/constants.js). Component-local constants are forbidden. Catalogs are modularly structured under `src/data/` (`celestialData.js`, `cosmicFeatureModes.js`, `curriculumStandards.js`, `habitatModules.js`, `popularIcons.js`, `rapidFallbackQuestions.js`).

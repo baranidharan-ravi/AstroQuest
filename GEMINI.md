@@ -6,7 +6,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 
 ## 1. Application Overview & Pedagogical Domain
 
-- **Application Name**: AstroQuest (Version 1.4.0)
+- **Application Name**: AstroQuest (Version 1.4.1)
 - **Domain**: Visual-first, age-adaptive STEM, logic, and cognitive learning platform designed for early childhood explorers (Ages 2 to 14).
 - **Core Experience**: Space-themed learning quests with real-time AI question synthesis, hands-free voice answering, interactive tactile manipulatives, Socratic doubt tutor, Galaxy Odyssey exploration, Cosmic Space Habitat modular colony builder, and printable worksheets.
 - **Repository Location**: `H:/Shraddha_Project` (NTFS Junction to `H:/AstroQuest`). Remote: `https://github.com/baranidharan-ravi/AstroQuest.git` (branch: `main`).

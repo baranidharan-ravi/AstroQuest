@@ -35,7 +35,7 @@ describe('Settings Enhancements & Portability Suite', () => {
 
 		// Import a mock backup JSON
 		const backupPayload = {
-			version: '1.4.0',
+			version: '1.4.1',
 			timestamp: new Date().toISOString(),
 			settings: {
 				kidName: 'Orion Pilot',

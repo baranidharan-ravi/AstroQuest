@@ -4,7 +4,7 @@
   <a href="README.md"><img src="https://img.shields.io/badge/⚡_Quick_Overview-Active-f78166?style=for-the-badge" alt="Quick Overview tab"/></a>
   <a href="README_DETAILED.md"><img src="https://img.shields.io/badge/📖_Detailed_Docs-Deep_Dive-ffd33d?style=for-the-badge&logoColor=000" alt="Detailed Docs tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Quick_Start-2ea44f?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
-  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.4.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
+  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.4.1-blue?style=for-the-badge" alt="Release Notes tab"/></a>
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
 </p>
 
@@ -117,4 +117,4 @@ npm run server
 - **[Detailed Reference Guide (README_DETAILED.md)](./README_DETAILED.md)**: Full architecture specs, complete feature explanations, and mathematical diagrams.
 - **[User Guide & Contributing Hub (CONTRIBUTING.md)](./CONTRIBUTING.md)**: Quick start guide, flight crew profiles, game mode rules, and open-source contribution guidelines.
 - **[Technical Architecture & Specs (AstroQuest_Implementation_Documentation.md)](./documentation/AstroQuest_Implementation_Documentation.md)**: Deep engineering design document, WCAG accessibility audit, and security threat mitigations.
-- **[Release Notes (RELEASE_NOTES.md)](./RELEASE_NOTES.md)**: Changelog and version history for all releases up to v1.4.0.
+- **[Release Notes (RELEASE_NOTES.md)](./RELEASE_NOTES.md)**: Changelog and version history for all releases up to v1.4.1.

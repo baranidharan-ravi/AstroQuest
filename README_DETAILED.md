@@ -4,13 +4,13 @@
   <a href="README.md"><img src="https://img.shields.io/badge/⚡_Quick_Overview-README.md-blue?style=for-the-badge" alt="Quick Overview tab"/></a>
   <a href="README_DETAILED.md"><img src="https://img.shields.io/badge/📖_Detailed_Docs-Active-f78166?style=for-the-badge" alt="Detailed Docs tab"/></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Quick_Start-2ea44f?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
-  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.4.0-blue?style=for-the-badge" alt="Release Notes tab"/></a>
+  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.4.1-blue?style=for-the-badge" alt="Release Notes tab"/></a>
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
 </p>
 
 > 💡 **Looking for the concise version?** View the quick, high-level summary at **[`README.md`](./README.md)**.
 
-An in-depth, comprehensive reference guide for AstroQuest (v1.4.0) covering exhaustive architectural specifications, mathematical formulas, cognitive models, SVG rendering algorithms, and full implementation mechanics.
+An in-depth, comprehensive reference guide for AstroQuest (v1.4.1) covering exhaustive architectural specifications, mathematical formulas, cognitive models, SVG rendering algorithms, and full implementation mechanics.
 
 ---
 
