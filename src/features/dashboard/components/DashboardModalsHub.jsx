@@ -19,6 +19,9 @@ const EducatorPortalModal = lazy(
 const CrewSwitcherModal = lazy(
 	() => import('../CrewSwitcherModal'),
 );
+const PerformanceObservatoryModal = lazy(
+	() => import('../PerformanceObservatoryModal'),
+);
 
 /**
  * DashboardModalsHub Component
@@ -39,6 +42,8 @@ export const DashboardModalsHub = memo(function DashboardModalsHub({
 	setIsEducatorPortalOpen,
 	isCrewModalOpen,
 	setIsCrewModalOpen,
+	isPerformanceModalOpen,
+	setIsPerformanceModalOpen,
 	soundEnabled,
 	kidName,
 	kidAge,
@@ -107,6 +112,13 @@ export const DashboardModalsHub = memo(function DashboardModalsHub({
 						if (profile.avatar && setKidAvatar) setKidAvatar(profile.avatar);
 						if (setAchievements) setAchievements(getStoredAchievements());
 					}}
+				/>
+			)}
+			{isPerformanceModalOpen && (
+				<PerformanceObservatoryModal
+					isOpen={isPerformanceModalOpen}
+					onClose={() => setIsPerformanceModalOpen(false)}
+					soundEnabled={soundEnabled}
 				/>
 			)}
 		</Suspense>

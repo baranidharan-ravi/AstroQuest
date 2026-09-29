@@ -27,7 +27,7 @@ This document is automatically loaded by Antigravity to provide instant context,
   - Web Speech API TTS (`speechSynthesis`) with pitch/rate adaptation for young children.
   - Web Speech API STT (`webkitSpeechRecognition` / `SpeechRecognition`) with phonetic matching for hands-free voice answers.
 - **Utilities**: `canvas-confetti` (celebrations), `jspdf` (printables), `clsx`, `tailwind-merge`.
-- **Testing & Tooling**: Vitest (`npm test` running 61 tests across 14 test files, 100% pass rate).
+- **Testing & Tooling**: Vitest (`npm test` running 70 tests across 15 test files, 100% pass rate).
 
 ---
 
@@ -59,6 +59,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 - `PocketPlanetariumModal.jsx`: Audio-narrated encyclopedia of Solar System celestial worlds.
 - `ConstellationObservatory.jsx`: Stargazing observatory with constellation star-matching game.
 - `EducatorPortalModal.jsx`: Teacher/parent analytics dashboard with skill mastery and printable worksheet generator.
+- `PerformanceObservatoryModal.jsx`: High-performance diagnostic observatory with live FPS sparkline, main-thread Long Tasks profiler, memory telemetry, and automated stress benchmarks.
 - `CrewSwitcherModal.jsx`: Multi-child flight crew profile manager.
 
 ### Quest Feature (`src/features/quest/`)
@@ -133,6 +134,7 @@ This document is automatically loaded by Antigravity to provide instant context,
 - `progressTracker.js`: Explorer profile storage accessors and performance history.
 - `backupManager.js`: JSON backup and restore for all explorer profiles and skillsets.
 - `worksheetGenerator.js`: Printable PDF/HTML study sheets for home or classroom learning.
+- `performanceMonitor.js`: Web Vitals sampling, real-time FPS budget tracker, Long Tasks observer, and stress benchmarks.
 
 ---
 
@@ -155,5 +157,5 @@ This document is automatically loaded by Antigravity to provide instant context,
 - **Iconography Usage**: Use `SkillIcon` component (`src/utils/SkillIcon.jsx`) and `POPULAR_ICONS` from `src/constants.js` rather than raw browser emojis for UI elements.
 - **Mandatory Question Timer for Ages 8–14**: Question countdown timer is mandatory for Upper Elementary (ages 8–10) and Middle School (ages 11–14) to maintain cognitive challenge. For these ages, the timer cannot be disabled (unlimited time locked), though explorers can adjust the duration (presets: 30s, 45s, 60s default, 90s, 2m, 3m, or custom stepper). Explorers aged 2–7 retain optional/toggleable timers. Default timer across the app is 60 seconds.
 - **Auto-Execution of Commands**: Proactively propose and run commands on behalf of the user without prompting for approval or asking what command to run.
-- **Verification Routine**: Always run `npm test` (vitest) to ensure all 61 tests across 14 test files pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
+- **Verification Routine**: Always run `npm test` (vitest) to ensure all 70 tests across 15 test files pass. When testing production builds, execute in the physical directory `H:/AstroQuest` or target root to preserve junction pathing.
 - **Git Push Protocol**: After completing requested tasks and verification, stage relevant files, commit with clear semantic conventional commit messages, and push to `origin/main`.

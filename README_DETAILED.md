@@ -6,6 +6,7 @@
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/🚀_User_Guide_&_Contributing-Quick_Start-2ea44f?style=for-the-badge" alt="User Guide and Contributing tab"/></a>
   <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/🏷️_Release_Notes-v1.4.1-blue?style=for-the-badge" alt="Release Notes tab"/></a>
   <a href="documentation/AstroQuest_Implementation_Documentation.md"><img src="https://img.shields.io/badge/📘_Docs-Technical_Architecture-8957e5?style=for-the-badge" alt="Technical Architecture tab"/></a>
+  <a href="documentation/PERFORMANCE_REPORT.md"><img src="https://img.shields.io/badge/⚡_Report-Performance_Audit-yellow?style=for-the-badge" alt="Performance Audit tab"/></a>
 </p>
 
 > 💡 **Looking for the concise version?** View the quick, high-level summary at **[`README.md`](./README.md)**.
@@ -632,17 +633,50 @@ The AI dynamically adapts prompt personas, vocabulary, and cognitive complexity 
 - **Modular State Hooks (`useQuestSession.js`, `useCosmicAudio.js`)**:
   - Clean separation of concerns decoupling monolithic state from `App.jsx` into testable domain hooks.
 - **Vitest Automated Testing Suite (`package.json`, `tests/`)**:
-  - Complete automated test suite with 29 tests across 10 test suites running via `npm test`:
-    - `tests/cryptoStorage.test.js`: AES-GCM / XOR key encryption & decryption integrity.
-    - `tests/speechRecognition.test.js`: Spoken natural language answer parser.
+  - Complete automated test suite with 70 tests across 15 test suites running via `npm test`:
     - `tests/adaptiveEngine.test.js`: Tier promotion & supportive scaffolding triggers.
-    - `tests/offlinePackService.test.js`: Curated question schema, distractor, and solution validation.
+    - `tests/aiGeneratorFacade.test.js`: Backwards-compatible facade and modular AI submodules.
     - `tests/cosmicHabitat.test.jsx`: Cosmic space habitat modules, unlock logic, and telemetry metrics.
+    - `tests/cryptoStorage.test.js`: AES-GCM / XOR key encryption & decryption integrity.
     - `tests/fractionCrystals.test.jsx`: Fraction energy crystal interactive manipulative mechanics.
+    - `tests/lifelines.test.jsx`: Cosmic lifelines suite (Clue, 50/50, Starfleet Telemetry Scan, Chrono Freeze boost) and badge logic.
+    - `tests/offlinePackService.test.js`: Curated question schema, distractor, and solution validation.
+    - `tests/performanceMonitor.test.js`: Real-time FPS ticker, Long Tasks observer, memory telemetry, and stress benchmarks.
     - `tests/questScratchpad.test.jsx`: Interactive canvas scratchpad drawing tools.
     - `tests/skillIcon.test.jsx`: Lucide SVG vector icon rendering and emoji fallback.
+    - `tests/speechRecognition.test.js`: Spoken natural language answer parser.
     - `tests/suggestSkillset.test.js`: Non-repeating AI skillset synthesis and offline fallback.
-    - `tests/lifelines.test.jsx`: Cosmic lifelines suite (Clue, 50/50, Starfleet Telemetry Scan, Chrono Freeze boost) and badge logic.
+    - `tests/surpriseMeAiAutofill.test.jsx`: Surprise Me topic generator and Autofill with AI button locking.
+    - `tests/timerAgeRules.test.jsx`: Mandatory countdown timer rules for ages 8–14 and optional timers for ages 2–7.
+    - `tests/visualDiagramsFacade.test.jsx`: Modular SVG diagram renderers, memoization, and fallback integrity.
+
+</details>
+
+<details>
+<summary><h3 style="display: inline;">20. ⚡ Cosmic Performance Observatory & Real-Time Telemetry</h3></summary>
+
+- **Real-Time Performance Engine (`src/utils/performanceMonitor.js`)**:
+  - Continuous 60 FPS frame timing via `requestAnimationFrame` with dropped frame and jank detection (<33.3ms) plus rolling 60-point circular history buffer.
+  - Main-thread Long Tasks observer (>50ms) using `PerformanceObserver` API (`entryTypes: ['longtask']`), calculating Total Blocking Time (TBT) and peak task duration.
+  - Memory heap telemetry reading `performance.memory` for JS heap utilization, total allocated memory, and heap size limits.
+  - Navigation Timing milestone extractor capturing DNS lookup, TCP handshake, Time to First Byte (TTFB), DOM Interactive, DOMContentLoaded, and Page Load milestones.
+  - Comprehensive stress test benchmark lab executing 4 rigorous computational workloads:
+    - **SVG Geometric Shapes**: 1,000 trigonometric polygon transformations and Bezier curve computations.
+    - **Question Parser & JSON Sanitization**: 100 iterations of malformed markdown extraction, regex sanitization, and options shuffling.
+    - **Web Audio Synth Pipeline**: 50 procedural retro audio sound FX syntheses.
+    - **In-Memory Reactive State Store**: 500 synchronous dispatch/listener state updates.
+  - Heuristic Bottleneck Analyzer generating prioritized recommendations across Bundle Splitting, Memory Optimization, Render Pacing, and Network Latency.
+  - Snapshot export to structured JSON for performance auditing and benchmarking.
+- **Interactive Performance Observatory Modal (`src/features/dashboard/PerformanceObservatoryModal.jsx`)**:
+  - Live diagnostic HUD accessible via the **"Performance ⚡"** button in the dashboard navigation bar.
+  - Real-time SVG sparkline visualizer rendering the 60-point frame-rate history.
+  - 4 diagnostic tabs:
+    - **Bottleneck Radar**: Active performance health findings with status badges, impact ratings, and actionable remediation steps.
+    - **Stress Benchmark Lab**: On-demand execution of the 4 computational stress tests with millisecond execution clocks and throughput rates.
+    - **Main Thread Profiler**: Live tracker for long tasks (>50ms), Total Blocking Time (TBT), and max blocking duration.
+    - **Bundle Architecture Breakdown**: Visual breakdown of all Vite Rollup code-split chunks with minified and gzipped sizes.
+- **Detailed Performance Audit Report**:
+  - Review the complete performance audit, Core Web Vitals assessment, and optimization roadmap at [**PERFORMANCE_REPORT.md**](documentation/PERFORMANCE_REPORT.md).
 
 </details>
 
@@ -1066,7 +1100,7 @@ npm run server
 npm test
 ```
 
-Executes all 10 Vitest test suites (encryption vault, speech matching, adaptive difficulty, offline quest packs, cosmic habitat, manipulatives, scratchpad, lifelines, etc.).
+Executes all 15 Vitest test suites (70 unit tests covering encryption vault, performance profiling, speech matching, adaptive difficulty, offline quest packs, cosmic habitat, manipulatives, scratchpad, lifelines, etc.).
 
 ### 4. Build for Production
 

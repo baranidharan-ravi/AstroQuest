@@ -7,6 +7,7 @@ import {
 	Edit2,
 	Eye,
 	EyeOff,
+	Gauge,
 	Grid3X3,
 	Info,
 	LayoutGrid,
@@ -83,6 +84,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 	dashboardToast = null,
 	onClearDashboardToast,
 	onUpdateSettings,
+	onOpenPerformanceModal,
 }) {
 	const [skillsets, setSkillsets] = useState(() => getAllSkillsets());
 	const [infoModalSkill, setInfoModalSkill] = useState(null);
@@ -215,6 +217,8 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 			onOpenPlanetarium();
 		} else if (mode.id === 'educator' && onOpenEducatorPortal) {
 			onOpenEducatorPortal();
+		} else if (mode.id === 'performance' && onOpenPerformanceModal) {
+			onOpenPerformanceModal();
 		}
 	};
 
@@ -596,25 +600,45 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 					</div>
 				}
 
-				{/* Settings Button */}
-				<button
-					onClick={() => {
-						playButtonPop(soundEnabled);
-						onOpenSettings();
-					}}
-					className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold shadow-lg transition-all duration-700 border cursor-pointer flex-shrink-0 ${
-						hasApiKey ?
-							'bg-amber-400/20 text-amber-300 border-amber-400/40 hover:bg-amber-400/30'
-						:	'bg-rose-500/30 text-rose-200 border-rose-400/50 hover:bg-rose-500/40 animate-pulse'
-					} ${
-						isIntroActive ?
-							'opacity-0 -translate-y-4 pointer-events-none'
-						:	'opacity-100 translate-y-0'
-					}`}
-					title='Open Profile & Settings'>
-					<Settings className='w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300' />
-					<span>Settings</span>
-				</button>
+				<div className='flex items-center gap-1.5 sm:gap-2 flex-shrink-0'>
+					{/* Performance Observatory Button */}
+					{onOpenPerformanceModal && (
+						<button
+							onClick={() => {
+								playButtonPop(soundEnabled);
+								onOpenPerformanceModal();
+							}}
+							className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold shadow-lg transition-all duration-700 border border-fuchsia-400/40 bg-fuchsia-500/20 text-fuchsia-300 hover:bg-fuchsia-500/30 cursor-pointer ${
+								isIntroActive ?
+									'opacity-0 -translate-y-4 pointer-events-none'
+								:	'opacity-100 translate-y-0'
+							}`}
+							title='Open Live Performance Observatory & Benchmarks'>
+							<Gauge className='w-3 h-3 sm:w-3.5 sm:h-3.5 text-fuchsia-300' />
+							<span className='hidden sm:inline'>Performance</span>
+						</button>
+					)}
+
+					{/* Settings Button */}
+					<button
+						onClick={() => {
+							playButtonPop(soundEnabled);
+							onOpenSettings();
+						}}
+						className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold shadow-lg transition-all duration-700 border cursor-pointer flex-shrink-0 ${
+							hasApiKey ?
+								'bg-amber-400/20 text-amber-300 border-amber-400/40 hover:bg-amber-400/30'
+							:	'bg-rose-500/30 text-rose-200 border-rose-400/50 hover:bg-rose-500/40 animate-pulse'
+						} ${
+							isIntroActive ?
+								'opacity-0 -translate-y-4 pointer-events-none'
+							:	'opacity-100 translate-y-0'
+						}`}
+						title='Open Profile & Settings'>
+						<Settings className='w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300' />
+						<span>Settings</span>
+					</button>
+				</div>
 			</header>
 
 			{/* Main Content Area */}

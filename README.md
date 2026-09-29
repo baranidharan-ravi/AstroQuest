@@ -117,4 +117,5 @@ npm run server
 - **[Detailed Reference Guide (README_DETAILED.md)](./README_DETAILED.md)**: Full architecture specs, complete feature explanations, and mathematical diagrams.
 - **[User Guide & Contributing Hub (CONTRIBUTING.md)](./CONTRIBUTING.md)**: Quick start guide, flight crew profiles, game mode rules, and open-source contribution guidelines.
 - **[Technical Architecture & Specs (AstroQuest_Implementation_Documentation.md)](./documentation/AstroQuest_Implementation_Documentation.md)**: Deep engineering design document, WCAG accessibility audit, and security threat mitigations.
+- **[Performance Report & Diagnostics Guide (PERFORMANCE_REPORT.md)](./documentation/PERFORMANCE_REPORT.md)**: Runtime FPS metrics, main-thread bottleneck profiling, stress benchmarks, and audit steps.
 - **[Release Notes (RELEASE_NOTES.md)](./RELEASE_NOTES.md)**: Changelog and version history for all releases up to v1.4.1.

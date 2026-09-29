@@ -100,6 +100,7 @@ export default function App() {
 	const [isOdysseyOpen, setIsOdysseyOpen] = useState(false);
 	const [isHabitatOpen, setIsHabitatOpen] = useState(false);
 	const [isEducatorPortalOpen, setIsEducatorPortalOpen] = useState(false);
+	const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false);
 	const nextQuestionTimeoutRef = useRef(null);
 	const pendingNextActionRef = useRef(null);
 
@@ -1426,6 +1427,7 @@ export default function App() {
 					dashboardToast={dashboardToast}
 					onClearDashboardToast={() => setDashboardToast(null)}
 					onUpdateSettings={handleRefreshSettingsFromStorage}
+					onOpenPerformanceModal={() => setIsPerformanceModalOpen(true)}
 				/>
 
 				{/* Modals triggered from Dashboard */}
@@ -1442,6 +1444,8 @@ export default function App() {
 					setIsEducatorPortalOpen={setIsEducatorPortalOpen}
 					isCrewModalOpen={isCrewModalOpen}
 					setIsCrewModalOpen={setIsCrewModalOpen}
+					isPerformanceModalOpen={isPerformanceModalOpen}
+					setIsPerformanceModalOpen={setIsPerformanceModalOpen}
 					soundEnabled={soundEnabled}
 					kidName={kidName}
 					kidAge={kidAge}
