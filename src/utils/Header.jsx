@@ -128,9 +128,11 @@ const Header = React.memo(function Header({
 		timerBtnClass =
 			'bg-amber-950/90 border-amber-400 text-amber-300 ring-2 ring-amber-400/50 animate-pulse';
 	} else if (isCritical) {
-		timerBtnClass = 'bg-rose-950/90 border-rose-500 text-rose-300 animate-bounce';
+		timerBtnClass =
+			'bg-rose-950/90 border-rose-500 text-rose-300 animate-bounce';
 	} else if (isUrgent) {
-		timerBtnClass = 'bg-amber-950/80 border-amber-400 text-amber-300 animate-pulse';
+		timerBtnClass =
+			'bg-amber-950/80 border-amber-400 text-amber-300 animate-pulse';
 	}
 
 	let timerIcon = (

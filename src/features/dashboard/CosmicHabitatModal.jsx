@@ -508,50 +508,59 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 
 						{/* Bottom Construction / Operational Actions */}
 						<div className='mt-6 pt-4 border-t border-white/10'>
-							{isSelectedUnlocked ?
-								<button
-									type='button'
-									onClick={() => handleRunDiagnostic(activeModule)}
-									className='w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs sm:text-sm tracking-wide uppercase shadow-lg hover:scale-102 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer'>
-									<Cpu className='w-4 h-4' />
-									<span>Run System Diagnostic ➔</span>
-								</button>
-							: canConstructSelected ?
-								<button
-									type='button'
-									onClick={() => handleConstructModule(activeModule)}
-									className='w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm tracking-wider uppercase shadow-[0_0_25px_rgba(251,191,36,0.4)] hover:scale-102 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer'>
-									<Hammer className='w-4 h-4 fill-slate-950' />
-									<span>
-										Construct Module (⭐ {activeModule.starsCost} Stars)
-									</span>
-								</button>
-							:	<div className='p-3 rounded-2xl bg-slate-800/80 border border-slate-700/60 text-center flex flex-col items-center gap-1.5'>
-									<div className='flex items-center gap-2 text-xs font-black text-slate-300'>
-										<Lock className='w-4 h-4 text-amber-400' />
-										<span>
-											Requires {activeModule.starsCost} Stars to Build
-										</span>
+							{(() => {
+								if (isSelectedUnlocked) {
+									return (
+										<button
+											type='button'
+											onClick={() => handleRunDiagnostic(activeModule)}
+											className='w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs sm:text-sm tracking-wide uppercase shadow-lg hover:scale-102 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer'>
+											<Cpu className='w-4 h-4' />
+											<span>Run System Diagnostic ➔</span>
+										</button>
+									);
+								}
+								if (canConstructSelected) {
+									return (
+										<button
+											type='button'
+											onClick={() => handleConstructModule(activeModule)}
+											className='w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm tracking-wider uppercase shadow-[0_0_25px_rgba(251,191,36,0.4)] hover:scale-102 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer'>
+											<Hammer className='w-4 h-4 fill-slate-950' />
+											<span>
+												Construct Module (⭐ {activeModule.starsCost} Stars)
+											</span>
+										</button>
+									);
+								}
+								return (
+									<div className='p-3 rounded-2xl bg-slate-800/80 border border-slate-700/60 text-center flex flex-col items-center gap-1.5'>
+										<div className='flex items-center gap-2 text-xs font-black text-slate-300'>
+											<Lock className='w-4 h-4 text-amber-400' />
+											<span>
+												Requires {activeModule.starsCost} Stars to Build
+											</span>
+										</div>
+										<p className='text-[11px] text-slate-400 font-medium'>
+											You currently have {totalStars} stars. Complete more quests
+											to earn stars!
+										</p>
+										<div className='w-full bg-slate-950/80 rounded-full h-2 mt-1 overflow-hidden border border-white/10'>
+											<div
+												className='h-full bg-amber-400 transition-all duration-300'
+												style={{
+													width: `${Math.min(
+														100,
+														Math.round(
+															(totalStars / activeModule.starsCost) * 100,
+														),
+													)}%`,
+												}}
+											/>
+										</div>
 									</div>
-									<p className='text-[11px] text-slate-400 font-medium'>
-										You currently have {totalStars} stars. Complete more quests
-										to earn stars!
-									</p>
-									<div className='w-full bg-slate-950/80 rounded-full h-2 mt-1 overflow-hidden border border-white/10'>
-										<div
-											className='h-full bg-amber-400 transition-all duration-300'
-											style={{
-												width: `${Math.min(
-													100,
-													Math.round(
-														(totalStars / activeModule.starsCost) * 100,
-													),
-												)}%`,
-											}}
-										/>
-									</div>
-								</div>
-							}
+								);
+							})()}
 						</div>
 					</div>
 				</div>

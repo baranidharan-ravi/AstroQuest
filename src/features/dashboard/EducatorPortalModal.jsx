@@ -416,7 +416,7 @@ const EducatorPortalModal = memo(function EducatorPortalModal({
 						</div>
 					</>
 				}
-			</div>
+			</dialog>
 		</div>
 	);
 });
