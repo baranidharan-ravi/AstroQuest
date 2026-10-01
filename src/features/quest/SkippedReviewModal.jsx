@@ -59,14 +59,22 @@ const SkippedReviewModal = memo(function SkippedReviewModal({
 	if (!isOpen) return null;
 
 	return (
-		<div
-			className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='skipped-modal-title'>
-			<div
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close skipped review modal'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onViewResults();
+				}}
+			/>
+			<dialog
+				open
 				ref={modalRef}
-				className='bg-gradient-to-b from-[#1E1B4B] via-[#16194A] to-[#0D1030] border-4 border-amber-400/80 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-[0_0_50px_rgba(245,158,11,0.35)] text-white relative animate-in zoom-in-95 duration-200'>
+				aria-labelledby='skipped-modal-title'
+				className='relative z-10 m-auto bg-gradient-to-b from-[#1E1B4B] via-[#16194A] to-[#0D1030] border-4 border-amber-400/80 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-[0_0_50px_rgba(245,158,11,0.35)] text-white animate-in zoom-in-95 duration-200 block'>
 				{/* Top Close Button (Defaults to viewing results) */}
 				<button
 					type='button'
@@ -150,7 +158,7 @@ const SkippedReviewModal = memo(function SkippedReviewModal({
 						<ChevronRight className='w-4 h-4 opacity-60' />
 					</button>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	);
 });

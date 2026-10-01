@@ -43,6 +43,36 @@ const TABS = [
 	{ id: 'bundles', label: 'Bundle Architecture', icon: Layers },
 ];
 
+const getFpsStatusClass = (fps) => {
+	if (fps >= 55) return 'bg-emerald-500/20 text-emerald-300';
+	if (fps >= 40) return 'bg-amber-500/20 text-amber-300';
+	return 'bg-rose-500/20 text-rose-300';
+};
+
+const getLongTasksStatusClass = (count, tbt) => {
+	if (count === 0) return 'bg-emerald-500/20 text-emerald-300';
+	if (tbt < 100) return 'bg-amber-500/20 text-amber-300';
+	return 'bg-rose-500/20 text-rose-300';
+};
+
+const getBottleneckCardClass = (status) => {
+	if (status === 'critical') return 'bg-rose-950/20 border-rose-500/40';
+	if (status === 'warning') return 'bg-amber-950/20 border-amber-500/30';
+	return 'bg-slate-900/40 border-slate-800';
+};
+
+const getBottleneckIconClass = (status) => {
+	if (status === 'critical') return 'bg-rose-500/20 text-rose-300';
+	if (status === 'warning') return 'bg-amber-500/20 text-amber-300';
+	return 'bg-emerald-500/20 text-emerald-300';
+};
+
+const getBottleneckImpactClass = (impact) => {
+	if (impact === 'High') return 'bg-rose-500/20 text-rose-300 border border-rose-400/40';
+	if (impact === 'Medium') return 'bg-amber-500/20 text-amber-300 border border-amber-400/40';
+	return 'bg-slate-800 text-slate-400';
+};
+
 export const PerformanceObservatoryModal = memo(
 	function PerformanceObservatoryModal({
 		isOpen,
@@ -219,13 +249,9 @@ export const PerformanceObservatoryModal = memo(
 									<Activity className='w-3.5 h-3.5 text-cyan-400' /> Frame Rate
 								</span>
 								<span
-									className={`font-mono font-bold px-1.5 py-0.5 rounded text-[10px] ${
-										fpsMetrics.currentFps >= 55 ?
-											'bg-emerald-500/20 text-emerald-300'
-										: fpsMetrics.currentFps >= 40 ?
-											'bg-amber-500/20 text-amber-300'
-										:	'bg-rose-500/20 text-rose-300'
-									}`}>
+									className={`font-mono font-bold px-1.5 py-0.5 rounded text-[10px] ${getFpsStatusClass(
+										fpsMetrics.currentFps,
+									)}`}>
 									{fpsMetrics.currentFps >= 55 ? 'Smooth' : 'Dropped'}
 								</span>
 							</div>
@@ -253,12 +279,10 @@ export const PerformanceObservatoryModal = memo(
 									<Cpu className='w-3.5 h-3.5 text-indigo-400' /> Main Thread
 								</span>
 								<span
-									className={`font-mono font-bold px-1.5 py-0.5 rounded text-[10px] ${
-										longTasks.count === 0 ? 'bg-emerald-500/20 text-emerald-300'
-										: longTasks.totalBlockingTimeMs < 100 ?
-											'bg-amber-500/20 text-amber-300'
-										:	'bg-rose-500/20 text-rose-300'
-									}`}>
+									className={`font-mono font-bold px-1.5 py-0.5 rounded text-[10px] ${getLongTasksStatusClass(
+										longTasks.count,
+										longTasks.totalBlockingTimeMs,
+									)}`}>
 									{longTasks.count === 0 ?
 										'Clear'
 									:	`${longTasks.count} Blockers`}
@@ -412,23 +436,15 @@ export const PerformanceObservatoryModal = memo(
 									{bottlenecks.map((item) => (
 										<div
 											key={item.id}
-											className={`p-4 rounded-xl border transition-all ${
-												item.status === 'critical' ?
-													'bg-rose-950/20 border-rose-500/40'
-												: item.status === 'warning' ?
-													'bg-amber-950/20 border-amber-500/30'
-												:	'bg-slate-900/40 border-slate-800'
-											}`}>
+											className={`p-4 rounded-xl border transition-all ${getBottleneckCardClass(
+												item.status,
+											)}`}>
 											<div className='flex items-start justify-between gap-3'>
 												<div className='flex items-start gap-3'>
 													<div
-														className={`p-2 rounded-lg mt-0.5 ${
-															item.status === 'critical' ?
-																'bg-rose-500/20 text-rose-300'
-															: item.status === 'warning' ?
-																'bg-amber-500/20 text-amber-300'
-															:	'bg-emerald-500/20 text-emerald-300'
-														}`}>
+														className={`p-2 rounded-lg mt-0.5 ${getBottleneckIconClass(
+															item.status,
+														)}`}>
 														{(
 															item.status === 'critical' ||
 															item.status === 'warning'
@@ -445,13 +461,9 @@ export const PerformanceObservatoryModal = memo(
 																{item.category}
 															</span>
 															<span
-																className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
-																	item.impact === 'High' ?
-																		'bg-rose-500/20 text-rose-300 border border-rose-400/40'
-																	: item.impact === 'Medium' ?
-																		'bg-amber-500/20 text-amber-300 border border-amber-400/40'
-																	:	'bg-slate-800 text-slate-400'
-																}`}>
+																className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${getBottleneckImpactClass(
+																	item.impact,
+																)}`}>
 																{item.impact} Impact
 															</span>
 														</div>

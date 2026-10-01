@@ -185,10 +185,12 @@ const CognitiveRadarChart = memo(function CognitiveRadarChart({
 					{/* Outer Domain Labels */}
 					{dataPoints.map((p, idx) => {
 						// Text anchor alignment based on x coordinate
-						const textAnchor =
-							Math.abs(p.lx - cx) < 15 ? 'middle'
-							: p.lx > cx ? 'start'
-							: 'end';
+						let textAnchor = 'end';
+						if (Math.abs(p.lx - cx) < 15) {
+							textAnchor = 'middle';
+						} else if (p.lx > cx) {
+							textAnchor = 'start';
+						}
 
 						return (
 							<g

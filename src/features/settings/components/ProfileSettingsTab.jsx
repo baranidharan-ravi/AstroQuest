@@ -22,6 +22,17 @@ import {
 	switchActiveCrewMember,
 } from '../../../utils/crewManager';
 
+const GENDER_BADGE_LABELS = {
+	boy: '👦 Boy',
+	girl: '👧 Girl',
+};
+
+const AVATAR_CATEGORY_LABELS = {
+	Boys: '👦 Boys',
+	Girls: '👧 Girls',
+	'Cosmic Pals': '🤖 Cosmic Pals',
+};
+
 /**
  * ProfileSettingsTab
  * Manages Flight Crew profiles, Child Name & Age, and Gender & Avatar configuration.
@@ -424,11 +435,7 @@ export const ProfileSettingsTab = memo(function ProfileSettingsTab({
 									{getAvatarById(avatarInput)?.name || 'Custom Explorer'}
 								</h3>
 								<span className='text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 capitalize'>
-									{genderInput === 'boy' ?
-										'👦 Boy'
-									: genderInput === 'girl' ?
-										'👧 Girl'
-									:	'🚀 Space Cadet'}
+									{GENDER_BADGE_LABELS[genderInput] || '🚀 Space Cadet'}
 								</span>
 							</div>
 							<p className='text-[11px] sm:text-xs text-slate-300 mt-0.5'>
@@ -508,13 +515,7 @@ export const ProfileSettingsTab = memo(function ProfileSettingsTab({
 												'bg-purple-600 text-white border-purple-400 shadow-sm'
 											:	'bg-[#0D1030] text-slate-400 border-slate-700/60 hover:text-white hover:bg-slate-800'
 										}`}>
-										{category === 'Boys' ?
-											'👦 Boys'
-										: category === 'Girls' ?
-											'👧 Girls'
-										: category === 'Cosmic Pals' ?
-											'🤖 Cosmic Pals'
-										:	'All'}
+										{AVATAR_CATEGORY_LABELS[category] || 'All'}
 									</button>
 								);
 							})}

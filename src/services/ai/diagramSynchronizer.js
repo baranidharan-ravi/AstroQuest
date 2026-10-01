@@ -182,10 +182,13 @@ export function synchronizeDiagramData(
 		data.leftLabel = data.leftLabel || leftLabel;
 		data.rightLabel =
 			correctText ? `${correctText.trim()}` : data.rightLabel || rightLabel;
-		data.heavySide =
-			lower.includes('heavier on the left') ? 'left'
-			: lower.includes('heavier on the right') ? 'right'
-			: 'balanced';
+		let heavySide = 'balanced';
+		if (lower.includes('heavier on the left')) {
+			heavySide = 'left';
+		} else if (lower.includes('heavier on the right')) {
+			heavySide = 'right';
+		}
+		data.heavySide = heavySide;
 	} else if (type === 'block-tower' || type === 'isometric-tower') {
 		if (
 			(lower.includes('3x3') ||

@@ -14,6 +14,18 @@ import { memo } from 'react';
 import { AI_PROVIDER_INFO, AI_PROVIDERS } from '../../../services/aiGenerator';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 
+const PROVIDER_EMOJIS = {
+	[AI_PROVIDERS.GEMINI]: '✨',
+	[AI_PROVIDERS.OPENAI]: '🟢',
+	[AI_PROVIDERS.CLAUDE]: '🎭',
+};
+
+const PROVIDER_PORTALS = {
+	[AI_PROVIDERS.GEMINI]: 'Google AI Studio',
+	[AI_PROVIDERS.OPENAI]: 'OpenAI Platform',
+	[AI_PROVIDERS.CLAUDE]: 'Anthropic Console',
+};
+
 /**
  * AiEngineSettingsTab Component
  *
@@ -101,11 +113,7 @@ export const AiEngineSettingsTab = memo(function AiEngineSettingsTab({
 											className='text-xl flex-shrink-0'
 											role='img'
 											aria-label={info.name}>
-											{provId === AI_PROVIDERS.GEMINI ?
-												'✨'
-											: provId === AI_PROVIDERS.OPENAI ?
-												'🟢'
-											:	'🎭'}
+											{PROVIDER_EMOJIS[provId] || '✨'}
 										</span>
 										<div>
 											<h3
@@ -115,11 +123,7 @@ export const AiEngineSettingsTab = memo(function AiEngineSettingsTab({
 												{info.name}
 											</h3>
 											<p className='text-[10px] text-slate-400 font-medium'>
-												{provId === AI_PROVIDERS.GEMINI ?
-													'Google AI Studio'
-												: provId === AI_PROVIDERS.OPENAI ?
-													'OpenAI Platform'
-												:	'Anthropic Console'}
+												{PROVIDER_PORTALS[provId] || 'AI Platform'}
 											</p>
 										</div>
 									</div>

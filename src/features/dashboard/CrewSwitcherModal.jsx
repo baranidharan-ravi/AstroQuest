@@ -84,12 +84,21 @@ export default function CrewSwitcherModal({
 	const quickAges = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 	return (
-		<div
-			className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn'
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='crew-modal-title'>
-			<div className='relative w-full max-w-lg bg-gradient-to-b from-[#181B45] via-[#101335] to-[#0A0D28] border-2 border-cyan-500/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_0_50px_rgba(6,182,212,0.25)] text-white overflow-hidden max-h-[90vh] flex flex-col'>
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close crew profiles modal'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
+				aria-labelledby='crew-modal-title'
+				className='relative z-10 m-auto w-full max-w-lg bg-gradient-to-b from-[#181B45] via-[#101335] to-[#0A0D28] border-2 border-cyan-500/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_0_50px_rgba(6,182,212,0.25)] text-white overflow-hidden max-h-[90vh] flex flex-col block'>
 				{/* Top Bar */}
 				<div className='flex items-center justify-between gap-3 border-b border-white/10 pb-3 mb-4 flex-shrink-0'>
 					<div className='flex items-center gap-2'>
@@ -135,11 +144,10 @@ export default function CrewSwitcherModal({
 									return (
 										<div
 											key={member.id}
-											onClick={() => !isActive && handleSwitch(member.id)}
 											className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
 												isActive ?
 													'bg-cyan-500/20 border-cyan-400 ring-2 ring-cyan-400/40 shadow-lg'
-												:	'bg-[#131742]/70 border-slate-700/80 hover:border-cyan-500/50 hover:bg-[#181E55] cursor-pointer'
+												:	'bg-[#131742]/70 border-slate-700/80 hover:border-cyan-500/50 hover:bg-[#181E55]'
 											}`}>
 											<div className='flex items-center gap-3 min-w-0'>
 												<div className='relative flex-shrink-0'>
@@ -347,7 +355,7 @@ export default function CrewSwitcherModal({
 						</form>
 					}
 				</div>
-			</div>
+			</dialog>
 		</div>
 	);
 }

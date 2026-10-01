@@ -1518,172 +1518,192 @@ export default function App() {
 						'justify-center py-2 sm:py-3 min-h-0 overflow-hidden'
 					:	'justify-start py-6 sm:py-8 overflow-y-visible'
 				}`}>
-				{isLoadingSheet ?
-					/* AstroQuest Cosmic Loader */
-					<Suspense fallback={<ScreenLoadingFallback />}>
-						<CosmicQuestLoader
-							selectedSkill={selectedSkill}
+				{(() => {
+					if (isLoadingSheet) {
+						/* AstroQuest Cosmic Loader */
+						return (
+							<Suspense fallback={<ScreenLoadingFallback />}>
+								<CosmicQuestLoader
+									selectedSkill={selectedSkill}
+									kidName={kidName}
+									kidAge={kidAge}
+									kidAvatar={kidAvatar}
+								/>
+							</Suspense>
+						);
+					}
+					if (aiError) {
+						/* AI Error / API Key Setup Prompt Screen */
+						return (
+							<QuestAiErrorCard
+								aiError={aiError}
+								soundEnabled={soundEnabled}
+								onOpenSettings={() => setCurrentScreen('settings')}
+								onRetry={() => handleSelectSkill(selectedSkill)}
+								onBackToDashboard={() => setCurrentScreen('dashboard')}
+							/>
+						);
+					}
+					if (!isCompleted) {
+						/* Question Playing View */
+						if (isLoadingNextQuestion) {
+							return (
+								<div className='w-full flex flex-col justify-center flex-1 my-auto min-h-0 h-full'>
+									<QuestLoadingNextView
+										activeCosmicFact={activeCosmicFact}
+										handleImmediateResumeAndLoadNext={handleImmediateResumeAndLoadNext}
+									/>
+								</div>
+							);
+						}
+						if (!isSubmitted) {
+							/* Layout when NOT submitted: Full-width layout with Question and Options side-by-side and full-width bottom Action Bar */
+							return (
+								<div className='w-full flex flex-col justify-center flex-1 my-auto min-h-0 h-full'>
+									<div
+										onPointerDownCapture={resumeTimerIfPaused}
+										className='flex flex-col justify-between gap-3 sm:gap-3.5 w-full h-full lg:max-h-[calc(100dvh-95px)] min-h-0 relative'>
+										{/* Top Split Grid: Question Card on Left, Options Grid on Right (Blurred when timer is paused before submitting) */}
+										<div
+											className={`grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch w-full flex-1 min-h-0 transition-all duration-300 ${
+												isTimerPaused ?
+													'filter blur-[16px] select-none pointer-events-none opacity-30'
+												:	''
+											}`}>
+											{/* Left: Question Card (Matches full height of right side) */}
+											<div className='lg:col-span-6 flex flex-col h-full min-h-0'>
+												<QuestionCard
+													question={currentQuestion}
+													currentIndex={currentIndex}
+													totalQuestions={questions.length}
+													onZoomClick={() => setIsZoomOpen(true)}
+													soundEnabled={soundEnabled}
+													showVisualDiagrams={showVisualDiagrams}
+													kidName={kidName}
+													kidAge={kidAge}
+													isReviewMode={isReviewMode}
+													onSelectOption={handleSelectOption}
+												/>
+											</div>
+
+											{/* Right: Options Grid (Matches full height with internal scroll if tall) */}
+											<div className='lg:col-span-6 flex flex-col h-full min-h-0 overflow-y-auto pr-1'>
+												<OptionsGrid
+													options={currentQuestion.options || []}
+													selectedOptionId={selectedOptionId}
+													onSelectOption={handleSelectOption}
+													isSubmitted={false}
+													correctAnswerId={currentQuestion.correctAnswerId}
+													soundEnabled={soundEnabled}
+													showVisualDiagrams={showVisualDiagrams}
+													question={currentQuestion}
+													eliminatedOptionIds={eliminatedOptionIds}
+													telemetryScan={telemetryScan}
+												/>
+											</div>
+										</div>
+
+										{/* Anti-Cheat / Screenshot Shield Overlay when timer is paused before submitting */}
+										<QuestPauseShield
+											isTimerPaused={isTimerPaused}
+											resumeTimerIfPaused={resumeTimerIfPaused}
+											soundEnabled={soundEnabled}
+										/>
+
+										{/* Quick-Access Cosmic Lifelines Console (Outside question section) */}
+										<div className='flex-shrink-0 w-full'>
+											<CosmicLifelinesBar
+												cosmicClueUsed={cosmicClueUsed}
+												onUseClue={handleUseCosmicClue}
+												revealedClueIndex={revealedClueIndex}
+												currentIndex={currentIndex}
+												currentHint={currentQuestion?.hint}
+												cosmicRayUsed={cosmicRayUsed}
+												onUseCosmicRay={handleActivateCosmicRay}
+												canUseCosmicRay={!isSubmitted && !isTimedOut}
+												telemetryScanUsed={telemetryScanUsed}
+												onUseTelemetryScan={handleActivateTelemetryScan}
+												canUseTelemetryScan={!isSubmitted && !isTimedOut}
+												chronoFreezeUsed={chronoFreezeUsed}
+												onUseChronoFreeze={handleActivateChronoFreeze}
+												canUseChronoFreeze={!isSubmitted && !isTimedOut}
+												timerEnabled={timerConfig?.enabled}
+												isPaused={isTimerPaused}
+												soundEnabled={soundEnabled}
+											/>
+										</div>
+
+										{/* Full-Width Bottom Action Bar (Skip, Center Timer, and Submit) */}
+										<QuestActionBar
+											isTimerPaused={isTimerPaused}
+											handleSkip={handleSkip}
+											timerConfig={timerConfig}
+											handleToggleTimerPause={handleToggleTimerPause}
+											chronoFreezeActive={chronoFreezeActive}
+											questionTimeRemaining={questionTimeRemaining}
+											timerSeconds={timerSeconds}
+											selectedOptionId={selectedOptionId}
+											handleSubmit={handleSubmit}
+										/>
+									</div>
+								</div>
+							);
+						}
+						/* Layout when SUBMITTED / TIMED OUT: Question Card on Left, Solution Panel with NEXT button on Right */
+						return (
+							<div className='w-full flex flex-col justify-center flex-1 my-auto min-h-0 h-full'>
+								<QuestSubmittedSolutionView
+									resumeTimerIfPaused={resumeTimerIfPaused}
+									currentQuestion={currentQuestion}
+									currentIndex={currentIndex}
+									totalQuestions={questions.length}
+									setIsZoomOpen={setIsZoomOpen}
+									soundEnabled={soundEnabled}
+									showVisualDiagrams={showVisualDiagrams}
+									kidName={kidName}
+									kidAge={kidAge}
+									isReviewMode={isReviewMode}
+									selectedOptionId={selectedOptionId}
+									handleSelectOption={handleSelectOption}
+									isTimedOut={isTimedOut}
+									autoAdvanceCountdown={autoAdvanceCountdown}
+									setIsAskDoubtOpen={setIsAskDoubtOpen}
+									handleNext={handleNext}
+									wasSkippedOnRevisit={wasSkippedOnRevisit}
+									hasNextSkipped={
+										isReviewMode &&
+										skippedReviewQueue.filter((idx) => idx !== currentIndex).length > 0
+									}
+								/>
+							</div>
+						);
+					}
+					/* Completion & Summary View */
+					return (
+						<QuestResultsView
+							resultTab={resultTab}
+							setResultTab={setResultTab}
+							scorePercent={scorePercent}
+							correctCount={correctCount}
+							totalCount={questions.length}
+							questions={questions}
+							history={history}
+							handleStartNextSheet={handleStartNextSheet}
+							handleDownloadSheet={handleDownloadSheet}
+							soundEnabled={soundEnabled}
+							setCurrentScreen={setCurrentScreen}
 							kidName={kidName}
 							kidAge={kidAge}
 							kidAvatar={kidAvatar}
+							timerSeconds={timerSeconds}
+							cosmicClueUsed={cosmicClueUsed}
+							cosmicRayUsed={cosmicRayUsed}
+							telemetryScanUsed={telemetryScanUsed}
+							chronoFreezeUsed={chronoFreezeUsed}
+							showVisualDiagrams={showVisualDiagrams}
 						/>
-					</Suspense>
-				: aiError ?
-					/* AI Error / API Key Setup Prompt Screen */
-					<QuestAiErrorCard
-						aiError={aiError}
-						soundEnabled={soundEnabled}
-						onOpenSettings={() => setCurrentScreen('settings')}
-						onRetry={() => handleSelectSkill(selectedSkill)}
-						onBackToDashboard={() => setCurrentScreen('dashboard')}
-					/>
-				: !isCompleted ?
-					/* Question Playing View */
-					<div className='w-full flex flex-col justify-center flex-1 my-auto min-h-0 h-full'>
-						{/* Loading Next Question Transition View (Timer Paused While Loading) */}
-						{isLoadingNextQuestion ?
-							<QuestLoadingNextView
-								activeCosmicFact={activeCosmicFact}
-								handleImmediateResumeAndLoadNext={handleImmediateResumeAndLoadNext}
-							/>
-						: !isSubmitted ?
-							/* Layout when NOT submitted: Full-width layout with Question and Options side-by-side and full-width bottom Action Bar */
-							<div
-								onPointerDownCapture={resumeTimerIfPaused}
-								className='flex flex-col justify-between gap-3 sm:gap-3.5 w-full h-full lg:max-h-[calc(100dvh-95px)] min-h-0 relative'>
-								{/* Top Split Grid: Question Card on Left, Options Grid on Right (Blurred when timer is paused before submitting) */}
-								<div
-									className={`grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch w-full flex-1 min-h-0 transition-all duration-300 ${
-										isTimerPaused ?
-											'filter blur-[16px] select-none pointer-events-none opacity-30'
-										:	''
-									}`}>
-									{/* Left: Question Card (Matches full height of right side) */}
-									<div className='lg:col-span-6 flex flex-col h-full min-h-0'>
-										<QuestionCard
-											question={currentQuestion}
-											currentIndex={currentIndex}
-											totalQuestions={questions.length}
-											onZoomClick={() => setIsZoomOpen(true)}
-											soundEnabled={soundEnabled}
-											showVisualDiagrams={showVisualDiagrams}
-											kidName={kidName}
-											kidAge={kidAge}
-											isReviewMode={isReviewMode}
-											onSelectOption={handleSelectOption}
-										/>
-									</div>
-
-									{/* Right: Options Grid (Matches full height with internal scroll if tall) */}
-									<div className='lg:col-span-6 flex flex-col h-full min-h-0 overflow-y-auto pr-1'>
-										<OptionsGrid
-											options={currentQuestion.options || []}
-											selectedOptionId={selectedOptionId}
-											onSelectOption={handleSelectOption}
-											isSubmitted={false}
-											correctAnswerId={currentQuestion.correctAnswerId}
-											soundEnabled={soundEnabled}
-											showVisualDiagrams={showVisualDiagrams}
-											question={currentQuestion}
-											eliminatedOptionIds={eliminatedOptionIds}
-											telemetryScan={telemetryScan}
-										/>
-									</div>
-								</div>
-
-								{/* Anti-Cheat / Screenshot Shield Overlay when timer is paused before submitting */}
-								<QuestPauseShield
-									isTimerPaused={isTimerPaused}
-									resumeTimerIfPaused={resumeTimerIfPaused}
-									soundEnabled={soundEnabled}
-								/>
-
-								{/* Quick-Access Cosmic Lifelines Console (Outside question section) */}
-								<div className='flex-shrink-0 w-full'>
-									<CosmicLifelinesBar
-										cosmicClueUsed={cosmicClueUsed}
-										onUseClue={handleUseCosmicClue}
-										revealedClueIndex={revealedClueIndex}
-										currentIndex={currentIndex}
-										currentHint={currentQuestion?.hint}
-										cosmicRayUsed={cosmicRayUsed}
-										onUseCosmicRay={handleActivateCosmicRay}
-										canUseCosmicRay={!isSubmitted && !isTimedOut}
-										telemetryScanUsed={telemetryScanUsed}
-										onUseTelemetryScan={handleActivateTelemetryScan}
-										canUseTelemetryScan={!isSubmitted && !isTimedOut}
-										chronoFreezeUsed={chronoFreezeUsed}
-										onUseChronoFreeze={handleActivateChronoFreeze}
-										canUseChronoFreeze={!isSubmitted && !isTimedOut}
-										timerEnabled={timerConfig?.enabled}
-										isPaused={isTimerPaused}
-										soundEnabled={soundEnabled}
-									/>
-								</div>
-
-								{/* Full-Width Bottom Action Bar (Skip, Center Timer, and Submit) */}
-								<QuestActionBar
-									isTimerPaused={isTimerPaused}
-									handleSkip={handleSkip}
-									timerConfig={timerConfig}
-									handleToggleTimerPause={handleToggleTimerPause}
-									chronoFreezeActive={chronoFreezeActive}
-									questionTimeRemaining={questionTimeRemaining}
-									timerSeconds={timerSeconds}
-									selectedOptionId={selectedOptionId}
-									handleSubmit={handleSubmit}
-								/>
-							</div>
-						:	/* Layout when SUBMITTED / TIMED OUT: Question Card on Left, Solution Panel with NEXT button on Right */
-							<QuestSubmittedSolutionView
-								resumeTimerIfPaused={resumeTimerIfPaused}
-								currentQuestion={currentQuestion}
-								currentIndex={currentIndex}
-								totalQuestions={questions.length}
-								setIsZoomOpen={setIsZoomOpen}
-								soundEnabled={soundEnabled}
-								showVisualDiagrams={showVisualDiagrams}
-								kidName={kidName}
-								kidAge={kidAge}
-								isReviewMode={isReviewMode}
-								selectedOptionId={selectedOptionId}
-								handleSelectOption={handleSelectOption}
-								isTimedOut={isTimedOut}
-								autoAdvanceCountdown={autoAdvanceCountdown}
-								setIsAskDoubtOpen={setIsAskDoubtOpen}
-								handleNext={handleNext}
-								wasSkippedOnRevisit={wasSkippedOnRevisit}
-								hasNextSkipped={
-									isReviewMode &&
-									skippedReviewQueue.filter((idx) => idx !== currentIndex).length > 0
-								}
-							/>
-						}
-					</div>
-				:	/* Completion & Summary View */
-					<QuestResultsView
-						resultTab={resultTab}
-						setResultTab={setResultTab}
-						scorePercent={scorePercent}
-						correctCount={correctCount}
-						totalCount={questions.length}
-						questions={questions}
-						history={history}
-						handleStartNextSheet={handleStartNextSheet}
-						handleDownloadSheet={handleDownloadSheet}
-						soundEnabled={soundEnabled}
-						setCurrentScreen={setCurrentScreen}
-						kidName={kidName}
-						kidAge={kidAge}
-						kidAvatar={kidAvatar}
-						timerSeconds={timerSeconds}
-						cosmicClueUsed={cosmicClueUsed}
-						cosmicRayUsed={cosmicRayUsed}
-						telemetryScanUsed={telemetryScanUsed}
-						chronoFreezeUsed={chronoFreezeUsed}
-						showVisualDiagrams={showVisualDiagrams}
-					/>
-				}
+					);
+				})()}
 			</main>
 
 			{/* Interactive Modals (Lazy Loaded on Demand) */}

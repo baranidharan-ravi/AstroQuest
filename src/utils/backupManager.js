@@ -209,11 +209,14 @@ export function importFullBackupFromJson(jsonString) {
 	}
 
 	// 3. Import Skillsets
-	const incomingSkills =
-		Array.isArray(data) ? data
-		: Array.isArray(data.skillsets) ? data.skillsets
-		: Array.isArray(data.customSkillsets) ? data.customSkillsets
-		: [];
+	let incomingSkills = [];
+	if (Array.isArray(data)) {
+		incomingSkills = data;
+	} else if (Array.isArray(data?.skillsets)) {
+		incomingSkills = data.skillsets;
+	} else if (Array.isArray(data?.customSkillsets)) {
+		incomingSkills = data.customSkillsets;
+	}
 
 	for (const item of incomingSkills) {
 		if (item && item.name && item.description) {

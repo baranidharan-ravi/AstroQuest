@@ -661,10 +661,12 @@ export function parseDynamicShape(rawInput) {
 
 	// 2. Check for explicit sides in parentheses e.g. "(3 sides)" or "(6 sides)"
 	const sidesMatch = text.match(/(\d+)\s*sides?/i);
-	const sidesCount =
-		sidesMatch ? parseInt(sidesMatch[1], 10)
-		: sides > 0 ? sides
-		: null;
+	let sidesCount = null;
+	if (sidesMatch) {
+		sidesCount = parseInt(sidesMatch[1], 10);
+	} else if (sides > 0) {
+		sidesCount = sides;
+	}
 
 	if (sidesCount && sidesCount >= 3 && !shape) {
 		sides = sidesCount;

@@ -162,14 +162,22 @@ const AskDoubtModal = memo(function AskDoubtModal({
 	};
 
 	return (
-		<div
-			className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200'
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='ask-doubt-modal-title'>
-			<div
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close AI doubt helper backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
 				ref={modalRef}
-				className='bg-[#111438] border-2 border-[#38419D] text-white rounded-3xl max-w-xl w-full max-h-[90vh] p-4 sm:p-6 shadow-2xl relative flex flex-col gap-3.5'>
+				aria-labelledby='ask-doubt-modal-title'
+				className='relative z-10 m-auto bg-[#111438] border-2 border-[#38419D] text-white rounded-3xl max-w-xl w-full max-h-[90vh] p-4 sm:p-6 shadow-2xl flex flex-col gap-3.5 block'>
 				{/* Close Button */}
 				<button
 					ref={closeBtnRef}
@@ -331,7 +339,7 @@ const AskDoubtModal = memo(function AskDoubtModal({
 					className='w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm sm:text-base shadow-lg transition-all cursor-pointer focus-visible:ring-4 focus-visible:ring-emerald-400 focus-visible:outline-none'>
 					I Am Ready to Solve It! 🚀
 				</button>
-			</div>
+			</dialog>
 		</div>
 	);
 });

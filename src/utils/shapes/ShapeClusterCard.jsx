@@ -27,16 +27,15 @@ export function ShapeClusterCard({
 
 	// Layout grid/triangular stack points for count 1, 3, 6, 10, 15, 21
 	const renderMiniShapes = () => {
-		const sz =
-			count <= 1 ? 30
-			: count <= 3 ? 20
-			: count <= 6 ? 15
-			: count <= 10 ? 12
-			: 10;
-		const fill =
-			isShaded ? `url(#${patternId})`
-			: isWhite ? '#FFFFFF'
-			: color;
+		let sz = 10;
+		if (count <= 1) sz = 30;
+		else if (count <= 3) sz = 20;
+		else if (count <= 6) sz = 15;
+		else if (count <= 10) sz = 12;
+
+		let fill = color;
+		if (isShaded) fill = `url(#${patternId})`;
+		else if (isWhite) fill = '#FFFFFF';
 
 		// Arrangement rows for triangular numbers (1 -> [1], 3 -> [1, 2], 6 -> [1, 2, 3], 10 -> [1, 2, 3, 4], 15 -> [1, 2, 3, 4, 5])
 		let rows = [];

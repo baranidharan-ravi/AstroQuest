@@ -11,15 +11,18 @@ export const SkillInfoModal = memo(function SkillInfoModal({
 	if (!infoModalSkill) return null;
 
 	return (
-		<div
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='skill-info-title'
-			className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in'
-			onClick={() => setInfoModalSkill(null)}>
-			<div
-				className='bg-[#16194E] border-2 border-cyan-400 rounded-3xl p-6 max-w-md w-full text-white shadow-2xl'
-				onClick={(e) => e.stopPropagation()}>
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close skill information modal backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => setInfoModalSkill(null)}
+			/>
+			<dialog
+				open
+				aria-labelledby='skill-info-title'
+				className='relative z-10 m-auto bg-[#16194E] border-2 border-cyan-400 rounded-3xl p-6 max-w-md w-full text-white shadow-2xl block'>
 				<div className='flex items-center gap-2.5 mb-2'>
 					<div className='w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shrink-0'>
 						<SkillIcon
@@ -61,7 +64,7 @@ export const SkillInfoModal = memo(function SkillInfoModal({
 					className='w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-sm transition-all cursor-pointer focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none'>
 					Got It!
 				</button>
-			</div>
+			</dialog>
 		</div>
 	);
 });

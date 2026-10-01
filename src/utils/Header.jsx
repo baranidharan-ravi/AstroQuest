@@ -122,6 +122,36 @@ const Header = React.memo(function Header({
 		};
 	}, [showControlsTooltip]);
 
+	let timerBtnClass =
+		'bg-[#121644] border-cyan-500/50 hover:border-cyan-400 text-cyan-300 hover:text-white';
+	if (isTimerPaused) {
+		timerBtnClass =
+			'bg-amber-950/90 border-amber-400 text-amber-300 ring-2 ring-amber-400/50 animate-pulse';
+	} else if (isCritical) {
+		timerBtnClass = 'bg-rose-950/90 border-rose-500 text-rose-300 animate-bounce';
+	} else if (isUrgent) {
+		timerBtnClass = 'bg-amber-950/80 border-amber-400 text-amber-300 animate-pulse';
+	}
+
+	let timerIcon = (
+		<Pause className='w-3.5 h-3.5 text-cyan-300 group-hover:scale-110 transition-transform' />
+	);
+	if (isTimerPaused) {
+		timerIcon = <Play className='w-3.5 h-3.5 text-amber-400 fill-current' />;
+	} else if (isUrgent) {
+		timerIcon = <Clock className='w-3.5 h-3.5 text-amber-400 animate-spin' />;
+	}
+
+	let controlsBtnClass =
+		'bg-[#121644] border-[#29307A] text-gray-400 hover:text-white hover:bg-[#1E2568]';
+	if (showControlsTooltip) {
+		controlsBtnClass =
+			'bg-[#1e2363] border-cyan-400 text-cyan-300 ring-2 ring-cyan-400/30 shadow-lg shadow-cyan-500/10';
+	} else if (speechEnabled || soundEnabled) {
+		controlsBtnClass =
+			'bg-[#121644] border-[#29307A] text-cyan-300 hover:text-white hover:bg-[#1E2568]';
+	}
+
 	return (
 		<header className='w-full max-w-7xl mx-auto px-3 sm:px-6 py-3 flex items-center justify-between gap-2 sm:gap-4 select-none'>
 			{/* Left Area: AstroQuest Badge & Explorer Profile */}
@@ -273,21 +303,8 @@ const Header = React.memo(function Header({
 									`Countdown paused at ${formatTime(questionTimeRemaining)}. Click to resume.`
 								:	`Question countdown: ${formatTime(questionTimeRemaining)} remaining. Click to pause.`
 							}
-							className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all border cursor-pointer select-none group ${
-								isTimerPaused ?
-									'bg-amber-950/90 border-amber-400 text-amber-300 ring-2 ring-amber-400/50 animate-pulse'
-								: isCritical ?
-									'bg-rose-950/90 border-rose-500 text-rose-300 animate-bounce'
-								: isUrgent ?
-									'bg-amber-950/80 border-amber-400 text-amber-300 animate-pulse'
-								:	'bg-[#121644] border-cyan-500/50 hover:border-cyan-400 text-cyan-300 hover:text-white'
-							}`}>
-							{isTimerPaused ?
-								<Play className='w-3.5 h-3.5 text-amber-400 fill-current' />
-							: isUrgent ?
-								<Clock className='w-3.5 h-3.5 text-amber-400 animate-spin' />
-							:	<Pause className='w-3.5 h-3.5 text-cyan-300 group-hover:scale-110 transition-transform' />
-							}
+							className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all border cursor-pointer select-none group ${timerBtnClass}`}>
+							{timerIcon}
 							<span className='font-mono font-black'>
 								{formatTime(questionTimeRemaining)}
 							</span>
@@ -350,14 +367,8 @@ const Header = React.memo(function Header({
 							:	'Open controls menu: Voice narration, sound effects, and fullscreen'
 						}
 						aria-expanded={showControlsTooltip}
-						aria-haspopup='dialog'
-						className={`relative p-2 rounded-xl border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none flex items-center justify-center ${
-							showControlsTooltip ?
-								'bg-[#1e2363] border-cyan-400 text-cyan-300 ring-2 ring-cyan-400/30 shadow-lg shadow-cyan-500/10'
-							: speechEnabled || soundEnabled ?
-								'bg-[#121644] border-[#29307A] text-cyan-300 hover:text-white hover:bg-[#1E2568]'
-							:	'bg-[#121644] border-[#29307A] text-gray-400 hover:text-white hover:bg-[#1E2568]'
-						}`}
+						aria-haspopup='menu'
+						className={`relative p-2 rounded-xl border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none flex items-center justify-center ${controlsBtnClass}`}
 						title='Quick Controls (Voice, Sound, Fullscreen)'>
 						<SlidersHorizontal className='w-4 h-4' />
 						{(speechEnabled || soundEnabled) && (
@@ -368,7 +379,7 @@ const Header = React.memo(function Header({
 					{/* Tooltip displaying the 3 combined options */}
 					{showControlsTooltip && (
 						<div
-							role='dialog'
+							role='region'
 							aria-label='Quick Controls Options'
 							className='absolute right-0 top-full mt-2 z-50 animate-in fade-in zoom-in-95 duration-150 flex flex-col items-end select-none'>
 							{/* Tooltip Arrow pointing up to trigger button */}

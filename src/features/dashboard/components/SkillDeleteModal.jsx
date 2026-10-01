@@ -10,15 +10,18 @@ export const SkillDeleteModal = memo(function SkillDeleteModal({
 	if (!skillToDelete) return null;
 
 	return (
-		<div
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='delete-skill-title'
-			className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in'
-			onClick={() => setSkillToDelete(null)}>
-			<div
-				className='bg-[#16194E] border-2 border-rose-500/80 rounded-3xl p-6 max-w-md w-full text-white shadow-2xl'
-				onClick={(e) => e.stopPropagation()}>
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close delete confirmation modal'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => setSkillToDelete(null)}
+			/>
+			<dialog
+				open
+				aria-labelledby='delete-skill-title'
+				className='relative z-10 m-auto bg-[#16194E] border-2 border-rose-500/80 rounded-3xl p-6 max-w-md w-full text-white shadow-2xl block'>
 				<div className='flex items-center gap-3 mb-3'>
 					<div className='w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400'>
 						<Trash2 className='w-5 h-5' />
@@ -55,7 +58,7 @@ export const SkillDeleteModal = memo(function SkillDeleteModal({
 						Yes, Delete
 					</button>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	);
 });

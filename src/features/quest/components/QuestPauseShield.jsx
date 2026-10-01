@@ -16,12 +16,15 @@ export const QuestPauseShield = memo(function QuestPauseShield({
 	if (!isTimerPaused) return null;
 
 	return (
-		<div
-			onClick={resumeTimerIfPaused}
-			className='absolute inset-x-0 top-0 bottom-16 sm:bottom-20 z-20 flex flex-col items-center justify-center p-4 text-center cursor-pointer bg-slate-950/40 backdrop-blur-[2px] rounded-3xl animate-in fade-in duration-200 select-none'>
-			<div
-				onClick={(e) => e.stopPropagation()}
-				className='p-6 sm:p-8 rounded-3xl bg-[#0e1238]/95 border-2 border-amber-400/80 shadow-[0_0_50px_rgba(251,191,36,0.3)] flex flex-col items-center max-w-sm sm:max-w-md mx-auto'>
+		<div className='absolute inset-x-0 top-0 bottom-16 sm:bottom-20 z-20 flex flex-col items-center justify-center p-4 text-center bg-slate-950/40 backdrop-blur-[2px] rounded-3xl animate-in fade-in duration-200 select-none'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Resume paused challenge'
+				className='absolute inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={resumeTimerIfPaused}
+			/>
+			<div className='relative z-10 p-6 sm:p-8 rounded-3xl bg-[#0e1238]/95 border-2 border-amber-400/80 shadow-[0_0_50px_rgba(251,191,36,0.3)] flex flex-col items-center max-w-sm sm:max-w-md mx-auto'>
 				<div className='w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-amber-400/20 border-2 border-amber-400/60 flex items-center justify-center text-amber-300 mb-3 animate-pulse shadow-lg'>
 					<Pause className='w-8 h-8 fill-current' />
 				</div>

@@ -24,16 +24,20 @@ export const UnsavedChangesModal = memo(function UnsavedChangesModal({
 	};
 
 	return (
-		<div
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='unsaved-modal-title'
-			aria-describedby='unsaved-modal-desc'
-			className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200'>
-			<div
-				ref={modalRef}
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200'>
+			<button
+				type='button'
 				tabIndex={-1}
-				className='bg-[#131642] border-2 border-amber-400/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-[0_0_50px_rgba(251,191,36,0.35)] text-center animate-in zoom-in-95 duration-200 relative focus:outline-none'>
+				aria-label='Close unsaved changes dialog backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={handleClose}
+			/>
+			<dialog
+				open
+				ref={modalRef}
+				aria-labelledby='unsaved-modal-title'
+				aria-describedby='unsaved-modal-desc'
+				className='relative z-10 m-auto bg-[#131642] border-2 border-amber-400/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-[0_0_50px_rgba(251,191,36,0.35)] text-center animate-in zoom-in-95 duration-200 block'>
 				{/* Close icon button */}
 				<button
 					type='button'
@@ -91,7 +95,7 @@ export const UnsavedChangesModal = memo(function UnsavedChangesModal({
 						Keep Editing
 					</button>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	);
 });

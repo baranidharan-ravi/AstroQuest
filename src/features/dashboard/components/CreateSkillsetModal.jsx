@@ -42,17 +42,62 @@ export const CreateSkillsetModal = memo(function CreateSkillsetModal({
 }) {
 	if (!isCreateModalOpen) return null;
 
+	let surpriseBtnClass =
+		'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white hover:scale-[1.02] active:scale-[0.98] border border-purple-400/50 cursor-pointer';
+	if (isAiSuggesting && suggestMode === 'random') {
+		surpriseBtnClass =
+			'bg-purple-950/80 border border-purple-400 text-purple-200 cursor-not-allowed animate-pulse';
+	} else if (isAiSuggesting) {
+		surpriseBtnClass =
+			'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700';
+	}
+
+	let autofillBtnClass =
+		'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 hover:scale-[1.02] active:scale-[0.98] border border-amber-300 cursor-pointer';
+	if (isAiSuggesting && suggestMode === 'autofill') {
+		autofillBtnClass =
+			'bg-cyan-950/80 border border-cyan-400 text-cyan-300 cursor-not-allowed animate-pulse';
+	} else if (!canAutoFill) {
+		autofillBtnClass =
+			'bg-slate-800/60 border border-slate-700/50 text-slate-500 cursor-not-allowed opacity-60';
+	} else if (isAiSuggesting) {
+		autofillBtnClass =
+			'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700';
+	}
+
+	let autofillTitle =
+		'Auto-complete skillset tagline, description, and icon based on your topic';
+	if (!hasTypedName) {
+		autofillTitle =
+			'Type some words in the Skillset Name below to enable Auto-Fill';
+	} else if (isGeneratedNameUnchanged) {
+		autofillTitle =
+			'Topic already filled by Surprise Me. Edit the name to re-enable Auto-Fill.';
+	}
+
+	let suggestTitle = 'Ask AI to suggest or complete name and description';
+	if (!hasTypedName) {
+		suggestTitle = 'Type a skillset name first to use AI Suggest';
+	} else if (isGeneratedNameUnchanged) {
+		suggestTitle =
+			'Topic already filled by Surprise Me. Edit name to use AI Suggest.';
+	}
+
 	return (
-		<div
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='create-skill-title'
-			className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in overflow-y-auto'
-			onClick={() => setIsCreateModalOpen(false)}>
-			<div
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in overflow-y-auto'>
+			{/* Backdrop button for accessible dismissal */}
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close modal backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => setIsCreateModalOpen(false)}
+			/>
+			<dialog
+				open
 				ref={createModalRef}
-				className='bg-gradient-to-b from-[#16194E] via-[#10133A] to-[#0A0C27] border-2 border-cyan-400/80 rounded-3xl p-5 sm:p-7 max-w-xl w-full text-white shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto'
-				onClick={(e) => e.stopPropagation()}>
+				aria-labelledby='create-skill-title'
+				className='relative z-10 m-auto bg-gradient-to-b from-[#16194E] via-[#10133A] to-[#0A0C27] border-2 border-cyan-400/80 rounded-3xl p-5 sm:p-7 max-w-xl w-full text-white shadow-2xl my-8 max-h-[90vh] overflow-y-auto block'>
 				{/* Close button */}
 				<button
 					type='button'
@@ -124,9 +169,8 @@ export const CreateSkillsetModal = memo(function CreateSkillsetModal({
 								</span>{' '}
 								for exciting random ideas, or type a topic name below to unlock{' '}
 								<span className='text-amber-300 font-bold'>
-									Auto-Fill with AI
+									Auto-Fill with AI!
 								</span>
-								!
 							</p>
 						</div>
 					</div>
@@ -136,13 +180,7 @@ export const CreateSkillsetModal = memo(function CreateSkillsetModal({
 							type='button'
 							disabled={isAiSuggesting}
 							onClick={() => handleAiSuggestSkillset({ isRandom: true })}
-							className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all shadow-md ${
-								isAiSuggesting && suggestMode === 'random' ?
-									'bg-purple-950/80 border border-purple-400 text-purple-200 cursor-not-allowed animate-pulse'
-								: isAiSuggesting ?
-									'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
-								:	'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white hover:scale-[1.02] active:scale-[0.98] border border-purple-400/50 cursor-pointer'
-							}`}
+							className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all shadow-md ${surpriseBtnClass}`}
 							title='Generate a completely different, fresh random topic every time'>
 							{isAiSuggesting && suggestMode === 'random' ?
 								<>
@@ -160,23 +198,8 @@ export const CreateSkillsetModal = memo(function CreateSkillsetModal({
 							type='button'
 							disabled={!canAutoFill}
 							onClick={() => handleAiSuggestSkillset({ isRandom: false })}
-							className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all shadow-md ${
-								isAiSuggesting && suggestMode === 'autofill' ?
-									'bg-cyan-950/80 border border-cyan-400 text-cyan-300 cursor-not-allowed animate-pulse'
-								: !canAutoFill ?
-									'bg-slate-800/60 border border-slate-700/50 text-slate-500 cursor-not-allowed opacity-60'
-								: isAiSuggesting ?
-									'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
-								:	'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 hover:scale-[1.02] active:scale-[0.98] border border-amber-300 cursor-pointer'
-							}`}
-							title={
-								!hasTypedName ?
-									'Type some words in the Skillset Name below to enable Auto-Fill'
-								: isGeneratedNameUnchanged ?
-									'Topic already filled by Surprise Me. Edit the name to re-enable Auto-Fill.'
-								:	'Auto-complete skillset tagline, description, and icon based on your topic'
-
-							}>
+							className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all shadow-md ${autofillBtnClass}`}
+							title={autofillTitle}>
 							{isAiSuggesting && suggestMode === 'autofill' ?
 								<>
 									<RefreshCw className='w-3.5 h-3.5 animate-spin text-cyan-300' />
@@ -247,13 +270,7 @@ export const CreateSkillsetModal = memo(function CreateSkillsetModal({
 											'text-slate-500 cursor-not-allowed opacity-50'
 										:	'text-cyan-300 hover:text-cyan-200 cursor-pointer'
 									}`}
-									title={
-										!hasTypedName ?
-											'Type a skillset name first to use AI Suggest'
-										: isGeneratedNameUnchanged ?
-											'Topic already filled by Surprise Me. Edit name to use AI Suggest.'
-										:	'Ask AI to suggest or complete name and description'
-									}>
+									title={suggestTitle}>
 									<Sparkles className='w-3 h-3 text-amber-300' />
 									<span>
 										{isAiSuggesting && suggestMode === 'autofill' ?
@@ -420,7 +437,7 @@ export const CreateSkillsetModal = memo(function CreateSkillsetModal({
 						</button>
 					</div>
 				</form>
-			</div>
+			</dialog>
 		</div>
 	);
 });

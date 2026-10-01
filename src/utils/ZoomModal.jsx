@@ -132,14 +132,22 @@ const ZoomModal = React.memo(function ZoomModal({
 	if (!isOpen || !diagramType || !isAppropriate) return null;
 
 	return (
-		<div
-			className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='zoom-modal-title'>
-			<div
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close zoom modal backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
 				ref={modalRef}
-				className='bg-white text-slate-800 rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl relative flex flex-col items-center animate-in zoom-in-95 duration-200 max-h-[92vh]'>
+				aria-labelledby='zoom-modal-title'
+				className='relative z-10 m-auto bg-white text-slate-800 rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-200 max-h-[92vh] block'>
 				{/* Top Controls */}
 				<div className='w-full flex items-center justify-between pb-3 border-b border-slate-200 mb-3 flex-shrink-0'>
 					<h2
@@ -236,7 +244,7 @@ const ZoomModal = React.memo(function ZoomModal({
 					className='mt-4 sm:mt-5 w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold shadow-md cursor-pointer focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:outline-none transition-colors flex-shrink-0'>
 					Done Looking ✨
 				</button>
-			</div>
+			</dialog>
 		</div>
 	);
 });

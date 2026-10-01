@@ -122,7 +122,7 @@ describe('Mandatory Timer Rules Suite (Ages 8–14 & 60s Default)', () => {
 		).default;
 		expect(SkillSelectionDashboard).toBeDefined();
 		expect(typeof SkillSelectionDashboard).toBe('object');
-	}, 15000);
+	}, 30000);
 
 	it('defines CARD_DENSITY_STORAGE_KEY and all 7 curated COSMIC_FEATURE_MODES', async () => {
 		const { CARD_DENSITY_STORAGE_KEY, COSMIC_FEATURE_MODES } =

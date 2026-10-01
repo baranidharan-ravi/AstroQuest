@@ -22,6 +22,13 @@ export const QuestAiErrorCard = memo(function QuestAiErrorCard({
 	const activeProviderName =
 		AI_PROVIDER_INFO[getActiveAiProvider()]?.name || 'AI';
 
+	let errorMessage = `Unable to connect to the ${activeProviderName} API. Please check your internet connection or verify your API key in Settings.`;
+	if (aiError === 'MISSING_KEY') {
+		errorMessage = `All AstroQuest challenges are generated live by ${activeProviderName}. Please configure your API key to start generating customized questions.`;
+	} else if (typeof aiError === 'string' && aiError !== 'API_ERROR') {
+		errorMessage = aiError;
+	}
+
 	return (
 		<div className='w-full max-w-xl mx-auto p-6 sm:p-8 bg-gradient-to-b from-[#1C1F5E] via-[#141846] to-[#0D1030] border-4 border-amber-400/80 rounded-3xl shadow-2xl text-center animate-in fade-in'>
 			<div className='w-16 h-16 rounded-3xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center mx-auto mb-4 text-amber-300'>
@@ -35,12 +42,7 @@ export const QuestAiErrorCard = memo(function QuestAiErrorCard({
 			</h2>
 
 			<p className='text-sm text-slate-300 font-semibold mb-6 leading-relaxed'>
-				{aiError === 'MISSING_KEY' ?
-					`All AstroQuest challenges are generated live by ${activeProviderName}. Please configure your API key to start generating customized questions.`
-				: typeof aiError === 'string' && aiError !== 'API_ERROR' ?
-					aiError
-				:	`Unable to connect to the ${activeProviderName} API. Please check your internet connection or verify your API key in Settings.`
-				}
+				{errorMessage}
 			</p>
 
 			<div className='flex flex-col sm:flex-row gap-3 justify-center'>

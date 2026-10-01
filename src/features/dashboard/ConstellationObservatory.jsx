@@ -8,6 +8,18 @@ import {
 import { playButtonPop, playCorrectSound } from '../../utils/audioSynthesis';
 import { awardBadge, awardXP } from '../../utils/badgeManager';
 
+function getStarStroke(isSelected, isCurrentTarget) {
+	if (isSelected) return '#FFFFFF';
+	if (isCurrentTarget) return '#FDE047';
+	return 'transparent';
+}
+
+function getStarFill(isUnlocked, isSelected) {
+	if (isUnlocked) return '#F8FAFC';
+	if (isSelected) return '#E2E8F0';
+	return '#64748B';
+}
+
 const ConstellationObservatory = memo(function ConstellationObservatory({
 	isOpen,
 	onClose,
@@ -75,12 +87,21 @@ const ConstellationObservatory = memo(function ConstellationObservatory({
 	const starMap = new Map(activeConstellation.stars.map((s) => [s.id, s]));
 
 	return (
-		<div
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='observatory-title'
-			className='fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-fade-in select-none'>
-			<div className='relative w-full max-w-5xl max-h-[92vh] bg-gradient-to-b from-[#0B0F2A] via-[#12183A] to-[#080B1E] border-2 border-indigo-500/40 rounded-3xl shadow-[0_0_60px_rgba(99,102,241,0.25)] flex flex-col overflow-hidden text-white'>
+		<div className='fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-fade-in select-none'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close observatory backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
+				aria-labelledby='observatory-title'
+				className='relative z-10 m-auto w-full max-w-5xl max-h-[92vh] bg-gradient-to-b from-[#0B0F2A] via-[#12183A] to-[#080B1E] border-2 border-indigo-500/40 rounded-3xl shadow-[0_0_60px_rgba(99,102,241,0.25)] flex flex-col overflow-hidden text-white block'>
 				{/* Header Bar */}
 				<div className='flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/10 bg-white/5 backdrop-blur-sm'>
 					<div className='flex items-center gap-2.5'>
@@ -267,12 +288,10 @@ const ConstellationObservatory = memo(function ConstellationObservatory({
 												r={isUnlocked ? star.size * 0.45 : star.size * 0.3}
 												fill={isUnlocked ? star.color : '#475569'}
 												filter={isUnlocked ? 'url(#glowStar)' : undefined}
-												stroke={
-													isSelected ? '#FFFFFF'
-													: isCurrentTarget ?
-														'#FDE047'
-													:	'transparent'
-												}
+												stroke={getStarStroke(
+													isSelected,
+													isCurrentTarget,
+												)}
 												strokeWidth={
 													isSelected || isCurrentTarget ? '0.6' : '0'
 												}
@@ -286,12 +305,7 @@ const ConstellationObservatory = memo(function ConstellationObservatory({
 												textAnchor='middle'
 												fontSize='3'
 												fontWeight={isUnlocked ? 'bold' : 'normal'}
-												fill={
-													isUnlocked ? '#F8FAFC'
-													: isSelected ?
-														'#E2E8F0'
-													:	'#64748B'
-												}
+												fill={getStarFill(isUnlocked, isSelected)}
 												className='pointer-events-none select-none font-sans'>
 												{star.name.split(' ')[0]}
 											</text>
@@ -398,7 +412,7 @@ const ConstellationObservatory = memo(function ConstellationObservatory({
 						</div>
 					</div>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	);
 });

@@ -19,7 +19,13 @@ import {
 } from '../../utils/audioSynthesis';
 import { awardBadge, awardXP } from '../../utils/badgeManager';
 
-export { CELESTIAL_BODIES };
+function getBodyBtnClass(isSelected, isVisited) {
+	if (isSelected) {
+		return 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-[0_0_12px_rgba(34,211,238,0.5)] scale-105';
+	}
+	if (isVisited) return 'bg-white/10 text-slate-200 hover:bg-white/15';
+	return 'bg-white/5 text-slate-400 hover:bg-white/10';
+}
 
 const PocketPlanetariumModal = memo(function PocketPlanetariumModal({
 	isOpen,
@@ -113,12 +119,21 @@ const PocketPlanetariumModal = memo(function PocketPlanetariumModal({
 	};
 
 	return (
-		<div
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='planetarium-title'
-			className='fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-fade-in select-none'>
-			<div className='relative w-full max-w-4xl max-h-[92vh] bg-gradient-to-b from-[#0F172A] via-[#1E1B4B] to-[#090D16] border-2 border-cyan-500/40 rounded-3xl shadow-[0_0_50px_rgba(34,211,238,0.25)] flex flex-col overflow-hidden text-white'>
+		<div className='fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-fade-in select-none'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close planetarium backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
+				aria-labelledby='planetarium-title'
+				className='relative z-10 m-auto w-full max-w-4xl max-h-[92vh] bg-gradient-to-b from-[#0F172A] via-[#1E1B4B] to-[#090D16] border-2 border-cyan-500/40 rounded-3xl shadow-[0_0_50px_rgba(34,211,238,0.25)] flex flex-col overflow-hidden text-white block'>
 				{/* Top Bar Header */}
 				<div className='flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/10 bg-white/5 backdrop-blur-sm'>
 					<div className='flex items-center gap-2.5'>
@@ -163,12 +178,10 @@ const PocketPlanetariumModal = memo(function PocketPlanetariumModal({
 								key={body.id}
 								type='button'
 								onClick={() => handleSelectIndex(idx)}
-								className={`px-3 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer ${
-									isSelected ?
-										'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-[0_0_12px_rgba(34,211,238,0.5)] scale-105'
-									: isVisited ? 'bg-white/10 text-slate-200 hover:bg-white/15'
-									: 'bg-white/5 text-slate-400 hover:bg-white/10'
-								}`}>
+								className={`px-3 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer ${getBodyBtnClass(
+									isSelected,
+									isVisited,
+								)}`}>
 								<span>{body.name.split(' ')[0]}</span>
 								{isVisited && !isSelected && (
 									<span className='w-1.5 h-1.5 rounded-full bg-cyan-400' />
@@ -338,7 +351,7 @@ const PocketPlanetariumModal = memo(function PocketPlanetariumModal({
 						<ChevronRight className='w-4 h-4' />
 					</button>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	);
 });

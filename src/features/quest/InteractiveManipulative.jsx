@@ -707,16 +707,17 @@ function InteractiveFractionCrystals({ data = {}, soundEnabled = true }) {
 					</span>
 
 					{/* Target Match Banner */}
-					{isTargetMatched ?
+					{isTargetMatched && (
 						<div className='flex items-center gap-1 text-[11px] font-black text-emerald-300 bg-emerald-950/70 border border-emerald-400/50 px-2 py-0.5 rounded-lg animate-pulse mt-1'>
 							<CheckCircle2 className='w-3.5 h-3.5 shrink-0' />
 							<span>Target Reached!</span>
 						</div>
-					: targetFraction ?
+					)}
+					{!isTargetMatched && Boolean(targetFraction) && (
 						<div className='text-[10px] font-semibold text-amber-300 bg-amber-950/40 border border-amber-400/30 px-2 py-0.5 rounded mt-1'>
 							Goal: <strong>{targetFraction}</strong>
 						</div>
-					:	null}
+					)}
 				</div>
 			</div>
 

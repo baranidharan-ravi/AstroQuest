@@ -26,15 +26,18 @@ export const SkillIconSelectorModal = memo(function SkillIconSelectorModal({
 	};
 
 	return (
-		<div
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='icon-picker-title'
-			className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in'
-			onClick={() => setIsIconPickerOpen(false)}>
-			<div
-				className='bg-gradient-to-b from-[#16194E] via-[#10133A] to-[#0A0C27] border-2 border-cyan-400/80 rounded-3xl p-5 sm:p-6 max-w-lg w-full text-white shadow-2xl relative'
-				onClick={(e) => e.stopPropagation()}>
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close icon picker backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => setIsIconPickerOpen(false)}
+			/>
+			<dialog
+				open
+				aria-labelledby='icon-picker-title'
+				className='relative z-10 m-auto bg-gradient-to-b from-[#16194E] via-[#10133A] to-[#0A0C27] border-2 border-cyan-400/80 rounded-3xl p-5 sm:p-6 max-w-lg w-full text-white shadow-2xl block'>
 				{/* Close Button */}
 				<button
 					type='button'
@@ -102,7 +105,7 @@ export const SkillIconSelectorModal = memo(function SkillIconSelectorModal({
 						Cancel
 					</button>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	);
 });

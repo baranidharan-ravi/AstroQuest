@@ -326,13 +326,14 @@ export const MatrixGridDiagram = memo(function MatrixGridDiagram({
 					return (
 						<div
 							key={idx}
-							className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all shadow-xs min-w-[70px] sm:min-w-[80px] min-h-[70px] ${
-								isTarget ?
-									isSolution ?
-										'bg-gradient-to-tr from-emerald-50 to-teal-50 border-2 border-emerald-500 ring-2 ring-emerald-300 shadow-md animate-bounce-short'
-									:	'bg-purple-50 border-2 border-dashed border-purple-400 text-purple-600'
-								:	'bg-slate-50 border border-slate-200 hover:scale-105'
-							}`}>
+							className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all shadow-xs min-w-[70px] sm:min-w-[80px] min-h-[70px] ${(() => {
+								if (isTarget) {
+									return isSolution ?
+											'bg-gradient-to-tr from-emerald-50 to-teal-50 border-2 border-emerald-500 ring-2 ring-emerald-300 shadow-md animate-bounce-short'
+										:	'bg-purple-50 border-2 border-dashed border-purple-400 text-purple-600';
+								}
+								return 'bg-slate-50 border border-slate-200 hover:scale-105';
+							})()}`}>
 							{isTarget && !isSolution ?
 								<div className='w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-700 font-black text-xl'>
 									❓
@@ -570,23 +571,21 @@ export const ScaleBalanceDiagram = memo(function ScaleBalanceDiagram({
 	const isBalanced =
 		heavySide === 'balanced' || (!isRightHeavy && !isLeftHeavy);
 
-	const beamY1 =
-		isBalanced ? 100
-		: isRightHeavy ? 80
-		: 120;
-	const beamY2 =
-		isBalanced ? 100
-		: isRightHeavy ? 120
-		: 80;
-
-	const leftPanY =
-		isBalanced ? 122
-		: isRightHeavy ? 102
-		: 142;
-	const rightPanY =
-		isBalanced ? 122
-		: isRightHeavy ? 142
-		: 102;
+	let beamY1 = 120;
+	let beamY2 = 80;
+	let leftPanY = 142;
+	let rightPanY = 102;
+	if (isBalanced) {
+		beamY1 = 100;
+		beamY2 = 100;
+		leftPanY = 122;
+		rightPanY = 122;
+	} else if (isRightHeavy) {
+		beamY1 = 80;
+		beamY2 = 120;
+		leftPanY = 102;
+		rightPanY = 142;
+	}
 
 	return (
 		<div className='flex flex-col items-center justify-center p-3 sm:p-4 my-2 bg-gradient-to-br from-indigo-50/80 via-sky-50/70 to-purple-50/80 rounded-2xl border-2 border-indigo-200 shadow-sm max-w-xl w-full animate-in fade-in duration-300'>

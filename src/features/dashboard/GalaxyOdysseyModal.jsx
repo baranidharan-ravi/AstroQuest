@@ -25,6 +25,16 @@ export function addOdysseyStars(count = 5) {
 	}
 }
 
+function getPlanetItemClass(isSelected, isUnlocked) {
+	if (isSelected) {
+		return 'bg-gradient-to-b from-indigo-900/90 to-purple-900/90 border-cyan-400 ring-2 ring-cyan-400/80 scale-105 shadow-xl';
+	}
+	if (isUnlocked) {
+		return 'bg-white/5 border-indigo-500/40 hover:bg-white/10 hover:border-indigo-400';
+	}
+	return 'bg-black/40 border-slate-800 opacity-50 grayscale hover:opacity-75';
+}
+
 const GalaxyOdysseyModal = memo(function GalaxyOdysseyModal({
 	isOpen,
 	onClose,
@@ -62,14 +72,22 @@ const GalaxyOdysseyModal = memo(function GalaxyOdysseyModal({
 	if (!isOpen) return null;
 
 	return (
-		<div
-			className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='odyssey-modal-title'>
-			<div
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close Galaxy Odyssey backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
 				ref={modalRef}
-				className='bg-gradient-to-b from-[#0e1038] to-[#080922] border-2 border-indigo-500/50 text-white rounded-3xl max-w-3xl w-full max-h-[92vh] p-4 sm:p-6 shadow-2xl relative flex flex-col gap-4 overflow-hidden'>
+				aria-labelledby='odyssey-modal-title'
+				className='relative z-10 m-auto bg-gradient-to-b from-[#0e1038] to-[#080922] border-2 border-indigo-500/50 text-white rounded-3xl max-w-3xl w-full max-h-[92vh] p-4 sm:p-6 shadow-2xl flex flex-col gap-4 overflow-hidden block'>
 				{/* Starry Nebula Background Accent */}
 				<div className='absolute -top-32 -left-32 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none' />
 				<div className='absolute -bottom-32 -right-32 w-80 h-80 bg-cyan-600/20 rounded-full blur-3xl pointer-events-none' />
@@ -137,13 +155,10 @@ const GalaxyOdysseyModal = memo(function GalaxyOdysseyModal({
 										playButtonPop(soundEnabled);
 										setSelectedPlanet(planet);
 									}}
-									className={`flex flex-col items-center gap-1.5 p-2.5 rounded-2xl border transition-all flex-shrink-0 cursor-pointer w-24 ${
-										isSelected ?
-											'bg-gradient-to-b from-indigo-900/90 to-purple-900/90 border-cyan-400 ring-2 ring-cyan-400/80 scale-105 shadow-xl'
-										: isUnlocked ?
-											'bg-white/5 border-indigo-500/40 hover:bg-white/10 hover:border-indigo-400'
-										:	'bg-black/40 border-slate-800 opacity-50 grayscale hover:opacity-75'
-									}`}>
+									className={`flex flex-col items-center gap-1.5 p-2.5 rounded-2xl border transition-all flex-shrink-0 cursor-pointer w-24 ${getPlanetItemClass(
+										isSelected,
+										isUnlocked,
+									)}`}>
 									<div className='relative'>
 										<div
 											className={`w-12 h-12 rounded-full bg-gradient-to-tr ${planet.color} flex items-center justify-center text-2xl shadow-lg border-2 ${
@@ -224,7 +239,7 @@ const GalaxyOdysseyModal = memo(function GalaxyOdysseyModal({
 					className='w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-extrabold text-sm sm:text-base shadow-lg transition-all cursor-pointer focus-visible:ring-4 focus-visible:ring-cyan-400 focus-visible:outline-none z-10'>
 					Return to Cosmic Flight Deck 🚀
 				</button>
-			</div>
+			</dialog>
 		</div>
 	);
 });

@@ -33,12 +33,14 @@ export function DynamicSvgShape({
 		shapeFill = `url(#${patternId}-striped)`;
 	} else if (isWhite || parsed?.isWhite) {
 		shapeFill = '#FFFFFF';
+	} else if (color) {
+		shapeFill = color;
+	} else if (shape === 'sun' || shape === 'moon' || shape === 'star') {
+		shapeFill = '#F59E0B';
+	} else if (shape === 'heart') {
+		shapeFill = '#EF4444';
 	} else {
-		shapeFill =
-			color ||
-			(shape === 'sun' || shape === 'moon' || shape === 'star' ? '#F59E0B'
-			: shape === 'heart' ? '#EF4444'
-			: '#3B82F6');
+		shapeFill = '#3B82F6';
 	}
 
 	let shapeElement = null;
@@ -321,12 +323,7 @@ export function DynamicSvgShape({
 						cx={cx}
 						cy={cy}
 						r='11'
-						fill={
-							isShaded ? '#0F172A'
-							: isWhite ?
-								'#0F172A'
-							:	'#FFFFFF'
-						}
+						fill={isShaded || isWhite ? '#0F172A' : '#FFFFFF'}
 						opacity='0.9'
 					/>
 					<text

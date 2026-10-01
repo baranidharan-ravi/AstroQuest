@@ -87,21 +87,30 @@ export const SettingsStickyDock = memo(function SettingsStickyDock({
 								'bg-gradient-to-r from-amber-600 via-pink-600 to-purple-700 opacity-90 cursor-wait animate-pulse text-white'
 							:	'bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 hover:opacity-95 text-white hover:scale-105 active:scale-95 cursor-pointer'
 						}`}>
-						{isValidating ?
-							<>
-								<Sparkles className='w-5 h-5 text-amber-300 animate-spin' />
-								<span>Validating Key with Gemini... ⏳</span>
-							</>
-						: pendingSkill ?
-							<>
-								<Rocket className='w-5 h-5 text-amber-300' />
-								<span>Save & Launch {pendingSkill} 🚀</span>
-							</>
-						:	<>
-								<Check className='w-5 h-5 stroke-[3]' />
-								<span>Save Settings 🚀</span>
-							</>
-						}
+						{(() => {
+							if (isValidating) {
+								return (
+									<>
+										<Sparkles className='w-5 h-5 text-amber-300 animate-spin' />
+										<span>Validating Key with Gemini... ⏳</span>
+									</>
+								);
+							}
+							if (pendingSkill) {
+								return (
+									<>
+										<Rocket className='w-5 h-5 text-amber-300' />
+										<span>Save & Launch {pendingSkill} 🚀</span>
+									</>
+								);
+							}
+							return (
+								<>
+									<Check className='w-5 h-5 stroke-[3]' />
+									<span>Save Settings 🚀</span>
+								</>
+							);
+						})()}
 					</button>
 				</div>
 			}

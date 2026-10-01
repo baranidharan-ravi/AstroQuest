@@ -110,10 +110,12 @@ export function isDiagramAppropriateForQuestion(
 
 		case 'pattern-shapes':
 		case 'shape-sequence': {
-			const items =
-				Array.isArray(data.sequence) ? data.sequence
-				: Array.isArray(data.steps) ? data.steps
-				: [];
+			let items = [];
+			if (Array.isArray(data.sequence)) {
+				items = data.sequence;
+			} else if (Array.isArray(data.steps)) {
+				items = data.steps;
+			}
 			if (items.length < 2) return false;
 			// If it's the fallback placeholder "Triangle (white)", ensure it wasn't fabricated
 			if (

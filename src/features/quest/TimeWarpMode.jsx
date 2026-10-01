@@ -133,10 +133,9 @@ const TimeWarpMode = memo(function TimeWarpMode({
 			setCorrectAnswers((prev) => prev + 1);
 
 			// Multiplier for streaks
-			const multiplier =
-				newStreak >= 5 ? 2
-				: newStreak >= 3 ? 1.5
-				: 1;
+			let multiplier = 1;
+			if (newStreak >= 5) multiplier = 2;
+			else if (newStreak >= 3) multiplier = 1.5;
 			const pointsEarned = Math.round(10 * multiplier);
 			setScore((prev) => prev + pointsEarned);
 
@@ -168,10 +167,12 @@ const TimeWarpMode = memo(function TimeWarpMode({
 	};
 
 	// Timer color styling based on urgency
-	const timerColor =
-		timeLeft > 30 ? 'text-emerald-400 border-emerald-500/50 bg-emerald-950/40'
-		: timeLeft > 15 ? 'text-amber-400 border-amber-500/50 bg-amber-950/40'
-		: 'text-rose-400 border-rose-500/50 bg-rose-950/40 animate-pulse';
+	let timerColor = 'text-rose-400 border-rose-500/50 bg-rose-950/40 animate-pulse';
+	if (timeLeft > 30) {
+		timerColor = 'text-emerald-400 border-emerald-500/50 bg-emerald-950/40';
+	} else if (timeLeft > 15) {
+		timerColor = 'text-amber-400 border-amber-500/50 bg-amber-950/40';
+	}
 
 	return (
 		<div className='min-h-screen bg-radial from-[#1E1B4B] via-[#0D102D] to-[#050714] text-white flex flex-col justify-between p-3 sm:p-6 select-none relative overflow-hidden'>
@@ -278,11 +279,11 @@ const TimeWarpMode = memo(function TimeWarpMode({
 
 			{/* Game Over Result Modal */}
 			{isGameOver && (
-				<div
-					role='dialog'
-					aria-modal='true'
-					className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in'>
-					<div className='w-full max-w-md bg-gradient-to-b from-[#1E1B4B] to-[#0A0C27] border-2 border-amber-400/60 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.3)] text-center text-white flex flex-col items-center gap-4'>
+				<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in'>
+					<dialog
+						open
+						aria-label='Time Warp Completed'
+						className='relative z-10 m-auto w-full max-w-md bg-gradient-to-b from-[#1E1B4B] to-[#0A0C27] border-2 border-amber-400/60 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.3)] text-center text-white flex flex-col items-center gap-4 block'>
 						<div className='w-16 h-16 rounded-3xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-3xl shadow-inner'>
 							⚡
 						</div>
@@ -339,7 +340,7 @@ const TimeWarpMode = memo(function TimeWarpMode({
 								Return to Base
 							</button>
 						</div>
-					</div>
+					</dialog>
 				</div>
 			)}
 		</div>

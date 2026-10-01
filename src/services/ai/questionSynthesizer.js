@@ -41,6 +41,23 @@ export async function fetchBatch(
 		:	skillInfo.batch2Domain ||
 			`Batch 2 Focus: Multi-step reasoning, practical problem-solving, and engaging challenges directly reflecting: ${skillInfo.description}`;
 
+	let exampleDiagramType = '"analogy-map"';
+	let exampleDiagramData =
+		'{"itemA": "Puppy 🐶", "itemB": "Dog 🐕", "itemC": "Kitten 🐱", "itemD": "Cat 🐈"}';
+	if (isVisual) {
+		if (kidAge >= 8) {
+			exampleDiagramType = '"block-tower"';
+			exampleDiagramData = '{"totalCubes": 14}';
+		} else {
+			exampleDiagramType = '"apple-counting"';
+			exampleDiagramData = '{"count": 4, "emoji": "🍎"}';
+		}
+	} else if (kidAge >= 8) {
+		exampleDiagramType = '"cause-effect"';
+		exampleDiagramData =
+			'{"cause": "White light entering glass prism", "action": "bends and splits", "effect": "Refraction"}';
+	}
+
 	const prompt = `You are an expert educator and puzzle creator.
 TARGET SKILLSET: "${skillInfo.title || skillInfo.name}"
 SKILLSET DESCRIPTION: "${skillInfo.description}"
@@ -73,23 +90,8 @@ Output a valid JSON Array of ${count} items. Format:
 [
   {
     "question": "Age-appropriate question text matching ${skillInfo.title}",
-    "diagramType": ${
-			isVisual ?
-				kidAge >= 8 ?
-					'"block-tower"'
-				:	'"apple-counting"'
-			: kidAge >= 8 ? '"cause-effect"'
-			: '"analogy-map"'
-		},
-    "diagramData": ${
-			isVisual ?
-				kidAge >= 8 ?
-					'{"totalCubes": 14}'
-				:	'{"count": 4, "emoji": "🍎"}'
-			: kidAge >= 8 ?
-				'{"cause": "White light entering glass prism", "action": "bends and splits", "effect": "Refraction"}'
-			:	'{"itemA": "Puppy 🐶", "itemB": "Dog 🐕", "itemC": "Kitten 🐱", "itemD": "Cat 🐈"}'
-		},
+    "diagramType": ${exampleDiagramType},
+    "diagramData": ${exampleDiagramData},
     "options": ["Choice 1", "Choice 2", "Choice 3", "Choice 4"],
     "correctAnswer": "Choice 1",
     "solution": "1-2 sentences explaining why this is the correct logical answer.",

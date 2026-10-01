@@ -61,13 +61,41 @@ export function saveStoredHabitatModules(modules) {
 	}
 }
 
-/**
- * CosmicHabitatModal
- *
- * Interactive modular space base colony builder where young astronauts
- * spend quest stars to construct life-support domes, solar arrays,
- * comm dishes, rover hangars, and interstellar warp pads.
- */
+function getModuleCardClass(isSelected, isUnlocked, mod) {
+	if (isSelected) {
+		return `bg-gradient-to-b ${mod.color} ${mod.borderColor} ring-2 ring-white/60 shadow-lg scale-105 z-10`;
+	}
+	if (isUnlocked) {
+		return 'bg-white/5 hover:bg-white/15 border-white/20 hover:scale-102';
+	}
+	return 'bg-black/40 border-white/10 opacity-70 hover:opacity-90';
+}
+
+function renderModuleStatusBadge(isUnlocked, canBuild, starsCost) {
+	if (isUnlocked) {
+		return (
+			<span className='flex items-center gap-1 text-emerald-400 font-black'>
+				<span className='w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse' />
+				Active
+			</span>
+		);
+	}
+	if (canBuild) {
+		return (
+			<span className='flex items-center gap-1 text-amber-400 font-black'>
+				<Sparkles className='w-3 h-3 text-amber-300' />
+				Ready
+			</span>
+		);
+	}
+	return (
+		<span className='flex items-center gap-1 text-slate-400'>
+			<Lock className='w-3 h-3 text-slate-500' />
+			{starsCost}⭐
+		</span>
+	);
+}
+
 const CosmicHabitatModal = memo(function CosmicHabitatModal({
 	isOpen,
 	onClose,
@@ -214,14 +242,22 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 		!isSelectedUnlocked && totalStars >= activeModule.starsCost;
 
 	return (
-		<div
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='cosmic-habitat-title'
-			className='fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 select-none'>
-			<div
+		<div className='fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 select-none'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close cosmic habitat modal backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
 				ref={modalRef}
-				className='relative w-full max-w-5xl max-h-[94vh] flex flex-col bg-gradient-to-b from-[#141A4E] via-[#0D1238] to-[#070A24] border-2 border-cyan-400/70 rounded-3xl shadow-[0_0_50px_rgba(6,182,212,0.35)] overflow-hidden text-white'>
+				aria-labelledby='cosmic-habitat-title'
+				className='relative z-10 m-auto w-full max-w-5xl max-h-[94vh] flex flex-col bg-gradient-to-b from-[#141A4E] via-[#0D1238] to-[#070A24] border-2 border-cyan-400/70 rounded-3xl shadow-[0_0_50px_rgba(6,182,212,0.35)] overflow-hidden text-white block'>
 				{/* Top Modal Header */}
 				<div className='flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/15 bg-white/5'>
 					<div className='flex items-center gap-2.5 sm:gap-3 min-w-0'>
@@ -347,30 +383,18 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 											playButtonPop(soundEnabled);
 											setSelectedModuleId(mod.id);
 										}}
-										className={`p-3 rounded-2xl border flex flex-col items-center justify-between text-center transition-all cursor-pointer relative group ${
-											isSelected ?
-												`bg-gradient-to-b ${mod.color} ${mod.borderColor} ring-2 ring-white/60 shadow-lg scale-105 z-10`
-											: isUnlocked ?
-												'bg-white/5 hover:bg-white/15 border-white/20 hover:scale-102'
-											:	'bg-black/40 border-white/10 opacity-70 hover:opacity-90'
-										}`}>
+										className={`p-3 rounded-2xl border flex flex-col items-center justify-between text-center transition-all cursor-pointer relative group ${getModuleCardClass(
+											isSelected,
+											isUnlocked,
+											mod,
+										)}`}>
 										{/* Active Status Beacon / Lock Badge */}
 										<div className='w-full flex items-center justify-between text-[10px] font-bold mb-1.5'>
-											{isUnlocked ?
-												<span className='flex items-center gap-1 text-emerald-400 font-black'>
-													<span className='w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse' />
-													Active
-												</span>
-											: canBuild ?
-												<span className='flex items-center gap-1 text-amber-400 font-black'>
-													<Sparkles className='w-3 h-3 text-amber-300' />
-													Ready
-												</span>
-											:	<span className='flex items-center gap-1 text-slate-400'>
-													<Lock className='w-3 h-3 text-slate-500' />
-													{mod.starsCost}⭐
-												</span>
-											}
+											{renderModuleStatusBadge(
+												isUnlocked,
+												canBuild,
+												mod.starsCost,
+											)}
 											<span className='text-[9px] uppercase px-1 rounded bg-black/40 text-slate-300 font-extrabold'>
 												{mod.category.slice(0, 4)}
 											</span>
@@ -531,7 +555,7 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 						</div>
 					</div>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	);
 });

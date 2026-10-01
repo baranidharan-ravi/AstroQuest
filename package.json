@@ -12,6 +12,7 @@
 		"preview": "vite preview",
 		"predeploy": "npm run build",
 		"deploy": "gh-pages -d dist",
+		"lint:sonar": "node scripts/deep-sonar-scan.cjs",
 		"fix-git": "powershell -ExecutionPolicy Bypass -File scripts/fix-git-index.ps1"
 	},
 	"dependencies": {

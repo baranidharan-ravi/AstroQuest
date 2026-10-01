@@ -358,30 +358,38 @@ const QuestionCard = memo(function QuestionCard({
 				</div>
 
 				{/* Interactive Manipulative (balance scale, clock hands, rotatable blocks, fraction crystals) OR Visual Diagram */}
-				{(
-					[
-						'balance-scale',
-						'analog-clock',
-						'block-tower',
-						'fraction-crystals',
-					].includes(question.diagramType)
-				) ?
-					<InteractiveManipulative
-						type={question.diagramType}
-						data={question.diagramData}
-						soundEnabled={soundEnabled}
-					/>
-				: hasAppropriateDiagram ?
-					<VisualDiagram
-						type={question.diagramType}
-						data={{
-							...question.diagramData,
-							questionText: question.question || question.questionText,
-							correctAnswerText:
-								question.correctAnswerText || question.correctAnswer,
-						}}
-					/>
-				:	null}
+				{(() => {
+					if (
+						[
+							'balance-scale',
+							'analog-clock',
+							'block-tower',
+							'fraction-crystals',
+						].includes(question.diagramType)
+					) {
+						return (
+							<InteractiveManipulative
+								type={question.diagramType}
+								data={question.diagramData}
+								soundEnabled={soundEnabled}
+							/>
+						);
+					}
+					if (hasAppropriateDiagram) {
+						return (
+							<VisualDiagram
+								type={question.diagramType}
+								data={{
+									...question.diagramData,
+									questionText: question.question || question.questionText,
+									correctAnswerText:
+										question.correctAnswerText || question.correctAnswer,
+								}}
+							/>
+						);
+					}
+					return null;
+				})()}
 			</div>
 
 			{/* Footer cue */}

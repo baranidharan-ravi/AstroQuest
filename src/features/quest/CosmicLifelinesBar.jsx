@@ -3,6 +3,55 @@ import { memo } from 'react';
 import { CHRONO_FREEZE_SECONDS } from '../../constants';
 import { playButtonPop } from '../../utils/audioSynthesis';
 
+const getClueTitle = (cosmicClueUsed, isPaused) => {
+	if (cosmicClueUsed) return 'Cosmic Clue already used for this quest (1 use per quest)';
+	if (isPaused) return 'Resume challenge to use lifelines';
+	return 'Reveal Mission Control clue for this question (1-time use per quest)';
+};
+
+const getClueClass = (cosmicClueUsed, isPaused) => {
+	if (cosmicClueUsed) return 'bg-slate-900/80 border-slate-700/60 text-slate-500 opacity-40 cursor-not-allowed select-none';
+	if (isPaused) return 'bg-slate-800/60 border-slate-700/40 text-slate-500 opacity-50 cursor-not-allowed';
+	return 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white border-pink-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-pink-400/40';
+};
+
+const getCosmicRayTitle = (cosmicRayUsed, isPaused) => {
+	if (cosmicRayUsed) return '50/50 Cosmic Ray already used for this quest (1 use per quest)';
+	if (isPaused) return 'Resume challenge to use lifelines';
+	return 'Disintegrate 2 wrong options with a cosmic beam (1-time use per quest)';
+};
+
+const getCosmicRayClass = (cosmicRayUsed, canUseCosmicRay, isPaused) => {
+	if (cosmicRayUsed) return 'bg-slate-900/80 border-slate-700/60 text-slate-500 opacity-40 cursor-not-allowed select-none';
+	if (!canUseCosmicRay || isPaused) return 'bg-slate-800/60 border-slate-700/40 text-slate-500 opacity-50 cursor-not-allowed';
+	return 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white border-amber-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-amber-400/40';
+};
+
+const getTelemetryTitle = (telemetryScanUsed, isPaused) => {
+	if (telemetryScanUsed) return 'Telemetry Radar already used for this quest (1 use per quest)';
+	if (isPaused) return 'Resume challenge to use lifelines';
+	return 'Deploy satellite radar sweep to detect option probabilities (1-time use per quest)';
+};
+
+const getTelemetryClass = (telemetryScanUsed, canUseTelemetryScan, isPaused) => {
+	if (telemetryScanUsed) return 'bg-slate-900/80 border-slate-700/60 text-slate-500 opacity-40 cursor-not-allowed select-none';
+	if (!canUseTelemetryScan || isPaused) return 'bg-slate-800/60 border-slate-700/40 text-slate-500 opacity-50 cursor-not-allowed';
+	return 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border-cyan-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-cyan-400/40';
+};
+
+const getChronoFreezeTitle = (chronoFreezeUsed, isPaused, timerEnabled) => {
+	if (chronoFreezeUsed) return 'Chrono Freeze already used for this quest (1 use per quest)';
+	if (isPaused) return 'Resume challenge to use lifelines';
+	if (timerEnabled) return `Add +${CHRONO_FREEZE_SECONDS}s time warp boost to the timer (1-time use per quest)`;
+	return 'Activate Cosmic Focus Shield for +20 bonus XP (1-time use per quest)';
+};
+
+const getChronoFreezeClass = (chronoFreezeUsed, canUseChronoFreeze, isPaused) => {
+	if (chronoFreezeUsed) return 'bg-slate-900/80 border-slate-700/60 text-slate-500 opacity-40 cursor-not-allowed select-none';
+	if (!canUseChronoFreeze || isPaused) return 'bg-slate-800/60 border-slate-700/40 text-slate-500 opacity-50 cursor-not-allowed';
+	return 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white border-emerald-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-emerald-400/40';
+};
+
 /**
  * CosmicLifelinesBar
  *
@@ -115,26 +164,13 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							playButtonPop(soundEnabled);
 							if (onUseClue) onUseClue();
 						}}
-						title={
-							cosmicClueUsed ?
-								'Cosmic Clue already used for this quest (1 use per quest)'
-							: isPaused ?
-								'Resume challenge to use lifelines'
-							:	'Reveal Mission Control clue for this question (1-time use per quest)'
-
-						}
+						title={getClueTitle(cosmicClueUsed, isPaused)}
 						aria-label={
 							cosmicClueUsed ?
 								'Cosmic Clue: Used for this quest'
 							:	'Use Cosmic Clue lifeline (1-time use per quest)'
 						}
-						className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 border ${
-							cosmicClueUsed ?
-								'bg-slate-900/80 border-slate-700/60 text-slate-500 opacity-40 cursor-not-allowed select-none'
-							: isPaused ?
-								'bg-slate-800/60 border-slate-700/40 text-slate-500 opacity-50 cursor-not-allowed'
-							:	'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white border-pink-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-pink-400/40'
-						}`}>
+						className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 border ${getClueClass(cosmicClueUsed, isPaused)}`}>
 						<span className='text-xs sm:text-sm'>💡</span>
 						<span className='truncate'>{cosmicClueUsed ? 'Used' : 'Clue'}</span>
 					</button>
@@ -147,26 +183,13 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							playButtonPop(soundEnabled);
 							if (onUseCosmicRay) onUseCosmicRay();
 						}}
-						title={
-							cosmicRayUsed ?
-								'50/50 Cosmic Ray already used for this quest (1 use per quest)'
-							: isPaused ?
-								'Resume challenge to use lifelines'
-							:	'Disintegrate 2 wrong options with a cosmic beam (1-time use per quest)'
-
-						}
+						title={getCosmicRayTitle(cosmicRayUsed, isPaused)}
 						aria-label={
 							cosmicRayUsed ?
 								'50/50 Cosmic Ray: Used for this quest'
 							:	'Fire 50/50 Cosmic Ray to eliminate two wrong answers'
 						}
-						className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 border ${
-							cosmicRayUsed ?
-								'bg-slate-900/80 border-slate-700/60 text-slate-500 opacity-40 cursor-not-allowed select-none'
-							: !canUseCosmicRay || isPaused ?
-								'bg-slate-800/60 border-slate-700/40 text-slate-500 opacity-50 cursor-not-allowed'
-							:	'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white border-amber-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-amber-400/40'
-						}`}>
+						className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 border ${getCosmicRayClass(cosmicRayUsed, canUseCosmicRay, isPaused)}`}>
 						<Zap className='w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current' />
 						<span className='truncate'>{cosmicRayUsed ? 'Used' : '50/50'}</span>
 					</button>
@@ -179,26 +202,13 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							playButtonPop(soundEnabled);
 							if (onUseTelemetryScan) onUseTelemetryScan();
 						}}
-						title={
-							telemetryScanUsed ?
-								'Telemetry Radar already used for this quest (1 use per quest)'
-							: isPaused ?
-								'Resume challenge to use lifelines'
-							:	'Deploy satellite radar sweep to detect option probabilities (1-time use per quest)'
-
-						}
+						title={getTelemetryTitle(telemetryScanUsed, isPaused)}
 						aria-label={
 							telemetryScanUsed ?
 								'Starfleet Telemetry Radar: Used for this quest'
 							:	'Deploy Starfleet Telemetry Radar scan'
 						}
-						className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 border ${
-							telemetryScanUsed ?
-								'bg-slate-900/80 border-slate-700/60 text-slate-500 opacity-40 cursor-not-allowed select-none'
-							: !canUseTelemetryScan || isPaused ?
-								'bg-slate-800/60 border-slate-700/40 text-slate-500 opacity-50 cursor-not-allowed'
-							:	'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border-cyan-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-cyan-400/40'
-						}`}>
+						className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 border ${getTelemetryClass(telemetryScanUsed, canUseTelemetryScan, isPaused)}`}>
 						<Radio className='w-3 h-3 sm:w-3.5 sm:h-3.5' />
 						<span className='truncate'>
 							{telemetryScanUsed ? 'Used' : 'Radar'}
@@ -213,28 +223,13 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 							playButtonPop(soundEnabled);
 							if (onUseChronoFreeze) onUseChronoFreeze();
 						}}
-						title={
-							chronoFreezeUsed ?
-								'Chrono Freeze already used for this quest (1 use per quest)'
-							: isPaused ?
-								'Resume challenge to use lifelines'
-							: timerEnabled ?
-								`Add +${CHRONO_FREEZE_SECONDS}s time warp boost to the timer (1-time use per quest)`
-							:	'Activate Cosmic Focus Shield for +20 bonus XP (1-time use per quest)'
-
-						}
+						title={getChronoFreezeTitle(chronoFreezeUsed, isPaused, timerEnabled)}
 						aria-label={
 							chronoFreezeUsed ?
 								'Chrono Freeze: Used for this quest'
 							:	`Activate Chrono Freeze (+${CHRONO_FREEZE_SECONDS}s)`
 						}
-						className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 border ${
-							chronoFreezeUsed ?
-								'bg-slate-900/80 border-slate-700/60 text-slate-500 opacity-40 cursor-not-allowed select-none'
-							: !canUseChronoFreeze || isPaused ?
-								'bg-slate-800/60 border-slate-700/40 text-slate-500 opacity-50 cursor-not-allowed'
-							:	'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white border-emerald-400/40 shadow-md hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-emerald-400/40'
-						}`}>
+						className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 border ${getChronoFreezeClass(chronoFreezeUsed, canUseChronoFreeze, isPaused)}`}>
 						<Clock className='w-3 h-3 sm:w-3.5 sm:h-3.5' />
 						<span className='truncate'>
 							{chronoFreezeUsed ? 'Used' : `+${CHRONO_FREEZE_SECONDS}s`}

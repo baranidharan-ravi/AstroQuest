@@ -85,10 +85,12 @@ export const ShapeSequenceDiagram = memo(function ShapeSequenceDiagram({
 	data = {},
 	isSolution = false,
 }) {
-	let rawItems =
-		Array.isArray(data.sequence) ? data.sequence
-		: Array.isArray(data.steps) ? data.steps
-		: [];
+	let rawItems = [];
+	if (Array.isArray(data.sequence)) {
+		rawItems = data.sequence;
+	} else if (Array.isArray(data.steps)) {
+		rawItems = data.steps;
+	}
 
 	const qSource = data.question || data.questionText || data.raw || '';
 	if (qSource) {

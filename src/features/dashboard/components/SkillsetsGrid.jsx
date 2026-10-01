@@ -128,12 +128,11 @@ export const SkillsetsGrid = memo(function SkillsetsGrid({
 					return (
 						<div
 							key={skill.id || skill.name}
-							onClick={() => handleCardClick(skill.name)}
 							className={`group bg-white text-slate-800 ${
 								cardSize === 'compact' ?
 									'rounded-xl p-3 shadow-md min-h-[118px] border-2'
 								:	'rounded-2xl sm:rounded-3xl p-4 sm:p-4.5 shadow-xl min-h-[195px] border-4'
-							} ${theme.cardBorder} cursor-pointer transform hover:-translate-y-1 active:translate-y-0 transition-all duration-200 flex flex-col justify-between focus-within:ring-4 focus-within:ring-cyan-400 relative`}>
+							} ${theme.cardBorder} transform hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between focus-within:ring-4 focus-within:ring-cyan-400 relative`}>
 							<div>
 								{/* Top Bar: Icon, Name, Tagline & Actions */}
 								<div
@@ -159,13 +158,17 @@ export const SkillsetsGrid = memo(function SkillsetsGrid({
 										</div>
 										<div className='min-w-0'>
 											<div className='flex items-center gap-1.5'>
-												<h3
-													className={`${
-														cardSize === 'compact' ?
-															'text-sm font-extrabold truncate'
-														:	'text-base sm:text-lg font-extrabold truncate'
-													} text-slate-900 group-hover:text-cyan-600 transition-colors leading-tight`}>
-													{skill.name}
+												<h3 className='truncate leading-tight'>
+													<button
+														type='button'
+														onClick={() => handleCardClick(skill.name)}
+														className={`${
+															cardSize === 'compact' ?
+																'text-sm font-extrabold truncate'
+															:	'text-base sm:text-lg font-extrabold truncate'
+														} text-slate-900 group-hover:text-cyan-600 transition-colors text-left cursor-pointer hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded`}>
+														{skill.name}
+													</button>
 												</h3>
 												{isCustom && cardSize === 'compact' && (
 													<span className='px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[9px] font-bold border border-emerald-200 shrink-0'>

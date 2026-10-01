@@ -10,6 +10,51 @@ import {
 import { memo } from 'react';
 import { playButtonPop } from '../../../utils/audioSynthesis';
 
+const getTimerBadgeClass = (isMandatoryTimer, timerEnabled) => {
+	if (isMandatoryTimer) return 'bg-amber-400 text-slate-950 shadow';
+	if (timerEnabled) return 'bg-emerald-400 text-slate-950 shadow';
+	return 'bg-slate-800 text-slate-400';
+};
+
+const getTimerBadgeText = (isMandatoryTimer, timerEnabled) => {
+	if (isMandatoryTimer) return 'Mandatory (Ages 8–14)';
+	if (timerEnabled) return 'Enabled';
+	return 'Optional';
+};
+
+const getTimerToggleTitle = (isMandatoryTimer, timerEnabled) => {
+	if (isMandatoryTimer) {
+		return 'Countdown timer is mandatory for Ages 8–14 to ensure active challenge. You can change the question duration below.';
+	}
+	if (timerEnabled) return 'Turn timer off (unlimited time)';
+	return 'Turn timer on';
+};
+
+const getTimerToggleClass = (isMandatoryTimer, timerEnabled) => {
+	if (isMandatoryTimer) {
+		return 'bg-amber-400 text-slate-950 border-amber-300 shadow cursor-not-allowed opacity-95';
+	}
+	if (timerEnabled) {
+		return 'bg-emerald-400 text-slate-950 border-emerald-300 shadow cursor-pointer';
+	}
+	return 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white cursor-pointer';
+};
+
+const renderTimerToggleContent = (isMandatoryTimer, timerEnabled) => {
+	if (isMandatoryTimer) {
+		return (
+			<>
+				<Lock className='w-3 h-3 text-slate-950 inline' />
+				<span>⏱️ ON</span>
+			</>
+		);
+	}
+	if (timerEnabled) {
+		return '⏱️ ON';
+	}
+	return 'Timer OFF';
+};
+
 /**
  * PacingSettingsTab Component
  *
@@ -50,16 +95,11 @@ export const PacingSettingsTab = memo(function PacingSettingsTab({
 								Per-Question Time Limit
 							</span>
 							<span
-								className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${
-									isMandatoryTimer ? 'bg-amber-400 text-slate-950 shadow'
-									: timerEnabled ? 'bg-emerald-400 text-slate-950 shadow'
-									: 'bg-slate-800 text-slate-400'
-								}`}>
-								{isMandatoryTimer ?
-									'Mandatory (Ages 8–14)'
-								: timerEnabled ?
-									'Enabled'
-								:	'Optional'}
+								className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase ${getTimerBadgeClass(
+									isMandatoryTimer,
+									timerEnabled,
+								)}`}>
+								{getTimerBadgeText(isMandatoryTimer, timerEnabled)}
 							</span>
 						</div>
 						<p className='text-[11px] sm:text-xs text-slate-400 mt-0.5'>
@@ -78,28 +118,12 @@ export const PacingSettingsTab = memo(function PacingSettingsTab({
 							playButtonPop(soundEnabled);
 							setTimerEnabled((prev) => !prev);
 						}}
-						title={
-							isMandatoryTimer ?
-								'Countdown timer is mandatory for Ages 8–14 to ensure active challenge. You can change the question duration below.'
-							: timerEnabled ?
-								'Turn timer off (unlimited time)'
-							:	'Turn timer on'
-						}
-						className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border flex items-center gap-1 ${
-							isMandatoryTimer ?
-								'bg-amber-400 text-slate-950 border-amber-300 shadow cursor-not-allowed opacity-95'
-							: timerEnabled ?
-								'bg-emerald-400 text-slate-950 border-emerald-300 shadow cursor-pointer'
-							:	'bg-slate-800 text-slate-400 border-slate-700 hover:text-white cursor-pointer'
-						}`}>
-						{isMandatoryTimer ?
-							<>
-								<Lock className='w-3 h-3 text-slate-950 inline' />
-								<span>⏱️ ON</span>
-							</>
-						: timerEnabled ?
-							'⏱️ ON'
-						:	'Timer OFF'}
+						title={getTimerToggleTitle(isMandatoryTimer, timerEnabled)}
+						className={`flex-shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-black transition-all border flex items-center gap-1 ${getTimerToggleClass(
+							isMandatoryTimer,
+							timerEnabled,
+						)}`}>
+						{renderTimerToggleContent(isMandatoryTimer, timerEnabled)}
 					</button>
 				</div>
 

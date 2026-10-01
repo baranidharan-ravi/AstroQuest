@@ -43,10 +43,12 @@ const ResultOverview = memo(function ResultOverview({
 	pureQuestBonus = 0,
 }) {
 	// Determine star count based on score
-	const starCount =
-		scorePercent >= 80 ? 3
-		: scorePercent >= 50 ? 2
-		: 1;
+	let starCount = 1;
+	if (scorePercent >= 80) {
+		starCount = 3;
+	} else if (scorePercent >= 50) {
+		starCount = 2;
+	}
 
 	const achievements = getStoredAchievements();
 	const rankInfo = calculateRank(achievements?.xp || 0);
@@ -239,11 +241,11 @@ const ResultOverview = memo(function ResultOverview({
 						{/* Right: Encouraging Kid-Friendly Message */}
 						<div className='flex items-center justify-center md:justify-end'>
 							<p className='text-xs sm:text-sm font-bold text-cyan-300 bg-cyan-950/60 border border-cyan-700/60 px-4 py-2 rounded-full shadow-inner'>
-								{scorePercent >= 80 ?
-									'🌟 Outstanding Job, Super Astronaut!'
-								: scorePercent >= 50 ?
-									'🚀 Great Effort! Keep exploring and learning!'
-								:	'🌱 Good try! Practice makes you stronger!'}
+								{(() => {
+									if (scorePercent >= 80) return '🌟 Outstanding Job, Super Astronaut!';
+									if (scorePercent >= 50) return '🚀 Great Effort! Keep exploring and learning!';
+									return '🌱 Good try! Practice makes you stronger!';
+								})()}
 							</p>
 						</div>
 					</div>

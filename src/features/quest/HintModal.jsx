@@ -3,6 +3,22 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { CHRONO_FREEZE_SECONDS, LIFELINE_TABS } from '../../constants';
 import { playButtonPop } from '../../utils/audioSynthesis';
 
+function getPercentColor(isElim, percent) {
+	if (isElim) return 'text-rose-400 line-through opacity-50';
+	if (percent >= 50) return 'text-cyan-300 font-black';
+	return 'text-slate-400';
+}
+
+function getChronoDescription(chronoFreezeUsed, timerEnabled) {
+	if (chronoFreezeUsed) {
+		return `⏱️ Chrono Freeze already used this quest — +${CHRONO_FREEZE_SECONDS}s were added to your clock!`;
+	}
+	if (timerEnabled) {
+		return `Summon a cosmic time distortion to add +${CHRONO_FREEZE_SECONDS} bonus seconds and freeze urgency colors!`;
+	}
+	return 'Activate the Cosmic Focus Shield for starlight protection and bonus XP!';
+}
+
 const HintModal = memo(function HintModal({
 	hintText,
 	isOpen,
@@ -115,14 +131,22 @@ const HintModal = memo(function HintModal({
 	const usedCount = lifelines.filter((l) => l.used).length;
 
 	return (
-		<div
-			className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200'
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='hint-modal-title'>
-			<div
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close lifeline dialog backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
 				ref={modalRef}
-				className='bg-[#15194D] border-2 border-[#38419D] text-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative transform animate-in zoom-in-95 duration-200 overflow-hidden'>
+				aria-labelledby='hint-modal-title'
+				className='relative z-10 m-auto bg-[#15194D] border-2 border-[#38419D] text-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl transform animate-in zoom-in-95 duration-200 overflow-hidden block'>
 				{/* Close Button */}
 				<button
 					ref={closeBtnRef}
@@ -372,11 +396,7 @@ const HintModal = memo(function HintModal({
 												/>
 											</div>
 											<span
-												className={`text-xs font-black min-w-[42px] text-right ${
-													isElim ? 'text-rose-400 line-through opacity-50'
-													: percent >= 50 ? 'text-cyan-300 font-black'
-													: 'text-slate-400'
-												}`}>
+												className={`text-xs font-black min-w-[42px] text-right ${getPercentColor(isElim, percent)}`}>
 												{isElim ? 'BLAST' : `${percent}%`}
 											</span>
 										</div>
@@ -418,12 +438,7 @@ const HintModal = memo(function HintModal({
 							Chrono Freeze Time Warp ⏱️
 						</h4>
 						<p className='text-xs sm:text-sm text-slate-300 mb-4 leading-relaxed'>
-							{chronoFreezeUsed ?
-								`⏱️ Chrono Freeze already used this quest — +${CHRONO_FREEZE_SECONDS}s were added to your clock!`
-							: timerEnabled ?
-								`Summon a cosmic time distortion to add +${CHRONO_FREEZE_SECONDS} bonus seconds and freeze urgency colors!`
-							:	'Activate the Cosmic Focus Shield for starlight protection and bonus XP!'
-							}
+							{getChronoDescription(chronoFreezeUsed, timerEnabled)}
 						</p>
 
 						<button
@@ -461,7 +476,7 @@ const HintModal = memo(function HintModal({
 					className='w-full py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-extrabold text-sm sm:text-base shadow-lg transition-all cursor-pointer focus-visible:ring-4 focus-visible:ring-pink-400 focus-visible:outline-none mt-2'>
 					Back to Challenge 🚀
 				</button>
-			</div>
+			</dialog>
 		</div>
 	);
 });

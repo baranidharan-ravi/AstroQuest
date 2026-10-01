@@ -59,14 +59,22 @@ const ExitConfirmationModal = memo(function ExitConfirmationModal({
 	if (!isOpen) return null;
 
 	return (
-		<div
-			className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='exit-modal-title'>
-			<div
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close exit confirmation modal'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
 				ref={modalRef}
-				className='bg-gradient-to-b from-[#1C1F5E] via-[#141846] to-[#0D1030] border-4 border-rose-400/80 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-[0_0_50px_rgba(244,63,94,0.35)] text-white relative animate-in zoom-in-95 duration-200'>
+				aria-labelledby='exit-modal-title'
+				className='relative z-10 m-auto bg-gradient-to-b from-[#1C1F5E] via-[#141846] to-[#0D1030] border-4 border-rose-400/80 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-[0_0_50px_rgba(244,63,94,0.35)] text-white animate-in zoom-in-95 duration-200 block'>
 				{/* Top Close / Cancel Button */}
 				<button
 					type='button'
@@ -141,7 +149,7 @@ const ExitConfirmationModal = memo(function ExitConfirmationModal({
 						<span>Exit Without Saving 🚪</span>
 					</button>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	);
 });

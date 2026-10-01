@@ -71,6 +71,19 @@ export function render3DIsoCube({
 	);
 }
 
+const getLayerColor = (color, layerIdx) => {
+	if (color) return color;
+	if (layerIdx === 0) return 'blue';
+	if (layerIdx === 1) return 'amber';
+	return 'pink';
+};
+
+const getLayerDotClass = (color, idx) => {
+	if (color === 'blue' || idx === 0) return 'bg-blue-500';
+	if (color === 'amber' || idx === 1) return 'bg-amber-500';
+	return 'bg-pink-500';
+};
+
 /**
  * Isometric Block Tower Diagram Component
  *
@@ -95,11 +108,7 @@ export const IsometricTowerDiagram = memo(function IsometricTowerDiagram({
 	const cubesToRender = [];
 	layers.forEach((layer, layerIdx) => {
 		const sz = layer.size || 1;
-		const col =
-			layer.color ||
-			(layerIdx === 0 ? 'blue'
-			: layerIdx === 1 ? 'amber'
-			: 'pink');
+		const col = getLayerColor(layer.color, layerIdx);
 		const offset = (3 - sz) / 2; // Center smaller layers on top
 
 		for (let x = 0; x < sz; x++) {
@@ -151,11 +160,7 @@ export const IsometricTowerDiagram = memo(function IsometricTowerDiagram({
 						key={idx}
 						className='flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1 shadow-xs'>
 						<div
-							className={`w-3 h-3 rounded-full ${
-								l.color === 'blue' || idx === 0 ? 'bg-blue-500'
-								: l.color === 'amber' || idx === 1 ? 'bg-amber-500'
-								: 'bg-pink-500'
-							}`}
+							className={`w-3 h-3 rounded-full ${getLayerDotClass(l.color, idx)}`}
 						/>
 						<span className='text-[10px] sm:text-[11px] font-bold text-slate-800'>
 							{l.label || `L${idx + 1}`}:{' '}

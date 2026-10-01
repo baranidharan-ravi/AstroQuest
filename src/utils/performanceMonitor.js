@@ -255,6 +255,12 @@ export function getNavigationTimingMetrics() {
 	return null;
 }
 
+function getBenchmarkRating(durationMs, optimalThreshold, acceptableThreshold) {
+	if (durationMs < optimalThreshold) return 'Optimal';
+	if (durationMs < acceptableThreshold) return 'Acceptable';
+	return 'Needs Optimization';
+}
+
 /**
  * Stress Benchmark 1: SVG Geometric Shape Engine
  */
@@ -285,7 +291,7 @@ export function runSvgShapesBenchmark(iterations = 100) {
 		iterations,
 		durationMs,
 		opsPerSec,
-		rating: durationMs < 15 ? 'Optimal' : durationMs < 40 ? 'Acceptable' : 'Needs Optimization',
+		rating: getBenchmarkRating(durationMs, 15, 40),
 		details: `${iterations} dynamic shape parsings & polygon vertex computations completed in ${durationMs}ms (${opsPerSec.toLocaleString()} ops/sec).`,
 	};
 }
@@ -341,7 +347,7 @@ export function runQuestionParserBenchmark(iterations = 50) {
 		iterations,
 		durationMs,
 		opsPerSec,
-		rating: durationMs < 10 ? 'Optimal' : durationMs < 30 ? 'Acceptable' : 'Needs Optimization',
+		rating: getBenchmarkRating(durationMs, 10, 30),
 		details: `${iterations} markdown cleanings and option shuffles completed in ${durationMs}ms (${opsPerSec.toLocaleString()} ops/sec).`,
 	};
 }
@@ -374,7 +380,7 @@ export function runAudioSynthesizerBenchmark(iterations = 50) {
 		iterations,
 		durationMs,
 		opsPerSec,
-		rating: durationMs < 5 ? 'Optimal' : durationMs < 20 ? 'Acceptable' : 'Needs Optimization',
+		rating: getBenchmarkRating(durationMs, 5, 20),
 		details: `${nodesCalculated} procedural audio oscillator envelopes computed in ${durationMs}ms (${opsPerSec.toLocaleString()} ops/sec).`,
 	};
 }
@@ -405,7 +411,7 @@ export function runStateStoreBenchmark(iterations = 500) {
 		iterations,
 		durationMs,
 		opsPerSec,
-		rating: durationMs < 15 ? 'Optimal' : durationMs < 45 ? 'Acceptable' : 'Needs Optimization',
+		rating: getBenchmarkRating(durationMs, 15, 45),
 		details: `${iterations} immutable dispatches & subscriber broadcasts completed in ${durationMs}ms (${opsPerSec.toLocaleString()} ops/sec).`,
 	};
 }

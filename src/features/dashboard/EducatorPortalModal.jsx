@@ -128,14 +128,22 @@ const EducatorPortalModal = memo(function EducatorPortalModal({
 	};
 
 	return (
-		<div
-			className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'
-			role='dialog'
-			aria-modal='true'
-			aria-labelledby='educator-modal-title'>
-			<div
+		<div className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-200'>
+			<button
+				type='button'
+				tabIndex={-1}
+				aria-label='Close educator portal backdrop'
+				className='fixed inset-0 w-full h-full bg-transparent border-0 cursor-default focus:outline-none'
+				onClick={() => {
+					playButtonPop(soundEnabled);
+					onClose();
+				}}
+			/>
+			<dialog
+				open
 				ref={modalRef}
-				className='bg-[#0f1238] border-2 border-indigo-500/50 text-white rounded-3xl max-w-2xl w-full max-h-[90vh] p-4 sm:p-6 shadow-2xl relative flex flex-col gap-4 overflow-y-auto'>
+				aria-labelledby='educator-modal-title'
+				className='relative z-10 m-auto bg-[#0f1238] border-2 border-indigo-500/50 text-white rounded-3xl max-w-2xl w-full max-h-[90vh] p-4 sm:p-6 shadow-2xl flex flex-col gap-4 overflow-y-auto block'>
 				{/* Close Button */}
 				<button
 					ref={closeBtnRef}

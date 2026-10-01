@@ -171,10 +171,12 @@ export function shuffleAndFormatOptions(questionObj, selectedSkill) {
 	const celestialMatch = findMatchingCelestialImage(qText);
 	const assignedDiagramType =
 		finalDiagramType || (celestialMatch ? 'celestial_photo' : null);
-	const assignedDiagramData =
-		finalDiagramType ? synchedData
-		: celestialMatch ? { celestialImage: celestialMatch }
-		: null;
+	let assignedDiagramData = null;
+	if (finalDiagramType) {
+		assignedDiagramData = synchedData;
+	} else if (celestialMatch) {
+		assignedDiagramData = { celestialImage: celestialMatch };
+	}
 
 	return {
 		id:
@@ -207,6 +209,18 @@ export function shuffleAndFormatOptions(questionObj, selectedSkill) {
 	};
 }
 
+const getPedagogicalExample = (
+	isDefaultVisual,
+	isDefaultAnalytical,
+	visualEx,
+	analyticalEx,
+	defaultEx,
+) => {
+	if (isDefaultVisual) return visualEx;
+	if (isDefaultAnalytical) return analyticalEx;
+	return defaultEx;
+};
+
 /**
  * Generates age-specific pedagogy rules, teacher personas, and relevant examples
  */
@@ -225,12 +239,13 @@ export function getAgeSpecificPedagogy(age, selectedSkill) {
 - For Visual: simple counting (1-5 objects), AB color patterns (🔴 🔵 🔴 🔵).
 - For Analytical: Animal babies (Puppy to Dog, Kitten to Cat), basic sounds, color matching.
 ${isCustom ? `- For "${skillInfo.name}": Keep questions super simple, fun, and age-appropriate for a toddler, focusing on: ${skillInfo.description}` : ''}`,
-			examples:
-				isDefaultVisual ?
-					`Example: "How many red apples 🍎 are in the basket?" -> "diagramType": "apple-counting", "diagramData": {"count": 3, "emoji": "🍎"}, "correctAnswer": "3 apples"`
-				: isDefaultAnalytical ?
-					`Example: "Puppy 🐶 is to Dog 🐕, as Kitten 🐱 is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Puppy 🐶", "itemB": "Dog 🐕", "itemC": "Kitten 🐱", "itemD": "Cat 🐈"}, "correctAnswer": "Cat 🐈"`
-				:	`Example: Age-appropriate introductory question directly exploring ${skillInfo.name}.`,
+			examples: getPedagogicalExample(
+				isDefaultVisual,
+				isDefaultAnalytical,
+				`Example: "How many red apples 🍎 are in the basket?" -> "diagramType": "apple-counting", "diagramData": {"count": 3, "emoji": "🍎"}, "correctAnswer": "3 apples"`,
+				`Example: "Puppy 🐶 is to Dog 🐕, as Kitten 🐱 is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Puppy 🐶", "itemB": "Dog 🐕", "itemC": "Kitten 🐱", "itemD": "Cat 🐈"}, "correctAnswer": "Cat 🐈"`,
+				`Example: Age-appropriate introductory question directly exploring ${skillInfo.name}.`,
+			),
 		};
 	}
 
@@ -242,12 +257,13 @@ ${isCustom ? `- For "${skillInfo.name}": Keep questions super simple, fun, and a
 - For Visual: Counting 4-12 objects, grid tile gaps, balance scales.
 - For Analytical: Functional analogies (Bird : Nest :: Bee : Hive), everyday cause-and-effect (sun melts ice, rain grows plants), odd-one-out categories.
 ${isCustom ? `- For "${skillInfo.name}": Create engaging early elementary challenges directly applying: ${skillInfo.description}` : ''}`,
-			examples:
-				isDefaultVisual ?
-					`Example: "Complete the pattern: 🔴 🔴 🔷 🔴 🔴 ?" -> "diagramType": "pattern-shapes", "diagramData": {"sequence": ["🔴", "🔴", "🔷", "🔴", "🔴"], "nextItem": "🔷"}, "correctAnswer": "🔷"`
-				: isDefaultAnalytical ?
-					`Example: "If you leave an ice cube 🧊 in the warm sun ☀️, what happens?" -> "diagramType": "cause-effect", "diagramData": {"cause": "Ice Cube 🧊 in Sun ☀️", "action": "melts", "effect": "Water 💧"}, "correctAnswer": "It melts into water 💧"`
-				:	`Example: Creative elementary puzzle centered on ${skillInfo.name}.`,
+			examples: getPedagogicalExample(
+				isDefaultVisual,
+				isDefaultAnalytical,
+				`Example: "Complete the pattern: 🔴 🔴 🔷 🔴 🔴 ?" -> "diagramType": "pattern-shapes", "diagramData": {"sequence": ["🔴", "🔴", "🔷", "🔴", "🔴"], "nextItem": "🔷"}, "correctAnswer": "🔷"`,
+				`Example: "If you leave an ice cube 🧊 in the warm sun ☀️, what happens?" -> "diagramType": "cause-effect", "diagramData": {"cause": "Ice Cube 🧊 in Sun ☀️", "action": "melts", "effect": "Water 💧"}, "correctAnswer": "It melts into water 💧"`,
+				`Example: Creative elementary puzzle centered on ${skillInfo.name}.`,
+			),
 		};
 	}
 
@@ -259,12 +275,13 @@ ${isCustom ? `- For "${skillInfo.name}": Create engaging early elementary challe
 - Use multi-step reasoning, geometric & number sequences (e.g. 4, 8, 12, 16, ? or 3, 6, 12, 24, ?), 3D block projections, grid matrices.
 - For Analytical: Higher-order analogies (Author : Novel :: Sculptor : Statue, Thermometer : Temperature :: Speedometer : Speed), scientific classification (Carnivore/Herbivore/Omnivore, States of matter, simple machines), multi-step deductive clues.
 ${isCustom ? `- For "${skillInfo.name}": Create rigorous upper-elementary challenges, facts, and deductions testing: ${skillInfo.description}` : ''}`,
-			examples:
-				isDefaultVisual ?
-					`Example: "Look at the number sequence: 5, 10, 20, 40, ? What comes next?" -> "diagramType": "sequence-ladder", "diagramData": {"steps": ["5", "10", "20", "40"], "nextVal": "80", "rule": "x2"}, "correctAnswer": "80", "options": ["60", "70", "80", "90"]`
-				: isDefaultAnalytical ?
-					`Example: "Author is to Book, as Architect is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Author ✍️", "itemB": "Book 📖", "itemC": "Architect 📐", "itemD": "Building 🏛️"}, "correctAnswer": "Building", "options": ["Painting", "Building", "Song", "Meal"]`
-				:	`Example: Thought-provoking challenge testing concepts in ${skillInfo.name}.`,
+			examples: getPedagogicalExample(
+				isDefaultVisual,
+				isDefaultAnalytical,
+				`Example: "Look at the number sequence: 5, 10, 20, 40, ? What comes next?" -> "diagramType": "sequence-ladder", "diagramData": {"steps": ["5", "10", "20", "40"], "nextVal": "80", "rule": "x2"}, "correctAnswer": "80", "options": ["60", "70", "80", "90"]`,
+				`Example: "Author is to Book, as Architect is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Author ✍️", "itemB": "Book 📖", "itemC": "Architect 📐", "itemD": "Building 🏛️"}, "correctAnswer": "Building", "options": ["Painting", "Building", "Song", "Meal"]`,
+				`Example: Thought-provoking challenge testing concepts in ${skillInfo.name}.`,
+			),
 		};
 	}
 
@@ -276,11 +293,12 @@ ${isCustom ? `- For "${skillInfo.name}": Create rigorous upper-elementary challe
 - For Visual: Challenging numerical sequences (e.g. 2, 5, 10, 17, 26, ? or Fibonacci), geometric matrix transformations, spatial rotations, isometric block tower volumes, coordinate reflections.
 - For Analytical: Advanced abstract analogies (Microscope : Microorganism :: Telescope : Distant Galaxy, Catalyst : Chemical Reaction :: Mentor : Personal Growth), deductive syllogisms, physics principles (density, balance levers, electric circuits, refraction), critical thinking puzzles.
 ${isCustom ? `- For "${skillInfo.name}": Present advanced critical thinking and multi-step problem solving exploring: ${skillInfo.description}` : ''}`,
-		examples:
-			isDefaultVisual ?
-				`Example: "Identify the pattern rule in the sequence: 2, 5, 10, 17, 26, ? What is the next term?" -> "diagramType": "sequence-ladder", "diagramData": {"steps": ["2", "5", "10", "17", "26"], "nextVal": "37", "rule": "+3, +5, +7, +9, +11"}, "correctAnswer": "37", "options": ["35", "37", "39", "41"], "solution": "The difference between terms increases by consecutive odd numbers (+3, +5, +7, +9, +11). 26 + 11 = 37."`
-			: isDefaultAnalytical ?
-				`Example: "Microscope is to Microorganism, as Telescope is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Microscope 🔬", "itemB": "Microorganism 🦠", "itemC": "Telescope 🔭", "itemD": "Distant Galaxy 🌌"}, "correctAnswer": "Distant Galaxy", "options": ["Subatomic Particle", "Distant Galaxy", "Microscopic Cell", "Sound Wave"], "solution": "A microscope is an instrument used to observe microscopic organisms, just as a telescope is used to observe distant galaxies."`
-			:	`Example: Advanced conceptual question on ${skillInfo.name}.`,
+		examples: getPedagogicalExample(
+			isDefaultVisual,
+			isDefaultAnalytical,
+			`Example: "Identify the pattern rule in the sequence: 2, 5, 10, 17, 26, ? What is the next term?" -> "diagramType": "sequence-ladder", "diagramData": {"steps": ["2", "5", "10", "17", "26"], "nextVal": "37", "rule": "+3, +5, +7, +9, +11"}, "correctAnswer": "37", "options": ["35", "37", "39", "41"], "solution": "The difference between terms increases by consecutive odd numbers (+3, +5, +7, +9, +11). 26 + 11 = 37."`,
+			`Example: "Microscope is to Microorganism, as Telescope is to...?" -> "diagramType": "analogy-map", "diagramData": {"itemA": "Microscope 🔬", "itemB": "Microorganism 🦠", "itemC": "Telescope 🔭", "itemD": "Distant Galaxy 🌌"}, "correctAnswer": "Distant Galaxy", "options": ["Subatomic Particle", "Distant Galaxy", "Microscopic Cell", "Sound Wave"], "solution": "A microscope is an instrument used to observe microscopic organisms, just as a telescope is used to observe distant galaxies."`,
+			`Example: Advanced conceptual question on ${skillInfo.name}.`,
+		),
 	};
 }

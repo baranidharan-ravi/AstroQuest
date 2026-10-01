@@ -1,6 +1,54 @@
 import { Clock, Pause, Play, SkipForward } from 'lucide-react';
 import { memo } from 'react';
 
+const getCountdownTimerClass = (isTimerPaused, chronoFreezeActive, questionTimeRemaining) => {
+	if (isTimerPaused) {
+		return 'bg-amber-950/90 border-amber-400 text-amber-300 ring-2 ring-amber-400/50 animate-pulse';
+	}
+	if (chronoFreezeActive) {
+		return 'bg-emerald-950/90 border-emerald-400 text-emerald-300 ring-2 ring-emerald-400/50 shadow-[0_0_15px_rgba(16,185,129,0.35)]';
+	}
+	if (questionTimeRemaining <= 5) {
+		return 'bg-rose-950/80 border-rose-500 text-rose-300 ring-2 ring-rose-400/40 animate-bounce';
+	}
+	if (questionTimeRemaining <= 15) {
+		return 'bg-amber-950/70 border-amber-400 text-amber-300 ring-2 ring-amber-400/30 animate-pulse';
+	}
+	return 'bg-[#121644]/90 border-cyan-400/50 hover:border-cyan-400 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)]';
+};
+
+const renderCountdownTimerIcon = (isTimerPaused, questionTimeRemaining) => {
+	if (isTimerPaused) {
+		return <Play className='w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-current' />;
+	}
+	if (questionTimeRemaining <= 15) {
+		return <Clock className='w-4 h-4 sm:w-5 sm:h-5 text-amber-400 animate-spin' />;
+	}
+	return <Pause className='w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 group-hover:scale-110 transition-transform' />;
+};
+
+const renderCountdownBadge = (isTimerPaused, chronoFreezeActive) => {
+	if (isTimerPaused) {
+		return (
+			<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/30'>
+				Paused
+			</span>
+		);
+	}
+	if (chronoFreezeActive) {
+		return (
+			<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-emerald-400/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-400/40 animate-pulse ml-0.5'>
+				⏱️ +30s
+			</span>
+		);
+	}
+	return (
+		<span className='text-[10px] sm:text-xs uppercase font-extrabold tracking-widest opacity-80 ml-0.5 hidden xs:inline'>
+			Left
+		</span>
+	);
+};
+
 /**
  * QuestActionBar Component
  *
@@ -60,17 +108,11 @@ export const QuestActionBar = memo(function QuestActionBar({
 						onClick={handleToggleTimerPause}
 						role='timer'
 						aria-live='off'
-						className={`flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-2xl border font-mono font-black text-sm sm:text-base md:text-lg tracking-wider shadow-inner transition-all cursor-pointer select-none group ${
-							isTimerPaused ?
-								'bg-amber-950/90 border-amber-400 text-amber-300 ring-2 ring-amber-400/50 animate-pulse'
-							: chronoFreezeActive ?
-								'bg-emerald-950/90 border-emerald-400 text-emerald-300 ring-2 ring-emerald-400/50 shadow-[0_0_15px_rgba(16,185,129,0.35)]'
-							: questionTimeRemaining <= 5 ?
-								'bg-rose-950/80 border-rose-500 text-rose-300 ring-2 ring-rose-400/40 animate-bounce'
-							: questionTimeRemaining <= 15 ?
-								'bg-amber-950/70 border-amber-400 text-amber-300 ring-2 ring-amber-400/30 animate-pulse'
-							:	'bg-[#121644]/90 border-cyan-400/50 hover:border-cyan-400 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)]'
-						}`}
+						className={`flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-2xl border font-mono font-black text-sm sm:text-base md:text-lg tracking-wider shadow-inner transition-all cursor-pointer select-none group ${getCountdownTimerClass(
+							isTimerPaused,
+							chronoFreezeActive,
+							questionTimeRemaining,
+						)}`}
 						title={
 							isTimerPaused ?
 								'Timer paused. Click to resume or interact with the question.'
@@ -81,30 +123,14 @@ export const QuestActionBar = memo(function QuestActionBar({
 								`Countdown paused at ${Math.floor(questionTimeRemaining / 60)}:${(questionTimeRemaining % 60).toString().padStart(2, '0')}. Click to resume.`
 							:	`Question countdown: ${questionTimeRemaining} seconds remaining. Click to pause.`
 						}>
-						{isTimerPaused ?
-							<Play className='w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-current' />
-						: questionTimeRemaining <= 15 ?
-							<Clock className='w-4 h-4 sm:w-5 sm:h-5 text-amber-400 animate-spin' />
-						:	<Pause className='w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 group-hover:scale-110 transition-transform' />
-						}
+						{renderCountdownTimerIcon(isTimerPaused, questionTimeRemaining)}
 						<span>
 							{Math.floor(questionTimeRemaining / 60)
 								.toString()
 								.padStart(2, '0')}
 							:{(questionTimeRemaining % 60).toString().padStart(2, '0')}
 						</span>
-						{isTimerPaused ?
-							<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/30'>
-								Paused
-							</span>
-						: chronoFreezeActive ?
-							<span className='text-[10px] sm:text-xs uppercase font-black tracking-wider bg-emerald-400/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-400/40 animate-pulse ml-0.5'>
-								⏱️ +30s
-							</span>
-						:	<span className='text-[10px] sm:text-xs uppercase font-extrabold tracking-widest opacity-80 ml-0.5 hidden xs:inline'>
-								Left
-							</span>
-						}
+						{renderCountdownBadge(isTimerPaused, chronoFreezeActive)}
 					</button>
 				:	<button
 						type='button'

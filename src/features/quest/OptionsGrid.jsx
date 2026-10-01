@@ -114,17 +114,69 @@ const OptionsGrid = memo(function OptionsGrid({
 					}
 				}
 
+				const getOptionAccessibleSuffix = () => {
+					if (isSubmitted) {
+						if (isCorrect) return ' - Correct answer';
+						if (isSelected) return ' - Your incorrect answer';
+						return '';
+					}
+					if (isSelected) return ' - Selected';
+					return '';
+				};
+
 				const accessibleLabel =
 					isEliminated ?
 						`Option ${opt.id}: ${text} - Eliminated by 50/50 Cosmic Ray`
-					:	`Option ${opt.id}: ${text}${
-							isSubmitted ?
-								isCorrect ? ' - Correct answer'
-								: isSelected ? ' - Your incorrect answer'
-								: ''
-							: isSelected ? ' - Selected'
-							: ''
-						}`;
+					:	`Option ${opt.id}: ${text}${getOptionAccessibleSuffix()}`;
+
+				const renderBadgeContent = () => {
+					if (isSubmitted && isCorrect) {
+						return <Check className='w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[3]' />;
+					}
+					if (isSubmitted && isSelected && !isCorrect) {
+						return <XIcon className='w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[3]' />;
+					}
+					return opt.id;
+				};
+
+				const renderOptionVisual = () => {
+					if (optionImage) {
+						return (
+							<div
+								aria-hidden='true'
+								className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all overflow-hidden ${contrastBoxStyle}`}>
+								<LazyVisualImage
+									src={optionImage}
+									alt={`Option ${opt.id}`}
+									className='w-full h-full object-contain p-1'
+								/>
+							</div>
+						);
+					}
+					if (parsedShape) {
+						return (
+							<div
+								aria-hidden='true'
+								className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${contrastBoxStyle}`}>
+								<DynamicSvgShape
+									parsed={parsedShape}
+									size={52}
+									patternId={`opt-hatch-${opt.id}-${idx}`}
+								/>
+							</div>
+						);
+					}
+					if (conceptVisual?.icon && conceptVisual.icon !== '💡') {
+						return (
+							<div
+								aria-hidden='true'
+								className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl flex-shrink-0 transition-all ${contrastBoxStyle}`}>
+								{conceptVisual.icon}
+							</div>
+						);
+					}
+					return null;
+				};
 
 				return (
 					<button
@@ -147,41 +199,11 @@ const OptionsGrid = memo(function OptionsGrid({
 						<div
 							aria-hidden='true'
 							className={`w-9 h-9 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center font-black text-sm sm:text-base flex-shrink-0 shadow-md ${badgeStyle}`}>
-							{isSubmitted && isCorrect ?
-								<Check className='w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[3]' />
-							: isSubmitted && isSelected && !isCorrect ?
-								<XIcon className='w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[3]' />
-							:	opt.id}
+							{renderBadgeContent()}
 						</div>
 
 						{/* Option Image, Dynamic Visual Shape, or Concept Icon */}
-						{optionImage ?
-							<div
-								aria-hidden='true'
-								className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all overflow-hidden ${contrastBoxStyle}`}>
-								<LazyVisualImage
-									src={optionImage}
-									alt={`Option ${opt.id}`}
-									className='w-full h-full object-contain p-1'
-								/>
-							</div>
-						: parsedShape ?
-							<div
-								aria-hidden='true'
-								className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${contrastBoxStyle}`}>
-								<DynamicSvgShape
-									parsed={parsedShape}
-									size={52}
-									patternId={`opt-hatch-${opt.id}-${idx}`}
-								/>
-							</div>
-						: conceptVisual?.icon && conceptVisual.icon !== '💡' ?
-							<div
-								aria-hidden='true'
-								className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl flex-shrink-0 transition-all ${contrastBoxStyle}`}>
-								{conceptVisual.icon}
-							</div>
-						:	null}
+						{renderOptionVisual()}
 
 						{/* Option Content Text */}
 						<div

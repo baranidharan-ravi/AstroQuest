@@ -17,6 +17,41 @@ import VisualDiagram, {
 	isDiagramAppropriateForQuestion,
 } from '../../utils/VisualDiagrams';
 
+const getExpansionSummaryText = (expandedCount, totalCount) => {
+	if (expandedCount === totalCount) return 'All Expanded';
+	if (expandedCount === 0) return 'All Collapsed';
+	return `${expandedCount} Expanded`;
+};
+
+const renderStatusIcon = (isCorrect, isSkipped) => {
+	if (isCorrect) {
+		return <CheckCircle2 className='w-6 h-6 text-[#00D166] flex-shrink-0' />;
+	}
+	if (isSkipped) {
+		return (
+			<div
+				className='w-6 h-6 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center flex-shrink-0'
+				title='Question Skipped'>
+				<SkipForward className='w-3.5 h-3.5 text-amber-400' />
+			</div>
+		);
+	}
+	return <XCircle className='w-6 h-6 text-[#FF435A] flex-shrink-0' />;
+};
+
+const getYourAnswerCardClass = (isCorrect, isSkipped) => {
+	if (isCorrect) return 'bg-emerald-50 border-emerald-400 text-emerald-900';
+	if (isSkipped) return 'bg-amber-50 border-amber-400 text-amber-900';
+	return 'bg-rose-50 border-rose-400 text-rose-900';
+};
+
+const getYourAnswerText = (userOption, isSkipped, isTimedOut) => {
+	if (userOption) return `${userOption.id}. ${userOption.text}`;
+	if (isSkipped) return '⏭️ Skipped (Not Answered)';
+	if (isTimedOut) return '⏱️ Timed Out (Not Answered)';
+	return 'Not answered';
+};
+
 const QuestionSummary = memo(function QuestionSummary({
 	questions,
 	history,
@@ -115,11 +150,7 @@ const QuestionSummary = memo(function QuestionSummary({
 						{questions.length} Questions
 					</span>
 					<span className='text-xs font-bold text-slate-400 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full'>
-						{expandedIndices.size === questions.length ?
-							'All Expanded'
-						: expandedIndices.size === 0 ?
-							'All Collapsed'
-						:	`${expandedIndices.size} Expanded`}
+						{getExpansionSummaryText(expandedIndices.size, questions.length)}
 					</span>
 				</div>
 
@@ -190,15 +221,7 @@ const QuestionSummary = memo(function QuestionSummary({
 								className='w-full p-4 sm:p-5 flex items-center justify-between gap-3 text-left hover:bg-[#181D58] transition-colors focus-visible:ring-2 focus-visible:ring-cyan-400 cursor-pointer'>
 								<div className='flex items-center gap-3'>
 									{/* Status Icon */}
-									{isCorrect ?
-										<CheckCircle2 className='w-6 h-6 text-[#00D166] flex-shrink-0' />
-									: userResult.skipped ?
-										<div
-											className='w-6 h-6 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center flex-shrink-0'
-											title='Question Skipped'>
-											<SkipForward className='w-3.5 h-3.5 text-amber-400' />
-										</div>
-									:	<XCircle className='w-6 h-6 text-[#FF435A] flex-shrink-0' />}
+									{renderStatusIcon(isCorrect, userResult.skipped)}
 
 									{/* Question Index & Text */}
 									<div>
@@ -263,24 +286,19 @@ const QuestionSummary = memo(function QuestionSummary({
 									{/* Answers Comparison */}
 									<div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
 										<div
-											className={`p-3.5 rounded-xl border-2 ${
-												isCorrect ?
-													'bg-emerald-50 border-emerald-400 text-emerald-900'
-												: userResult.skipped ?
-													'bg-amber-50 border-amber-400 text-amber-900'
-												:	'bg-rose-50 border-rose-400 text-rose-900'
-											}`}>
+											className={`p-3.5 rounded-xl border-2 ${getYourAnswerCardClass(
+												isCorrect,
+												userResult.skipped,
+											)}`}>
 											<span className='text-xs font-black uppercase tracking-wider block mb-1'>
 												Your Answer:
 											</span>
 											<span className='font-bold text-sm sm:text-base'>
-												{userOption ?
-													`${userOption.id}. ${userOption.text}`
-												: userResult.skipped ?
-													'⏭️ Skipped (Not Answered)'
-												: userResult.timedOut ?
-													'⏱️ Timed Out (Not Answered)'
-												:	'Not answered'}
+												{getYourAnswerText(
+													userOption,
+													userResult.skipped,
+													userResult.timedOut,
+												)}
 											</span>
 										</div>
 
