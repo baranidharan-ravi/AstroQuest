@@ -177,7 +177,7 @@ const AskDoubtModal = memo(function AskDoubtModal({
 				open
 				ref={modalRef}
 				aria-labelledby='ask-doubt-modal-title'
-				className='relative z-10 m-auto bg-[#111438] border-2 border-[#38419D] text-white rounded-3xl max-w-xl w-full max-h-[90vh] p-4 sm:p-6 shadow-2xl flex flex-col gap-3.5 block'>
+				className='relative z-10 m-auto bg-[#111438] border-2 border-[#38419D] text-white rounded-3xl max-w-xl w-full max-h-[90vh] p-4 sm:p-6 shadow-2xl flex flex-col gap-3.5'>
 				{/* Close Button */}
 				<button
 					ref={closeBtnRef}
@@ -220,9 +220,7 @@ const AskDoubtModal = memo(function AskDoubtModal({
 				</div>
 
 				{/* Interactive Chat Scroll Area */}
-				<div
-					tabIndex={0}
-					role='region'
+				<section
 					aria-label='Chat messages with Socratic tutor'
 					className='flex-1 min-h-[220px] max-h-[340px] overflow-y-auto bg-slate-950/70 border border-indigo-900/60 rounded-2xl p-3.5 space-y-3.5 custom-scrollbar'>
 					{messages.map((m) => {
@@ -283,14 +281,14 @@ const AskDoubtModal = memo(function AskDoubtModal({
 						</div>
 					)}
 					<div ref={messagesEndRef} />
-				</div>
+				</section>
 
 				{/* Quick Starter Suggestions */}
 				<div className='flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar'>
 					<Sparkles className='w-3.5 h-3.5 text-amber-400 flex-shrink-0' />
-					{QUICK_PROMPTS.map((qp, idx) => (
+					{QUICK_PROMPTS.map((qp) => (
 						<button
-							key={idx}
+							key={qp.label}
 							type='button'
 							disabled={isLoading}
 							onClick={() => handleSend(qp.text)}

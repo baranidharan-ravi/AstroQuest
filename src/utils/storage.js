@@ -1,7 +1,6 @@
 // Persistent storage manager for Skill Thinksheets
 
 const STORAGE_KEY = 'thinksheet_active_session_v1';
-const HISTORY_KEY = 'thinksheet_history_v1';
 
 export function saveSessionState(state) {
 	try {

@@ -156,7 +156,6 @@ const ResultOverview = memo(function ResultOverview({
 				id='panel-overview'
 				role='tabpanel'
 				aria-labelledby='tab-overview'
-				tabIndex={0}
 				className='w-full flex flex-col items-center focus:outline-none'>
 				{/* Top Celebration Banner: Cadet Info, Time Taken, Stars, Completed Ribbon, Score & Encouragement */}
 				<div className='w-full bg-gradient-to-r from-[#181C54]/95 via-[#10133D]/95 to-[#181C54]/95 border-2 border-[#2C3480] rounded-3xl p-4 sm:p-6 shadow-2xl mb-6 backdrop-blur-md flex flex-col gap-4 sm:gap-5'>
@@ -203,11 +202,11 @@ const ResultOverview = memo(function ResultOverview({
 						<div className='flex items-center gap-3 sm:gap-4 flex-wrap justify-center md:justify-start'>
 							{/* Animated 3D Stars */}
 							<div className='flex items-center gap-2 sm:gap-3'>
-								{Array.from({ length: 3 }).map((_, idx) => {
+								{['star-first', 'star-second', 'star-third'].map((starKey, idx) => {
 									const isFilled = idx < starCount;
 									return (
 										<div
-											key={idx}
+											key={starKey}
 											className={`text-4xl sm:text-5xl transition-all duration-700 transform ${
 												isFilled ?
 													'scale-110 drop-shadow-[0_0_20px_#FBBF24] animate-bounce-short'

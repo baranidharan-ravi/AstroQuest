@@ -268,7 +268,7 @@ export const SequenceLadderDiagram = memo(function SequenceLadderDiagram({
 			<div className='flex items-center justify-center flex-wrap gap-2 sm:gap-2.5 w-full'>
 				{rawSteps.map((step, idx) => (
 					<div
-						key={idx}
+						key={`num-step-${idx}-${step}`}
 						className='flex items-center gap-1.5'>
 						<div className='min-w-[48px] px-3.5 py-2 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 text-white font-black text-sm sm:text-base flex items-center justify-center shadow-md border border-cyan-400'>
 							{step}
@@ -325,7 +325,7 @@ export const MatrixGridDiagram = memo(function MatrixGridDiagram({
 
 					return (
 						<div
-							key={idx}
+							key={`matrix-cell-${Math.floor(idx / 3)}-${idx % 3}`}
 							className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all shadow-xs min-w-[70px] sm:min-w-[80px] min-h-[70px] ${(() => {
 								if (isTarget) {
 									return isSolution ?
@@ -498,7 +498,7 @@ export const AppleCountingDiagram = memo(function AppleCountingDiagram({
 			<div className='bg-emerald-50 border-2 border-emerald-200 rounded-3xl p-4 sm:p-5 flex flex-wrap items-center justify-center gap-3 max-w-sm shadow-inner'>
 				{Array.from({ length: count }).map((_, idx) => (
 					<div
-						key={idx}
+						key={`apple-counter-item-${idx + 1}`}
 						className='relative flex items-center justify-center w-11 h-11 bg-white rounded-2xl shadow-sm border border-emerald-100 transform hover:scale-110 transition-transform'>
 						<span className='text-2xl'>{emoji}</span>
 						{isSolution && (
@@ -549,7 +549,7 @@ export const ScaleBalanceDiagram = memo(function ScaleBalanceDiagram({
 	if (!leftLabel && qText) {
 		const carMatch = qText.match(/(\d+)\s*(?:identical\s*)?(?:toy\s*)?car/i);
 		if (carMatch) {
-			leftLabel = `${carMatch[1]} Car${parseInt(carMatch[1], 10) > 1 ? 's' : ''}`;
+			leftLabel = `${carMatch[1]} Car${Number.parseInt(carMatch[1], 10) > 1 ? 's' : ''}`;
 		} else {
 			leftLabel = '1 Toy Car';
 		}

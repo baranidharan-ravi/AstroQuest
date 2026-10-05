@@ -238,8 +238,8 @@ export const PacingSettingsTab = memo(function PacingSettingsTab({
 
 				{!autoAdvanceEnabled && (
 					<div className='p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300 font-semibold'>
-						💡 <strong>Manual Next Mode:</strong> The solution stays on screen
-						indefinitely until you click <em>Next Question ➔</em>.
+						💡 <strong>Manual Next Mode:</strong>{' '}The solution stays on screen
+						indefinitely until you click{' '}<em>Next Question ➔</em>.
 					</div>
 				)}
 

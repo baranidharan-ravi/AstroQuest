@@ -194,7 +194,6 @@ const QuestionSummary = memo(function QuestionSummary({
 				id='panel-summary'
 				role='tabpanel'
 				aria-labelledby='tab-summary'
-				tabIndex={0}
 				className='w-full flex flex-col gap-3 focus:outline-none'>
 				{questions.map((q, idx) => {
 					const userResult = history[idx] || {};
@@ -254,9 +253,8 @@ const QuestionSummary = memo(function QuestionSummary({
 
 							{/* Accordion Body */}
 							{isExpanded && (
-								<div
+								<section
 									id={`q-details-${idx}`}
-									role='region'
 									aria-labelledby={`q-header-${idx}`}
 									className='p-4 sm:p-6 bg-[#0E1238] border-t border-[#29317D] flex flex-col gap-4'>
 									{/* Question Full Text */}
@@ -342,7 +340,7 @@ const QuestionSummary = memo(function QuestionSummary({
 												/>
 											)}
 									</div>
-								</div>
+								</section>
 							)}
 						</div>
 					);

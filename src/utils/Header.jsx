@@ -273,7 +273,7 @@ const Header = React.memo(function Header({
 
 						return (
 							<div
-								key={idx}
+								key={`progress-dot-${idx + 1}`}
 								className={`h-2.5 sm:h-3 flex-1 rounded-full transition-all duration-300 ${bgClass} ${borderClass}`}
 								title={`Question ${idx + 1}`}
 							/>
@@ -380,8 +380,7 @@ const Header = React.memo(function Header({
 
 					{/* Tooltip displaying the 3 combined options */}
 					{showControlsTooltip && (
-						<div
-							role='region'
+						<section
 							aria-label='Quick Controls Options'
 							className='absolute right-0 top-full mt-2 z-50 animate-in fade-in zoom-in-95 duration-150 flex flex-col items-end select-none'>
 							{/* Tooltip Arrow pointing up to trigger button */}
@@ -497,7 +496,7 @@ const Header = React.memo(function Header({
 									</button>
 								)}
 							</div>
-						</div>
+						</section>
 					)}
 				</div>
 

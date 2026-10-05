@@ -146,7 +146,7 @@ export function calculateQuestCognitiveScores(questions = [], history = []) {
 		const domain = classifyQuestionDomain(q);
 		const outcome = history[idx];
 		domainTallies[domain].total += 1;
-		if (outcome && outcome.isCorrect) {
+		if (outcome?.isCorrect) {
 			domainTallies[domain].correct += 1;
 		}
 	});

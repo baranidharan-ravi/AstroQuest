@@ -135,7 +135,7 @@ export const QuestModalsHub = memo(function QuestModalsHub({
 					onRevisit={handleStartSkippedReview}
 					onViewResults={handleSkipReviewAndFinish}
 					skippedIndices={history
-						.map((h, idx) => (h && h.skipped ? idx : null))
+						.map((h, idx) => (h?.skipped ? idx : null))
 						.filter((idx) => idx !== null)}
 					soundEnabled={soundEnabled}
 				/>

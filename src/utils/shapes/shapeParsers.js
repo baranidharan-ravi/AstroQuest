@@ -36,7 +36,7 @@ export function hasShapeOrVisualConcept(text) {
 		lower.includes('purple') ||
 		lower.includes('pink') ||
 		lower.includes('[') ||
-		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[\u2600\u{1F31E}\u{1F305}\u{1F324}]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))\uFE0F?/u.test(
+		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[\u2600\u{1F31E}\u{1F305}\u{1F324}]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:\u2764\uFE0F|[💙💚💛💜🧡🤍🖤🤎]))\uFE0F?/u.test(
 			cleanText,
 		) ||
 		/[\u{1F300}-\u{1F6FF}\u{1F780}-\u{1F7FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2B00}-\u{2BFF}]/u.test(
@@ -663,7 +663,7 @@ export function parseDynamicShape(rawInput) {
 	const sidesMatch = text.match(/(\d+)\s*sides?/i);
 	let sidesCount = null;
 	if (sidesMatch) {
-		sidesCount = parseInt(sidesMatch[1], 10);
+		sidesCount = Number.parseInt(sidesMatch[1], 10);
 	} else if (sides > 0) {
 		sidesCount = sides;
 	}
@@ -892,7 +892,7 @@ export function extractShapeSequenceTerms(questionText, defaultTerms = []) {
 
 	// 3. Extract shape & symbol emojis if 2 or more are present!
 	const SHAPE_EMOJI_REGEX =
-		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[\u2600\u{1F31E}\u{1F305}\u{1F324}]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))\uFE0F?/gu;
+		/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[\u2600\u{1F31E}\u{1F305}\u{1F324}]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:\u2764\uFE0F|[💙💚💛💜🧡🤍🖤🤎]))\uFE0F?/gu;
 
 	// If questionText has multiple lines, find the line that contains the sequence pattern (e.g. contains ? or multiple emojis)
 	// to avoid picking up decorative emojis in the question title/prompt (e.g. "What shape comes next in the pattern? ⭐")
@@ -1000,8 +1000,8 @@ export function parseStepShapeCountSequence(questionText, correctText = '') {
 	let match;
 
 	while ((match = stepRegex.exec(questionText)) !== null) {
-		const stepNum = parseInt(match[1], 10);
-		const count = parseInt(match[2], 10);
+		const stepNum = Number.parseInt(match[1], 10);
+		const count = Number.parseInt(match[2], 10);
 		const rawDesc = match[3].trim();
 		const parsed = parseDynamicShape(rawDesc);
 
@@ -1025,13 +1025,13 @@ export function parseStepShapeCountSequence(questionText, correctText = '') {
 	);
 	const targetStep =
 		targetStepMatch ?
-			parseInt(targetStepMatch[1], 10)
+			Number.parseInt(targetStepMatch[1], 10)
 		:	steps[steps.length - 1].step + 2;
 
 	const numInCorrect = String(correctText).match(/\d+/);
 	const targetCount =
 		numInCorrect ?
-			parseInt(numInCorrect[0], 10)
+			Number.parseInt(numInCorrect[0], 10)
 		:	(targetStep * (targetStep + 1)) / 2;
 
 	return {
@@ -1062,7 +1062,7 @@ export function parseRotationSequence(questionText, correctText = '') {
 
 	// Extract angle
 	const angleMatch = questionText.match(/(\d+)\s*(?:deg|degree)/i);
-	const angle = angleMatch ? parseInt(angleMatch[1], 10) : 90;
+	const angle = angleMatch ? Number.parseInt(angleMatch[1], 10) : 90;
 
 	// Extract direction
 	const isCCW =
@@ -1076,8 +1076,6 @@ export function parseRotationSequence(questionText, correctText = '') {
 	// Quadrant cycle: Top-Right (0) -> Bottom-Right (1) -> Bottom-Left (2) -> Top-Left (3)
 	const quadCycle = ['top-right', 'bottom-right', 'bottom-left', 'top-left'];
 
-	// Match positions in order of appearance in the question
-	const foundPositions = [];
 	const posLookups = [
 		{
 			id: 'top-right',

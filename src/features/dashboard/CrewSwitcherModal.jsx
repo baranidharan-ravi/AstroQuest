@@ -98,7 +98,7 @@ export default function CrewSwitcherModal({
 			<dialog
 				open
 				aria-labelledby='crew-modal-title'
-				className='relative z-10 m-auto w-full max-w-lg bg-gradient-to-b from-[#181B45] via-[#101335] to-[#0A0D28] border-2 border-cyan-500/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_0_50px_rgba(6,182,212,0.25)] text-white overflow-hidden max-h-[90vh] flex flex-col block'>
+				className='relative z-10 m-auto w-full max-w-lg bg-gradient-to-b from-[#181B45] via-[#101335] to-[#0A0D28] border-2 border-cyan-500/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_0_50px_rgba(6,182,212,0.25)] text-white overflow-hidden max-h-[90vh] flex flex-col'>
 				{/* Top Bar */}
 				<div className='flex items-center justify-between gap-3 border-b border-white/10 pb-3 mb-4 flex-shrink-0'>
 					<div className='flex items-center gap-2'>

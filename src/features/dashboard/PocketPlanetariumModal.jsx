@@ -133,7 +133,7 @@ const PocketPlanetariumModal = memo(function PocketPlanetariumModal({
 			<dialog
 				open
 				aria-labelledby='planetarium-title'
-				className='relative z-10 m-auto w-full max-w-4xl max-h-[92vh] bg-gradient-to-b from-[#0F172A] via-[#1E1B4B] to-[#090D16] border-2 border-cyan-500/40 rounded-3xl shadow-[0_0_50px_rgba(34,211,238,0.25)] flex flex-col overflow-hidden text-white block'>
+				className='relative z-10 m-auto w-full max-w-4xl max-h-[92vh] bg-gradient-to-b from-[#0F172A] via-[#1E1B4B] to-[#090D16] border-2 border-cyan-500/40 rounded-3xl shadow-[0_0_50px_rgba(34,211,238,0.25)] flex flex-col overflow-hidden text-white'>
 				{/* Top Bar Header */}
 				<div className='flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/10 bg-white/5 backdrop-blur-sm'>
 					<div className='flex items-center gap-2.5'>

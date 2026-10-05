@@ -257,7 +257,7 @@ const CosmicHabitatModal = memo(function CosmicHabitatModal({
 				open
 				ref={modalRef}
 				aria-labelledby='cosmic-habitat-title'
-				className='relative z-10 m-auto w-full max-w-5xl max-h-[94vh] flex flex-col bg-gradient-to-b from-[#141A4E] via-[#0D1238] to-[#070A24] border-2 border-cyan-400/70 rounded-3xl shadow-[0_0_50px_rgba(6,182,212,0.35)] overflow-hidden text-white block'>
+				className='relative z-10 m-auto w-full max-w-5xl max-h-[94vh] flex flex-col bg-gradient-to-b from-[#141A4E] via-[#0D1238] to-[#070A24] border-2 border-cyan-400/70 rounded-3xl shadow-[0_0_50px_rgba(6,182,212,0.35)] overflow-hidden text-white'>
 				{/* Top Modal Header */}
 				<div className='flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/15 bg-white/5'>
 					<div className='flex items-center gap-2.5 sm:gap-3 min-w-0'>

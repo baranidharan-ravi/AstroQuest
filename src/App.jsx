@@ -16,7 +16,6 @@ import {
 import { getRandomCosmicFact } from './data/cosmicFacts';
 import { DashboardModalsHub } from './features/dashboard/components';
 import SkillSelectionDashboard from './features/dashboard/SkillSelectionDashboard';
-import CosmicLifelinesBar from './features/quest/CosmicLifelinesBar';
 import {
 	QuestActionBar,
 	QuestAiErrorCard,
@@ -26,6 +25,7 @@ import {
 	QuestResultsView,
 	QuestSubmittedSolutionView,
 } from './features/quest/components';
+import CosmicLifelinesBar from './features/quest/CosmicLifelinesBar';
 import OptionsGrid from './features/quest/OptionsGrid';
 import QuestionCard from './features/quest/QuestionCard';
 import { getStoredApiKey } from './services/aiGenerator';
@@ -1237,7 +1237,7 @@ export default function App() {
 			const key = e.key;
 			if (!isSubmitted) {
 				if (['1', '2', '3', '4'].includes(key)) {
-					const idx = parseInt(key, 10) - 1;
+					const idx = Number.parseInt(key, 10) - 1;
 					if (currentQuestion?.options?.[idx]) {
 						e.preventDefault();
 						handleSelectOption(currentQuestion.options[idx].id);
@@ -1511,8 +1511,6 @@ export default function App() {
 			{/* Main Screen Body */}
 			<main
 				id='main-content'
-				role='main'
-				tabIndex={-1}
 				className={`flex-1 flex flex-col items-center px-3 sm:px-6 w-full max-w-7xl mx-auto focus:outline-none ${
 					!isCompleted ?
 						'justify-center py-2 sm:py-3 min-h-0 overflow-hidden'
@@ -1551,7 +1549,9 @@ export default function App() {
 								<div className='w-full flex flex-col justify-center flex-1 my-auto min-h-0 h-full'>
 									<QuestLoadingNextView
 										activeCosmicFact={activeCosmicFact}
-										handleImmediateResumeAndLoadNext={handleImmediateResumeAndLoadNext}
+										handleImmediateResumeAndLoadNext={
+											handleImmediateResumeAndLoadNext
+										}
 									/>
 								</div>
 							);
@@ -1672,7 +1672,8 @@ export default function App() {
 									wasSkippedOnRevisit={wasSkippedOnRevisit}
 									hasNextSkipped={
 										isReviewMode &&
-										skippedReviewQueue.filter((idx) => idx !== currentIndex).length > 0
+										skippedReviewQueue.filter((idx) => idx !== currentIndex)
+											.length > 0
 									}
 								/>
 							</div>

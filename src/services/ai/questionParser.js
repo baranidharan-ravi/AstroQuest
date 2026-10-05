@@ -20,8 +20,8 @@ export function cleanAndRepairJsonString(rawText) {
 	// 2. Fix parenthesized expressions inside arrays:
 	// e.g. [("(-5, 3)"), ("(-3, 5)")] -> ["(-5, 3)", "(-3, 5)"]
 	// e.g. [( "abc" ), ( 'def' )] -> ["abc", "def"]
-	text = text.replace(/\(\s*("[^"\\]*(?:\\.[^"\\]*)*")\s*\)/g, '$1');
-	text = text.replace(/\(\s*('[^'\\]*(?:\\.[^'\\]*)*')\s*\)/g, '$1');
+	text = text.replace(/\(\s*("(?:\\.|[^"\\])*")\s*\)/g, '$1');
+	text = text.replace(/\(\s*('(?:\\.|[^'\\])*')\s*\)/g, '$1');
 
 	// 3. Fix Python-style constants
 	text = text
@@ -33,6 +33,45 @@ export function cleanAndRepairJsonString(rawText) {
 	text = text.replace(/,\s*([\]}])/g, '$1');
 
 	return text;
+}
+
+/**
+ * Deterministic linear extraction of top-level JSON objects without regular expression backtracking.
+ */
+function extractJsonObjects(str) {
+	const matches = [];
+	let depth = 0;
+	let start = -1;
+	let inString = false;
+	let isEscaped = false;
+
+	for (let i = 0; i < str.length; i++) {
+		const char = str[i];
+		if (inString) {
+			if (isEscaped) {
+				isEscaped = false;
+			} else if (char === '\\') {
+				isEscaped = true;
+			} else if (char === '"') {
+				inString = false;
+			}
+		} else if (char === '"') {
+			inString = true;
+		} else if (char === '{') {
+			if (depth === 0) start = i;
+			depth++;
+		} else if (char === '}') {
+			depth--;
+			if (depth === 0 && start !== -1) {
+				matches.push(str.slice(start, i + 1));
+				start = -1;
+			} else if (depth < 0) {
+				depth = 0;
+				start = -1;
+			}
+		}
+	}
+	return matches;
 }
 
 /**
@@ -66,7 +105,7 @@ export function parseGeminiJsonResponse(rawText) {
 		} catch (innerErr) {
 			// Last-ditch: parse individual JSON objects { ... } from the text
 			try {
-				const objectMatches = cleaned.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g);
+				const objectMatches = extractJsonObjects(cleaned);
 				if (objectMatches && objectMatches.length > 0) {
 					const items = [];
 					for (const objStr of objectMatches) {
@@ -225,7 +264,7 @@ const getPedagogicalExample = (
  * Generates age-specific pedagogy rules, teacher personas, and relevant examples
  */
 export function getAgeSpecificPedagogy(age, selectedSkill) {
-	const numAge = parseInt(age, 10) || 5;
+	const numAge = Number.parseInt(age, 10) || 5;
 	const skillInfo = getSkillDefinition(selectedSkill);
 	const isDefaultVisual = selectedSkill === 'Visual';
 	const isDefaultAnalytical = selectedSkill === 'Analytical Thinking';

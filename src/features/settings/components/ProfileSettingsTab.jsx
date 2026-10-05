@@ -376,7 +376,7 @@ export const ProfileSettingsTab = memo(function ProfileSettingsTab({
 											setAgeInput('');
 											return;
 										}
-										const parsed = parseInt(digits, 10);
+										const parsed = Number.parseInt(digits, 10);
 										if (parsed > 14) {
 											setAgeInput(14);
 										} else {
@@ -385,7 +385,7 @@ export const ProfileSettingsTab = memo(function ProfileSettingsTab({
 										if (error) setError('');
 									}}
 									onBlur={() => {
-										const val = parseInt(ageInput, 10);
+										const val = Number.parseInt(ageInput, 10);
 										if (isNaN(val) || val < 2) {
 											setAgeInput(2);
 										} else if (val > 14) {

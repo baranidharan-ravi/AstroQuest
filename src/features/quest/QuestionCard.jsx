@@ -271,7 +271,7 @@ const QuestionCard = memo(function QuestionCard({
 									activeCharIndex <= token.endIndex + 1;
 								return (
 									<span
-										key={idx}
+										key={`${token.startIndex}-${token.word}`}
 										className={`transition-all duration-150 inline-block mr-1.5 ${
 											isSpoken ?
 												'bg-cyan-100 text-cyan-950 font-black px-1 rounded-md shadow-xs ring-2 ring-cyan-400 scale-105'

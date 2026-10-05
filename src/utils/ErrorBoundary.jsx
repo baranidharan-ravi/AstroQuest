@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { clearSessionState } from './storage';
 
 /**
@@ -45,10 +45,13 @@ export default class ErrorBoundary extends React.Component {
 	handleCopyError = () => {
 		const text = `Error: ${this.state.error?.toString() || 'Unknown Error'}\n\nComponent Stack:\n${this.state.errorInfo?.componentStack || 'No stack available'}`;
 		if (navigator.clipboard?.writeText) {
-			navigator.clipboard.writeText(text).then(() => {
-				this.setState({ copied: true });
-				setTimeout(() => this.setState({ copied: false }), 2500);
-			});
+			navigator.clipboard
+				.writeText(text)
+				.then(() => {
+					this.setState({ copied: true });
+					setTimeout(() => this.setState({ copied: false }), 2500);
+				})
+				.catch(() => {});
 		} else {
 			// Fallback for older browsers
 			const textarea = document.createElement('textarea');

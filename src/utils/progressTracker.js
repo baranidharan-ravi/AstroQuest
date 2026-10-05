@@ -139,7 +139,7 @@ export function getStoredKidName() {
 export function getStoredKidAge() {
 	try {
 		const raw = localStorage.getItem(KID_AGE_KEY);
-		return raw ? parseInt(raw, 10) || 5 : 5;
+		return raw ? Number.parseInt(raw, 10) || 5 : 5;
 	} catch {
 		return 5;
 	}
@@ -211,7 +211,7 @@ export function getStoredSelectedSkill() {
 		const sessionRaw = localStorage.getItem('thinksheet_active_session_v1');
 		if (sessionRaw) {
 			const session = JSON.parse(sessionRaw);
-			if (session && session.selectedSkill) {
+			if (session?.selectedSkill) {
 				return session.selectedSkill;
 			}
 		}

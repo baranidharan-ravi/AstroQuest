@@ -147,7 +147,7 @@ const ZoomModal = React.memo(function ZoomModal({
 				open
 				ref={modalRef}
 				aria-labelledby='zoom-modal-title'
-				className='relative z-10 m-auto bg-white text-slate-800 rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-200 max-h-[92vh] block'>
+				className='relative z-10 m-auto bg-white text-slate-800 rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-200 max-h-[92vh]'>
 				{/* Top Controls */}
 				<div className='w-full flex items-center justify-between pb-3 border-b border-slate-200 mb-3 flex-shrink-0'>
 					<h2

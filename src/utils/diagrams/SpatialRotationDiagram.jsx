@@ -61,7 +61,7 @@ export const SpatialRotationDiagram = memo(function SpatialRotationDiagram({
 
 			<div className='flex items-center justify-center flex-wrap gap-2 sm:gap-3 w-full'>
 				{steps.map((st, idx) => (
-					<Fragment key={idx}>
+					<Fragment key={`rot-step-${st.step || idx + 1}-${st.deg || 0}`}>
 						<div className='flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl bg-white text-slate-900 border-2 border-slate-200 shadow-md min-w-[85px] sm:min-w-[95px]'>
 							<span className='text-[10px] font-black uppercase text-indigo-700 mb-1 tracking-wider bg-indigo-50 px-2 py-0.2 rounded'>
 								Step {st.step || idx + 1}

@@ -80,7 +80,7 @@ const EducatorPortalModal = memo(function EducatorPortalModal({
 
 	const handleVerifyGate = (e) => {
 		e.preventDefault();
-		if (parseInt(parentInput.trim(), 10) === num1 * num2) {
+		if (Number.parseInt(parentInput.trim(), 10) === num1 * num2) {
 			setIsUnlocked(true);
 			setGateError(false);
 		} else {
@@ -143,7 +143,7 @@ const EducatorPortalModal = memo(function EducatorPortalModal({
 				open
 				ref={modalRef}
 				aria-labelledby='educator-modal-title'
-				className='relative z-10 m-auto bg-[#0f1238] border-2 border-indigo-500/50 text-white rounded-3xl max-w-2xl w-full max-h-[90vh] p-4 sm:p-6 shadow-2xl flex flex-col gap-4 overflow-y-auto block'>
+				className='relative z-10 m-auto bg-[#0f1238] border-2 border-indigo-500/50 text-white rounded-3xl max-w-2xl w-full max-h-[90vh] p-4 sm:p-6 shadow-2xl flex flex-col gap-4 overflow-y-auto'>
 				{/* Close Button */}
 				<button
 					ref={closeBtnRef}
@@ -281,9 +281,9 @@ const EducatorPortalModal = memo(function EducatorPortalModal({
 									score: domainScores.verbal,
 									color: 'bg-pink-500',
 								},
-							].map((item, idx) => (
+							].map((item) => (
 								<div
-									key={idx}
+									key={item.label}
 									className='flex flex-col gap-1'>
 									<div className='flex justify-between text-xs font-semibold text-slate-200'>
 										<span>{item.label}</span>
@@ -306,9 +306,9 @@ const EducatorPortalModal = memo(function EducatorPortalModal({
 								<span>Curriculum Director Guidance</span>
 							</div>
 							<div className='space-y-2'>
-								{recommendations.map((rec, idx) => (
+								{recommendations.map((rec) => (
 									<div
-										key={idx}
+										key={`${rec.domain}-${rec.level}`}
 										className='bg-slate-900/60 border border-indigo-500/20 rounded-xl p-2.5 text-xs text-slate-200'>
 										<strong className='text-cyan-300'>
 											{rec.domain} ({rec.level}):

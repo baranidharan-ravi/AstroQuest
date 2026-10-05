@@ -157,7 +157,7 @@ export const IsometricTowerDiagram = memo(function IsometricTowerDiagram({
 			<div className='flex items-center justify-center gap-2 sm:gap-3 flex-wrap mt-3 w-full'>
 				{layers.map((l, idx) => (
 					<div
-						key={idx}
+						key={`layer-breakdown-${l.label || `level-${idx + 1}`}`}
 						className='flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1 shadow-xs'>
 						<div
 							className={`w-3 h-3 rounded-full ${getLayerDotClass(l.color, idx)}`}

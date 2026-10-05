@@ -437,7 +437,7 @@ const SkillSelectionDashboard = memo(function SkillSelectionDashboard({
 		}
 	};
 
-	const hasTypedName = Boolean(newSkillName && newSkillName.trim().length > 0);
+	const hasTypedName = Boolean(newSkillName?.trim());
 	const isGeneratedNameUnchanged = Boolean(
 		lastSurpriseGeneratedName &&
 		newSkillName.trim().toLowerCase() ===

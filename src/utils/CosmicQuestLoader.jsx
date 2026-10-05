@@ -310,9 +310,9 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 						{ color: '#06B6D4', delay: '0.7s' },
 						{ color: '#F59E0B', delay: '1.4s' },
 						{ color: '#EC4899', delay: '2.1s' },
-					].map((ring, idx) => (
+					].map((ring) => (
 						<div
-							key={idx}
+							key={`ring-${ring.color}-${ring.delay}`}
 							className='absolute top-1/2 left-1/2 rounded-full pointer-events-none border-2 border-dashed'
 							style={{
 								borderColor: ring.color,
@@ -352,7 +352,7 @@ const CosmicQuestLoader = memo(function CosmicQuestLoader({
 						'#4ADE80',
 					].map((color, i) => (
 						<div
-							key={i}
+							key={`warp-ray-${i * 15}deg`}
 							className='absolute top-1/2 left-1/2 w-0.5 sm:w-[2px] h-28 sm:h-36 origin-top pointer-events-none'
 							style={{
 								'--rot': `${i * 15}deg`,

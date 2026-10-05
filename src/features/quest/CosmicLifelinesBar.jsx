@@ -97,8 +97,7 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 		<div className='w-full flex flex-col gap-2 select-none'>
 			{/* Inline Revealed Clue Card (Appears directly when Cosmic Clue 1x Lifeline is used on this question) */}
 			{isClueRevealedForCurrent && (
-				<div
-					role='region'
+				<section
 					aria-label='Cosmic Clue guidance'
 					className='w-full bg-gradient-to-r from-pink-950/95 via-[#231545]/95 to-purple-950/95 border-2 border-pink-400/80 rounded-2xl p-3 sm:p-4 text-white shadow-[0_0_25px_rgba(244,114,182,0.35)] animate-in fade-in slide-in-from-bottom-2 duration-300 flex items-start gap-3'>
 					<div
@@ -120,12 +119,11 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 								"Look closely at the shapes, numbers, and relationships. Eliminate options that don't fit!"}
 						</p>
 					</div>
-				</div>
+				</section>
 			)}
 
 			{/* Main Cosmic Lifelines Bar */}
-			<div
-				role='region'
+			<section
 				aria-label='Cosmic lifelines quick-access console'
 				className='w-full bg-[#0D1137]/90 border-2 border-indigo-500/30 rounded-2xl p-2 sm:p-2.5 backdrop-blur-md shadow-lg flex flex-col sm:flex-row items-center justify-between gap-2'>
 				{/* Left: Bar Title & Pure Quest Status */}
@@ -236,7 +234,7 @@ const CosmicLifelinesBar = memo(function CosmicLifelinesBar({
 						</span>
 					</button>
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 });

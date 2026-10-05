@@ -605,7 +605,7 @@ const [nameInput, setNameInput] = useState(() => getStoredKidName() || '');
 			const liveModels = await fetchOnlineGeminiModels(targetKey);
 			setModelsList(liveModels);
 			const latest = getLatestGeminiModel(liveModels);
-			if (latest && latest.id) {
+			if (latest?.id) {
 				setSelectedModel(latest.id);
 				setStoredSelectedModel(latest.id, AI_PROVIDERS.GEMINI);
 				setProviderModels((prev) => ({
@@ -667,7 +667,7 @@ const [nameInput, setNameInput] = useState(() => getStoredKidName() || '');
 				if (isCancelled) return;
 				setModelsList(liveModels);
 				const latest = getLatestGeminiModel(liveModels);
-				if (latest && latest.id) {
+				if (latest?.id) {
 					const currentSaved = getStoredSelectedModel(AI_PROVIDERS.GEMINI);
 					// Auto-select latest healthy model if none set, or if current selection is rate-limited
 					if (
@@ -1009,33 +1009,6 @@ const [nameInput, setNameInput] = useState(() => getStoredKidName() || '');
 		}
 	}, [isMandatoryTimer, timerEnabled, timerSeconds]);
 
-	const handleQuickAgeSelect = (age) => {
-		if (isFormLocked) return;
-		playButtonPop(soundEnabled);
-		setAgeInput(age);
-		setIsCustomAge(false);
-		if (isTimerMandatoryForAge(age)) {
-			setTimerEnabled(true);
-			if (!timerSeconds) setTimerSeconds(DEFAULT_QUESTION_TIMER_SECONDS);
-		}
-		if (error) setError('');
-	};
-
-	const handleIncrementAge = (delta) => {
-		if (isFormLocked) return;
-		playButtonPop(soundEnabled);
-		const curr = parseInt(ageInput, 10) || 5;
-		const nextAge = Math.min(14, Math.max(2, curr + delta));
-		setAgeInput(nextAge);
-		if (!quickAges.includes(nextAge)) {
-			setIsCustomAge(true);
-		}
-		if (isTimerMandatoryForAge(nextAge)) {
-			setTimerEnabled(true);
-			if (!timerSeconds) setTimerSeconds(DEFAULT_QUESTION_TIMER_SECONDS);
-		}
-	};
-
 	const handleStepTimer = (delta) => {
 		if (isFormLocked) return;
 		playButtonPop(soundEnabled);
@@ -1062,7 +1035,7 @@ const [nameInput, setNameInput] = useState(() => getStoredKidName() || '');
 			return;
 		}
 
-		const numAge = parseInt(ageInput, 10);
+		const numAge = Number.parseInt(ageInput, 10);
 		if (!numAge || numAge < 2 || numAge > 14) {
 			setActiveTab('profile');
 			setError('Please select a valid age between 2 and 14 years old! 🎂');

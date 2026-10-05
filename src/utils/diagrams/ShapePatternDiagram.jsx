@@ -35,7 +35,7 @@ export const ShapeClusterProgressionDiagram = memo(
 				<div className='flex items-center justify-center flex-wrap gap-2 sm:gap-2.5 w-full'>
 					{steps.map((st, idx) => (
 						<div
-							key={idx}
+							key={`cluster-step-${st.step || idx}`}
 							className='flex items-center gap-1 sm:gap-1.5'>
 							<ShapeClusterCard
 								step={st.step}
@@ -78,18 +78,12 @@ export const ShapeClusterProgressionDiagram = memo(
 	},
 );
 
-/**
- * ShapeSequenceDiagram Component
- */
-export const ShapeSequenceDiagram = memo(function ShapeSequenceDiagram({
-	data = {},
-	isSolution = false,
-}) {
-	let rawItems = [];
+function getSequenceRawItems(data) {
+	let items = [];
 	if (Array.isArray(data.sequence)) {
-		rawItems = data.sequence;
+		items = data.sequence;
 	} else if (Array.isArray(data.steps)) {
-		rawItems = data.steps;
+		items = data.steps;
 	}
 
 	const qSource = data.question || data.questionText || data.raw || '';
@@ -97,15 +91,26 @@ export const ShapeSequenceDiagram = memo(function ShapeSequenceDiagram({
 		const extracted = extractShapeSequenceTerms(qSource);
 		if (extracted && extracted.length >= 2) {
 			if (
-				rawItems.length === 0 ||
-				extracted.length > rawItems.length ||
-				!rawItems.every((it, idx) => it === extracted[idx]) ||
-				rawItems.every((it) => /^\d+(st|nd|rd|th)$/i.test(String(it).trim()))
+				items.length === 0 ||
+				extracted.length > items.length ||
+				!items.every((it, idx) => it === extracted[idx]) ||
+				items.every((it) => /^\d+(st|nd|rd|th)$/i.test(String(it).trim()))
 			) {
-				rawItems = extracted;
+				return extracted;
 			}
 		}
 	}
+	return items;
+}
+
+/**
+ * ShapeSequenceDiagram Component
+ */
+export const ShapeSequenceDiagram = memo(function ShapeSequenceDiagram({
+	data = {},
+	isSolution = false,
+}) {
+	const rawItems = getSequenceRawItems(data);
 
 	// Filter out any trailing question sentences, question marks, placeholders, or empty/invisible tokens
 	let items = rawItems
@@ -156,7 +161,7 @@ export const ShapeSequenceDiagram = memo(function ShapeSequenceDiagram({
 			<div className='flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 w-full'>
 				{items.map((item, idx) => (
 					<div
-						key={idx}
+						key={`shape-step-${idx}-${typeof item === 'string' ? item : item?.id || 'item'}`}
 						className='flex items-center gap-1 sm:gap-1.5'>
 						<DynamicShapeCard
 							item={item}

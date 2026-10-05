@@ -8,7 +8,7 @@ export { ODYSSEY_STORAGE_KEY, SOLAR_PLANETS };
 export function getTotalOdysseyStars() {
 	try {
 		const raw = localStorage.getItem(ODYSSEY_STORAGE_KEY);
-		return raw ? parseInt(raw, 10) : 35; // Default starter bonus stars for exciting first look
+		return raw ? Number.parseInt(raw, 10) : 35; // Default starter bonus stars for exciting first look
 	} catch (_) {
 		return 35;
 	}
@@ -87,7 +87,7 @@ const GalaxyOdysseyModal = memo(function GalaxyOdysseyModal({
 				open
 				ref={modalRef}
 				aria-labelledby='odyssey-modal-title'
-				className='relative z-10 m-auto bg-gradient-to-b from-[#0e1038] to-[#080922] border-2 border-indigo-500/50 text-white rounded-3xl max-w-3xl w-full max-h-[92vh] p-4 sm:p-6 shadow-2xl flex flex-col gap-4 overflow-hidden block'>
+				className='relative z-10 m-auto bg-gradient-to-b from-[#0e1038] to-[#080922] border-2 border-indigo-500/50 text-white rounded-3xl max-w-3xl w-full max-h-[92vh] p-4 sm:p-6 shadow-2xl flex flex-col gap-4 overflow-hidden'>
 				{/* Starry Nebula Background Accent */}
 				<div className='absolute -top-32 -left-32 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none' />
 				<div className='absolute -bottom-32 -right-32 w-80 h-80 bg-cyan-600/20 rounded-full blur-3xl pointer-events-none' />

@@ -101,7 +101,7 @@ const ConstellationObservatory = memo(function ConstellationObservatory({
 			<dialog
 				open
 				aria-labelledby='observatory-title'
-				className='relative z-10 m-auto w-full max-w-5xl max-h-[92vh] bg-gradient-to-b from-[#0B0F2A] via-[#12183A] to-[#080B1E] border-2 border-indigo-500/40 rounded-3xl shadow-[0_0_60px_rgba(99,102,241,0.25)] flex flex-col overflow-hidden text-white block'>
+				className='relative z-10 m-auto w-full max-w-5xl max-h-[92vh] bg-gradient-to-b from-[#0B0F2A] via-[#12183A] to-[#080B1E] border-2 border-indigo-500/40 rounded-3xl shadow-[0_0_60px_rgba(99,102,241,0.25)] flex flex-col overflow-hidden text-white'>
 				{/* Header Bar */}
 				<div className='flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/10 bg-white/5 backdrop-blur-sm'>
 					<div className='flex items-center gap-2.5'>
@@ -241,7 +241,7 @@ const ConstellationObservatory = memo(function ConstellationObservatory({
 
 									return (
 										<line
-											key={idx}
+											key={`line-${starAId}-${starBId}`}
 											x1={starA.x}
 											y1={starA.y}
 											x2={starB.x}

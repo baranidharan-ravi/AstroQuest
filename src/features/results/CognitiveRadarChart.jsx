@@ -137,7 +137,7 @@ const CognitiveRadarChart = memo(function CognitiveRadarChart({
 						const oy = cy + radius * Math.sin(angle);
 						return (
 							<line
-								key={idx}
+								key={`spoke-${p.domain || p.shortName}`}
 								x1={cx}
 								y1={cy}
 								x2={ox}
@@ -159,8 +159,8 @@ const CognitiveRadarChart = memo(function CognitiveRadarChart({
 					/>
 
 					{/* Vertices & Score Markers */}
-					{dataPoints.map((p, idx) => (
-						<g key={idx}>
+					{dataPoints.map((p) => (
+						<g key={`vertex-${p.domain || p.shortName}`}>
 							{/* Outer ring on point */}
 							<circle
 								cx={p.x}
@@ -183,7 +183,7 @@ const CognitiveRadarChart = memo(function CognitiveRadarChart({
 					))}
 
 					{/* Outer Domain Labels */}
-					{dataPoints.map((p, idx) => {
+					{dataPoints.map((p) => {
 						// Text anchor alignment based on x coordinate
 						let textAnchor = 'end';
 						if (Math.abs(p.lx - cx) < 15) {
@@ -194,7 +194,7 @@ const CognitiveRadarChart = memo(function CognitiveRadarChart({
 
 						return (
 							<g
-								key={idx}
+								key={`label-${p.domain || p.shortName}`}
 								className='select-none'>
 								<text
 									x={p.lx}

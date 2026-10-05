@@ -142,7 +142,7 @@ export function synchronizeDiagramData(
 
 	const numMatch =
 		String(correctText).match(/\d+/) || String(questionText).match(/\d+/);
-	const parsedNum = numMatch ? parseInt(numMatch[0], 10) : null;
+	const parsedNum = numMatch ? Number.parseInt(numMatch[0], 10) : null;
 
 	// 2. Exact mathematical parameter extraction per diagram type
 	if (type === 'scale-balance') {
@@ -171,7 +171,7 @@ export function synchronizeDiagramData(
 		const blockMatch = questionText.match(/(\d+)\s*(?:wooden\s*)?block/i);
 
 		if (carMatch) {
-			leftLabel = `${carMatch[1]} Car${parseInt(carMatch[1], 10) > 1 ? 's' : ''}`;
+			leftLabel = `${carMatch[1]} Car${Number.parseInt(carMatch[1], 10) > 1 ? 's' : ''}`;
 		}
 		if (blockMatch) {
 			rightLabel = `${blockMatch[1]} Blocks`;
@@ -342,7 +342,7 @@ export function synchronizeDiagramData(
 			data.sequence.length < 2
 		) {
 			const emojis = questionText.match(
-				/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[\u2600\u{1F31E}\u{1F305}\u{1F324}]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:[❤️💙💚💛💜🧡🤍🖤🤎]))\uFE0F?/gu,
+				/(?:[🌙🌕🌖🌗🌘🌑🌒🌓🌔🌚🌛🌜🌝]|[\u2600\u{1F31E}\u{1F305}\u{1F324}]|[⭐🌟✨★☆]|[🔺🔻▲▼△▽▶◀]|[\u{1F7E0}-\u{1F7EB}]|[🔴🔵🟡🟢🟣🟠🟤⚫⚪●○■□◆◇⬛⬜]|(?:[🔷🔶🔹🔸💎💠])|(?:\u2764\uFE0F|[💙💚💛💜🧡🤍🖤🤎]))\uFE0F?/gu,
 			);
 			data.sequence =
 				emojis && emojis.length >= 2 ?

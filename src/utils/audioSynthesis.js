@@ -61,7 +61,7 @@ function getAudioContext() {
 				audioCtx = new AudioContext();
 			}
 		}
-		if (audioCtx && audioCtx.state === 'suspended') {
+		if (audioCtx?.state === 'suspended') {
 			audioCtx.resume().catch(() => {});
 		}
 		return audioCtx;
@@ -557,7 +557,7 @@ function resolveVoice(voices, personality = null, targetLang = null) {
 	}
 
 	// 2. Personality-aware matching if personality specified
-	if (personality && personality.id === 'bot') {
+	if (personality?.id === 'bot') {
 		const robotVoice = voices.find(
 			(v) =>
 				v.lang &&
@@ -568,7 +568,7 @@ function resolveVoice(voices, personality = null, targetLang = null) {
 					v.name.includes('Zarvox')),
 		);
 		if (robotVoice) return robotVoice;
-	} else if (personality && personality.id === 'nova') {
+	} else if (personality?.id === 'nova') {
 		const leaderVoice = voices.find(
 			(v) =>
 				v.lang &&
@@ -580,7 +580,7 @@ function resolveVoice(voices, personality = null, targetLang = null) {
 					v.name.includes('Natural')),
 		);
 		if (leaderVoice) return leaderVoice;
-	} else if (personality && personality.id === 'nebula') {
+	} else if (personality?.id === 'nebula') {
 		const gentleVoice = voices.find(
 			(v) =>
 				v.lang &&
@@ -619,8 +619,6 @@ function resolveVoice(voices, personality = null, targetLang = null) {
 	return voices[0] || null;
 }
 
-let activeUtterance = null; // Hold module-level reference to prevent Chromium garbage collection
-
 /**
  * Web Speech API Voice Narrator for Kids
  * Supports Karaoke Word-by-Word synchronization via onBoundary callback.
@@ -646,7 +644,6 @@ export function speakText(
 			window.speechSynthesis.resume();
 		}
 		window.speechSynthesis.cancel();
-		activeUtterance = null;
 
 		const cleaned = cleanTextForSpeech(text);
 		if (!cleaned) {
@@ -655,9 +652,8 @@ export function speakText(
 		}
 
 		const utterance = new SpeechSynthesisUtterance(cleaned);
-		activeUtterance = utterance; // Prevent garbage collection in V8
 		if (typeof window !== 'undefined') {
-			window.__astroUtterance = utterance;
+			window.__astroUtterance = utterance; // Prevent garbage collection in V8
 		}
 
 		// Apply chosen cosmic voice personality

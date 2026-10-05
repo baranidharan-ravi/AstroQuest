@@ -49,7 +49,7 @@ function getAmbientContext() {
 				ambientCtx = new AudioContext();
 			}
 		}
-		if (ambientCtx && ambientCtx.state === 'suspended') {
+		if (ambientCtx?.state === 'suspended') {
 			ambientCtx.resume().catch(() => {});
 		}
 		return ambientCtx;
@@ -226,11 +226,11 @@ export const stopAmbientAudio = stopAmbientSound;
 if (typeof document !== 'undefined') {
 	document.addEventListener('visibilitychange', () => {
 		if (document.hidden) {
-			if (ambientCtx && ambientCtx.state === 'running') {
+			if (ambientCtx?.state === 'running') {
 				ambientCtx.suspend().catch(() => {});
 			}
 		} else {
-			if (isPlaying && ambientCtx && ambientCtx.state === 'suspended') {
+			if (isPlaying && ambientCtx?.state === 'suspended') {
 				ambientCtx.resume().catch(() => {});
 			}
 		}

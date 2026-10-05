@@ -536,7 +536,7 @@ function InteractiveFractionCrystals({ data = {}, soundEnabled = true }) {
 	// Parse target
 	const [targetNum, targetDen] = targetFraction
 		.split('/')
-		.map((n) => parseInt(n.trim(), 10));
+		.map((n) => Number.parseInt(n.trim(), 10));
 	const isTargetMatched =
 		targetNum !== undefined &&
 		targetDen !== undefined &&
@@ -599,7 +599,7 @@ function InteractiveFractionCrystals({ data = {}, soundEnabled = true }) {
 
 			slices.push(
 				<path
-					key={i}
+					key={`crystal-slice-${denominator}-${i}`}
 					d={pathData}
 					onClick={() => handleToggleSlice(i)}
 					aria-label={`Crystal sector ${i + 1} of ${denominator}, ${isActive ? 'Active' : 'Empty'}`}

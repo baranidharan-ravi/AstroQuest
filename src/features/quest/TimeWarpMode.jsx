@@ -12,7 +12,7 @@ import { getStoredKidAge, getStoredKidName } from '../../utils/progressTracker';
 
 function getStoredHighScore() {
 	try {
-		return parseInt(localStorage.getItem(HIGH_SCORE_KEY), 10) || 0;
+		return Number.parseInt(localStorage.getItem(HIGH_SCORE_KEY), 10) || 0;
 	} catch {
 		return 0;
 	}
@@ -283,7 +283,7 @@ const TimeWarpMode = memo(function TimeWarpMode({
 					<dialog
 						open
 						aria-label='Time Warp Completed'
-						className='relative z-10 m-auto w-full max-w-md bg-gradient-to-b from-[#1E1B4B] to-[#0A0C27] border-2 border-amber-400/60 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.3)] text-center text-white flex flex-col items-center gap-4 block'>
+						className='relative z-10 m-auto w-full max-w-md bg-gradient-to-b from-[#1E1B4B] to-[#0A0C27] border-2 border-amber-400/60 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.3)] text-center text-white flex flex-col items-center gap-4'>
 						<div className='w-16 h-16 rounded-3xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-3xl shadow-inner'>
 							⚡
 						</div>

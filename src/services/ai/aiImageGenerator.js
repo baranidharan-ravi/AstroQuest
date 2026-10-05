@@ -243,7 +243,7 @@ export function getActiveImageProviderIndex() {
 	try {
 		const stored = localStorage.getItem(ACTIVE_IMAGE_PROVIDER_KEY);
 		if (stored !== null) {
-			const idx = parseInt(stored, 10);
+			const idx = Number.parseInt(stored, 10);
 			if (!isNaN(idx) && idx >= 0 && idx < IMAGE_PROVIDERS.length) {
 				return idx;
 			}

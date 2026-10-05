@@ -674,9 +674,9 @@ export const PerformanceObservatoryModal = memo(
 										</p>
 									</div>
 								:	<div className='space-y-2'>
-										{longTasks.recentTasks.map((task, idx) => (
+										{longTasks.recentTasks.map((task) => (
 											<div
-												key={idx}
+												key={task.id || `${task.timestamp}-${task.name}-${task.duration}`}
 												className='p-3 rounded-lg bg-slate-900/70 border border-slate-800 flex items-center justify-between text-xs font-mono'>
 												<div className='flex items-center gap-2'>
 													<span className='text-slate-400'>

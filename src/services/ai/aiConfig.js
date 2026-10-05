@@ -312,7 +312,7 @@ export function getStoredApiKey(provider = null) {
 	}
 
 	// Defensive check: NEVER return encrypted ciphertext as a usable API key!
-	if (key && key.startsWith('enc:v1:')) {
+	if (key?.startsWith('enc:v1:')) {
 		return decryptApiKey(key);
 	}
 
@@ -456,7 +456,7 @@ export function hasCachedGeminiModels() {
 export function getCachedGeminiModelsTimestamp() {
 	try {
 		const ts = localStorage.getItem(DYNAMIC_MODELS_TIMESTAMP_KEY);
-		return ts ? parseInt(ts, 10) : null;
+		return ts ? Number.parseInt(ts, 10) : null;
 	} catch {
 		return null;
 	}
@@ -634,7 +634,7 @@ export function getStoredSelectedModel(provider = null) {
 			return saved;
 		}
 		const latest = getLatestGeminiModel(available);
-		if (latest && latest.id) {
+		if (latest?.id) {
 			return latest.id;
 		}
 	} catch {}
